@@ -1,0 +1,14 @@
+# Ignore local study resources
+study-resources/
+
+# Standard Ignores
+node_modules/
+dist/
+build/
+.env
+.env.local
+*.db
+.redis/
+.vscode/
+.idea/
+.DS_Store
