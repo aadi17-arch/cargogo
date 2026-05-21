@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SHIPPER
+  DRIVER
+}
+
+enum BookingStatus {
+  PENDING
+  ACCEPTED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
+enum VehicleType {
+  MINI_TEMPO
+  PICKUP_TRUCK
+  CONTAINER_3TON
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  role      UserRole
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  shipperBookings Booking[] @relation("ShipperBookings")
+  driverBookings  Booking[] @relation("DriverBookings")
+  driverProfile   DriverProfile?
+  vehicle         Vehicle?
+
+  @@map("users")
+}
+
+model DriverProfile {
+  id        String    @id @default(uuid())
+  userId    String    @unique
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isOnline  Boolean   @default(false)
+  latitude  Float?
+  longitude Float?
+  updatedAt DateTime  @updatedAt
+
+  @@map("driver_profiles")
+}
+
+model Vehicle {
+  id           String      @id @default(uuid())
+  userId       String      @unique
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type         VehicleType
+  plateNumber  String
+  capacityKg   Int
+  basePrice    Float       @default(50)
+  pricePerKm   Float       @default(15)
+  costPerUnit  Float       @default(5)
+
+  @@map("vehicles")
+}
+
+model Booking {
+  id              String        @id @default(uuid())
+  shipperId       String
+  shipper         User          @relation("ShipperBookings", fields: [shipperId], references: [id])
+  driverId        String?
+  driver          User?         @relation("DriverBookings", fields: [driverId], references: [id])
+  status          BookingStatus @default(PENDING)
+
+  pickupLat       Float
+  pickupLng       Float
+  dropoffLat      Float
+  dropoffLng      Float
+
+  cargoType       String
+  weightKg        Float
+  lengthCm        Float
+  widthCm         Float
+  heightCm        Float
+  volumetricWeight Float
+
+  distanceKm      Float
+  price           Float
+
+  pickupOTP       String?
+  dropoffOTP      String?
+  pickupVerified  Boolean       @default(false)
+  dropoffVerified Boolean       @default(false)
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("bookings")
+}
