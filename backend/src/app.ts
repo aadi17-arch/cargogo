@@ -1,16 +1,21 @@
 import express from 'express';
-import http from 'http';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import authRoutes from './routes/auth.routes';
+
+dotenv.config();
 
 const app = express();
-const server = http.createServer(app);
 
+app.use(cors());
 app.use(express.json());
+app.use('/api/auth', authRoutes);
 
-app.get('/', (req, res) => {
-  res.json({ message: 'Hello from CargoGo minimal setup!' });
+app.get('/api/auth', (req, res) => {
+    res.json({ status: 'auth working' });
 });
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`🚀 Server started on port ${PORT}`);
+const PORT = process.env.port || 5000;
+app.listen(PORT, () => {
+    console.log(`Server is running on PORT ${PORT}`);
 });
