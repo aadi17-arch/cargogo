@@ -1,14 +1,43 @@
-# Ignore local study resources
-study-resources/
+# Dependencies
+node_modules
+.pnp
+.pnp.js
 
-# Standard Ignores
-node_modules/
-dist/
-build/
+# Build
+dist
+dist-ssr
+*.local
+
+# Env
 .env
 .env.local
-*.db
-.redis/
-.vscode/
-.idea/
+.env.*.local
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Database
+*.db
+*.db-journal
+
+# Misc
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
