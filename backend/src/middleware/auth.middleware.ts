@@ -10,7 +10,7 @@ declare global {
 }
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const token = req.headers.authorization?.replace('Bearer', '');
+        const token = req.headers.authorization?.replace('Bearer ', '');
         if (!token) throw new Error('No token provided');
         const decoded = verifyToken(token);
         const user = await prisma.user.findUnique({
