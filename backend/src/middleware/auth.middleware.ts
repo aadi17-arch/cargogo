@@ -15,7 +15,17 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
         const decoded = verifyToken(token);
         const user = await prisma.user.findUnique({
             where: { id: decoded.userId },
-            include: { vehicle: true, driverProfile: true }
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                phone: true,
+                role: true,
+                createdAt: true,
+                updatedAt: true,
+                vehicle: true,
+                driverProfile: true
+            }
         });
         if (!user) throw new Error('User not found');
         req.user = user;
