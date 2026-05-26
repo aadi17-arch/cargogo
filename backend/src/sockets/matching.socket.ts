@@ -1,10 +1,96 @@
-// import { SocketIOServer } from 'socket.io';
+import { SocketIOServer } from './socket.server';
 import { findNearbyDrivers, acceptBooking } from '@/services/matching.service';
 import prisma from '@/config/database';
 
 const activeTimers = new Map<string, NodeJS.Timeout>();
 export const registerMatchHandlers = (
-    // io: SocketIOServer
+    io: SocketIOServer
 ) => {
+    io.on('connection', (socket) => {
+        const user = socket.data.user;
 
+        if (user.role === 'DRIVER' && user.driverProfile) {
+            socket.join(`driver:${user.id}`);
+        }
+        // booking cargoo
+        socket.on('book-cargo', async (bookingData) => {
+            try {
+                const bookingId = bookingData.bookingId;
+                const booking = await prisma.booking.findUnique({
+                    where: { id: bookingId },
+                });
+                if (!booking) throw new Error('Booking not found');
+                const nearbyDrivers = await findNearbyDrivers(
+                    booking.pickupLat,
+                    booking.pickupLng,
+                    5
+                );
+                if (nearbyDrivers.length === 0) socket.emit('no-drivers', { bookingId, message: 'All drivers declined' });
+
+                let driverIdx = 0;
+                dispatchToNextDriver();
+
+                function dispatchToNextDriver() {
+                    if (driverIdx >= nearbyDrivers.length) {
+                        socket.emit('no-drivers', { bookingId, message: 'All drivers declined' });
+                    }
+                    return;
+                }
+                const driver = nearbyDrivers[driverIdx];
+                const driverSocketId = `driver:${driver.userId}`;
+                io.to(driverSocketId).emit('incomimg-bid', {
+                    bookingId,
+                    pickupLat: booking.pickupLat,
+                    pickupLng: booking.pickupLng,
+                    dropoffLat: booking.dropoffLat,
+                    dropoffLng: booking.dropoffLng,
+                    cargoType: booking.cargoType,
+                    price: booking.price,
+                    distanceKm: driver.distanceKm,
+                    timeoutSeconds: 30,
+                });
+                // after one timeout we will move to next driver-
+                const timer = setTimeout(() => {
+                    driverIdx++;
+                    dispatchToNextDriver();
+                }, 30000);
+                activeTimers.set(bookingId, timer);
+
+            }
+            catch (e: any) {
+                socket.emit('error', { message: e.message });
+            }
+        });
+        // driver takes the ride
+        socket.on('accept-bid', async ({ bookingId }) => {
+            try {
+                // remove the remaining timer means if accepted between 0-30 i need to remove that..
+                const timer = activeTimers.get(bookingId);
+                if (timer) {
+                    clearTimeout(timer);
+                    activeTimers.delete(bookingId);
+                }
+                const booking = await acceptBooking(bookingId, user.id);
+                io.to(`shipper :${booking.shipperId}`).emit('booking-accepted', {
+                    bookingId,
+                    driverId: user.id,
+                    driverName: user.name,
+                });
+            } catch(e:any) {
+                socket.emit('error', { message: e.message });
+           }
+        });
+        //rejecting bid
+        socket.on('reject-bid', ({ bookingId }) => {
+            const timer = activeTimers.get(bookingId);
+            if (timer) {
+                clearTimeout(timer);
+                activeTimers.delete(bookingId);
+            }
+            socket.emit('bid-rejected', {
+                bookingId,
+                message: 'You rejected. Waiting for the next driver.'
+            });
+        });
+    })
 }
