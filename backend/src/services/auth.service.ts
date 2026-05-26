@@ -43,7 +43,8 @@ export const registerUser = async (data: {
         email: user.email,
         role: user.role,
     });
-    return { user, token };
+    const { password: _, ...userWithoutPassword } = user;
+    return { user: userWithoutPassword, token };
 }
 
 
@@ -63,5 +64,6 @@ export const loginUser = async (
         email: user.email,
         role: user.role
     });
-    return { user, token };
+    const { password: _, ...userWithoutPassword } = user;
+    return { user: userWithoutPassword, token };
 }
