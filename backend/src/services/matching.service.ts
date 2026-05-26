@@ -15,7 +15,14 @@ export const findNearbyDrivers = async (
         },
         include: {
             user: {
-                include: {
+                select: {
+                    id: true,
+                    email: true,
+                    name: true,
+                    phone: true,
+                    role: true,
+                    createdAt: true,
+                    updatedAt: true,
                     vehicle: true
                 }
             }
