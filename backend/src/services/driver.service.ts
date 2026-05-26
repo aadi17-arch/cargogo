@@ -34,7 +34,18 @@ export const getOnlineDrivers = async () => {
     return prisma.driverProfile.findMany({
         where: { isOnline: true },
         include: {
-            user: { include: { vehicle: true } }
+            user: {
+                select: {
+                    id: true,
+                    email: true,
+                    name: true,
+                    phone: true,
+                    role: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    vehicle: true
+                }
+            }
         }
     });
 };
