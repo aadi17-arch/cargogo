@@ -1,4 +1,5 @@
 import { Server as SocketIOServer } from 'socket.io';
+export { SocketIOServer };
 import { Server as HTTPServer } from 'http';
 import { verifyToken } from '@/utils/jwt';
 import prisma from '@/config/database';
@@ -10,9 +11,9 @@ export const createSocketServer = (httpServer: HTTPServer) => {
             methods: ['GET', 'POST'],
         },
     });
-    io.use(async (Socket, next) => {
+    io.use(async (socket, next) => {
         try {
-            const token = Socket.handshake.auth.token;
+            const token = socket.handshake.auth.token;
             if (!token) throw new Error('No token');
             const decoded = verifyToken(token);
             const user = await prisma.user.findUnique({
@@ -22,7 +23,7 @@ export const createSocketServer = (httpServer: HTTPServer) => {
                 }
             });
             if (!user) throw new Error('User not found');
-            Socket.data.user = user;
+            socket.data.user = user;
             next();
         } catch (e: any) {
             next(new Error('Auth failed' + e.message));
