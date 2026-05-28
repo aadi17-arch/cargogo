@@ -6,7 +6,7 @@ import authRoutes from './routes/auth.routes';
 import bookingRoutes from './routes/booking.routes';
 import driverRoutes from './routes/driver.routes';
 import { createSocketServer } from './sockets/socket.server';
-import { registerMatchHandlers } from './sockets/matching.socket';
+import { registerMatchingHandlers } from './sockets/matching.socket';
 import { registerTrackingHandlers } from './sockets/tracking.socket';
 
 dotenv.config();
@@ -28,10 +28,10 @@ app.get('/api/bookings', (req, res) => {
 });
 
 const io = createSocketServer(httpServer);
-registerMatchHandlers(io);
+registerMatchingHandlers(io);
 registerTrackingHandlers(io);
 
-const PORT = process.env.port || 5000;
+const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => {
     console.log(`Server is running on PORT ${PORT}`);
 });
