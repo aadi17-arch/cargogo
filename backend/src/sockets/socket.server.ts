@@ -7,7 +7,7 @@ import prisma from '@/config/database';
 export const createSocketServer = (httpServer: HTTPServer) => {
     const io = new SocketIOServer(httpServer, {
         cors: {
-            origin: 'http//localhost:3000',
+            origin: '*',
             methods: ['GET', 'POST'],
         },
     });
