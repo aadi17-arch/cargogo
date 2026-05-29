@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createBooking, getBookingById, getShipperBookings, verifyDropOffOTP, verifyPickupOTP } from '@/services/booking.service';
+import { createBooking, getBookingById, getShipperBookings, getDriverBookings, verifyDropOffOTP, verifyPickupOTP } from '@/services/booking.service';
 
 export const create = async (req: Request, res: Response) => {
     try {
@@ -25,6 +25,10 @@ export const getBookingsById = async (req: Request, res: Response) => {
 };
 export const getMyBookings = async (req: Request, res: Response) => {
     try {
+        if (req.user.role === 'DRIVER') {
+            const driverBookings = await getDriverBookings(req.user.id);
+            return res.json({ success: true, data: driverBookings });
+        }
         const shipperBookings = await getShipperBookings(req.user.id);
         res.json({ success: true, data: shipperBookings });
     }
