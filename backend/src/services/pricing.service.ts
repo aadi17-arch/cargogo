@@ -8,12 +8,15 @@ interface PricingInput {
     lengthCm: number;
     widthCm: number,
     heightCm: number,
-    vehicleType: 'MINI_TEMPO' | 'PICKUP_TRUCK' | 'CONTAINER_3TON';
+    vehicleType: 'TWO_WHEELER' | 'THREE_WHEELER' | 'MINI_TEMPO' | 'PICKUP_TRUCK' | 'CONTAINER_3TON' | 'HEAVY_DUTY_TRUCK';
 }
 const VEHICLE_RATES: Record<string, { basePrice: number; pricePerKm: number; costPerUnit: number }> = {
+    TWO_WHEELER: { basePrice: 20, pricePerKm: 5, costPerUnit: 1 },
+    THREE_WHEELER: { basePrice: 30, pricePerKm: 8, costPerUnit: 2 },
     MINI_TEMPO: { basePrice: 50, pricePerKm: 12, costPerUnit: 4 },
     PICKUP_TRUCK: { basePrice: 80, pricePerKm: 15, costPerUnit: 5 },
     CONTAINER_3TON: { basePrice: 150, pricePerKm: 20, costPerUnit: 7 },
+    HEAVY_DUTY_TRUCK: { basePrice: 300, pricePerKm: 45, costPerUnit: 12 },
 };
 export const calculatePrice = (input: PricingInput) => {
     const distanceKm = haversineDistance(
