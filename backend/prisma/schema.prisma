@@ -21,9 +21,12 @@ enum BookingStatus {
 }
 
 enum VehicleType {
+  TWO_WHEELER
+  THREE_WHEELER
   MINI_TEMPO
   PICKUP_TRUCK
   CONTAINER_3TON
+  HEAVY_DUTY_TRUCK
 }
 
 model User {
