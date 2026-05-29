@@ -5,7 +5,7 @@ import { requiredRole } from '@/middleware/role.middleware';
 const r = Router();
 
 r.post('/createBooking', authenticate, requiredRole('SHIPPER'), create);
-r.get('/my', authenticate, requiredRole('SHIPPER'), getMyBookings);
+r.get('/my', authenticate, getMyBookings);
 
 r.get('/:id', authenticate, getBookingsById);
 
