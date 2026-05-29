@@ -13,7 +13,7 @@ interface createBookingInput {
     lengthCm: number;
     widthCm: number,
     heightCm: number,
-    vehicleType: 'MINI_TEMPO' | 'PICKUP_TRUCK' | 'CONTAINER_3TON';
+    vehicleType: 'TWO_WHEELER' | 'THREE_WHEELER' | 'MINI_TEMPO' | 'PICKUP_TRUCK' | 'CONTAINER_3TON' | 'HEAVY_DUTY_TRUCK';
 }
 export const createBooking = async (input: createBookingInput) => {
     const pricing = calculatePrice({
@@ -106,4 +106,13 @@ export const verifyDropOffOTP = async (bookingId: string, otp: string) => {
         }
     });
     return updatedDeliveryStatus;
+};
+
+export const getDriverBookings = async (driverId: string) => {
+    return prisma.booking.findMany({
+        where: { driverId },
+        orderBy: {
+            createdAt: 'desc'
+        }
+    });
 }
