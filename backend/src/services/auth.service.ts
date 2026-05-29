@@ -8,7 +8,7 @@ export const registerUser = async (data: {
     name: string;
     role: 'SHIPPER' | 'DRIVER';
     vehicle?: {
-        type: 'MINI_TEMPO' | 'PICKUP_TRUCK' | 'CONTAINER_3TON';
+        type: 'TWO_WHEELER' | 'THREE_WHEELER' | 'MINI_TEMPO' | 'PICKUP_TRUCK' | 'CONTAINER_3TON' | 'HEAVY_DUTY_TRUCK';
         plateNumber: string;
         capacityKg: number;
     };
