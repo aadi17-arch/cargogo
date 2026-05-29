@@ -1,3 +1,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html, body, *, *::before, *::after {
+    font-family: 'DM Sans', sans-serif;
+  }
+}
+
+@layer components {
+  .input-field {
+    @apply w-full p-3 bg-white text-black placeholder-slate-400 font-medium rounded-xl border border-slate-200 focus:outline-none focus:border-slate-500 focus:ring-0 transition-all text-sm;
+  }
+  .btn-primary {
+    @apply w-full bg-[#1A1A1A] hover:bg-black text-white py-3 px-4 font-bold text-sm rounded-xl transition-colors shadow-sm flex items-center justify-center gap-2;
+  }
+  .alert-error {
+    @apply bg-[#FEE2E2] border border-[#FCA5A5] text-[#991B1B] p-3 text-xs font-semibold mb-4 rounded-xl;
+  }
+  .dark-input-field {
+    @apply w-full p-3 bg-[#2D2D2D] text-white placeholder-slate-500 font-medium rounded-xl border border-transparent focus:outline-none focus:border-slate-500 transition-all text-sm;
+  }
+}
