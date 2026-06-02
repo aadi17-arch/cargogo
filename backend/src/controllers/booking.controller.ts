@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { createBooking, getBookingById, getShipperBookings, getDriverBookings, verifyDropOffOTP, verifyPickupOTP } from '@/services/booking.service';
+import { createBooking, getBookingById, getShipperBookings, getDriverBookings, verifyDropOffOTP, verifyPickupOTP, getPendingBookings } from '@/services/booking.service';
+import { acceptBooking } from '@/services/matching.service';
 
 export const create = async (req: Request, res: Response) => {
     try {
@@ -52,6 +53,26 @@ export const confirmDropOff = async (req: Request, res: Response) => {
         const { otp } = req.body;
         const checkOTP = await verifyDropOffOTP(req.params.id, otp);
         res.status(201).json({ success: true, data: checkOTP });
+    }
+    catch (e: any) {
+        res.status(400).json({ success: false, message: e.message });
+    }
+};
+
+export const getPending = async (req: Request, res: Response) => {
+    try {
+        const bookings = await getPendingBookings();
+        res.json({ success: true, data: bookings });
+    }
+    catch (e: any) {
+        res.status(400).json({ success: false, message: e.message });
+    }
+};
+
+export const accept = async (req: Request, res: Response) => {
+    try {
+        const booking = await acceptBooking(req.params.id, req.user.id);
+        res.json({ success: true, data: booking });
     }
     catch (e: any) {
         res.status(400).json({ success: false, message: e.message });
