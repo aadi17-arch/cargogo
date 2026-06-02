@@ -11,6 +11,8 @@ export const registerMatchingHandlers = (
 
         if (user.role === 'DRIVER' && user.driverProfile) {
             socket.join(`driver:${user.id}`);
+        } else if (user.role === 'SHIPPER') {
+            socket.join(`shipper:${user.id}`);
         }
         // booking cargoo
         socket.on('book-cargo', async (bookingData) => {
@@ -51,6 +53,7 @@ export const registerMatchingHandlers = (
                         price: booking!.price,
                         distanceKm: driver.distanceKm,
                         timeoutSeconds: 30,
+                        expiresAt: Date.now() + 30000
                     });
                 // after one timeout we will move to next driver-
                 const timer = setTimeout(() => {
@@ -80,6 +83,7 @@ export const registerMatchingHandlers = (
                     driverId: user.id,
                     driverName: user.name,
                 });
+                socket.emit('bid-accepted', { bookingId });
             } catch(e:any) {
                 socket.emit('error', { message: e.message });
            }
