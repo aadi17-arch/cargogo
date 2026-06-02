@@ -40,6 +40,7 @@ export const createBooking = async (input: createBookingInput) => {
             widthCm: input.widthCm,
             heightCm: input.heightCm,
             volumetricWeight: pricing.volumetricWeight,
+            vehicleType: input.vehicleType,
             distanceKm: pricing.distanceKm,
             price: pricing.totalPrice,
             pickupOTP: generateOTP(),
@@ -115,4 +116,13 @@ export const getDriverBookings = async (driverId: string) => {
             createdAt: 'desc'
         }
     });
-}
+};
+
+export const getPendingBookings = async () => {
+    return prisma.booking.findMany({
+        where: { status: 'PENDING' },
+        orderBy: {
+            createdAt: 'desc'
+        }
+    });
+};
