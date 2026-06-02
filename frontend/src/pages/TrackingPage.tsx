@@ -2,11 +2,10 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import { io } from 'socket.io-client';
-import axios from 'axios';
+import api, { SOCKET_URL } from '../services/api';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// Fix default markers
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -20,9 +19,10 @@ function TrackingPage() {
   const [driverLocation, setDriverLocation] = useState<[number, number] | null>(null);
   const [otp, setOtp] = useState('');
   const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   useEffect(() => {
-    const socket = io(`http://${window.location.hostname}:5000`, { auth: { token } });
+    const socket = io(SOCKET_URL, { auth: { token } });
 
     socket.on('driver:location:update', (data: any) => {
       if (data.bookingId === bookingId) {
@@ -39,17 +39,15 @@ function TrackingPage() {
   }, [bookingId, token]);
 
   const fetchBooking = async () => {
-    const res = await axios.get(`http://${window.location.hostname}:5000/api/bookings/${bookingId}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const res = await api.get(`/bookings/${bookingId}`);
     setBooking(res.data.data);
   };
 
   const verifyOTP = async (type: 'pickup' | 'dropoff') => {
     try {
-      await axios.post(`http://${window.location.hostname}:5000/api/bookings/${bookingId}/${type}`, {
+      await api.post(`/bookings/${bookingId}/${type}`, {
         otp
-      }, { headers: { Authorization: `Bearer ${token}` } });
+      });
       alert(`${type} verified!`);
       setOtp('');
       fetchBooking();
@@ -89,23 +87,39 @@ function TrackingPage() {
 
       {booking.status === 'ACCEPTED' && (
         <div className="bg-yellow-50 p-4 rounded-lg">
-          <p className="font-bold mb-2">Enter Pickup OTP to start trip</p>
-          <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={4} className="p-2 border rounded w-32 text-center text-2xl tracking-widest" placeholder="0000" />
-          <button onClick={() => verifyOTP('pickup')} className="ml-2 bg-green-600 text-white px-4 py-2 rounded">Verify Pickup</button>
+          {user.role === 'DRIVER' ? (
+            <>
+              <p className="font-bold mb-2">Enter Pickup OTP to start trip</p>
+              <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={4} className="p-2 border rounded w-32 text-center text-2xl tracking-widest" placeholder="0000" />
+              <button onClick={() => verifyOTP('pickup')} className="ml-2 bg-green-600 text-white px-4 py-2 rounded">Verify Pickup</button>
+            </>
+          ) : (
+            <p className="font-bold text-yellow-800 text-lg">
+              Share this Pickup OTP with your driver to start the trip: <span className="bg-yellow-200 px-3 py-1 rounded font-mono text-2xl ml-2">{booking.pickupOTP}</span>
+            </p>
+          )}
         </div>
       )}
 
       {booking.status === 'IN_TRANSIT' && (
         <div className="bg-blue-50 p-4 rounded-lg">
-          <p className="font-bold mb-2">Enter Dropoff OTP to complete</p>
-          <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={4} className="p-2 border rounded w-32 text-center text-2xl tracking-widest" placeholder="0000" />
-          <button onClick={() => verifyOTP('dropoff')} className="ml-2 bg-green-600 text-white px-4 py-2 rounded">Verify Dropoff</button>
+          {user.role === 'DRIVER' ? (
+            <>
+              <p className="font-bold mb-2">Enter Dropoff OTP to complete</p>
+              <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={4} className="p-2 border rounded w-32 text-center text-2xl tracking-widest" placeholder="0000" />
+              <button onClick={() => verifyOTP('dropoff')} className="ml-2 bg-green-600 text-white px-4 py-2 rounded">Verify Dropoff</button>
+            </>
+          ) : (
+            <p className="font-bold text-blue-800 text-lg">
+              Share this Dropoff OTP with your driver to complete the delivery: <span className="bg-blue-200 px-3 py-1 rounded font-mono text-2xl ml-2">{booking.dropoffOTP}</span>
+            </p>
+          )}
         </div>
       )}
 
       {booking.status === 'DELIVERED' && (
         <div className="bg-green-50 p-4 rounded-lg text-center">
-          <p className="text-2xl font-bold text-green-700">✅ Delivered!</p>
+          <p className="text-2xl font-bold text-green-700">Delivered!</p>
         </div>
       )}
     </div>
