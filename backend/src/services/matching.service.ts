@@ -1,45 +1,23 @@
 import prisma from '@/config/database'
 import { haversineDistance } from '@/utils/haversine';
+import { findNearbyDrivers as findNearbyFromRedis } from './grid-index.service';
 
 export const findNearbyDrivers = async (
     pickupLat: number,
     pickupLng: number,
     radiusKm: number = 5
 ) => {
-    const onlineDrivers = await prisma.driverProfile.findMany({
-        where: {
-            isOnline: true,
-            latitude: { not: null },
-            longitude: { not: null }
+    const nearby = await findNearbyFromRedis(pickupLat, pickupLng, radiusKm);
 
-        },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    email: true,
-                    name: true,
-                    phone: true,
-                    role: true,
-                    createdAt: true,
-                    updatedAt: true,
-                    vehicle: true
-                }
-            }
-        }
+    const driverIds = nearby.map((n) => n.driverId);
+    const profiles = await prisma.driverProfile.findMany({
+        where: { userId: { in: driverIds } },
+        include: { user: { include: { vehicle: true } } },
     });
-    const nearby = onlineDrivers.map((driver) => ({
-        ...driver,
-        distanceKm: haversineDistance(
-            pickupLat,
-            pickupLng,
-            driver.latitude!,
-            driver.longitude!
-        ),
-    }))
-        .filter((driver) => driver.distanceKm <= radiusKm)
-        .sort((a, b) => a.distanceKm - b.distanceKm);
-    return nearby;
+    return nearby.map((n) => {
+        const profile = profiles.find((p) => p.userId === n.driverId);
+        return { ...profile, distanceKm: n.distanceKm, userId: n.driverId };
+    }).filter((d) => d.userId);
 };
 export const acceptBooking = async (
     bookingId: string,
