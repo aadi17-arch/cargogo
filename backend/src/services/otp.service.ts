@@ -1,5 +1,6 @@
+import crypto from 'crypto';
 export const generateOTP = (): string => {
-    return Math.floor(1000 + Math.random() * 9000).toString();
+    return crypto.randomInt(100000, 999999).toString();
 };
 export const verifyOTP = (inputOTP: string, storedOTP: string | null):
     boolean => {
