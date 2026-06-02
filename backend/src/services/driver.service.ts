@@ -1,9 +1,14 @@
 import prisma from '@/config/database';
+import { addDriverLocation, removeDriverLocation } from './grid-index.service';
 
 export const toggleOnline = async (
     driverId: string, isOnline: boolean,
     lat?: number, lng?: number
 ) => {
+    if (isOnline && lat !== undefined && lng !== undefined) {
+        await addDriverLocation(driverId, lat, lng);
+    }
+    else await removeDriverLocation(driverId);
     return prisma.driverProfile.update({
         where: { userId: driverId },
         data: {
@@ -49,4 +54,3 @@ export const getOnlineDrivers = async () => {
         }
     });
 };
-
