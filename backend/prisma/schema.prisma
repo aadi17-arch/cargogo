@@ -92,6 +92,7 @@ model Booking {
   widthCm         Float
   heightCm        Float
   volumetricWeight Float
+  vehicleType      VehicleType
 
   distanceKm      Float
   price           Float
