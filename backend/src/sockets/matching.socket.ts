@@ -1,6 +1,7 @@
 import { SocketIOServer } from './socket.server';
 import { findNearbyDrivers, acceptBooking } from '@/services/matching.service';
 import prisma from '@/config/database';
+import { addDispatchJob, dispatchQueue } from '@/queues/dispatch.queue';
 
 const activeTimers = new Map<string, NodeJS.Timeout>();
 export const registerMatchingHandlers = (
@@ -22,46 +23,9 @@ export const registerMatchingHandlers = (
                     where: { id: bookingId },
                 });
                 if (!booking) throw new Error('Booking not found');
-                const nearbyDrivers = await findNearbyDrivers(
-                    booking.pickupLat,
-                    booking.pickupLng,
-                    5
-                );
-                if (nearbyDrivers.length === 0) {
-                    socket.emit('no-drivers', { bookingId, message: 'All drivers declined' });
-                    return;
-                }
+                await addDispatchJob(bookingId, booking.pickupLat, booking.pickupLng, 0, 0);
 
-                let driverIdx = 0;
-                dispatchToNextDriver();
-
-                function dispatchToNextDriver() {
-                    if (driverIdx >= nearbyDrivers.length) {
-                        socket.emit('no-drivers', { bookingId, message: 'All drivers declined' });
-                         return;
-                    }
-
-                    const driver = nearbyDrivers[driverIdx];
-                const driverSocketId = `driver:${driver.userId}`;
-                    io.to(driverSocketId).emit('incoming-bid', {
-                        bookingId,
-                        pickupLat: booking!.pickupLat,
-                        pickupLng: booking!.pickupLng,
-                        dropoffLat: booking!.dropoffLat,
-                        dropoffLng: booking!.dropoffLng,
-                        cargoType: booking!.cargoType,
-                        price: booking!.price,
-                        distanceKm: driver.distanceKm,
-                        timeoutSeconds: 30,
-                        expiresAt: Date.now() + 30000
-                    });
-                // after one timeout we will move to next driver-
-                const timer = setTimeout(() => {
-                    driverIdx++;
-                    dispatchToNextDriver();
-                }, 30000);
-                    activeTimers.set(bookingId, timer);
-                }
+                socket.emit('dispatch-queued', { bookingId });
 
             }
             catch (e: any) {
@@ -71,34 +35,51 @@ export const registerMatchingHandlers = (
         // driver takes the ride
         socket.on('accept-bid', async ({ bookingId }) => {
             try {
-                // remove the  timer means if accepted clear the timer so it doesnt get to next driver
-                const timer = activeTimers.get(bookingId);
-                if (timer) {
-                    clearTimeout(timer);
-                    activeTimers.delete(bookingId);
-                }
                 const booking = await acceptBooking(bookingId, user.id);
+
+                const jobs = await dispatchQueue.getJobs(['delayed', 'waiting']);
+
+                for (const j of jobs) {
+                    if (j.data.bookingId === bookingId) await j.remove();
+                }
                 io.to(`shipper:${booking.shipperId}`).emit('booking-accepted', {
                     bookingId,
                     driverId: user.id,
                     driverName: user.name,
                 });
                 socket.emit('bid-accepted', { bookingId });
-            } catch(e:any) {
+            } catch (e: any) {
                 socket.emit('error', { message: e.message });
-           }
+            }
         });
         //rejecting bid
-        socket.on('reject-bid', ({ bookingId }) => {
-            const timer = activeTimers.get(bookingId);
-            if (timer) {
-                clearTimeout(timer);
-                activeTimers.delete(bookingId);
+        socket.on('reject-bid', async ({ bookingId }) => {
+            try {
+                const jobs = await dispatchQueue.getJobs(['delayed', 'waiting']);
+                let nextDriverIndex = 0;
+                let pickupLat = 0;
+                let pickupLng = 0;
+
+                for (const j of jobs) {
+                    if (j.data.bookingId === bookingId) {
+                        nextDriverIndex = j.data.driverIndex + 1;
+                        pickupLat = j.data.pickupLat;
+                        pickupLng = j.data.pickupLng;
+                        await j.remove();
+                    }
+                }
+
+                if (pickupLat && pickupLng) {
+                    await addDispatchJob(bookingId, pickupLat, pickupLng, nextDriverIndex, 0);
+                }
+
+                socket.emit('bid-rejected', {
+                    bookingId,
+                    message: 'Rejected. Moving to the next driver.'
+                });
+            } catch (e: any) {
+                socket.emit('error', { message: e.message });
             }
-            socket.emit('bid-rejected', {
-                bookingId,
-                message: 'You rejected. Waiting for the next driver.'
-            });
         });
-    })
-}
+    });
+};
