@@ -8,6 +8,7 @@ import driverRoutes from './routes/driver.routes';
 import { createSocketServer } from './sockets/socket.server';
 import { registerMatchingHandlers } from './sockets/matching.socket';
 import { registerTrackingHandlers } from './sockets/tracking.socket';
+import { startDispatchWorker } from './queues/dispatch.queue';
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.get('/api/bookings', (req, res) => {
 const io = createSocketServer(httpServer);
 registerMatchingHandlers(io);
 registerTrackingHandlers(io);
+startDispatchWorker(io);
 
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => {
