@@ -90,7 +90,7 @@ function TrackingPage() {
           {user.role === 'DRIVER' ? (
             <>
               <p className="font-bold mb-2">Enter Pickup OTP to start trip</p>
-              <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={4} className="p-2 border rounded w-32 text-center text-2xl tracking-widest" placeholder="0000" />
+              <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={6} className="p-2 border rounded w-40 text-center text-2xl tracking-widest" placeholder="000000" />
               <button onClick={() => verifyOTP('pickup')} className="ml-2 bg-green-600 text-white px-4 py-2 rounded">Verify Pickup</button>
             </>
           ) : (
@@ -106,7 +106,7 @@ function TrackingPage() {
           {user.role === 'DRIVER' ? (
             <>
               <p className="font-bold mb-2">Enter Dropoff OTP to complete</p>
-              <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={4} className="p-2 border rounded w-32 text-center text-2xl tracking-widest" placeholder="0000" />
+              <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={6} className="p-2 border rounded w-40 text-center text-2xl tracking-widest" placeholder="000000" />
               <button onClick={() => verifyOTP('dropoff')} className="ml-2 bg-green-600 text-white px-4 py-2 rounded">Verify Dropoff</button>
             </>
           ) : (
