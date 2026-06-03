@@ -20,9 +20,9 @@ export const findNearbyDrivers = async (
     'km',
     ['WITHDIST'] as any
   );
-  return results.map((r: any) => ({ 
-    driverId: r.member.replace('driver:', ''), 
-    distanceKm: r.distance ?? 0 
+  return results.map((r: any) => ({
+    driverId: r.member.replace('driver:', ''),
+    distanceKm: r.distance ?? 0
   }));
 };
 
