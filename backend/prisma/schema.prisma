@@ -18,6 +18,8 @@ enum BookingStatus {
   IN_TRANSIT
   DELIVERED
   CANCELLED
+  COMPLETED
+  DISPUTED
 }
 
 enum VehicleType {
@@ -106,4 +108,27 @@ model Booking {
   updatedAt       DateTime      @updatedAt
 
   @@map("bookings")
+
+  review         Review?
+  dispute        Dispute?
+}
+model Review {
+  id        String   @id @default(uuid())
+  bookingId String   @unique
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  rating    Int      // 1 to 5 stars
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@map("reviews")
+}
+
+model Dispute {
+  id         String    @id@default(uuid())
+  bookingId  String  @unique
+  booking    Booking @relation(fields:[bookingId],references:[id],onDelete:Cascade)
+  reason     String
+  status     String @default("OPEN")
+  createdAt  DateTime @default(now())
+  @@map("disputes")
 }

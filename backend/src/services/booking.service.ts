@@ -1,7 +1,7 @@
 import prisma from "@/config/database";
 import { calculatePrice } from "./pricing.service";
 import { generateOTP } from "./otp.service";
-
+import { VEHICLE_RATES } from "./pricing.service";
 interface createBookingInput {
     shipperId: string,
     pickupLat: number,
@@ -125,4 +125,50 @@ export const getPendingBookings = async () => {
             createdAt: 'desc'
         }
     });
+};
+
+export const completeBooking = async (
+    bookingId: string,
+    driverId: string,
+) => {
+    const booking = await prisma.booking.findUnique({
+        where: { id: bookingId }
+    });
+    if (!booking || booking.driverId !== driverId) throw new Error('Unauthorized');
+if (booking.status === 'DISPUTED') throw new Error('Cannot complete disputed booking');
+
+    await prisma.booking.update({
+        where: { id: bookingId },
+        data: {
+            status: 'COMPLETED'
+        }
+    });
+};
+
+export const getInvoice = async (bookingId: string) => {
+    const booking = await prisma.booking.findUnique({
+        where: { id: bookingId }
+    });
+    if (!booking) throw new Error('Booking not found');
+
+    const rates = VEHICLE_RATES[booking.vehicleType];
+    const chargeableWeight = Math.max(booking.weightKg, booking.volumetricWeight);
+
+    const distanceCost = rates.pricePerKm * booking.distanceKm;
+    const weightCost = rates.costPerUnit * chargeableWeight;
+
+    return {
+        bookingId: booking.id,
+        vehicleType: booking.vehicleType,
+        basePrice: rates.basePrice,
+        distanceKm: booking.distanceKm,
+        pricePerKm: rates.pricePerKm,
+        distanceCost: Math.round(distanceCost * 100) / 100,
+        weightKg: booking.weightKg,
+        volumetricWeight: booking.volumetricWeight,
+        chargeableWeight: Math.round(chargeableWeight * 100) / 100,
+        costPerUnit: rates.costPerUnit,
+        weightCost: Math.round(weightCost * 100) / 100,
+        totalPrice: booking.price
+    };
 };

@@ -1,4 +1,5 @@
 import { haversineDistance } from "@/utils/haversine";
+
 interface PricingInput {
     pickupLat: number,
     pickupLng: number,
@@ -10,7 +11,7 @@ interface PricingInput {
     heightCm: number,
     vehicleType: 'TWO_WHEELER' | 'THREE_WHEELER' | 'MINI_TEMPO' | 'PICKUP_TRUCK' | 'CONTAINER_3TON' | 'HEAVY_DUTY_TRUCK';
 }
-const VEHICLE_RATES: Record<string, { basePrice: number; pricePerKm: number; costPerUnit: number }> = {
+export const VEHICLE_RATES: Record<string, { basePrice: number; pricePerKm: number; costPerUnit: number }> = {
     TWO_WHEELER: { basePrice: 20, pricePerKm: 5, costPerUnit: 1 },
     THREE_WHEELER: { basePrice: 30, pricePerKm: 8, costPerUnit: 2 },
     MINI_TEMPO: { basePrice: 50, pricePerKm: 12, costPerUnit: 4 },

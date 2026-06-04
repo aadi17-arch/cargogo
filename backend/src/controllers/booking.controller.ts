@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { createBooking, getBookingById, getShipperBookings, getDriverBookings, verifyDropOffOTP, verifyPickupOTP, getPendingBookings } from '@/services/booking.service';
 import { acceptBooking } from '@/services/matching.service';
 import { startGpsSimulation } from '@/services/gps-simulator.service';
+import { completeBooking,getInvoice } from '@/services/booking.service';
 
 export const create = async (req: Request, res: Response) => {
     try {
@@ -88,3 +89,19 @@ export const accept = async (req: Request, res: Response) => {
         res.status(400).json({ success: false, message: e.message });
     }
 };
+export const complete = async (req: Request, res: Response) => {
+    try {
+        await completeBooking(req.params.id, req.user.id);
+        res.json({ success: true, message: 'Booking completed successfully' });
+    } catch (e: any) {
+        res.status(400).json({ success: false, message: e.message });
+    }
+};
+export const getInvoiceDetail = async (req: Request, res: Response) => {
+    try {
+        const invoice = await getInvoice(req.params.id);
+        res.json({ success: true, data: invoice });
+    } catch (e: any) {
+        res.status(400).json({ success: false, message: e.message });
+    }
+}

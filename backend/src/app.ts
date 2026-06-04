@@ -9,6 +9,9 @@ import { createSocketServer } from './sockets/socket.server';
 import { registerMatchingHandlers } from './sockets/matching.socket';
 import { registerTrackingHandlers } from './sockets/tracking.socket';
 import { startDispatchWorker } from './queues/dispatch.queue';
+import reviewRoutes from './routes/review.routes';
+import disputeRoutes from './routes/dispute.routes';
+
 
 dotenv.config();
 
@@ -20,6 +23,8 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/drivers', driverRoutes);
+app.use('/api/review', reviewRoutes);
+app.use('/api/disputes', disputeRoutes);
 
 
 
