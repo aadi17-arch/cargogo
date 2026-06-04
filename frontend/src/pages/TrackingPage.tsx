@@ -29,6 +29,10 @@ function TrackingPage() {
         setDriverLocation([data.lat, data.lng]);
       }
     });
+    socket.on('driver:arrived', (data: any) => {
+      if (data.bookingId === bookingId) alert('Driver has arrived at the destination!');
+      fetchBooking();
+    })
 
     socket.on('trip:completed', () => {
       alert('Trip completed!');
