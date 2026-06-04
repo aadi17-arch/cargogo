@@ -32,6 +32,7 @@ const io = createSocketServer(httpServer);
 registerMatchingHandlers(io);
 registerTrackingHandlers(io);
 startDispatchWorker(io);
+app.set('io', io);
 
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => {
