@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { createBooking, getBookingById, getShipperBookings, getDriverBookings, verifyDropOffOTP, verifyPickupOTP, getPendingBookings } from '@/services/booking.service';
 import { acceptBooking } from '@/services/matching.service';
+import { startGpsSimulation } from '@/services/gps-simulator.service';
 
 export const create = async (req: Request, res: Response) => {
     try {
@@ -41,6 +42,15 @@ export const confirmPickup = async (req: Request, res: Response) => {
     try {
         const { otp } = req.body;
         const checkOTP = await verifyPickupOTP(req.params.id, otp);
+        const io = req.app.get('io');
+        startGpsSimulation(
+            checkOTP.id,
+            checkOTP.pickupLat,
+            checkOTP.pickupLng,
+            checkOTP.dropoffLat,
+            checkOTP.dropoffLng,
+            io
+        );
         res.status(201).json({ success: true, data: checkOTP });
     }
     catch (e: any) {
