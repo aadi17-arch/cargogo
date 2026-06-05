@@ -1,5 +1,5 @@
 import prisma from "@/config/database";
-import { verifyToken } from "@/utils/jwt";
+import { verifyAccessToken } from "@/utils/jwt";
 import { NextFunction, Request, Response } from "express";
 declare global {
     namespace Express {
@@ -12,7 +12,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     try {
         const token = req.headers.authorization?.replace('Bearer ', '');
         if (!token) throw new Error('No token provided');
-        const decoded = verifyToken(token);
+        const decoded = verifyAccessToken(token);
         const user = await prisma.user.findUnique({
             where: { id: decoded.userId },
             select: {

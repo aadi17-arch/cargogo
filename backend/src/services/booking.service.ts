@@ -1,7 +1,7 @@
 import prisma from "@/config/database";
-import { calculatePrice } from "./pricing.service";
-import { generateOTP } from "./otp.service";
-import { VEHICLE_RATES } from "./pricing.service";
+import { calculatePrice } from "@/services/pricing.service";
+import { generateOTP } from "@/services/otp.service";
+import { VEHICLE_RATES } from "@/services/pricing.service";
 interface createBookingInput {
     shipperId: string,
     pickupLat: number,

@@ -1,4 +1,4 @@
-import { SocketIOServer } from './socket.server';
+import { SocketIOServer } from '@/sockets/socket.server';
 import { findNearbyDrivers, acceptBooking } from '@/services/matching.service';
 import prisma from '@/config/database';
 import { addDispatchJob, dispatchQueue } from '@/queues/dispatch.queue';

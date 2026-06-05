@@ -1,5 +1,5 @@
 import prisma from '@/config/database';
-import { addDriverLocation, removeDriverLocation } from './grid-index.service';
+import { addDriverLocation, removeDriverLocation } from '@/services/grid-index.service';
 
 export const toggleOnline = async (
     driverId: string, isOnline: boolean,

@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import { create, getBookingsById, getMyBookings, confirmPickup, confirmDropOff, getPending, accept } from '../controllers/booking.controller';
+import { create, getBookingsById, getMyBookings, confirmPickup, confirmDropOff, getPending, accept, complete, getInvoiceDetail } from '@/controllers/booking.controller';
 import { authenticate } from '@/middleware/auth.middleware';
 import { requiredRole } from '@/middleware/role.middleware';
-import { complete,getInvoiceDetail } from '../controllers/booking.controller';
+import { validateRequest } from '@/middleware/validate.middleware';
+import { createBookingSchema } from '@/validations/booking.validation';
 const r = Router();
 
-r.post('/createBooking', authenticate, requiredRole('SHIPPER'), create);
+r.post('/createBooking', authenticate, requiredRole('SHIPPER'),validateRequest(createBookingSchema) ,create);
 r.get('/my', authenticate, getMyBookings);
 r.get('/pending', authenticate, requiredRole('DRIVER'), getPending);
 

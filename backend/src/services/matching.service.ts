@@ -1,6 +1,6 @@
 import prisma from '@/config/database'
 import { haversineDistance } from '@/utils/haversine';
-import { findNearbyDrivers as findNearbyFromRedis } from './grid-index.service';
+import { findNearbyDrivers as findNearbyFromRedis } from '@/services/grid-index.service';
 
 export const findNearbyDrivers = async (
     pickupLat: number,

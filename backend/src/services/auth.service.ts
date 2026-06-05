@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
-import prisma from '../config/database';
-import { generateToken } from '../utils/jwt';
+import prisma from '@/config/database';
+import { generateAccessToken,generateRefreshToken } from '@/utils/jwt';
 
 export const registerUser = async (data: {
     email: string;
@@ -38,13 +38,28 @@ export const registerUser = async (data: {
             driverProfile: true,
         },
     });
-    const token = generateToken({
+    const accessToken = generateAccessToken({
         userId: user.id,
         email: user.email,
         role: user.role,
     });
+    const refreshToken = generateRefreshToken({
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+    });
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+    await prisma.session.create({
+        data: {
+            userId: user.id,
+            refreshToken,
+            expiresAt,
+        },
+    });
+
     const { password: _, ...userWithoutPassword } = user;
-    return { user: userWithoutPassword, token };
+    return { user: userWithoutPassword, accessToken, refreshToken };
 }
 
 
@@ -59,11 +74,25 @@ export const loginUser = async (
     if (!user) throw new Error('Invalid credentials');
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new Error('Invalid credentials');
-    const token = generateToken({
+    const accessToken = generateAccessToken({
         userId: user.id,
         email: user.email,
         role: user.role
     });
+    const refreshToken = generateRefreshToken({
+        userId: user.id,
+        email: user.email,
+        role: user.role
+    });
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+    await prisma.session.create({
+        data: {
+            userId: user.id,
+            refreshToken,
+            expiresAt,
+        },
+    });
     const { password: _, ...userWithoutPassword } = user;
-    return { user: userWithoutPassword, token };
+    return { user: userWithoutPassword, accessToken,refreshToken };
 }

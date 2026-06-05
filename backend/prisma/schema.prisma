@@ -47,6 +47,7 @@ model User {
   vehicle         Vehicle?
 
   @@map("users")
+  sessions        Session[]
 }
 
 model DriverProfile {
@@ -108,6 +109,9 @@ model Booking {
   updatedAt       DateTime      @updatedAt
 
   @@map("bookings")
+  @@index([shipperId])
+  @@index([driverId])
+  @@index([status])
 
   review         Review?
   dispute        Dispute?
@@ -131,4 +135,13 @@ model Dispute {
   status     String @default("OPEN")
   createdAt  DateTime @default(now())
   @@map("disputes")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshToken String   @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
 }
