@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import api, { SOCKET_URL } from '../services/api';
+import api from '@/services/api';
+import { SOCKET_URL } from '@/utils/constants';
 import { useNavigate } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 
