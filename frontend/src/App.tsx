@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import ShipperDashboard from './pages/ShipperDashboard';
-import DriverDashboard from './pages/DriverDashboard';
-import TrackingPage from './pages/TrackingPage';
-import Layout from './components/layout/Layout';
-import ProtectedRoute from './components/layout/ProtectedRoute';
+import LoginPage from '@/pages/LoginPage';
+import RegisterPage from '@/pages/RegisterPage';
+import ShipperDashboard from '@/pages/ShipperDashboard';
+import DriverDashboard from '@/pages/DriverDashboard';
+import TrackingPage from '@/pages/TrackingPage';
+import Layout from '@/components/layout/Layout';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
 
 function App() {
   return (
