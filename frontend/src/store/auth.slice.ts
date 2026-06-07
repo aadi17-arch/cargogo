@@ -9,10 +9,17 @@ interface AuthState {
   error: string | null;
 }
 
+const getStoredToken = () => {
+  const token = localStorage.getItem('token');
+  return (token && token !== 'undefined') ? token : null;
+};
+
+const initialToken = getStoredToken();
+
 const initialState: AuthState = {
   user: null,
-  token: localStorage.getItem('token'),
-  isAuthenticated: !!localStorage.getItem('token'),
+  token: initialToken,
+  isAuthenticated: !!initialToken,
   isLoading: false,
   error: null,
 };
