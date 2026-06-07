@@ -4,8 +4,8 @@ import { ApiResponse } from '../types/api.types';
 
 export const bookingService = {
   async createBooking(data: CreateBookingRequest): Promise<Booking> {
-    const response = await api.post<ApiResponse<Booking>>('/bookings/createBooking', data);
-    return response.data.data!;
+    const response = await api.post<ApiResponse<any>>('/bookings/createBooking', data);
+    return response.data.data.booking;
   },
 
   async getMyBookings(): Promise<Booking[]> {
