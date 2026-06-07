@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import prisma from '@/config/database';
 import { generateAccessToken,generateRefreshToken } from '@/utils/jwt';
+import { AppError } from '@/utils/AppError';
 
 export const registerUser = async (data: {
     email: string;
@@ -18,7 +19,7 @@ export const registerUser = async (data: {
             email: data.email
         }
     });
-    if (existing) throw new Error('Email already registered');
+    if (existing) throw new AppError('Email already registered', 400);
     const hashedPassword = await bcrypt.hash(data.password, 12);
     const user = await prisma.user.create({
         data: {
@@ -71,9 +72,9 @@ export const loginUser = async (
         where: { email },
         include: { vehicle: true, driverProfile: true }
     });
-    if (!user) throw new Error('Invalid credentials');
+    if (!user) throw new AppError('Invalid credentials', 401);
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) throw new Error('Invalid credentials');
+    if (!isMatch) throw new AppError('Invalid credentials', 401);
     const accessToken = generateAccessToken({
         userId: user.id,
         email: user.email,
