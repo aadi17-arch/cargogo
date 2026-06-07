@@ -24,14 +24,31 @@ const PORT = env.PORT;
 const app = express();
 const httpServer = http.createServer(app);
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://192.168.1.9:3000',
+  'http://localhost:5173',
+];
+
 app.use(cors({
-    origin: env.NODE_ENV === 'production' ? 'https://cargogo-frontend.vercel.app' : 'http://localhost:5173',
+    origin: env.NODE_ENV === 'production' 
+      ? 'https://cargogo-frontend.vercel.app' 
+      : (origin, callback) => {
+          if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+              callback(null, true);
+          } else {
+              callback(new Error('Not allowed by CORS'));
+          }
+      },
     credentials: true,
 }));
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
 app.use(requestLogger);
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok' });
+});
 app.use(globalRateLimiter);
 app.use('/api/auth',strictLimiter, authRoutes);
 app.use('/api/bookings', bookingRoutes);
