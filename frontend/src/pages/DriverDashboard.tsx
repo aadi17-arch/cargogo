@@ -1,84 +1,61 @@
-import { useState, useEffect, useRef } from 'react';
-import api from '@/services/api';
-import { SOCKET_URL } from '@/utils/constants';
-import { io } from 'socket.io-client';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useBooking } from '@/hooks/useBooking';
+import { useDriverStatus } from '@/hooks/useDriverStatus';
+import { useSocket } from '@/hooks/useSocket';
 
 function DriverDashboard() {
-  const [isOnline, setIsOnline] = useState(false);
+  const { token } = useAuth();
+  const { bookings, fetchMyBookings, fetchPendingBookings, acceptBooking: apiAcceptBooking } = useBooking();
+  const { isOnline, updateStatus } = useDriverStatus();
+  const { acceptBid: socketAcceptBid, rejectBid: socketRejectBid, on } = useSocket(token);
+
   const [bid, setBid] = useState<any>(null);
   const [countdown, setCountdown] = useState(30);
   const [earnings, setEarnings] = useState(0);
-  const [bookings, setBookings] = useState<any[]>([]);
   const [pendingBookings, setPendingBookings] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'my_jobs' | 'jobs_board'>('my_jobs');
-  const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
-  const loadProfile = async () => {
+  const loadData = async () => {
+    await fetchMyBookings();
     try {
-      const res = await api.post('/auth/me');
-      if (res.data.success && res.data.data.driverProfile) {
-        setIsOnline(res.data.data.driverProfile.isOnline);
-      }
-    } catch (err: any) {
-      console.error('Failed to load profile:', err.response?.data?.message || err.message);
+      const pending = await fetchPendingBookings();
+      setPendingBookings(pending || []);
+    } catch (err) {
+      console.error(err);
     }
   };
-
-  const loadBookings = async () => {
-    try {
-      const res = await api.get('/bookings/my');
-      if (res.data.success) {
-        const myBookings = res.data.data;
-        setBookings(myBookings);
-        const total = myBookings
-          .filter((b: any) => b.status === 'DELIVERED' || b.status === 'COMPLETED')
-          .reduce((sum: number, b: any) => sum + b.price, 0);
-        setEarnings(total);
-      }
-    } catch (err: any) {
-      console.error('Failed to load bookings:', err.response?.data?.message || err.message);
-    }
-  };
-
-  const loadPendingBookings = async () => {
-    try {
-      const res = await api.get('/bookings/pending');
-      if (res.data.success) {
-        setPendingBookings(res.data.data);
-      }
-    } catch (err: any) {
-      console.error('Failed to load pending bookings:', err.message);
-    }
-  };
-  const socket = useRef<any>(null);
 
   useEffect(() => {
     if (!token) return;
 
-    loadProfile();
-    loadBookings();
-    loadPendingBookings();
+    loadData();
 
-    socket.current = io(SOCKET_URL, { auth: { token } });
-
-    socket.current.on('connect', () => console.log('Driver socket connected'));
-
-    socket.current.on('incoming-bid', (data: any) => {
+    const offIncomingBid = on('incoming-bid', (data: any) => {
       setBid(data);
       setCountdown(30);
     });
 
-    socket.current.on('bid-accepted', () => {
+    const offBidAccepted = on('bid-accepted', () => {
       alert('Bid accepted! Go to pickup.');
       setBid(null);
-      loadBookings();
-      loadPendingBookings();
+      loadData();
     });
 
-    return () => { socket.current?.disconnect(); };
-  }, [token]);
+    return () => {
+      offIncomingBid();
+      offBidAccepted();
+    };
+  }, [token, on]);
+
+  useEffect(() => {
+    const total = bookings
+      .filter((b: any) => b.status === 'DELIVERED' || b.status === 'COMPLETED')
+      .reduce((sum: number, b: any) => sum + b.price, 0);
+    setEarnings(total);
+  }, [bookings]);
 
   useEffect(() => {
     if (!bid) return;
@@ -93,36 +70,24 @@ function DriverDashboard() {
 
   const toggleOnline = async () => {
     try {
-      const newStatus = !isOnline;
-      const res = await api.post('/drivers/online', {
-        isOnline: newStatus,
-        lat: 19.0760,
-        lng: 72.8777
-      });
-
-      if (res.data.success) {
-        setIsOnline(newStatus);
-      } else {
-        alert('Failed to update status: ' + (res.data.message || 'Unknown error'));
-      }
+      await updateStatus(isOnline ? 'OFFLINE' : 'ONLINE');
     } catch (err: any) {
-      alert('Error updating status: ' + (err.response?.data?.message || err.message));
+      alert(err.message || 'Failed to update status');
     }
   };
 
-  const acceptBid = () => {
+  const handleAcceptBid = () => {
     try {
-
-      socket.current?.emit('accept-bid', { bookingId: bid.bookingId });
+      socketAcceptBid(bid.bookingId);
       setBid(null);
     } catch (err: any) {
       alert('Error accepting bid: ' + err.message);
     }
   };
 
-  const rejectBid = () => {
+  const handleRejectBid = () => {
     try {
-      socket.current?.emit('reject-bid', { bookingId: bid.bookingId });
+      socketRejectBid(bid.bookingId);
       setBid(null);
     } catch (err: any) {
       alert('Error rejecting bid: ' + err.message);
@@ -131,14 +96,11 @@ function DriverDashboard() {
 
   const handleAcceptPending = async (bookingId: string) => {
     try {
-      const res = await api.post(`/bookings/${bookingId}/accept`);
-      if (res.data.success) {
-        alert('Shipment accepted successfully!');
-        loadBookings();
-        loadPendingBookings();
-      }
+      await apiAcceptBooking(bookingId);
+      alert('Shipment accepted successfully!');
+      loadData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to accept shipment');
+      alert(err.message || 'Failed to accept shipment');
     }
   };
 
@@ -164,8 +126,8 @@ function DriverDashboard() {
           <p>Distance: {bid.distanceKm} km</p>
           <p className="text-2xl font-bold text-red-600 mt-2">{countdown}s</p>
           <div className="flex gap-4 mt-4">
-            <button onClick={acceptBid} className="flex-1 bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700">ACCEPT</button>
-            <button onClick={rejectBid} className="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700">REJECT</button>
+            <button onClick={handleAcceptBid} className="flex-1 bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700">ACCEPT</button>
+            <button onClick={handleRejectBid} className="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700">REJECT</button>
           </div>
         </div>
       )}
@@ -184,7 +146,7 @@ function DriverDashboard() {
         <button
           onClick={() => {
             setActiveTab('jobs_board');
-            loadPendingBookings();
+            loadData();
           }}
           className={`py-3 px-6 font-semibold border-b-2 transition-all ${
             activeTab === 'jobs_board'
@@ -200,7 +162,7 @@ function DriverDashboard() {
         <div className="bg-white p-6 rounded-lg shadow space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Accepted Shipments</h3>
-            <button onClick={loadBookings} className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm font-medium">Refresh</button>
+            <button onClick={fetchMyBookings} className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm font-medium">Refresh</button>
           </div>
           {bookings.length > 0 ? (
             <div className="space-y-2">
@@ -231,7 +193,7 @@ function DriverDashboard() {
         <div className="bg-white p-6 rounded-lg shadow space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold text-gray-800">Pending Shipments Pool</h3>
-            <button onClick={loadPendingBookings} className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm font-medium">Refresh Board</button>
+            <button onClick={loadData} className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm font-medium">Refresh Board</button>
           </div>
           {pendingBookings.length > 0 ? (
             <div className="space-y-3">
