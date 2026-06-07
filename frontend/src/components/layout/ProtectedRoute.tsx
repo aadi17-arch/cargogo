@@ -1,12 +1,12 @@
 import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ProtectedRouteProps {
   allowedRoles?: ('SHIPPER' | 'DRIVER')[];
 }
 
 function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
-  const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  const { token, user } = useAuth();
 
   if (!token) {
     return <Navigate to="/login" replace />;
