@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
-import { io } from 'socket.io-client';
+import { useAuth } from '@/hooks/useAuth';
+import { useBooking } from '@/hooks/useBooking';
+import { useSocket } from '@/hooks/useSocket';
 import api from '@/services/api';
-import { SOCKET_URL } from '@/utils/constants';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -16,11 +17,13 @@ L.Icon.Default.mergeOptions({
 
 function TrackingPage() {
   const { bookingId } = useParams();
+  const { token, user } = useAuth();
+  const { confirmPickup, confirmDropoff } = useBooking();
+  const { on } = useSocket(token);
+
   const [booking, setBooking] = useState<any>(null);
   const [driverLocation, setDriverLocation] = useState<[number, number] | null>(null);
   const [otp, setOtp] = useState('');
-  const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
   const [invoice, setInvoice] = useState<any>(null);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
@@ -28,54 +31,68 @@ function TrackingPage() {
   const [disputeReason, setDisputeReason] = useState('');
   const [showDisputeForm, setShowDisputeForm] = useState(false);
 
+  const fetchBooking = async () => {
+    try {
+      const res = await api.get(`/bookings/${bookingId}`);
+      setBooking(res.data.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
-    const socket = io(SOCKET_URL, { auth: { token } });
+    fetchBooking();
 
-    socket.on('driver:location:update', (data: any) => {
+    const offLocation = on('driver:location:update', (data: any) => {
       if (data.bookingId === bookingId) {
         setDriverLocation([data.lat, data.lng]);
       }
     });
-    socket.on('driver:arrived', (data: any) => {
-      if (data.bookingId === bookingId) alert('Driver has arrived at the destination!');
-      fetchBooking();
-    })
 
-    socket.on('trip:completed', () => {
-      alert('Trip completed!');
+    const offArrived = on('driver:arrived', (data: any) => {
+      if (data.bookingId === bookingId) {
+        alert('Driver has arrived at the destination!');
+        fetchBooking();
+      }
     });
 
-    fetchBooking();
-    return () => { socket.disconnect(); };
-  }, [bookingId, token]);
+    const offTripCompleted = on('trip:completed', () => {
+      alert('Trip completed!');
+      fetchBooking();
+    });
 
-  const fetchBooking = async () => {
-    const res = await api.get(`/bookings/${bookingId}`);
-    setBooking(res.data.data);
-  };
+    return () => {
+      offLocation();
+      offArrived();
+      offTripCompleted();
+    };
+  }, [bookingId, on]);
 
   const verifyOTP = async (type: 'pickup' | 'dropoff') => {
     try {
-      await api.post(`/bookings/${bookingId}/${type}`, {
-        otp
-      });
+      if (type === 'pickup') {
+        await confirmPickup(bookingId!, otp);
+      } else {
+        await confirmDropoff(bookingId!, otp);
+      }
       alert(`${type} verified!`);
       setOtp('');
       fetchBooking();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Invalid OTP');
+      alert(err.message || 'Invalid OTP');
     }
   };
-    const fetchInvoice = async () => {
+
+  const fetchInvoice = async () => {
     try {
       const res = await api.get(`/bookings/${bookingId}/invoice`);
       setInvoice(res.data.data);
     } catch (err) {
       console.error('Failed to fetch invoice:', err);
     }
-    };
-    const handlePayment = async () => {
+  };
+
+  const handlePayment = async () => {
     try {
       await api.post('/payment/checkout', {
         bookingId,
@@ -119,13 +136,11 @@ function TrackingPage() {
     }
   };
 
-
   useEffect(() => {
     if (booking && ['DELIVERED', 'COMPLETED', 'DISPUTED'].includes(booking.status)) {
       fetchInvoice();
     }
   }, [booking?.status]);
-
 
   if (!booking) return <div>Loading...</div>;
 
@@ -158,7 +173,7 @@ function TrackingPage() {
 
       {booking.status === 'ACCEPTED' && (
         <div className="bg-yellow-50 p-4 rounded-lg">
-          {user.role === 'DRIVER' ? (
+          {user?.role === 'DRIVER' ? (
             <>
               <p className="font-bold mb-2">Enter Pickup OTP to start trip</p>
               <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={6} className="p-2 border rounded w-40 text-center text-2xl tracking-widest" placeholder="000000" />
@@ -174,7 +189,7 @@ function TrackingPage() {
 
       {booking.status === 'IN_TRANSIT' && (
         <div className="bg-blue-50 p-4 rounded-lg">
-          {user.role === 'DRIVER' ? (
+          {user?.role === 'DRIVER' ? (
             <>
               <p className="font-bold mb-2">Enter Dropoff OTP to complete</p>
               <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={6} className="p-2 border rounded w-40 text-center text-2xl tracking-widest" placeholder="000000" />
@@ -191,7 +206,7 @@ function TrackingPage() {
       {booking.status === 'DELIVERED' && (
         <div className="bg-green-50 p-6 rounded-lg shadow space-y-4">
           <p className="text-2xl font-bold text-green-700 text-center">Package Delivered!</p>
-          {user.role === 'SHIPPER' && (
+          {user?.role === 'SHIPPER' && (
             <div className="text-center">
               <p className="text-gray-600 mb-4">Please review the invoice details below and complete the payment.</p>
               <button 
@@ -237,7 +252,7 @@ function TrackingPage() {
         </div>
       )}
 
-      {booking.status === 'COMPLETED' && user.role === 'SHIPPER' && !reviewSubmitted && (
+      {booking.status === 'COMPLETED' && user?.role === 'SHIPPER' && !reviewSubmitted && (
         <form onSubmit={handleReviewSubmit} className="bg-white p-6 rounded-lg shadow border border-gray-100 space-y-4">
           <h3 className="text-xl font-bold border-b pb-2 text-gray-800">Rate Driver Experience</h3>
           
@@ -273,7 +288,7 @@ function TrackingPage() {
         </form>
       )}
 
-      {['DELIVERED', 'COMPLETED'].includes(booking.status) && user.role === 'SHIPPER' && (
+      {['DELIVERED', 'COMPLETED'].includes(booking.status) && user?.role === 'SHIPPER' && (
         <div className="pt-4 text-center">
           {!showDisputeForm ? (
             <button 
