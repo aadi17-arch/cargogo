@@ -6,35 +6,39 @@ import DriverDashboard from '@/pages/DriverDashboard';
 import TrackingPage from '@/pages/TrackingPage';
 import Layout from '@/components/layout/Layout';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+    <>
+      <Toaster position="top-right" reverseOrder={false} />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
-        <Route element={<Layout />}>
-          {/* Shipper Dashboard Guard */}
-          <Route element={<ProtectedRoute allowedRoles={['SHIPPER']} />}>
-            <Route path="/shipper" element={<ShipperDashboard />} />
+          <Route element={<Layout />}>
+            {/* Shipper Dashboard Guard */}
+            <Route element={<ProtectedRoute allowedRoles={['SHIPPER']} />}>
+              <Route path="/shipper" element={<ShipperDashboard />} />
+            </Route>
+
+            {/* Driver Dashboard Guard */}
+            <Route element={<ProtectedRoute allowedRoles={['DRIVER']} />}>
+              <Route path="/driver" element={<DriverDashboard />} />
+            </Route>
+
+            {/* General Protected Routes (Any logged-in role can track) */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/track/:bookingId" element={<TrackingPage />} />
+            </Route>
           </Route>
 
-          {/* Driver Dashboard Guard */}
-          <Route element={<ProtectedRoute allowedRoles={['DRIVER']} />}>
-            <Route path="/driver" element={<DriverDashboard />} />
-          </Route>
-
-          {/* General Protected Routes (Any logged-in role can track) */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/track/:bookingId" element={<TrackingPage />} />
-          </Route>
-        </Route>
-
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </BrowserRouter>
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 }
 
