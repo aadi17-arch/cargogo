@@ -47,10 +47,8 @@ export const useBooking = () => {
   };
 
   const fetchPendingBookings = async () => {
-    dispatch(bookingStart());
     try {
       const data = await bookingService.getPendingBookings();
-      dispatch(fetchBookingsSuccess(data));
       return data;
     } catch (err: any) {
       dispatch(bookingFailure(getErrMsg(err, 'Failed to fetch pending bookings')));
