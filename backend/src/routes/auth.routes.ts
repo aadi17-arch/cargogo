@@ -9,6 +9,6 @@ r.post('/register', validateRequest(registerSchema), register);
 r.post('/login', validateRequest(loginSchema), login);
 r.post('/refresh', refresh);
 r.post('/logout', logout);
-r.post('/me', authenticate, getMe);
+r.get('/me', authenticate, getMe);
 
 export default r;
