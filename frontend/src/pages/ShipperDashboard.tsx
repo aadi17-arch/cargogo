@@ -29,10 +29,10 @@ function ShipperDashboard() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    pickupLat: 19.0760,
-    pickupLng: 72.8777,
-    dropoffLat: 19.2183,
-    dropoffLng: 72.9781,
+    pickupLat: null as number | null,
+    pickupLng: null as number | null,
+    dropoffLat: null as number | null,
+    dropoffLng: null as number | null,
     cargoType: 'Electronics',
     weightKg: 50,
     lengthCm: 100,
@@ -42,8 +42,70 @@ function ShipperDashboard() {
   });
   const [quote, setQuote] = useState<any>(null);
 
+  // Address lookup state
+  const [pickupSearch, setPickupSearch] = useState('');
+  const [dropoffSearch, setDropoffSearch] = useState('');
+  const [pickupResults, setPickupResults] = useState<any[]>([]);
+  const [dropoffResults, setDropoffResults] = useState<any[]>([]);
+  const [searchingPickup, setSearchingPickup] = useState(false);
+  const [searchingDropoff, setSearchingDropoff] = useState(false);
+
   const pickupMarkerRef = useRef<any>(null);
   const dropoffMarkerRef = useRef<any>(null);
+
+  // Reverse Geocoding
+  const reverseGeocode = async (lat: number, lng: number, type: 'pickup' | 'dropoff') => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&email=cargogo-dev@example.com`);
+      const data = await res.json();
+      if (data && data.display_name) {
+        if (type === 'pickup') {
+          setPickupSearch(data.display_name);
+        } else {
+          setDropoffSearch(data.display_name);
+        }
+      }
+    } catch (e) {
+      console.error('Reverse geocoding error:', e);
+    }
+  };
+
+  // Geocoding Search
+  const searchAddress = async (query: string, type: 'pickup' | 'dropoff') => {
+    if (!query.trim()) return;
+    if (type === 'pickup') setSearchingPickup(true);
+    else setSearchingDropoff(true);
+
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&email=cargogo-dev@example.com`);
+      const data = await res.json();
+      if (type === 'pickup') {
+        setPickupResults(data);
+      } else {
+        setDropoffResults(data);
+      }
+    } catch (e) {
+      console.error('Geocoding search error:', e);
+    } finally {
+      if (type === 'pickup') setSearchingPickup(false);
+      else setSearchingDropoff(false);
+    }
+  };
+
+  const handleSelectResult = (result: any, type: 'pickup' | 'dropoff') => {
+    const lat = parseFloat(result.lat);
+    const lng = parseFloat(result.lon);
+    
+    if (type === 'pickup') {
+      setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng }));
+      setPickupSearch(result.display_name);
+      setPickupResults([]);
+    } else {
+      setForm(prev => ({ ...prev, dropoffLat: lat, dropoffLng: lng }));
+      setDropoffSearch(result.display_name);
+      setDropoffResults([]);
+    }
+  };
 
   const pickupHandlers = useMemo(
     () => ({
@@ -51,11 +113,10 @@ function ShipperDashboard() {
         const marker = pickupMarkerRef.current;
         if (marker != null) {
           const position = marker.getLatLng();
-          setForm(prev => ({
-            ...prev,
-            pickupLat: Number(position.lat.toFixed(6)),
-            pickupLng: Number(position.lng.toFixed(6)),
-          }));
+          const lat = Number(position.lat.toFixed(6));
+          const lng = Number(position.lng.toFixed(6));
+          setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng }));
+          reverseGeocode(lat, lng, 'pickup');
         }
       },
     }),
@@ -68,11 +129,10 @@ function ShipperDashboard() {
         const marker = dropoffMarkerRef.current;
         if (marker != null) {
           const position = marker.getLatLng();
-          setForm(prev => ({
-            ...prev,
-            dropoffLat: Number(position.lat.toFixed(6)),
-            dropoffLng: Number(position.lng.toFixed(6)),
-          }));
+          const lat = Number(position.lat.toFixed(6));
+          const lng = Number(position.lng.toFixed(6));
+          setForm(prev => ({ ...prev, dropoffLat: lat, dropoffLng: lng }));
+          reverseGeocode(lat, lng, 'dropoff');
         }
       },
     }),
@@ -87,11 +147,14 @@ function ShipperDashboard() {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
+        const lat = Number(latitude.toFixed(6));
+        const lng = Number(longitude.toFixed(6));
         setForm((prev) => ({
           ...prev,
-          pickupLat: Number(latitude.toFixed(6)),
-          pickupLng: Number(longitude.toFixed(6)),
+          pickupLat: lat,
+          pickupLng: lng,
         }));
+        reverseGeocode(lat, lng, 'pickup');
       },
       () => {
         alert('Could not retrieve your location. Please check browser permissions.');
@@ -119,14 +182,22 @@ function ShipperDashboard() {
   }, [on]);
 
   const getQuote = async () => {
+    if (form.pickupLat === null || form.pickupLng === null || form.dropoffLat === null || form.dropoffLng === null) {
+      alert('Please select both From and To locations to calculate the price.');
+      return;
+    }
     const volumetric = (form.lengthCm * form.widthCm * form.heightCm) / 5000;
     const chargeable = Math.max(form.weightKg, volumetric);
     setQuote({ volumetric, chargeable, estimated: chargeable * 4 + 50 + 19 * 12 });
   };
 
   const handleBooking = async () => {
+    if (form.pickupLat === null || form.pickupLng === null || form.dropoffLat === null || form.dropoffLng === null) {
+      alert('Please select both From and To locations first.');
+      return;
+    }
     try {
-      const booking = await apiCreateBooking(form);
+      const booking = await apiCreateBooking(form as any);
       alert('Booking created! ID: ' + booking.id);
       bookCargo(booking.id);
       fetchMyBookings();
@@ -135,27 +206,54 @@ function ShipperDashboard() {
     }
   };
 
-  const mapCenter: [number, number] = [form.pickupLat, form.pickupLng];
+  const mapCenter: [number, number] = (form.pickupLat !== null && form.pickupLng !== null) 
+    ? [form.pickupLat, form.pickupLng] 
+    : [19.0760, 72.8777]; // Center on Mumbai by default if no location is selected yet
 
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Shipper Dashboard</h2>
       
       <div className="bg-white p-6 rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-4">Create Booking</h3>
+        <h3 className="text-lg font-semibold mb-4">Book a Delivery</h3>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Form Fields Column */}
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Pickup Lat</label>
-                <input placeholder="Pickup Lat" type="number" step="any" value={form.pickupLat} onChange={(e) => setForm({...form, pickupLat: +e.target.value})} className="w-full p-2 border rounded" />
+            
+            {/* Pickup Address Search Input */}
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 mb-1">From</label>
+              <div className="flex gap-2">
+                <input 
+                  placeholder="Type pickup address..." 
+                  value={pickupSearch} 
+                  onChange={(e) => setPickupSearch(e.target.value)} 
+                  className="flex-1 p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-sm"
+                />
+                <button 
+                  type="button"
+                  onClick={() => searchAddress(pickupSearch, 'pickup')}
+                  className="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition"
+                >
+                  Search
+                </button>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Pickup Lng</label>
-                <input placeholder="Pickup Lng" type="number" step="any" value={form.pickupLng} onChange={(e) => setForm({...form, pickupLng: +e.target.value})} className="w-full p-2 border rounded" />
-              </div>
+              {searchingPickup && <p className="text-xs text-gray-400 mt-1">Searching...</p>}
+              {pickupResults.length > 0 && (
+                <div className="absolute z-[1000] bg-white border border-gray-200 w-full rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
+                  {pickupResults.map((r, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => handleSelectResult(r, 'pickup')}
+                      className="w-full text-left p-2.5 hover:bg-gray-50 text-xs border-b last:border-b-0 border-gray-100 block truncate"
+                    >
+                      {r.display_name}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex justify-end">
@@ -164,19 +262,43 @@ function ShipperDashboard() {
                 onClick={locateMe}
                 className="bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-blue-100 flex items-center gap-1 transition"
               >
-                📍 Use My Location
+                My Location
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Dropoff Lat</label>
-                <input placeholder="Dropoff Lat" type="number" step="any" value={form.dropoffLat} onChange={(e) => setForm({...form, dropoffLat: +e.target.value})} className="w-full p-2 border rounded" />
+            {/* Drop-off Address Search Input */}
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 mb-1">To</label>
+              <div className="flex gap-2">
+                <input 
+                  placeholder="Type drop-off address..." 
+                  value={dropoffSearch} 
+                  onChange={(e) => setDropoffSearch(e.target.value)} 
+                  className="flex-1 p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-sm"
+                />
+                <button 
+                  type="button"
+                  onClick={() => searchAddress(dropoffSearch, 'dropoff')}
+                  className="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition"
+                >
+                  Search
+                </button>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Dropoff Lng</label>
-                <input placeholder="Dropoff Lng" type="number" step="any" value={form.dropoffLng} onChange={(e) => setForm({...form, dropoffLng: +e.target.value})} className="w-full p-2 border rounded" />
-              </div>
+              {searchingDropoff && <p className="text-xs text-gray-400 mt-1">Searching...</p>}
+              {dropoffResults.length > 0 && (
+                <div className="absolute z-[1000] bg-white border border-gray-200 w-full rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
+                  {dropoffResults.map((r, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => handleSelectResult(r, 'dropoff')}
+                      className="w-full text-left p-2.5 hover:bg-gray-50 text-xs border-b last:border-b-0 border-gray-100 block truncate"
+                    >
+                      {r.display_name}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <hr className="my-2" />
@@ -184,32 +306,32 @@ function ShipperDashboard() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Cargo Type</label>
-                <input placeholder="Cargo Type" value={form.cargoType} onChange={(e) => setForm({...form, cargoType: e.target.value})} className="w-full p-2 border rounded" />
+                <input placeholder="e.g. Electronics" value={form.cargoType} onChange={(e) => setForm({...form, cargoType: e.target.value})} className="w-full p-2.5 border rounded-lg" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Weight (kg)</label>
-                <input placeholder="Weight (kg)" type="number" value={form.weightKg} onChange={(e) => setForm({...form, weightKg: +e.target.value})} className="w-full p-2 border rounded" />
+                <input placeholder="Weight" type="number" value={form.weightKg} onChange={(e) => setForm({...form, weightKg: +e.target.value})} className="w-full p-2.5 border rounded-lg" />
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-2">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Length (cm)</label>
-                <input placeholder="Length (cm)" type="number" value={form.lengthCm} onChange={(e) => setForm({...form, lengthCm: +e.target.value})} className="w-full p-2 border rounded" />
+                <input placeholder="Length" type="number" value={form.lengthCm} onChange={(e) => setForm({...form, lengthCm: +e.target.value})} className="w-full p-2 border rounded" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Width (cm)</label>
-                <input placeholder="Width (cm)" type="number" value={form.widthCm} onChange={(e) => setForm({...form, widthCm: +e.target.value})} className="w-full p-2 border rounded" />
+                <input placeholder="Width" type="number" value={form.widthCm} onChange={(e) => setForm({...form, widthCm: +e.target.value})} className="w-full p-2 border rounded" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Height (cm)</label>
-                <input placeholder="Height (cm)" type="number" value={form.heightCm} onChange={(e) => setForm({...form, heightCm: +e.target.value})} className="w-full p-2 border rounded" />
+                <input placeholder="Height" type="number" value={form.heightCm} onChange={(e) => setForm({...form, heightCm: +e.target.value})} className="w-full p-2 border rounded" />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Type</label>
-              <select value={form.vehicleType} onChange={(e) => setForm({...form, vehicleType: e.target.value as any})} className="w-full p-2 border rounded">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle</label>
+              <select value={form.vehicleType} onChange={(e) => setForm({...form, vehicleType: e.target.value as any})} className="w-full p-2.5 border rounded-lg">
                 <option value="MINI_TEMPO">Mini Tempo</option>
                 <option value="PICKUP_TRUCK">Pickup Truck</option>
                 <option value="CONTAINER_3TON">3-Ton Container</option>
@@ -217,42 +339,46 @@ function ShipperDashboard() {
             </div>
 
             <div className="pt-2 flex gap-2">
-              <button onClick={getQuote} className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-medium transition">Get Quote</button>
-              <button onClick={handleBooking} className="flex-1 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 font-medium transition">Book Now</button>
+              <button onClick={getQuote} className="flex-1 bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 font-semibold transition shadow-sm">Get Price</button>
+              <button onClick={handleBooking} className="flex-1 bg-green-600 text-white px-4 py-2.5 rounded-lg hover:bg-green-700 font-semibold transition shadow-sm">Book Now</button>
             </div>
             
             {quote && (
               <div className="bg-gray-50 p-4 rounded-md border border-gray-100 space-y-1">
-                <p className="text-sm text-gray-600">Volumetric Weight: <span className="font-semibold text-gray-800">{quote.volumetric} kg</span></p>
-                <p className="text-sm text-gray-600">Chargeable Weight: <span className="font-semibold text-gray-800">{quote.chargeable} kg</span></p>
-                <p className="text-lg font-bold text-green-600">Estimated Price: ₹{quote.estimated}</p>
+                <p className="text-sm text-gray-600">Volume Weight: <span className="font-semibold text-gray-800">{quote.volumetric.toFixed(1)} kg</span></p>
+                <p className="text-sm text-gray-600">Billed Weight: <span className="font-semibold text-gray-800">{quote.chargeable.toFixed(1)} kg</span></p>
+                <p className="text-lg font-bold text-green-600">Price: ₹{Math.round(quote.estimated)}</p>
               </div>
             )}
           </div>
 
           {/* Interactive Map Column */}
           <div className="flex flex-col space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Visual Location Selection (Drag markers to set coordinates)</label>
-            <div className="h-80 lg:h-full rounded-lg overflow-hidden border shadow-sm relative min-h-[300px]">
+            <label className="block text-sm font-medium text-gray-700">Drag map pins to select locations</label>
+            <div className="h-80 lg:h-full rounded-lg overflow-hidden border shadow-sm relative min-h-[300px]" style={{ isolation: 'isolate' }}>
               <MapContainer center={mapCenter} zoom={12} style={{ height: '100%', width: '100%' }}>
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <ChangeMapView center={mapCenter} />
-                <Marker 
-                  position={[form.pickupLat, form.pickupLng]} 
-                  draggable={true} 
-                  eventHandlers={pickupHandlers} 
-                  ref={pickupMarkerRef}
-                >
-                  <Popup>Pickup Location (Draggable)</Popup>
-                </Marker>
-                <Marker 
-                  position={[form.dropoffLat, form.dropoffLng]} 
-                  draggable={true} 
-                  eventHandlers={dropoffHandlers} 
-                  ref={dropoffMarkerRef}
-                >
-                  <Popup>Dropoff Location (Draggable)</Popup>
-                </Marker>
+                {form.pickupLat !== null && form.pickupLng !== null && (
+                  <Marker 
+                    position={[form.pickupLat, form.pickupLng]} 
+                    draggable={true} 
+                    eventHandlers={pickupHandlers} 
+                    ref={pickupMarkerRef}
+                  >
+                    <Popup>Pickup (Drag me)</Popup>
+                  </Marker>
+                )}
+                {form.dropoffLat !== null && form.dropoffLng !== null && (
+                  <Marker 
+                    position={[form.dropoffLat, form.dropoffLng]} 
+                    draggable={true} 
+                    eventHandlers={dropoffHandlers} 
+                    ref={dropoffMarkerRef}
+                  >
+                    <Popup>Drop-off (Drag me)</Popup>
+                  </Marker>
+                )}
               </MapContainer>
             </div>
           </div>
@@ -266,10 +392,10 @@ function ShipperDashboard() {
           {bookings.map((b: any) => (
             <div key={b.id} className="border p-3 rounded flex justify-between items-center hover:bg-gray-50 transition">
               <div>
-                <p className="font-medium">{b.cargoType} — {b.status}</p>
-                <p className="text-sm text-gray-500">₹{b.price} | OTP: {b.pickupOTP}</p>
+                <p className="font-medium">{b.cargoType} — <span className="text-blue-600 font-semibold">{b.status}</span></p>
+                <p className="text-sm text-gray-500">Price: ₹{b.price} | OTP: {b.pickupOTP}</p>
               </div>
-              <button onClick={() => navigate(`/track/${b.id}`)} className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition">
+              <button onClick={() => navigate(`/track/${b.id}`)} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
                 Track
               </button>
             </div>
