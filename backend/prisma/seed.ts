@@ -15,14 +15,14 @@ async function main() {
   await prisma.driverProfile.deleteMany();
   await prisma.user.deleteMany();
 
-  const hashedPassword = await bcrypt.hash('password123', 12);
+  const hashedPassword = await bcrypt.hash('123456', 12);
 
   console.log('Seeding mock data...');
 
   // 1. Create Shippers
   const shipper1 = await prisma.user.create({
     data: {
-      email: 'shipper1@cargogo.com',
+      email: 's1@g.com',
       password: hashedPassword,
       name: 'John Shipper',
       role: 'SHIPPER',
@@ -31,7 +31,7 @@ async function main() {
 
   const shipper2 = await prisma.user.create({
     data: {
-      email: 'shipper2@cargogo.com',
+      email: 's2@g.com',
       password: hashedPassword,
       name: 'Alice Shipper',
       role: 'SHIPPER',
@@ -41,7 +41,7 @@ async function main() {
   // 2. Create Drivers with Profiles and Vehicles
   const driver1 = await prisma.user.create({
     data: {
-      email: 'driver1@cargogo.com',
+      email: 'd1@g.com',
       password: hashedPassword,
       name: 'Robert Driver',
       role: 'DRIVER',
@@ -62,7 +62,7 @@ async function main() {
 
   const driver2 = await prisma.user.create({
     data: {
-      email: 'driver2@cargogo.com',
+      email: 'd2@g.com',
       password: hashedPassword,
       name: 'David Driver',
       role: 'DRIVER',
