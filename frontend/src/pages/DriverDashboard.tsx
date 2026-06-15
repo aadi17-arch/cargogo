@@ -70,7 +70,19 @@ function DriverDashboard() {
 
   const toggleOnline = async () => {
     try {
-      await updateStatus(isOnline ? 'OFFLINE' : 'ONLINE');
+      if (!isOnline) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const { latitude, longitude } = position.coords;
+          await updateStatus('ONLINE', latitude,longitude);
+        },
+          (e) => {
+            alert('Loaction access is granted is required to go online.' + e.message);
+          }
+        )
+      }
+      else {
+        await updateStatus('OFFLINE', 0, 0);
+      }
     } catch (err: any) {
       alert(err.message || 'Failed to update status');
     }
