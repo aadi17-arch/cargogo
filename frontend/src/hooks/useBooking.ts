@@ -89,6 +89,18 @@ export const useBooking = () => {
     }
   };
 
+  const cancelBooking = async (id: string) => {
+    dispatch(bookingStart());
+    try {
+      const booking = await bookingService.cancelBooking(id);
+      dispatch(updateBookingStatus({ id, status: 'CANCELLED' as BookingStatus }));
+      return booking;
+    } catch (err: any) {
+      dispatch(bookingFailure(getErrMsg(err, 'Failed to cancel booking')));
+      throw err;
+    }
+  };
+
   const clearError = () => dispatch(clearBookingError());
   const resetState = () => dispatch(resetBookingState());
 
@@ -103,6 +115,7 @@ export const useBooking = () => {
     acceptBooking,
     confirmPickup,
     confirmDropoff,
+    cancelBooking,
     clearError,
     resetState,
   };
