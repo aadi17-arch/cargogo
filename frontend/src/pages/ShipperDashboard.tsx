@@ -24,7 +24,7 @@ function ChangeMapView({ center }: { center: [number, number] }) {
 
 function ShipperDashboard() {
   const { token } = useAuth();
-  const { bookings, fetchMyBookings, createBooking: apiCreateBooking } = useBooking();
+  const { bookings, fetchMyBookings, createBooking: apiCreateBooking, cancelBooking } = useBooking();
   const { bookCargo, on } = useSocket(token);
   const navigate = useNavigate();
 
@@ -203,6 +203,17 @@ function ShipperDashboard() {
       fetchMyBookings();
     } catch (err: any) {
       alert(err?.response?.data?.message || 'Failed to create booking');
+    }
+  };
+
+  const handleCancelBooking = async (id: string) => {
+    if (!window.confirm('Are you sure you want to cancel this booking?')) return;
+    try {
+      await cancelBooking(id);
+      alert('Booking cancelled successfully.');
+      fetchMyBookings();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || 'Failed to cancel booking');
     }
   };
 
@@ -395,9 +406,19 @@ function ShipperDashboard() {
                 <p className="font-medium">{b.cargoType} — <span className="text-blue-600 font-semibold">{b.status}</span></p>
                 <p className="text-sm text-gray-500">Price: ₹{b.price} | OTP: {b.pickupOTP}</p>
               </div>
-              <button onClick={() => navigate(`/track/${b.id}`)} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
-                Track
-              </button>
+              <div className="flex gap-2">
+                {['PENDING', 'ACCEPTED'].includes(b.status) && (
+                  <button 
+                    onClick={() => handleCancelBooking(b.id)} 
+                    className="bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-red-700 transition"
+                  >
+                    Cancel
+                  </button>
+                )}
+                <button onClick={() => navigate(`/track/${b.id}`)} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
+                  Track
+                </button>
+              </div>
             </div>
           ))}
         </div>
