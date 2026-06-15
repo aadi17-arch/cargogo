@@ -4,8 +4,8 @@ import { Vehicle } from '../types/vehicle.types';
 import { ApiResponse } from '../types/api.types';
 
 export const driverService = {
-  async updateOnlineStatus(isOnline: boolean): Promise<DriverProfile> {
-    const response = await api.post<ApiResponse<DriverProfile>>('/drivers/online', { isOnline });
+  async updateOnlineStatus(isOnline: boolean, latitude: number, longitude: number): Promise<DriverProfile> {
+    const response = await api.post<ApiResponse<DriverProfile>>('/drivers/online', { isOnline, latitude, longitude });
     return response.data.data!;
   },
 
