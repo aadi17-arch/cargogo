@@ -172,3 +172,18 @@ export const getInvoice = async (bookingId: string) => {
         totalPrice: booking.price
     };
 };
+export const cancelBooking = async (bookingId: string, userId: string) => {
+    const booking = await prisma.booking.findUnique({
+        where: { id: bookingId }
+    });
+    if (!booking) throw new Error('Booking not found');
+    if (booking.shipperId !== userId) throw new Error('Unauthorized');
+
+    const allowedStatuses = ['PENDING', 'ACCEPTED'];
+
+    if (!allowedStatuses.includes(booking.status)) throw new Error('Cannot cancel booking once it is in transit or completed');
+    return prisma.booking.update({
+        where: { id: bookingId },
+        data: { status: 'CANCELLED' }
+    });
+};
