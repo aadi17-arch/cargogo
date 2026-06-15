@@ -1,12 +1,13 @@
 import { Router } from 'express';
-import { create, getBookingsById, getMyBookings, confirmPickup, confirmDropOff, getPending, accept, complete, getInvoiceDetail } from '@/controllers/booking.controller';
+import { create, getBookingsById, getMyBookings, confirmPickup, confirmDropOff, getPending, accept, complete, getInvoiceDetail,cancel } from '@/controllers/booking.controller';
 import { authenticate } from '@/middleware/auth.middleware';
 import { requiredRole } from '@/middleware/role.middleware';
 import { validateRequest } from '@/middleware/validate.middleware';
 import { createBookingSchema } from '@/validations/booking.validation';
+import { idempotency } from '@/middleware/idempotency.middleware';
 const r = Router();
 
-r.post('/createBooking', authenticate, requiredRole('SHIPPER'),validateRequest(createBookingSchema) ,create);
+r.post('/createBooking', authenticate, requiredRole('SHIPPER'),idempotency,validateRequest(createBookingSchema) ,create);
 r.get('/my', authenticate, getMyBookings);
 r.get('/pending', authenticate, requiredRole('DRIVER'), getPending);
 
@@ -17,6 +18,10 @@ r.post('/:id/pickup', authenticate, requiredRole('DRIVER'), confirmPickup);
 r.post('/:id/dropoff', authenticate, requiredRole('DRIVER'), confirmDropOff);
 
 r.post('/:id/complete', authenticate, requiredRole('DRIVER'), complete);
-r.get('/:id/invoice',authenticate,getInvoiceDetail);
+r.get('/:id/invoice', authenticate, getInvoiceDetail);
+
+r.post('/:id/cancel', authenticate, requiredRole('SHIPPER'), cancel);
+
+
 
 export default r;
