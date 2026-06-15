@@ -21,7 +21,11 @@ export const addDispatchJob = async (
     { bookingId, pickupLat, pickupLng, driverIndex },
     {
       delay,
-      attempts: 1,
+      attempts: 3,
+      backoff: {
+        type: 'exponential',
+        delay:5000
+      },
       jobId: `dispatch:${bookingId}:${driverIndex}`,
     }
   );
@@ -67,7 +71,9 @@ export const startDispatchWorker = (io: any) => {
 
       await addDispatchJob(bookingId, pickupLat, pickupLng, driverIndex + 1);
     },
-    { connection: connection as any }
+    {
+      connection: connection as any,
+     }
   );
   console.log('dispatcher worker started');
 };
