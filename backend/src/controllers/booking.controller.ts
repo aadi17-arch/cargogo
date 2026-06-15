@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createBooking, getBookingById, getShipperBookings, getDriverBookings, verifyDropOffOTP, verifyPickupOTP, getPendingBookings } from '@/services/booking.service';
+import { createBooking, getBookingById, getShipperBookings, getDriverBookings, verifyDropOffOTP, verifyPickupOTP, getPendingBookings ,cancelBooking} from '@/services/booking.service';
 import { acceptBooking } from '@/services/matching.service';
 import { startGpsSimulation } from '@/services/gps-simulator.service';
 import { completeBooking,getInvoice } from '@/services/booking.service';
@@ -67,4 +67,17 @@ export const complete = catchAsync(async (req: Request, res: Response) => {
 export const getInvoiceDetail = catchAsync(async (req: Request, res: Response) => {
     const invoice = await getInvoice(req.params.id);
     res.json({ success: true, data: invoice });
+});
+
+export const cancel = catchAsync(async (req: Request, res: Response) => {
+    const booking = await cancelBooking(req.params.id, req.user.id);
+    if (booking.driverId) {
+        const io = req.app.get('io');
+        io.to(`driver:${booking.driverId}`).emit('booking-cancelled', {
+            bookingId: booking.id,
+            message: 'Shipper has cancelled this booking.'
+        });
+    }
+
+    res.json({ success: true, data: booking });
 });
