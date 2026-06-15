@@ -18,10 +18,10 @@ export const useDriverStatus = () => {
   );
 
   const isOnline = profile?.isOnline || false;
-  const updateStatus = async (status: 'ONLINE' | 'OFFLINE') => {
+  const updateStatus = async (status: 'ONLINE' | 'OFFLINE', latitude?: number, longitude?: number) => {
     dispatch(driverStart());
     try {
-      const response = await driverService.updateOnlineStatus(status === 'ONLINE');
+      const response = await driverService.updateOnlineStatus(status === 'ONLINE', latitude || 0, longitude || 0);
       dispatch(updateDriverStatusSuccess(response));
       return response;
     } catch (err: any) {
