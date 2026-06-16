@@ -186,14 +186,46 @@ function ShipperDashboard() {
     };
   }, [on]);
 
+  const getHaversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371; // Earth radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
   const getQuote = async () => {
     if (form.pickupLat === null || form.pickupLng === null || form.dropoffLat === null || form.dropoffLng === null) {
       alert('Please select both From and To locations to calculate the price.');
       return;
     }
+    
+    const distanceKm = getHaversineDistance(form.pickupLat, form.pickupLng, form.dropoffLat, form.dropoffLng);
     const volumetric = (form.lengthCm * form.widthCm * form.heightCm) / 5000;
     const chargeable = Math.max(form.weightKg, volumetric);
-    setQuote({ volumetric, chargeable, estimated: chargeable * 4 + 50 + 19 * 12 });
+
+    const rates: Record<string, { basePrice: number; pricePerKm: number; costPerUnit: number }> = {
+      MINI_TEMPO: { basePrice: 50, pricePerKm: 12, costPerUnit: 4 },
+      PICKUP_TRUCK: { basePrice: 80, pricePerKm: 15, costPerUnit: 5 },
+      CONTAINER_3TON: { basePrice: 150, pricePerKm: 20, costPerUnit: 7 },
+    };
+
+    const rate = rates[form.vehicleType] || rates.MINI_TEMPO;
+    const price = rate.basePrice + (rate.pricePerKm * distanceKm) + (rate.costPerUnit * chargeable);
+
+    setQuote({
+      distanceKm: Math.round(distanceKm * 100) / 100,
+      volumetric: Math.round(volumetric * 100) / 100,
+      chargeable: Math.round(chargeable * 100) / 100,
+      basePrice: rate.basePrice,
+      pricePerKm: rate.pricePerKm,
+      costPerUnit: rate.costPerUnit,
+      estimated: Math.round(price * 100) / 100
+    });
   };
 
   const handleBooking = async () => {
@@ -379,10 +411,19 @@ function ShipperDashboard() {
             </div>
             
             {quote && (
-              <div className="bg-gray-50 p-4 rounded-md border border-gray-100 space-y-1">
-                <p className="text-sm text-gray-600">Volume Weight: <span className="font-semibold text-gray-800">{quote.volumetric.toFixed(1)} kg</span></p>
-                <p className="text-sm text-gray-600">Billed Weight: <span className="font-semibold text-gray-800">{quote.chargeable.toFixed(1)} kg</span></p>
-                <p className="text-lg font-bold text-green-600">Price: ₹{Math.round(quote.estimated)}</p>
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-2 text-xs">
+                <p className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Pricing Breakdown Scheme</p>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-slate-700">
+                  <p>Distance: <span className="font-bold">{quote.distanceKm} km</span></p>
+                  <p>Billed Weight: <span className="font-bold">{quote.chargeable} kg</span></p>
+                  <p>Base Fare: <span className="font-bold">₹{quote.basePrice}</span></p>
+                  <p>Distance Rate: <span className="font-bold">₹{quote.pricePerKm}/km</span></p>
+                  <p>Weight Rate: <span className="font-bold">₹{quote.costPerUnit}/kg</span></p>
+                </div>
+                <div className="border-t border-slate-200 pt-2 flex justify-between items-center">
+                  <span className="text-sm font-bold text-slate-800">Total Price Estimate:</span>
+                  <span className="text-lg font-bold text-green-600">₹{Math.round(quote.estimated)}</span>
+                </div>
               </div>
             )}
           </div>
