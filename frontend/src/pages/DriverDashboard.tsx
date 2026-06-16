@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
 import { useSocket } from '@/hooks/useSocket';
+import { driverService } from '@/services/driver.service';
+import { VrpRouteResponse } from '@/types/driver.types';
 
 function DriverDashboard() {
   const { token } = useAuth();
@@ -16,6 +18,8 @@ function DriverDashboard() {
   const [earnings, setEarnings] = useState(0);
   const [pendingBookings, setPendingBookings] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'my_jobs' | 'jobs_board'>('my_jobs');
+  const [routeData, setRouteData] = useState<VrpRouteResponse | null>(null);
+  const [loadingRoute, setLoadingRoute] = useState(false);
   const navigate = useNavigate();
 
   const loadData = async () => {
@@ -25,6 +29,35 @@ function DriverDashboard() {
       setPendingBookings(pending || []);
     } catch (err) {
       console.error(err);
+    }
+    fetchRoute();
+  };
+
+  const fetchRoute = async () => {
+    setLoadingRoute(true);
+    try {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            const data = await driverService.getOptimizedRoute(latitude, longitude);
+            setRouteData(data);
+            setLoadingRoute(false);
+          },
+          async () => {
+            const data = await driverService.getOptimizedRoute();
+            setRouteData(data);
+            setLoadingRoute(false);
+          }
+        );
+      } else {
+        const data = await driverService.getOptimizedRoute();
+        setRouteData(data);
+        setLoadingRoute(false);
+      }
+    } catch (err) {
+      console.error('Failed to fetch optimized route:', err);
+      setLoadingRoute(false);
     }
   };
 
@@ -201,6 +234,51 @@ function DriverDashboard() {
             </div>
           ) : (
             <p className="text-gray-500 text-center py-4">No active shipments. Go online to receive orders!</p>
+          )}
+
+          {bookings.length > 0 && (
+            <div className="mt-6 border-t pt-6">
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-md font-semibold text-gray-800">Optimized Stop Itinerary (VRP)</h4>
+                <button
+                  onClick={fetchRoute}
+                  disabled={loadingRoute}
+                  className="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1 rounded text-xs font-semibold transition animate-fade-in"
+                >
+                  {loadingRoute ? 'Optimizing...' : 'Re-Optimize Route'}
+                </button>
+              </div>
+
+              {routeData && routeData.route.length > 0 ? (
+                <div className="space-y-4">
+                  <p className="text-xs text-gray-500">
+                    Calculated total distance: <span className="font-bold text-gray-800">{routeData.totalDistanceKm} km</span> | Max Capacity: {routeData.vehicleCapacityKg} kg
+                  </p>
+                  <div className="relative border-l-2 border-blue-100 ml-4 space-y-6">
+                    {routeData.route.map((stop: any, index: number) => (
+                      <div key={index} className="relative pl-6">
+                        <span className={`absolute -left-[9px] top-1.5 w-4 h-4 rounded-full border-2 border-white shadow ${
+                          stop.type === 'PICKUP' ? 'bg-green-500' : 'bg-orange-500'
+                        }`} />
+                        <div>
+                          <p className="text-sm font-semibold text-gray-800">
+                            Stop {index + 1}: <span className={stop.type === 'PICKUP' ? 'text-green-600' : 'text-orange-600'}>{stop.type}</span>
+                          </p>
+                          <p className="text-xs text-gray-600">
+                            Cargo: {stop.cargoType} ({stop.weightKg} kg)
+                          </p>
+                          <p className="text-[11px] text-gray-400">
+                            Expected payload in vehicle: {stop.expectedAccumulatedWeight} kg
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500 text-center py-2">No active route sequence found.</p>
+              )}
+            </div>
           )}
         </div>
       )}

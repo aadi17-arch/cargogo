@@ -1,5 +1,5 @@
 import api from './api';
-import { DriverProfile } from '../types/driver.types';
+import { DriverProfile,VrpRouteResponse } from '../types/driver.types';
 import { Vehicle } from '../types/vehicle.types';
 import { ApiResponse } from '../types/api.types';
 
@@ -28,6 +28,13 @@ export const driverService = {
     capacityKg: number;
   }): Promise<Vehicle> {
     const response = await api.put<ApiResponse<Vehicle>>('/vehicles/update', vehicleData);
+    return response.data.data!;
+  },
+
+  async getOptimizedRoute(latitude?: number, longitude?: number): Promise<VrpRouteResponse>{
+    const params = latitude !== undefined && longitude !== undefined ? { latitude, longitude } : {};
+    const response = await api.get<ApiResponse<VrpRouteResponse>>('/drivers/route', { params });
+
     return response.data.data!;
   },
 };
