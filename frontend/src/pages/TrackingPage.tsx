@@ -256,16 +256,14 @@ function TrackingPage() {
           <h3 className="text-md font-bold text-slate-800 border-b border-slate-100 pb-2">Invoice Details</h3>
           <div className="grid grid-cols-2 gap-y-2 text-xs text-slate-600">
             <span>Base Fare:</span>
-            <span className="font-semibold text-right text-slate-800">₹{invoice.baseFare}</span>
+            <span className="font-semibold text-right text-slate-800">₹{invoice.basePrice}</span>
             <span>Distance Charge:</span>
-            <span className="font-semibold text-right text-slate-800">₹{invoice.distanceFare}</span>
+            <span className="font-semibold text-right text-slate-800">₹{invoice.distanceCost}</span>
             <span>Weight Surcharge:</span>
-            <span className="font-semibold text-right text-slate-800">₹{invoice.weightSurcharge}</span>
-            <span>Tolls & Taxes:</span>
-            <span className="font-semibold text-right text-slate-800">₹{invoice.tollsAndTaxes}</span>
+            <span className="font-semibold text-right text-slate-800">₹{invoice.weightCost}</span>
             <div className="col-span-2 border-t border-slate-100 my-2"></div>
             <span className="text-sm font-bold text-slate-900">Total Price:</span>
-            <span className="text-sm font-bold text-right text-green-600">₹{invoice.total}</span>
+            <span className="text-sm font-bold text-right text-green-600">₹{invoice.totalPrice}</span>
           </div>
         </div>
       )}
