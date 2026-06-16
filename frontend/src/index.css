@@ -21,4 +21,13 @@
   .dark-input-field {
     @apply w-full p-3 bg-[#2D2D2D] text-white placeholder-slate-500 font-medium rounded-xl border border-transparent focus:outline-none focus:border-slate-500 transition-all text-sm;
   }
+  .font-serif-display {
+    font-family: 'Playfair Display', serif;
+  }
+  .font-sans-outfit {
+    font-family: 'Outfit', sans-serif;
+  }
+  .font-tech-space {
+    font-family: 'Space Grotesk', sans-serif;
+  }
 }
