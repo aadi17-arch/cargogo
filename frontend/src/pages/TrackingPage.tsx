@@ -117,6 +117,7 @@ function TrackingPage() {
       });
       alert('Thank you! Your review has been submitted.');
       setReviewSubmitted(true);
+      fetchBooking();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to submit review');
     }
@@ -150,11 +151,11 @@ function TrackingPage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-slate-800">Track Booking</h2>
+      <h2 className="text-3xl font-semibold text-slate-900 font-sans-outfit tracking-tight">Track Booking</h2>
       <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-2">
         <p className="text-sm text-slate-600 flex items-center gap-2">
           Status: 
-          <span className={`px-2.5 py-1 rounded-full text-xs font-bold tracking-wide uppercase border ${
+          <span className={`px-2.5 py-1 rounded-full text-xs font-bold tracking-wide uppercase border font-tech-space ${
             booking.status === 'PENDING' ? 'bg-slate-50 text-slate-600 border-slate-200' :
             booking.status === 'ACCEPTED' ? 'bg-blue-50 text-blue-600 border-blue-200' :
             booking.status === 'IN_TRANSIT' ? 'bg-indigo-50 text-indigo-600 border-indigo-200' :
@@ -167,7 +168,7 @@ function TrackingPage() {
           </span>
         </p>
         <p className="text-sm text-slate-700">Cargo: <span className="font-semibold text-slate-900">{booking.cargoType}</span></p>
-        <p className="text-sm text-slate-700">Price: <span className="font-bold text-slate-900">₹{booking.price}</span></p>
+        <p className="text-sm text-slate-700">Price: <span className="font-bold text-slate-900 font-tech-space">₹{booking.price}</span></p>
       </div>
 
       <div className="h-96 rounded-lg overflow-hidden shadow">
@@ -253,22 +254,39 @@ function TrackingPage() {
 
       {invoice && (
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
-          <h3 className="text-md font-bold text-slate-800 border-b border-slate-100 pb-2">Invoice Details</h3>
-          <div className="grid grid-cols-2 gap-y-2 text-xs text-slate-600">
+          <h3 className="text-xl font-semibold text-slate-800 border-b border-slate-100 pb-2 font-sans-outfit">Invoice Details</h3>
+          <div className="grid grid-cols-2 gap-y-2 text-xs text-slate-600 font-sans-outfit">
             <span>Base Fare:</span>
-            <span className="font-semibold text-right text-slate-800">₹{invoice.basePrice}</span>
+            <span className="font-semibold text-right text-slate-800 font-tech-space">₹{invoice.basePrice}</span>
             <span>Distance Charge:</span>
-            <span className="font-semibold text-right text-slate-800">₹{invoice.distanceCost}</span>
+            <span className="font-semibold text-right text-slate-800 font-tech-space">₹{invoice.distanceCost}</span>
             <span>Weight Surcharge:</span>
-            <span className="font-semibold text-right text-slate-800">₹{invoice.weightCost}</span>
+            <span className="font-semibold text-right text-slate-800 font-tech-space">₹{invoice.weightCost}</span>
             <div className="col-span-2 border-t border-slate-100 my-2"></div>
             <span className="text-sm font-bold text-slate-900">Total Price:</span>
-            <span className="text-sm font-bold text-right text-green-600">₹{invoice.totalPrice}</span>
+            <span className="text-lg font-bold text-right text-green-600 font-tech-space">₹{invoice.totalPrice}</span>
           </div>
         </div>
       )}
 
-      {booking.status === 'COMPLETED' && user?.role === 'SHIPPER' && !reviewSubmitted && (
+      {booking.review && (
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-3">
+          <h3 className="text-xl font-semibold text-slate-800 border-b border-slate-100 pb-2 font-sans-outfit">Customer Feedback</h3>
+          <div className="flex items-center gap-2">
+            <span className="text-amber-400 text-xl font-bold">
+              {'★'.repeat(booking.review.rating)}{'☆'.repeat(5 - booking.review.rating)}
+            </span>
+            <span className="text-sm font-semibold text-slate-700 font-tech-space">({booking.review.rating} / 5 stars)</span>
+          </div>
+          {booking.review.comment && (
+            <p className="text-sm text-slate-600 italic bg-slate-50 p-4 rounded-xl border border-slate-100 mt-2">
+              "{booking.review.comment}"
+            </p>
+          )}
+        </div>
+      )}
+
+      {booking.status === 'COMPLETED' && user?.role === 'SHIPPER' && !booking.review && !reviewSubmitted && (
         <form onSubmit={handleReviewSubmit} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
           <h3 className="text-md font-bold text-slate-800 border-b border-slate-100 pb-2">Rate Driver Experience</h3>
           
