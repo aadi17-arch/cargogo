@@ -482,7 +482,11 @@ function ShipperDashboard() {
                     {b.status}
                   </span>
                 </p>
-                <p className="text-xs text-gray-500">Price: ₹{b.price} | OTP: {b.pickupOTP}</p>
+                <p className="text-xs text-gray-500">
+                  Price: ₹{b.price}
+                  {b.status === 'ACCEPTED' && ` | Pickup OTP: ${b.pickupOTP}`}
+                  {b.status === 'IN_TRANSIT' && ` | Dropoff OTP: ${b.dropoffOTP}`}
+                </p>
               </div>
               <div className="flex gap-2">
                 {['PENDING', 'ACCEPTED'].includes(b.status) && (
