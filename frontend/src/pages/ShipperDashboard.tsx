@@ -247,10 +247,10 @@ function ShipperDashboard() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Shipper Dashboard</h2>
+      <h2 className="text-2xl font-bold text-slate-800">Shipper Dashboard</h2>
       
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-4">Book a Delivery</h3>
+      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+        <h3 className="text-lg font-bold text-slate-800 mb-4">Book a Delivery</h3>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Form Fields Column */}
@@ -258,25 +258,25 @@ function ShipperDashboard() {
             
             {/* Pickup Address Search Input */}
             <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-1">From</label>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">From (Pickup Address)</label>
               <div className="flex gap-2">
                 <input 
                   placeholder="Type pickup address..." 
                   value={pickupSearch} 
                   onChange={(e) => setPickupSearch(e.target.value)} 
-                  className="flex-1 p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-sm"
+                  className="input-field flex-1"
                 />
                 <button 
                   type="button"
                   onClick={() => searchAddress(pickupSearch, 'pickup')}
-                  className="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition"
+                  className="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-black transition"
                 >
                   Search
                 </button>
               </div>
               {searchingPickup && <p className="text-xs text-gray-400 mt-1">Searching...</p>}
               {pickupResults.length > 0 && (
-                <div className="absolute z-[1000] bg-white border border-gray-200 w-full rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
+                <div className="absolute z-[1000] bg-white border border-gray-200 w-full rounded-xl shadow-lg mt-1 max-h-48 overflow-y-auto">
                   {pickupResults.map((r, i) => (
                     <button
                       key={i}
@@ -295,7 +295,7 @@ function ShipperDashboard() {
               <button 
                 type="button" 
                 onClick={locateMe}
-                className="bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-blue-100 flex items-center gap-1 transition"
+                className="bg-slate-50 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-slate-100 flex items-center gap-1 transition"
               >
                 My Location
               </button>
@@ -303,25 +303,25 @@ function ShipperDashboard() {
 
             {/* Drop-off Address Search Input */}
             <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-1">To</label>
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">To (Drop-off Address)</label>
               <div className="flex gap-2">
                 <input 
                   placeholder="Type drop-off address..." 
                   value={dropoffSearch} 
                   onChange={(e) => setDropoffSearch(e.target.value)} 
-                  className="flex-1 p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-sm"
+                  className="input-field flex-1"
                 />
                 <button 
                   type="button"
                   onClick={() => searchAddress(dropoffSearch, 'dropoff')}
-                  className="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition"
+                  className="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-black transition"
                 >
                   Search
                 </button>
               </div>
               {searchingDropoff && <p className="text-xs text-gray-400 mt-1">Searching...</p>}
               {dropoffResults.length > 0 && (
-                <div className="absolute z-[1000] bg-white border border-gray-200 w-full rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
+                <div className="absolute z-[1000] bg-white border border-gray-200 w-full rounded-xl shadow-lg mt-1 max-h-48 overflow-y-auto">
                   {dropoffResults.map((r, i) => (
                     <button
                       key={i}
@@ -336,37 +336,37 @@ function ShipperDashboard() {
               )}
             </div>
 
-            <hr className="my-2" />
+            <hr className="my-2 border-slate-100" />
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Cargo Type</label>
-                <input placeholder="e.g. Electronics" value={form.cargoType} onChange={(e) => setForm({...form, cargoType: e.target.value})} className="w-full p-2.5 border rounded-lg" />
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Cargo Type</label>
+                <input placeholder="e.g. Electronics" value={form.cargoType} onChange={(e) => setForm({...form, cargoType: e.target.value})} className="input-field" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Weight (kg)</label>
-                <input placeholder="Weight" type="number" value={form.weightKg} onChange={(e) => setForm({...form, weightKg: +e.target.value})} className="w-full p-2.5 border rounded-lg" />
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Weight (kg)</label>
+                <input placeholder="Weight" type="number" value={form.weightKg} onChange={(e) => setForm({...form, weightKg: +e.target.value})} className="input-field" />
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Length (cm)</label>
-                <input placeholder="Length" type="number" value={form.lengthCm} onChange={(e) => setForm({...form, lengthCm: +e.target.value})} className="w-full p-2 border rounded" />
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Length (cm)</label>
+                <input placeholder="Length" type="number" value={form.lengthCm} onChange={(e) => setForm({...form, lengthCm: +e.target.value})} className="input-field" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Width (cm)</label>
-                <input placeholder="Width" type="number" value={form.widthCm} onChange={(e) => setForm({...form, widthCm: +e.target.value})} className="w-full p-2 border rounded" />
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Width (cm)</label>
+                <input placeholder="Width" type="number" value={form.widthCm} onChange={(e) => setForm({...form, widthCm: +e.target.value})} className="input-field" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Height (cm)</label>
-                <input placeholder="Height" type="number" value={form.heightCm} onChange={(e) => setForm({...form, heightCm: +e.target.value})} className="w-full p-2 border rounded" />
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Height (cm)</label>
+                <input placeholder="Height" type="number" value={form.heightCm} onChange={(e) => setForm({...form, heightCm: +e.target.value})} className="input-field" />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle</label>
-              <select value={form.vehicleType} onChange={(e) => setForm({...form, vehicleType: e.target.value as any})} className="w-full p-2.5 border rounded-lg">
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Vehicle Type</label>
+              <select value={form.vehicleType} onChange={(e) => setForm({...form, vehicleType: e.target.value as any})} className="input-field bg-white">
                 <option value="MINI_TEMPO">Mini Tempo</option>
                 <option value="PICKUP_TRUCK">Pickup Truck</option>
                 <option value="CONTAINER_3TON">3-Ton Container</option>
@@ -374,8 +374,8 @@ function ShipperDashboard() {
             </div>
 
             <div className="pt-2 flex gap-2">
-              <button onClick={getQuote} className="flex-1 bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 font-semibold transition shadow-sm">Get Price</button>
-              <button onClick={handleBooking} className="flex-1 bg-green-600 text-white px-4 py-2.5 rounded-lg hover:bg-green-700 font-semibold transition shadow-sm">Book Now</button>
+              <button onClick={getQuote} className="flex-1 bg-slate-100 text-slate-800 px-4 py-2.5 rounded-xl hover:bg-slate-200 font-semibold transition">Get Price</button>
+              <button onClick={handleBooking} className="flex-1 bg-slate-900 text-white px-4 py-2.5 rounded-xl hover:bg-black font-semibold transition">Book Now</button>
             </div>
             
             {quote && (
@@ -420,9 +420,9 @@ function ShipperDashboard() {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-4">My Bookings</h3>
-        <button onClick={fetchMyBookings} className="mb-4 bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">Refresh</button>
+      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+        <h3 className="text-lg font-bold text-slate-800 mb-4">My Bookings</h3>
+        <button onClick={fetchMyBookings} className="mb-4 bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-2 rounded-xl text-sm font-semibold transition">Refresh</button>
         <div className="space-y-2">
           {bookings.map((b: any) => (
             <div key={b.id} className="border p-3 rounded flex justify-between items-center hover:bg-gray-50 transition">
