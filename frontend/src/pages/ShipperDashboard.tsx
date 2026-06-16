@@ -279,10 +279,12 @@ function ShipperDashboard() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-slate-800">Shipper Dashboard</h2>
+      <h2 className="text-3xl font-semibold text-slate-900 font-sans-outfit tracking-tight">Shipper Dashboard</h2>
       
-      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-        <h3 className="text-lg font-bold text-slate-800 mb-4">Book a Delivery</h3>
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+        {/* Left Column: Form & Map */}
+        <div className="xl:col-span-2 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+          <h3 className="text-xl font-semibold text-slate-800 mb-4 font-sans-outfit">Book a Delivery</h3>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Form Fields Column */}
@@ -291,7 +293,7 @@ function ShipperDashboard() {
             {/* Pickup Address Search Input */}
             <div className="relative">
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">From (Pickup Address)</label>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
                 <input 
                   placeholder="Type pickup address..." 
                   value={pickupSearch} 
@@ -301,7 +303,7 @@ function ShipperDashboard() {
                 <button 
                   type="button"
                   onClick={() => searchAddress(pickupSearch, 'pickup')}
-                  className="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-black transition"
+                  className="bg-slate-900 text-white px-4 py-3 rounded-xl text-sm font-semibold hover:bg-black transition whitespace-nowrap shrink-0"
                 >
                   Search
                 </button>
@@ -336,7 +338,7 @@ function ShipperDashboard() {
             {/* Drop-off Address Search Input */}
             <div className="relative">
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">To (Drop-off Address)</label>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
                 <input 
                   placeholder="Type drop-off address..." 
                   value={dropoffSearch} 
@@ -346,7 +348,7 @@ function ShipperDashboard() {
                 <button 
                   type="button"
                   onClick={() => searchAddress(dropoffSearch, 'dropoff')}
-                  className="bg-slate-900 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-black transition"
+                  className="bg-slate-900 text-white px-4 py-3 rounded-xl text-sm font-semibold hover:bg-black transition whitespace-nowrap shrink-0"
                 >
                   Search
                 </button>
@@ -406,23 +408,23 @@ function ShipperDashboard() {
             </div>
 
             <div className="pt-2 flex gap-2">
-              <button onClick={getQuote} className="flex-1 bg-slate-100 text-slate-800 px-4 py-2.5 rounded-xl hover:bg-slate-200 font-semibold transition">Get Price</button>
-              <button onClick={handleBooking} className="flex-1 bg-slate-900 text-white px-4 py-2.5 rounded-xl hover:bg-black font-semibold transition">Book Now</button>
+              <button onClick={getQuote} className="flex-1 bg-slate-100 text-slate-800 px-4 py-3 rounded-xl hover:bg-slate-200 font-semibold transition text-sm">Get Price</button>
+              <button onClick={handleBooking} className="flex-1 bg-slate-900 text-white px-4 py-3 rounded-xl hover:bg-black font-semibold transition text-sm">Book Now</button>
             </div>
             
             {quote && (
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-2 text-xs">
-                <p className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Pricing Breakdown Scheme</p>
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-2 text-xs font-sans-outfit">
+                <p className="text-slate-500 font-bold uppercase tracking-wider text-[10px] font-tech-space">Pricing Breakdown Scheme</p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-slate-700">
-                  <p>Distance: <span className="font-bold">{quote.distanceKm} km</span></p>
-                  <p>Billed Weight: <span className="font-bold">{quote.chargeable} kg</span></p>
-                  <p>Base Fare: <span className="font-bold">₹{quote.basePrice}</span></p>
-                  <p>Distance Rate: <span className="font-bold">₹{quote.pricePerKm}/km</span></p>
-                  <p>Weight Rate: <span className="font-bold">₹{quote.costPerUnit}/kg</span></p>
+                  <p>Distance: <span className="font-bold font-tech-space">{quote.distanceKm} km</span></p>
+                  <p>Billed Weight: <span className="font-bold font-tech-space">{quote.chargeable} kg</span></p>
+                  <p>Base Fare: <span className="font-bold font-tech-space">₹{quote.basePrice}</span></p>
+                  <p>Distance Rate: <span className="font-bold font-tech-space">₹{quote.pricePerKm}/km</span></p>
+                  <p>Weight Rate: <span className="font-bold font-tech-space">₹{quote.costPerUnit}/kg</span></p>
                 </div>
                 <div className="border-t border-slate-200 pt-2 flex justify-between items-center">
                   <span className="text-sm font-bold text-slate-800">Total Price Estimate:</span>
-                  <span className="text-lg font-bold text-green-600">₹{Math.round(quote.estimated)}</span>
+                  <span className="text-2xl font-bold text-green-600 font-tech-space">₹{Math.round(quote.estimated)}</span>
                 </div>
               </div>
             )}
@@ -459,18 +461,19 @@ function ShipperDashboard() {
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-        <h3 className="text-lg font-bold text-slate-800 mb-4">My Bookings</h3>
+        </div>
+      
+        {/* Right Column: My Bookings Feed */}
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+          <h3 className="text-xl font-semibold text-slate-800 mb-4 font-sans-outfit">My Bookings</h3>
         <button onClick={fetchMyBookings} className="mb-4 bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-2 rounded-xl text-sm font-semibold transition">Refresh</button>
         <div className="space-y-2">
           {bookings.map((b: any) => (
-            <div key={b.id} className="border p-3 rounded flex justify-between items-center hover:bg-gray-50 transition">
-              <div>
-                <p className="font-medium text-slate-800 flex items-center gap-2 mb-1">
+            <div key={b.id} className="border p-4 rounded-xl flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 hover:bg-gray-50 transition">
+              <div className="space-y-1.5">
+                <p className="font-medium text-slate-800 flex flex-wrap items-center gap-2 mb-1">
                   {b.cargoType}
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border font-tech-space ${
                     b.status === 'PENDING' ? 'bg-slate-50 text-slate-600 border-slate-200' :
                     b.status === 'ACCEPTED' ? 'bg-blue-50 text-blue-600 border-blue-200' :
                     b.status === 'IN_TRANSIT' ? 'bg-indigo-50 text-indigo-600 border-indigo-200' :
@@ -482,17 +485,17 @@ function ShipperDashboard() {
                     {b.status}
                   </span>
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 font-tech-space leading-relaxed">
                   Price: ₹{b.price}
                   {b.status === 'ACCEPTED' && ` | Pickup OTP: ${b.pickupOTP}`}
                   {b.status === 'IN_TRANSIT' && ` | Dropoff OTP: ${b.dropoffOTP}`}
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 w-full sm:w-auto justify-end shrink-0">
                 {['PENDING', 'ACCEPTED'].includes(b.status) && (
                   <button 
                     onClick={() => handleCancelBooking(b.id)} 
-                    className="bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-red-700 transition"
+                    className="bg-red-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-red-700 transition"
                   >
                     Cancel
                   </button>
@@ -500,18 +503,19 @@ function ShipperDashboard() {
                 {b.status === 'DELIVERED' && (
                   <button 
                     onClick={() => setSelectedBookingForPayment(b)} 
-                    className="bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-700 transition"
+                    className="bg-green-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-green-700 transition"
                   >
                     Pay
                   </button>
                 )}
-                <button onClick={() => navigate(`/track/${b.id}`)} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
+                <button onClick={() => navigate(`/track/${b.id}`)} className="bg-blue-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-blue-700 transition">
                   Track
                 </button>
               </div>
             </div>
           ))}
         </div>
+      </div>
       </div>
 
       {selectedBookingForPayment && (

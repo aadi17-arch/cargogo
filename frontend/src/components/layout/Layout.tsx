@@ -20,7 +20,7 @@ function Layout() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <main className="p-4 max-w-6xl mx-auto">
+      <main className="p-6 max-w-[1600px] mx-auto w-full">
         <Outlet />
       </main>
     </div>

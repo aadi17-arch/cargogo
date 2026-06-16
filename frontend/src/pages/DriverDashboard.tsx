@@ -155,7 +155,7 @@ function DriverDashboard() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-slate-800">Driver Dashboard</h2>
+      <h2 className="text-3xl font-semibold text-slate-900 font-sans-outfit tracking-tight">Driver Dashboard</h2>
 
       <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center">
         <div>
@@ -210,15 +210,15 @@ function DriverDashboard() {
       {activeTab === 'my_jobs' && (
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-bold text-slate-800">Accepted Shipments</h3>
+            <h3 className="text-xl font-semibold text-slate-800 font-sans-outfit">Accepted Shipments</h3>
             <button onClick={fetchMyBookings} className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-1.5 rounded-xl text-sm font-semibold transition">Refresh</button>
           </div>
           {bookings.length > 0 ? (
             <div className="space-y-2">
               {bookings.map((b: any) => (
-                <div key={b.id} className="border p-3 rounded flex justify-between items-center bg-gray-50">
-                  <div>
-                    <p className="font-medium text-slate-800 flex items-center gap-2 mb-1">
+                <div key={b.id} className="border p-4 rounded-xl flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 bg-gray-50">
+                  <div className="space-y-1.5">
+                    <p className="font-medium text-slate-800 flex flex-wrap items-center gap-2 mb-1">
                       {b.cargoType}
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
                         b.status === 'PENDING' ? 'bg-slate-50 text-slate-600 border-slate-200' :
@@ -232,14 +232,14 @@ function DriverDashboard() {
                         {b.status}
                       </span>
                     </p>
-                    <p className="text-xs text-gray-500">Payout: ₹{b.price} | Weight: {b.weightKg}kg</p>
+                    <p className="text-xs text-gray-500 font-tech-space leading-relaxed">Payout: ₹{b.price} | Weight: {b.weightKg}kg</p>
                   </div>
-                  {b.status !== 'DELIVERED' && b.status !== 'CANCELLED' && (
+                  {b.status !== 'CANCELLED' && (
                     <button
                       onClick={() => navigate(`/track/${b.id}`)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm w-full sm:w-auto text-center shrink-0"
                     >
-                      Track
+                      {['DELIVERED', 'COMPLETED'].includes(b.status) ? 'View Details' : 'Track'}
                     </button>
                   )}
                 </div>
@@ -252,44 +252,60 @@ function DriverDashboard() {
           {bookings.length > 0 && (
             <div className="mt-6 border-t pt-6">
               <div className="flex justify-between items-center mb-4">
-                <h4 className="text-md font-semibold text-gray-800">Optimized Stop Itinerary (VRP)</h4>
+                <h4 className="text-md font-semibold text-slate-800 font-sans-outfit">Route Stops</h4>
                 <button
                   onClick={fetchRoute}
                   disabled={loadingRoute}
-                  className="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1 rounded text-xs font-semibold transition animate-fade-in"
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm"
                 >
-                  {loadingRoute ? 'Optimizing...' : 'Re-Optimize Route'}
+                  {loadingRoute ? 'Planning...' : 'Re-plan Route'}
                 </button>
               </div>
 
               {routeData && routeData.route.length > 0 ? (
                 <div className="space-y-4">
-                  <p className="text-xs text-gray-500">
-                    Calculated total distance: <span className="font-bold text-gray-800">{routeData.totalDistanceKm} km</span> | Max Capacity: {routeData.vehicleCapacityKg} kg
+                  <p className="text-xs text-gray-500 font-tech-space">
+                    Total Distance: <span className="font-bold text-slate-800">{routeData.totalDistanceKm} km</span> | Max Weight: {routeData.vehicleCapacityKg} kg
                   </p>
-                  <div className="relative border-l-2 border-blue-100 ml-4 space-y-6">
+                  <div className="relative border-l border-slate-200 ml-3 pl-6 space-y-4">
                     {routeData.route.map((stop: any, index: number) => (
-                      <div key={index} className="relative pl-6">
-                        <span className={`absolute -left-[9px] top-1.5 w-4 h-4 rounded-full border-2 border-white shadow ${
-                          stop.type === 'PICKUP' ? 'bg-green-500' : 'bg-orange-500'
-                        }`} />
-                        <div>
-                          <p className="text-sm font-semibold text-gray-800">
-                            Stop {index + 1}: <span className={stop.type === 'PICKUP' ? 'text-green-600' : 'text-orange-600'}>{stop.type}</span>
-                          </p>
-                          <p className="text-xs text-gray-600">
-                            Cargo: {stop.cargoType} ({stop.weightKg} kg)
-                          </p>
-                          <p className="text-[11px] text-gray-400">
-                            Expected payload in vehicle: {stop.expectedAccumulatedWeight} kg
-                          </p>
+                      <div key={index} className="relative">
+                        {/* Timeline circle badge */}
+                        <span className={`absolute -left-[35px] top-3.5 w-5 h-5 rounded-full border border-white flex items-center justify-center text-[10px] font-bold text-white shadow-sm ${
+                          stop.type === 'PICKUP' ? 'bg-emerald-600' : 'bg-orange-600'
+                        }`}>
+                          {index + 1}
+                        </span>
+                        
+                        {/* Stop Card */}
+                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-100/50 transition">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className={`text-[10px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-md ${
+                                stop.type === 'PICKUP' ? 'bg-emerald-100 text-emerald-800' : 'bg-orange-100 text-orange-800'
+                              }`}>
+                                {stop.type === 'PICKUP' ? 'Pickup' : 'Dropoff'}
+                              </span>
+                              <span className="text-sm font-semibold text-slate-800 font-sans-outfit">
+                                {stop.cargoType}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-500 font-tech-space">
+                              Weight: {stop.weightKg} kg
+                            </p>
+                          </div>
+                          
+                          <div className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-[10px] font-bold text-slate-600 font-tech-space sm:text-right shrink-0">
+                            <span className="block text-slate-400 font-normal uppercase text-[8px] tracking-wider mb-0.5">Vehicle Load</span>
+                            {stop.expectedAccumulatedWeight} kg
+                          </div>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-gray-500 text-center py-2">No active route sequence found.</p>
+                <p className="text-xs text-gray-500 text-center py-2 font-tech-space">No active route stops found.</p>
               )}
             </div>
           )}
@@ -299,21 +315,23 @@ function DriverDashboard() {
       {activeTab === 'jobs_board' && (
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-bold text-slate-800">Available Jobs</h3>
+            <h3 className="text-xl font-semibold text-slate-800 font-sans-outfit">Available Jobs</h3>
             <button onClick={loadData} className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-1.5 rounded-xl text-sm font-semibold transition">Refresh</button>
           </div>
           {pendingBookings.length > 0 ? (
             <div className="space-y-3">
               {pendingBookings.map((b: any) => (
-                <div key={b.id} className="border border-gray-100 p-4 rounded-lg bg-gray-50 flex justify-between items-center shadow-sm">
-                  <div>
-                    <p className="font-semibold text-gray-900">{b.cargoType}</p>
-                    <p className="text-sm text-gray-600">Payout: <span className="text-green-600 font-bold">₹{b.price}</span> | Distance: {b.distanceKm} km</p>
-                    <p className="text-xs text-gray-400 mt-1">Received: {new Date(b.createdAt).toLocaleString()}</p>
+                <div key={b.id} className="border border-slate-100 p-4 rounded-xl bg-gray-50 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 shadow-sm">
+                  <div className="space-y-1">
+                    <p className="font-semibold text-slate-800">{b.cargoType}</p>
+                    <p className="text-xs text-gray-500 font-tech-space leading-relaxed">
+                      Payout: <span className="text-green-600 font-bold">₹{b.price}</span> | Distance: {b.distanceKm} km
+                    </p>
+                    <p className="text-[10px] text-gray-400">Received: {new Date(b.createdAt).toLocaleString()}</p>
                   </div>
                   <button
                     onClick={() => handleAcceptPending(b.id)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg text-sm transition-all shadow-sm"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm w-full sm:w-auto text-center shrink-0"
                   >
                     Accept
                   </button>
