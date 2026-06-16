@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
 import { useSocket } from '@/hooks/useSocket';
+import { paymentService } from '@/services/payment.service';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -27,6 +28,10 @@ function ShipperDashboard() {
   const { bookings, fetchMyBookings, createBooking: apiCreateBooking, cancelBooking } = useBooking();
   const { bookCargo, on } = useSocket(token);
   const navigate = useNavigate();
+
+  const [selectedBookingForPayment, setSelectedBookingForPayment] = useState<any | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState('CARD');
+  const [processingPayment, setProcessingPayment] = useState(false);
 
   const [form, setForm] = useState({
     pickupLat: null as number | null,
@@ -214,6 +219,25 @@ function ShipperDashboard() {
       fetchMyBookings();
     } catch (err: any) {
       alert(err?.response?.data?.message || 'Failed to cancel booking');
+    }
+  };
+
+  const handleProcessPayment = async () => {
+    if (!selectedBookingForPayment) return;
+    setProcessingPayment(true);
+    try {
+      await paymentService.processCheckout(
+        selectedBookingForPayment.id,
+        paymentMethod,
+        selectedBookingForPayment.price
+      );
+      alert('Payment successful! Booking completed.');
+      setSelectedBookingForPayment(null);
+      fetchMyBookings();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || 'Payment failed. Please try again.');
+    } finally {
+      setProcessingPayment(false);
     }
   };
 
@@ -415,6 +439,14 @@ function ShipperDashboard() {
                     Cancel
                   </button>
                 )}
+                {b.status === 'DELIVERED' && (
+                  <button 
+                    onClick={() => setSelectedBookingForPayment(b)} 
+                    className="bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-green-700 transition"
+                  >
+                    Pay
+                  </button>
+                )}
                 <button onClick={() => navigate(`/track/${b.id}`)} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
                   Track
                 </button>
@@ -423,6 +455,48 @@ function ShipperDashboard() {
           ))}
         </div>
       </div>
+
+      {selectedBookingForPayment && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[2000] p-4">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full shadow-xl animate-fade-in">
+            <h3 className="text-lg font-bold text-gray-800 mb-4">Complete Payment</h3>
+            <div className="space-y-3 mb-6">
+              <p className="text-sm text-gray-600">Cargo: <span className="font-semibold text-gray-800">{selectedBookingForPayment.cargoType}</span></p>
+              <p className="text-sm text-gray-600">Total Amount: <span className="font-bold text-green-600">₹{selectedBookingForPayment.price}</span></p>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Select Payment Method</label>
+                <select 
+                  value={paymentMethod} 
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="w-full p-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100"
+                >
+                  <option value="CARD">Credit / Debit Card</option>
+                  <option value="UPI">UPI (Google Pay / PhonePe)</option>
+                  <option value="NET_BANKING">Net Banking</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setSelectedBookingForPayment(null)} 
+                disabled={processingPayment}
+                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg text-sm font-semibold transition"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleProcessPayment} 
+                disabled={processingPayment}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-1"
+              >
+                {processingPayment ? 'Processing...' : `Pay ₹${selectedBookingForPayment.price}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
