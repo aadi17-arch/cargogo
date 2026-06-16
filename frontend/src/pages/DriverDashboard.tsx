@@ -155,14 +155,14 @@ function DriverDashboard() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Driver Dashboard</h2>
+      <h2 className="text-2xl font-bold text-slate-800">Driver Dashboard</h2>
 
-      <div className="bg-white p-6 rounded-lg shadow flex justify-between items-center">
+      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center">
         <div>
-          <p className="text-lg">Status: <span className={isOnline ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}>{isOnline ? 'Online' : 'Offline'}</span></p>
-          <p className="text-gray-500">Earnings: ₹{earnings}</p>
+          <p className="text-lg font-semibold text-slate-800">Status: <span className={isOnline ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}>{isOnline ? 'Online' : 'Offline'}</span></p>
+          <p className="text-sm text-slate-500 font-medium mt-1">Earnings: ₹{earnings}</p>
         </div>
-        <button onClick={toggleOnline} className={`px-6 py-3 rounded-lg font-bold text-white transition ${isOnline ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'}`}>
+        <button onClick={toggleOnline} className={`px-6 py-2.5 rounded-xl text-sm font-bold text-white transition ${isOnline ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'}`}>
           {isOnline ? 'Go Offline' : 'Go Online'}
         </button>
       </div>
@@ -208,10 +208,10 @@ function DriverDashboard() {
       </div>
 
       {activeTab === 'my_jobs' && (
-        <div className="bg-white p-6 rounded-lg shadow space-y-4">
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Accepted Shipments</h3>
-            <button onClick={fetchMyBookings} className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm font-medium transition">Refresh</button>
+            <h3 className="text-lg font-bold text-slate-800">Accepted Shipments</h3>
+            <button onClick={fetchMyBookings} className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-1.5 rounded-xl text-sm font-semibold transition">Refresh</button>
           </div>
           {bookings.length > 0 ? (
             <div className="space-y-2">
@@ -284,10 +284,10 @@ function DriverDashboard() {
       )}
 
       {activeTab === 'jobs_board' && (
-        <div className="bg-white p-6 rounded-lg shadow space-y-4">
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-gray-800">Available Jobs</h3>
-            <button onClick={loadData} className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm font-medium transition">Refresh</button>
+            <h3 className="text-lg font-bold text-slate-800">Available Jobs</h3>
+            <button onClick={loadData} className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-1.5 rounded-xl text-sm font-semibold transition">Refresh</button>
           </div>
           {pendingBookings.length > 0 ? (
             <div className="space-y-3">
