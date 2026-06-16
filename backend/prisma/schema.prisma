@@ -115,6 +115,7 @@ model Booking {
 
   review         Review?
   dispute        Dispute?
+  payment        Payment?
 }
 model Review {
   id        String   @id @default(uuid())
@@ -144,4 +145,17 @@ model Session {
   refreshToken String   @unique
   expiresAt    DateTime
   createdAt    DateTime @default(now())
+}
+
+model Payment {
+  id            String   @id @default(uuid())
+  bookingId     String   @unique
+  booking       Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  transactionId String   @unique
+  amount        Float
+  paymentMethod String
+  status        String   // e.g. "SUCCESS", "FAILED"
+  createdAt     DateTime @default(now())
+
+  @@map("payments")
 }
