@@ -24,13 +24,13 @@ export function ShipperNavbarOptions() {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row md:flex-wrap md:items-center gap-1 md:gap-5 text-sm font-medium">
-        <Link to="/shipper" className="w-full md:w-auto px-3 py-2 md:p-0 rounded-lg md:rounded-none bg-slate-800 md:bg-transparent text-white hover:text-blue-400 transition">Book Delivery</Link>
-        <button onClick={() => setShowActiveRuns(true)} className="w-full md:w-auto text-left px-3 py-2 md:p-0 rounded-lg md:rounded-none bg-slate-800 md:bg-transparent text-white hover:text-blue-400 transition focus:outline-none">Active Runs</button>
-        <button onClick={() => setShowRates(true)} className="w-full md:w-auto text-left px-3 py-2 md:p-0 rounded-lg md:rounded-none bg-slate-800 md:bg-transparent text-white hover:text-blue-400 transition focus:outline-none">Rates</button>
-        <button onClick={() => setShowServices(true)} className="w-full md:w-auto text-left px-3 py-2 md:p-0 rounded-lg md:rounded-none bg-slate-800 md:bg-transparent text-white hover:text-blue-400 transition focus:outline-none">Services</button>
-        <button onClick={() => setShowFAQ(true)} className="w-full md:w-auto text-left px-3 py-2 md:p-0 rounded-lg md:rounded-none bg-slate-800 md:bg-transparent text-white hover:text-blue-400 transition focus:outline-none">FAQ</button>
-        <button onClick={() => setShowSupport(true)} className="w-full md:w-auto text-left px-3 py-2 md:p-0 rounded-lg md:rounded-none bg-slate-800 md:bg-transparent text-white hover:text-blue-400 transition focus:outline-none">Support</button>
+      <div className="flex flex-col md:flex-row md:flex-wrap md:items-center gap-1.5 text-sm font-medium">
+        <Link to="/shipper" className="w-full md:w-auto px-3.5 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-900 transition">Book Delivery</Link>
+        <button onClick={() => setShowActiveRuns(true)} className="w-full md:w-auto text-left px-3.5 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-900 transition focus:outline-none">Active Runs</button>
+        <button onClick={() => setShowRates(true)} className="w-full md:w-auto text-left px-3.5 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-900 transition focus:outline-none">Rates</button>
+        <button onClick={() => setShowServices(true)} className="w-full md:w-auto text-left px-3.5 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-900 transition focus:outline-none">Services</button>
+        <button onClick={() => setShowFAQ(true)} className="w-full md:w-auto text-left px-3.5 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-900 transition focus:outline-none">FAQ</button>
+        <button onClick={() => setShowSupport(true)} className="w-full md:w-auto text-left px-3.5 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-900 transition focus:outline-none">Support</button>
       </div>
 
       {/* Pricing Rates Modal */}
