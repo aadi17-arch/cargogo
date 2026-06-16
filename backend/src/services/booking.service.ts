@@ -66,8 +66,8 @@ export const getBookingById = async (bookingId: string) => {
                     name: true,
                     email: true
                 }
-            }
-
+            },
+            review: true
         }
     });
 };
