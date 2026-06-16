@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
 import { useSocket } from '@/hooks/useSocket';
 import api from '@/services/api';
+import { paymentService } from '@/services/payment.service';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -94,11 +95,11 @@ function TrackingPage() {
 
   const handlePayment = async () => {
     try {
-      await api.post('/payment/checkout', {
-        bookingId,
-        paymentMethod: 'CARD',
-        amount: booking.price
-      });
+      await paymentService.processCheckout(
+        bookingId!,
+        'CARD',
+        booking.price
+      );
       alert('Payment Successful! Booking status updated to COMPLETED.');
       fetchBooking();
     } catch (err: any) {
@@ -148,12 +149,12 @@ function TrackingPage() {
   const dropoff: [number, number] = [booking.dropoffLat, booking.dropoffLng];
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-bold">Track Booking</h2>
-      <div className="bg-white p-4 rounded-lg shadow">
-        <p>Status: <span className="font-bold">{booking.status}</span></p>
-        <p>Cargo: {booking.cargoType}</p>
-        <p>Price: ₹{booking.price}</p>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold text-slate-800">Track Booking</h2>
+      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-2">
+        <p className="text-sm text-slate-600">Status: <span className="font-bold text-blue-600 uppercase tracking-wide text-xs bg-blue-50 px-2.5 py-1 rounded-full">{booking.status}</span></p>
+        <p className="text-sm text-slate-700">Cargo: <span className="font-semibold text-slate-900">{booking.cargoType}</span></p>
+        <p className="text-sm text-slate-700">Price: <span className="font-bold text-slate-900">₹{booking.price}</span></p>
       </div>
 
       <div className="h-96 rounded-lg overflow-hidden shadow">
@@ -172,46 +173,50 @@ function TrackingPage() {
       </div>
 
       {booking.status === 'ACCEPTED' && (
-        <div className="bg-yellow-50 p-4 rounded-lg">
+        <div className="bg-amber-50 border border-amber-100 p-6 rounded-2xl shadow-sm">
           {user?.role === 'DRIVER' ? (
-            <>
-              <p className="font-bold mb-2">Enter Pickup OTP to start trip</p>
-              <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={6} className="p-2 border rounded w-40 text-center text-2xl tracking-widest" placeholder="000000" />
-              <button onClick={() => verifyOTP('pickup')} className="ml-2 bg-green-600 text-white px-4 py-2 rounded">Verify Pickup</button>
-            </>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <span className="font-semibold text-amber-800 text-sm">Enter Pickup OTP:</span>
+              <div className="flex gap-2">
+                <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={6} className="input-field max-w-[120px] text-center font-mono text-lg tracking-widest" placeholder="000000" />
+                <button onClick={() => verifyOTP('pickup')} className="bg-slate-900 hover:bg-black text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Verify Pickup</button>
+              </div>
+            </div>
           ) : (
-            <p className="font-bold text-yellow-800 text-lg">
-              Share this Pickup OTP with your driver to start the trip: <span className="bg-yellow-200 px-3 py-1 rounded font-mono text-2xl ml-2">{booking.pickupOTP}</span>
+            <p className="font-semibold text-amber-800 text-sm">
+              Share this Pickup OTP with your driver to start the trip: <span className="bg-amber-200 px-3 py-1 rounded-lg font-mono text-xl ml-2">{booking.pickupOTP}</span>
             </p>
           )}
         </div>
       )}
 
       {booking.status === 'IN_TRANSIT' && (
-        <div className="bg-blue-50 p-4 rounded-lg">
+        <div className="bg-blue-50 border border-blue-100 p-6 rounded-2xl shadow-sm">
           {user?.role === 'DRIVER' ? (
-            <>
-              <p className="font-bold mb-2">Enter Dropoff OTP to complete</p>
-              <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={6} className="p-2 border rounded w-40 text-center text-2xl tracking-widest" placeholder="000000" />
-              <button onClick={() => verifyOTP('dropoff')} className="ml-2 bg-green-600 text-white px-4 py-2 rounded">Verify Dropoff</button>
-            </>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <span className="font-semibold text-blue-800 text-sm">Enter Dropoff OTP:</span>
+              <div className="flex gap-2">
+                <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={6} className="input-field max-w-[120px] text-center font-mono text-lg tracking-widest" placeholder="000000" />
+                <button onClick={() => verifyOTP('dropoff')} className="bg-slate-900 hover:bg-black text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Verify Dropoff</button>
+              </div>
+            </div>
           ) : (
-            <p className="font-bold text-blue-800 text-lg">
-              Share this Dropoff OTP with your driver to complete the delivery: <span className="bg-blue-200 px-3 py-1 rounded font-mono text-2xl ml-2">{booking.dropoffOTP}</span>
+            <p className="font-semibold text-blue-800 text-sm">
+              Share this Dropoff OTP with your driver to complete the delivery: <span className="bg-blue-200 px-3 py-1 rounded-lg font-mono text-xl ml-2">{booking.dropoffOTP}</span>
             </p>
           )}
         </div>
       )}
 
       {booking.status === 'DELIVERED' && (
-        <div className="bg-green-50 p-6 rounded-lg shadow space-y-4">
-          <p className="text-2xl font-bold text-green-700 text-center">Package Delivered!</p>
+        <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-2xl shadow-sm text-center space-y-4 animate-pulse">
+          <p className="text-xl font-bold text-emerald-800">Package Delivered!</p>
           {user?.role === 'SHIPPER' && (
-            <div className="text-center">
-              <p className="text-gray-600 mb-4">Please review the invoice details below and complete the payment.</p>
+            <div className="flex flex-col items-center">
+              <p className="text-sm text-emerald-700 mb-4">Please review the invoice details below and complete the payment.</p>
               <button 
                 onClick={handlePayment} 
-                className="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg text-lg shadow-md transition"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-sm transition"
               >
                 Pay & Complete Booking (₹{booking.price})
               </button>
@@ -234,37 +239,37 @@ function TrackingPage() {
       )}
 
       {invoice && (
-        <div className="bg-white p-6 rounded-lg shadow border border-gray-100 space-y-4">
-          <h3 className="text-xl font-bold border-b pb-2 text-gray-800">Invoice Details</h3>
-          <div className="grid grid-cols-2 gap-2 text-gray-700">
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
+          <h3 className="text-md font-bold text-slate-800 border-b border-slate-100 pb-2">Invoice Details</h3>
+          <div className="grid grid-cols-2 gap-y-2 text-xs text-slate-600">
             <span>Base Fare:</span>
-            <span className="font-semibold text-right">₹{invoice.baseFare}</span>
+            <span className="font-semibold text-right text-slate-800">₹{invoice.baseFare}</span>
             <span>Distance Charge:</span>
-            <span className="font-semibold text-right">₹{invoice.distanceFare}</span>
+            <span className="font-semibold text-right text-slate-800">₹{invoice.distanceFare}</span>
             <span>Weight Surcharge:</span>
-            <span className="font-semibold text-right">₹{invoice.weightSurcharge}</span>
+            <span className="font-semibold text-right text-slate-800">₹{invoice.weightSurcharge}</span>
             <span>Tolls & Taxes:</span>
-            <span className="font-semibold text-right">₹{invoice.tollsAndTaxes}</span>
-            <div className="col-span-2 border-t my-2"></div>
-            <span className="text-lg font-bold text-gray-900">Total Price:</span>
-            <span className="text-lg font-bold text-right text-green-600">₹{invoice.total}</span>
+            <span className="font-semibold text-right text-slate-800">₹{invoice.tollsAndTaxes}</span>
+            <div className="col-span-2 border-t border-slate-100 my-2"></div>
+            <span className="text-sm font-bold text-slate-900">Total Price:</span>
+            <span className="text-sm font-bold text-right text-green-600">₹{invoice.total}</span>
           </div>
         </div>
       )}
 
       {booking.status === 'COMPLETED' && user?.role === 'SHIPPER' && !reviewSubmitted && (
-        <form onSubmit={handleReviewSubmit} className="bg-white p-6 rounded-lg shadow border border-gray-100 space-y-4">
-          <h3 className="text-xl font-bold border-b pb-2 text-gray-800">Rate Driver Experience</h3>
+        <form onSubmit={handleReviewSubmit} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
+          <h3 className="text-md font-bold text-slate-800 border-b border-slate-100 pb-2">Rate Driver Experience</h3>
           
           <div>
-            <label className="block text-gray-700 font-medium mb-1">Rating</label>
-            <div className="flex space-x-2">
+            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Rating</label>
+            <div className="flex space-x-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   type="button"
                   key={star}
                   onClick={() => setRating(star)}
-                  className={`text-2xl ${rating >= star ? 'text-yellow-400' : 'text-gray-300'} transition`}
+                  className={`text-2xl ${rating >= star ? 'text-amber-400' : 'text-slate-200'} transition`}
                 >
                   ★
                 </button>
@@ -273,16 +278,16 @@ function TrackingPage() {
           </div>
 
           <div>
-            <label className="block text-gray-700 font-medium mb-1">Comment</label>
+            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Comment</label>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Tell us about your experience..."
-              className="w-full p-2 border rounded-lg h-24 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="input-field h-24"
             />
           </div>
 
-          <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition shadow">
+          <button type="submit" className="w-full bg-slate-900 hover:bg-black text-white font-semibold py-2.5 rounded-xl text-sm transition">
             Submit Rating
           </button>
         </form>
@@ -293,14 +298,14 @@ function TrackingPage() {
           {!showDisputeForm ? (
             <button 
               onClick={() => setShowDisputeForm(true)} 
-              className="text-red-600 hover:text-red-800 text-sm font-semibold underline"
+              className="text-red-600 hover:text-red-800 text-xs font-semibold underline uppercase tracking-wider"
             >
               Have an issue? File a Dispute
             </button>
           ) : (
-            <form onSubmit={handleDisputeSubmit} className="bg-red-50 p-6 rounded-lg shadow border border-red-100 text-left space-y-4 mt-2">
-              <h3 className="text-lg font-bold text-red-800">File a Dispute</h3>
-              <p className="text-sm text-red-600">Please describe the problem you encountered with your delivery (e.g., damaged items, delay, driver behavior).</p>
+            <form onSubmit={handleDisputeSubmit} className="bg-red-50 border border-red-100 p-6 rounded-2xl text-left space-y-4 mt-2">
+              <h3 className="text-sm font-bold text-red-800 uppercase tracking-wide">File a Dispute</h3>
+              <p className="text-xs text-red-600">Please describe the problem you encountered with your delivery (e.g., damaged items, delay, driver behavior).</p>
               
               <div>
                 <textarea
@@ -308,18 +313,18 @@ function TrackingPage() {
                   onChange={(e) => setDisputeReason(e.target.value)}
                   placeholder="Describe your issue in detail..."
                   required
-                  className="w-full p-2 border rounded-lg h-24 focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                  className="input-field h-24 bg-white"
                 />
               </div>
 
-              <div className="flex space-x-2">
-                <button type="submit" className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg transition shadow">
+              <div className="flex gap-2">
+                <button type="submit" className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">
                   Submit Dispute
                 </button>
                 <button 
                   type="button" 
                   onClick={() => setShowDisputeForm(false)} 
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-4 py-2 rounded-lg transition"
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-2 rounded-xl text-sm font-semibold transition"
                 >
                   Cancel
                 </button>
