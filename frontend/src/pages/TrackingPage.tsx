@@ -152,7 +152,20 @@ function TrackingPage() {
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-slate-800">Track Booking</h2>
       <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-2">
-        <p className="text-sm text-slate-600">Status: <span className="font-bold text-blue-600 uppercase tracking-wide text-xs bg-blue-50 px-2.5 py-1 rounded-full">{booking.status}</span></p>
+        <p className="text-sm text-slate-600 flex items-center gap-2">
+          Status: 
+          <span className={`px-2.5 py-1 rounded-full text-xs font-bold tracking-wide uppercase border ${
+            booking.status === 'PENDING' ? 'bg-slate-50 text-slate-600 border-slate-200' :
+            booking.status === 'ACCEPTED' ? 'bg-blue-50 text-blue-600 border-blue-200' :
+            booking.status === 'IN_TRANSIT' ? 'bg-indigo-50 text-indigo-600 border-indigo-200' :
+            booking.status === 'DELIVERED' ? 'bg-amber-50 text-amber-600 border-amber-200' :
+            booking.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+            booking.status === 'CANCELLED' ? 'bg-rose-50 text-rose-600 border-rose-200' :
+            'bg-orange-50 text-orange-600 border-orange-200'
+          }`}>
+            {booking.status}
+          </span>
+        </p>
         <p className="text-sm text-slate-700">Cargo: <span className="font-semibold text-slate-900">{booking.cargoType}</span></p>
         <p className="text-sm text-slate-700">Price: <span className="font-bold text-slate-900">₹{booking.price}</span></p>
       </div>

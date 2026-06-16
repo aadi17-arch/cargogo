@@ -468,8 +468,21 @@ function ShipperDashboard() {
           {bookings.map((b: any) => (
             <div key={b.id} className="border p-3 rounded flex justify-between items-center hover:bg-gray-50 transition">
               <div>
-                <p className="font-medium">{b.cargoType} — <span className="text-blue-600 font-semibold">{b.status}</span></p>
-                <p className="text-sm text-gray-500">Price: ₹{b.price} | OTP: {b.pickupOTP}</p>
+                <p className="font-medium text-slate-800 flex items-center gap-2 mb-1">
+                  {b.cargoType}
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
+                    b.status === 'PENDING' ? 'bg-slate-50 text-slate-600 border-slate-200' :
+                    b.status === 'ACCEPTED' ? 'bg-blue-50 text-blue-600 border-blue-200' :
+                    b.status === 'IN_TRANSIT' ? 'bg-indigo-50 text-indigo-600 border-indigo-200' :
+                    b.status === 'DELIVERED' ? 'bg-amber-50 text-amber-600 border-amber-200' :
+                    b.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+                    b.status === 'CANCELLED' ? 'bg-rose-50 text-rose-600 border-rose-200' :
+                    'bg-orange-50 text-orange-600 border-orange-200'
+                  }`}>
+                    {b.status}
+                  </span>
+                </p>
+                <p className="text-xs text-gray-500">Price: ₹{b.price} | OTP: {b.pickupOTP}</p>
               </div>
               <div className="flex gap-2">
                 {['PENDING', 'ACCEPTED'].includes(b.status) && (
