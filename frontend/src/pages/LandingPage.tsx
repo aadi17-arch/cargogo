@@ -607,7 +607,7 @@ function LandingPage() {
             {/* Left Column: Heading and Cards */}
             <div className="lg:col-span-7 space-y-6">
               <div className="space-y-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                   Support
                 </span>
                 <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>
@@ -620,48 +620,48 @@ function LandingPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {/* Dispatch Support */}
                 <div className="p-5 border border-[var(--color-border)] rounded-[var(--radius-card)] bg-[var(--color-card)] space-y-3 shadow-sm flex items-start gap-4">
-                  <div className="p-2.5 bg-emerald-50 rounded-lg text-emerald-600 mt-1">
+                  <div className="p-2.5 bg-slate-100 rounded-lg text-slate-600 mt-1">
                     <PhoneCall size={20} />
                   </div>
                   <div className="space-y-1">
                     <h4 className="font-bold text-sm" style={{ color: 'var(--color-text-main)' }}>24/7 Dispatch Hotline</h4>
-                    <p className="text-md font-bold text-emerald-600">+1-800-CARGOGO</p>
+                    <p className="text-md font-bold" style={{ color: 'var(--color-text-main)' }}>+1-800-CARGOGO</p>
                     <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Direct line to active dispatch agents.</p>
                   </div>
                 </div>
 
                 {/* Billing Support */}
                 <div className="p-5 border border-[var(--color-border)] rounded-[var(--radius-card)] bg-[var(--color-card)] space-y-3 shadow-sm flex items-start gap-4">
-                  <div className="p-2.5 bg-indigo-50 rounded-lg text-indigo-600 mt-1">
+                  <div className="p-2.5 bg-slate-100 rounded-lg text-slate-600 mt-1">
                     <Receipt size={20} />
                   </div>
                   <div className="space-y-1">
                     <h4 className="font-bold text-sm" style={{ color: 'var(--color-text-main)' }}>Billing & Rates</h4>
-                    <p className="text-md font-bold text-indigo-600">billing@cargogo.com</p>
+                    <p className="text-md font-bold" style={{ color: 'var(--color-text-main)' }}>billing@cargogo.com</p>
                     <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Invoice & volumetric quote inquiries.</p>
                   </div>
                 </div>
 
                 {/* Driver Helpdesk */}
                 <div className="p-5 border border-[var(--color-border)] rounded-[var(--radius-card)] bg-[var(--color-card)] space-y-3 shadow-sm flex items-start gap-4">
-                  <div className="p-2.5 bg-indigo-50 rounded-lg text-indigo-600 mt-1">
+                  <div className="p-2.5 bg-slate-100 rounded-lg text-slate-600 mt-1">
                     <Truck size={20} />
                   </div>
                   <div className="space-y-1">
                     <h4 className="font-bold text-sm" style={{ color: 'var(--color-text-main)' }}>Driver Assistance</h4>
-                    <p className="text-md font-bold text-indigo-600">drivers@cargogo.com</p>
+                    <p className="text-md font-bold" style={{ color: 'var(--color-text-main)' }}>drivers@cargogo.com</p>
                     <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Dedicated support for payout & match issues.</p>
                   </div>
                 </div>
 
                 {/* General Inquiry */}
                 <div className="p-5 border border-[var(--color-border)] rounded-[var(--radius-card)] bg-[var(--color-card)] space-y-3 shadow-sm flex items-start gap-4">
-                  <div className="p-2.5 bg-indigo-50 rounded-lg text-indigo-600 mt-1">
+                  <div className="p-2.5 bg-slate-100 rounded-lg text-slate-600 mt-1">
                     <Mail size={20} />
                   </div>
                   <div className="space-y-1">
                     <h4 className="font-bold text-sm" style={{ color: 'var(--color-text-main)' }}>General Support</h4>
-                    <p className="text-md font-bold text-indigo-600">help@cargogo.com</p>
+                    <p className="text-md font-bold" style={{ color: 'var(--color-text-main)' }}>help@cargogo.com</p>
                     <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>General platform questions (15-min response).</p>
                   </div>
                 </div>
