@@ -155,89 +155,131 @@ function DriverDashboard() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-semibold text-slate-900 font-sans-outfit tracking-tight">Driver Dashboard</h2>
+      <h2 className="text-[24px] font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Driver Dashboard</h2>
 
-      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center">
+      <div className="p-6 shadow-none flex justify-between items-center" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
         <div>
-          <p className="text-lg font-semibold text-slate-800">Status: <span className={isOnline ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}>{isOnline ? 'Online' : 'Offline'}</span></p>
-          <p className="text-sm text-slate-500 font-medium mt-1">Earnings: ₹{earnings}</p>
+          <p className="text-lg font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}>Status: <span className="font-bold" style={{ color: isOnline ? 'var(--color-status-completed)' : 'var(--color-status-cancelled)' }}>{isOnline ? 'Online' : 'Offline'}</span></p>
+          <p className="text-sm font-medium mt-1" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>Earnings: <span className="font-semibold" style={{ color: 'var(--color-status-completed)' }}>₹{earnings}</span></p>
         </div>
-        <button onClick={toggleOnline} className={`px-6 py-2.5 rounded-xl text-sm font-bold text-white transition ${isOnline ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'}`}>
+        <button 
+          onClick={toggleOnline} 
+          className="px-6 py-2.5 text-sm font-bold text-white transition-all animate-none"
+          style={{
+            borderRadius: 'var(--radius-button)',
+            backgroundColor: isOnline ? 'var(--color-status-cancelled)' : 'var(--color-primary)',
+            fontFamily: 'var(--font-heading)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = isOnline ? 'var(--color-status-cancelled)' : 'var(--color-primary-hover)';
+            if (isOnline) e.currentTarget.style.opacity = '0.9';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = isOnline ? 'var(--color-status-cancelled)' : 'var(--color-primary)';
+            e.currentTarget.style.opacity = '1';
+          }}
+        >
           {isOnline ? 'Go Offline' : 'Go Online'}
         </button>
       </div>
 
       {bid && (
-        <div className="bg-yellow-50 border-2 border-yellow-400 p-6 rounded-lg shadow-lg animate-pulse">
-          <h3 className="text-xl font-bold text-yellow-800 mb-2">New Job!</h3>
-          <p>Cargo: {bid.cargoType}</p>
-          <p>Payout: ₹{bid.price}</p>
-          <p>Distance: {bid.distanceKm} km</p>
-          <p className="text-2xl font-bold text-red-600 mt-2">Time left: {countdown}s</p>
+        <div className="p-6 shadow-none" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-primary)', borderRadius: 'var(--radius-card)' }}>
+          <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-heading)' }}>New Delivery Request!</h3>
+          <p style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}>Cargo: {bid.cargoType}</p>
+          <p style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}>Payout: ₹{bid.price}</p>
+          <p style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}>Distance: {bid.distanceKm} km</p>
+          <p className="text-2xl font-bold mt-2" style={{ color: 'var(--color-status-cancelled)', fontFamily: 'var(--font-heading)' }}>Time left: {countdown}s</p>
           <div className="flex gap-4 mt-4">
-            <button onClick={handleAcceptBid} className="flex-1 bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition">Accept</button>
-            <button onClick={handleRejectBid} className="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition">Decline</button>
+            <button onClick={handleAcceptBid} className="flex-1 text-white py-3 font-bold transition-all" style={{ backgroundColor: 'var(--color-status-completed)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>Accept</button>
+            <button onClick={handleRejectBid} className="flex-1 text-white py-3 font-bold transition-all" style={{ backgroundColor: 'var(--color-status-cancelled)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>Decline</button>
           </div>
         </div>
       )}
 
-      <div className="flex border-b border-gray-200">
+      <div className="flex border-b border-[var(--color-border)]">
         <button
           onClick={() => setActiveTab('my_jobs')}
-          className={`py-3 px-6 font-semibold border-b-2 transition-all ${
-            activeTab === 'my_jobs'
-              ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
-          }`}
+          className="py-3 px-6 font-bold border-b-2 transition-all hover:text-[var(--color-text-main)]"
+          style={{
+            borderColor: activeTab === 'my_jobs' ? 'var(--color-primary)' : 'transparent',
+            color: activeTab === 'my_jobs' ? 'var(--color-primary)' : 'var(--color-text-muted)',
+            fontFamily: 'var(--font-heading)'
+          }}
         >
-          My Shipments
+          My Deliveries
         </button>
         <button
           onClick={() => {
             setActiveTab('jobs_board');
             loadData();
           }}
-          className={`py-3 px-6 font-semibold border-b-2 transition-all ${
-            activeTab === 'jobs_board'
-              ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
-          }`}
+          className="py-3 px-6 font-bold border-b-2 transition-all hover:text-[var(--color-text-main)]"
+          style={{
+            borderColor: activeTab === 'jobs_board' ? 'var(--color-primary)' : 'transparent',
+            color: activeTab === 'jobs_board' ? 'var(--color-primary)' : 'var(--color-text-muted)',
+            fontFamily: 'var(--font-heading)'
+          }}
         >
-          Available Jobs ({pendingBookings.length})
+          Available Deliveries ({pendingBookings.length})
         </button>
       </div>
 
       {activeTab === 'my_jobs' && (
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
+        <div className="p-6 shadow-none space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
           <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold text-slate-800 font-sans-outfit">Accepted Shipments</h3>
-            <button onClick={fetchMyBookings} className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-1.5 rounded-xl text-sm font-semibold transition">Refresh</button>
+            <h3 className="text-xl font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Accepted Deliveries</h3>
+            <button 
+              onClick={fetchMyBookings} 
+              className="px-4 py-1.5 text-sm font-bold transition-all hover:bg-[var(--color-background)]"
+              style={{
+                backgroundColor: 'var(--color-card)',
+                color: 'var(--color-text-muted)',
+                border: 'var(--border-width) solid var(--color-input-border)',
+                borderRadius: 'var(--radius-button)',
+                fontFamily: 'var(--font-heading)'
+              }}
+            >
+              Refresh
+            </button>
           </div>
           {bookings.length > 0 ? (
-            <div className="space-y-2">
+            <div className="divide-y divide-[var(--color-border)]">
               {bookings.map((b: any) => (
-                <div key={b.id} className="border p-4 rounded-xl flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 bg-gray-50">
-                  <div className="space-y-1.5">
-                    <p className="font-medium text-slate-800 flex flex-wrap items-center gap-2 mb-1">
-                      {b.cargoType}
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
-                        b.status === 'PENDING' ? 'bg-slate-50 text-slate-600 border-slate-200' :
-                        b.status === 'ACCEPTED' ? 'bg-blue-50 text-blue-600 border-blue-200' :
-                        b.status === 'IN_TRANSIT' ? 'bg-indigo-50 text-indigo-600 border-indigo-200' :
-                        b.status === 'DELIVERED' ? 'bg-amber-50 text-amber-600 border-amber-200' :
-                        b.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
-                        b.status === 'CANCELLED' ? 'bg-rose-50 text-rose-600 border-rose-200' :
-                        'bg-orange-50 text-orange-600 border-orange-200'
-                      }`}>
+                <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 transition">
+                  <div className="space-y-1.5 flex-1 w-full" style={{ fontFamily: 'var(--font-body)' }}>
+                    <div className="flex items-center justify-between gap-2 mb-1 w-full">
+                      <span className="font-semibold text-[var(--color-text-main)]">{b.cargoType}</span>
+                      <span 
+                        className="px-2 py-0.5 rounded-[4px] text-[10px] font-bold tracking-wide uppercase border-[1.5px] bg-transparent shrink-0"
+                        style={{
+                          fontFamily: 'var(--font-mono)',
+                          borderColor: 
+                            b.status === 'PENDING' ? 'var(--color-status-pending)' :
+                            b.status === 'ACCEPTED' ? 'var(--color-status-accepted)' :
+                            b.status === 'IN_TRANSIT' ? 'var(--color-status-transit)' :
+                            b.status === 'DELIVERED' ? 'var(--color-status-delivered)' :
+                            b.status === 'COMPLETED' ? 'var(--color-status-completed)' :
+                            b.status === 'CANCELLED' ? 'var(--color-status-cancelled)' : 'var(--color-text-muted)',
+                          color:
+                            b.status === 'PENDING' ? 'var(--color-status-pending)' :
+                            b.status === 'ACCEPTED' ? 'var(--color-status-accepted)' :
+                            b.status === 'IN_TRANSIT' ? 'var(--color-status-transit)' :
+                            b.status === 'DELIVERED' ? 'var(--color-status-delivered)' :
+                            b.status === 'COMPLETED' ? 'var(--color-status-completed)' :
+                            b.status === 'CANCELLED' ? 'var(--color-status-cancelled)' : 'var(--color-text-muted)'
+                        }}
+                      >
                         {b.status}
                       </span>
-                    </p>
-                    <p className="text-xs text-gray-500 font-tech-space leading-relaxed">Payout: ₹{b.price} | Weight: {b.weightKg}kg</p>
+                    </div>
+                    <p className="text-xs font-medium text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>Payout: <span className="font-semibold text-[var(--color-primary)]">₹{b.price}</span> | Weight: <span className="font-semibold text-[var(--color-text-main)]">{b.weightKg}kg</span></p>
                   </div>
                   {b.status !== 'CANCELLED' && (
                     <button
                       onClick={() => navigate(`/track/${b.id}`)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm w-full sm:w-auto text-center shrink-0"
+                      className="text-white px-3.5 py-2 text-xs font-bold hover:opacity-90 transition w-full sm:w-auto text-center shrink-0"
+                      style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
                     >
                       {['DELIVERED', 'COMPLETED'].includes(b.status) ? 'View Details' : 'Track'}
                     </button>
@@ -246,17 +288,18 @@ function DriverDashboard() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-4">No active shipments. Go online to receive orders!</p>
+            <p className="text-center py-4" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>No active shipments. Go online to receive orders!</p>
           )}
 
           {bookings.length > 0 && (
-            <div className="mt-6 border-t pt-6">
+            <div className="mt-6 border-t pt-6" style={{ borderColor: 'var(--color-border)' }}>
               <div className="flex justify-between items-center mb-4">
-                <h4 className="text-md font-semibold text-slate-800 font-sans-outfit">Route Stops</h4>
+                <h4 className="text-md font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Delivery Stops</h4>
                 <button
                   onClick={fetchRoute}
                   disabled={loadingRoute}
-                  className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm"
+                  className="bg-[var(--color-card)] border-[var(--color-input-border)] px-3.5 py-2 text-xs font-bold hover:bg-[var(--color-background)] transition disabled:opacity-50"
+                  style={{ color: 'var(--color-text-muted)', border: 'var(--border-width) solid var(--color-input-border)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
                 >
                   {loadingRoute ? 'Planning...' : 'Re-plan Route'}
                 </button>
@@ -264,39 +307,40 @@ function DriverDashboard() {
 
               {routeData && routeData.route.length > 0 ? (
                 <div className="space-y-4">
-                  <p className="text-xs text-gray-500 font-tech-space">
-                    Total Distance: <span className="font-bold text-slate-800">{routeData.totalDistanceKm} km</span> | Max Weight: {routeData.vehicleCapacityKg} kg
+                  <p className="text-xs text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>
+                    Total Distance: <span className="font-bold text-[var(--color-text-main)]">{routeData.totalDistanceKm} km</span> | Max Weight: {routeData.vehicleCapacityKg} kg
                   </p>
-                  <div className="relative border-l border-slate-200 ml-3 pl-6 space-y-4">
+                  <div className="relative border-l ml-3 pl-6 space-y-4" style={{ borderColor: 'var(--color-border)' }}>
                     {routeData.route.map((stop: any, index: number) => (
                       <div key={index} className="relative">
-                        {/* Timeline circle badge */}
-                        <span className={`absolute -left-[35px] top-3.5 w-5 h-5 rounded-full border border-white flex items-center justify-center text-[10px] font-bold text-white shadow-sm ${
-                          stop.type === 'PICKUP' ? 'bg-emerald-600' : 'bg-orange-600'
-                        }`}>
+                        <span className="absolute -left-[35px] top-3.5 w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-bold bg-[var(--color-card)] shadow-none" style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>
                           {index + 1}
                         </span>
                         
-                        {/* Stop Card */}
-                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-100/50 transition">
+                        <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3" style={{ backgroundColor: 'var(--color-background)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <span className={`text-[10px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-md ${
-                                stop.type === 'PICKUP' ? 'bg-emerald-100 text-emerald-800' : 'bg-orange-100 text-orange-800'
-                              }`}>
+                              <span 
+                                className="text-[10px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-[4px] border bg-transparent"
+                                style={{
+                                  fontFamily: 'var(--font-mono)',
+                                  borderColor: stop.type === 'PICKUP' ? 'var(--color-status-completed)' : 'var(--color-status-transit)',
+                                  color: stop.type === 'PICKUP' ? 'var(--color-status-completed)' : 'var(--color-status-transit)'
+                                }}
+                              >
                                 {stop.type === 'PICKUP' ? 'Pickup' : 'Dropoff'}
                               </span>
-                              <span className="text-sm font-semibold text-slate-800 font-sans-outfit">
+                              <span className="text-sm font-semibold text-[var(--color-text-main)]" style={{ fontFamily: 'var(--font-heading)' }}>
                                 {stop.cargoType}
                               </span>
                             </div>
-                            <p className="text-xs text-slate-500 font-tech-space">
-                              Weight: {stop.weightKg} kg
+                            <p className="text-xs font-medium text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>
+                              Weight: <span className="font-semibold text-[var(--color-text-main)]">{stop.weightKg} kg</span>
                             </p>
                           </div>
                           
-                          <div className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-[10px] font-bold text-slate-600 font-tech-space sm:text-right shrink-0">
-                            <span className="block text-slate-400 font-normal uppercase text-[8px] tracking-wider mb-0.5">Vehicle Load</span>
+                          <div className="bg-[var(--color-card)] border rounded-[6px] px-3 py-1.5 text-[10px] font-bold text-[var(--color-text-main)] text-right shrink-0" style={{ borderColor: 'var(--color-border)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
+                            <span className="block text-[var(--color-text-muted)] font-bold text-[8px] tracking-wider mb-0.5" style={{ fontFamily: 'var(--font-mono)' }}>Vehicle Load</span>
                             {stop.expectedAccumulatedWeight} kg
                           </div>
                         </div>
@@ -305,7 +349,7 @@ function DriverDashboard() {
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-gray-500 text-center py-2 font-tech-space">No active route stops found.</p>
+                <p className="text-xs text-center py-2" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>No active route stops found.</p>
               )}
             </div>
           )}
@@ -313,25 +357,38 @@ function DriverDashboard() {
       )}
 
       {activeTab === 'jobs_board' && (
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
+        <div className="p-6 shadow-none space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
           <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold text-slate-800 font-sans-outfit">Available Jobs</h3>
-            <button onClick={loadData} className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-1.5 rounded-xl text-sm font-semibold transition">Refresh</button>
+            <h3 className="text-xl font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Available Deliveries</h3>
+            <button 
+              onClick={loadData} 
+              className="px-4 py-1.5 text-sm font-bold transition-all hover:bg-[var(--color-background)]"
+              style={{
+                backgroundColor: 'var(--color-card)',
+                color: 'var(--color-text-muted)',
+                border: 'var(--border-width) solid var(--color-input-border)',
+                borderRadius: 'var(--radius-button)',
+                fontFamily: 'var(--font-heading)'
+              }}
+            >
+              Refresh
+            </button>
           </div>
           {pendingBookings.length > 0 ? (
-            <div className="space-y-3">
+            <div className="divide-y divide-[var(--color-border)]">
               {pendingBookings.map((b: any) => (
-                <div key={b.id} className="border border-slate-100 p-4 rounded-xl bg-gray-50 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 shadow-sm">
+                <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div className="space-y-1">
-                    <p className="font-semibold text-slate-800">{b.cargoType}</p>
-                    <p className="text-xs text-gray-500 font-tech-space leading-relaxed">
-                      Payout: <span className="text-green-600 font-bold">₹{b.price}</span> | Distance: {b.distanceKm} km
+                    <p className="font-semibold text-[var(--color-text-main)]" style={{ fontFamily: 'var(--font-heading)' }}>{b.cargoType}</p>
+                    <p className="text-xs font-medium text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>
+                      Payout: <span className="text-[var(--color-primary)] font-semibold">₹{b.price}</span> | Distance: <span className="font-semibold text-[var(--color-text-main)]">{b.distanceKm} km</span>
                     </p>
-                    <p className="text-[10px] text-gray-400">Received: {new Date(b.createdAt).toLocaleString()}</p>
+                    <p className="text-[10px] text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-mono)' }}>Received: {new Date(b.createdAt).toLocaleString()}</p>
                   </div>
                   <button
                     onClick={() => handleAcceptPending(b.id)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-sm w-full sm:w-auto text-center shrink-0"
+                    className="text-white px-4 py-2 text-xs font-bold hover:opacity-90 transition shrink-0"
+                    style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
                   >
                     Accept
                   </button>
@@ -339,14 +396,14 @@ function DriverDashboard() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-4">No shipments found. Check back soon!</p>
+            <p className="text-center py-4" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>No shipments found. Check back soon!</p>
           )}
         </div>
       )}
 
       {!bid && isOnline && activeTab === 'my_jobs' && (
-        <div className="bg-gray-100 p-6 rounded-lg text-center text-gray-500">
-          Waiting for orders...
+        <div className="p-6 text-center font-medium" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>
+          Waiting for deliveries...
         </div>
       )}
     </div>
