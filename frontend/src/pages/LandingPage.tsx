@@ -671,8 +671,8 @@ function LandingPage() {
             {/* Right Column: Dispatch Image */}
             <div className="lg:col-span-5 h-[340px] rounded-[var(--radius-card)] overflow-hidden border border-[var(--color-border)] shadow-sm">
               <img 
-                src="https://images.unsplash.com/photo-1549923746-c502d488b3ea?auto=format&fit=crop&w=800&q=80" 
-                alt="Logistics team dispatch center support" 
+                src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=800&q=80" 
+                alt="Friendly customer support agent representative" 
                 className="w-full h-full object-cover"
               />
             </div>
