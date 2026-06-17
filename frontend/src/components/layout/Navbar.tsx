@@ -171,6 +171,8 @@ export default function Navbar({
     userSelect: 'none',
   };
 
+
+
   const logoCargoStyle: React.CSSProperties = {
     fontFamily: "'Space Grotesk', sans-serif",
     fontWeight: 850,

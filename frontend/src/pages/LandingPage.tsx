@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
-import { PhoneCall, Mail, Receipt, Truck } from 'lucide-react';
+import { PhoneCall, Mail, Receipt, Truck, Globe, Shield } from 'lucide-react';
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -33,8 +33,8 @@ function LandingPage() {
 
   const [quote, setQuote] = useState<any>(null);
 
-  const calculateQuote = (e: React.FormEvent) => {
-    e.preventDefault();
+  const calculateQuote = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     const volumetric = (form.lengthCm * form.widthCm * form.heightCm) / 5000;
     const chargeable = Math.max(form.weightKg, volumetric);
 
@@ -59,11 +59,11 @@ function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--color-background)]" style={{ fontFamily: 'var(--font-body)' }}>
+    <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ fontFamily: 'var(--font-body)', backgroundColor: 'var(--color-background)' }}>
       <Navbar />
 
       {/* Hero Section with Full Flipped Background Image for Perfect Blending */}
-      <header className="relative px-8 sm:px-16 border-b border-[var(--color-border)] flex items-center overflow-hidden" style={{ height: 'calc(100vh - 64px)', minHeight: '500px' }}>
+      <header className="relative px-8 sm:px-16 border-b border-[var(--color-border)] flex items-center overflow-hidden" style={{ height: 'calc(100vh - 64px)', minHeight: '850px' }}>
         {/* Background Image (Twilight shipping harbor container cargo loading dock) */}
         <div 
           className="absolute inset-0 bg-cover bg-center"
@@ -83,10 +83,10 @@ function LandingPage() {
         <div className="w-full relative z-20">
           <div className="max-w-2xl space-y-6">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-white" style={{ fontFamily: 'var(--font-heading)' }}>
-              Next-Gen Freight Booking & Intelligent Routing
+              Book Trucks & Track Cargo Instantly
             </h1>
             <p className="text-lg sm:text-xl font-medium text-slate-200">
-              Experience the future of logistics with automatic pricing, live tracking, and OTP-verified dispatch. Streamline your supply chain with our intelligent routing technology.
+              Get instant pricing, live tracking, and secure deliveries. No phone calls required—just fast, direct cargo booking for your business.
             </p>
             <div className="flex flex-wrap gap-4 pt-2">
               <button 
@@ -109,15 +109,15 @@ function LandingPage() {
       </header>
 
       {/* Quick Track Shipment Section */}
-      <section id="track" className="py-16 px-6 border-b border-[var(--color-border)]">
-        <div className="max-w-[1550px] mx-auto px-4 sm:px-8">
-          <div className="bg-[var(--color-card)] border border-[var(--color-border)] p-8 rounded-[var(--radius-card)] flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="max-w-md text-left">
-              <h3 className="text-xl font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>
-                Track your cargo instantly
+      <section id="track" className="py-12 px-6" style={{ backgroundColor: 'var(--color-background)' }}>
+        <div className="max-w-[1750px] mx-auto px-4 sm:px-8">
+          <div className="bg-[var(--color-card)] border border-[var(--color-border)] border-l-4 border-l-[var(--color-primary)] p-8 rounded-[var(--radius-card)] flex flex-col md:flex-row items-center justify-between gap-8 shadow-md hover:shadow-lg transition-all duration-300">
+            <div className="max-w-md text-left space-y-1">
+              <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--color-text-main)]" style={{ fontFamily: 'var(--font-heading)' }}>
+                Track Your Cargo Instantly
               </h3>
-              <p className="text-sm mt-1" style={{ color: 'var(--color-text-muted)' }}>
-                No registration required. Enter your unique booking verification ID below to check live shipping status.
+              <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                Enter your Booking ID below to check live status. No registration required.
               </p>
             </div>
             <form 
@@ -131,16 +131,16 @@ function LandingPage() {
             >
               <input 
                 type="text"
-                placeholder="Enter Tracking ID (e.g. 550e8400...)"
+                placeholder="Enter Booking ID (e.g. 550e8400...)"
                 value={trackingIdInput}
                 onChange={(e) => setTrackingIdInput(e.target.value)}
-                className="input-field flex-1"
+                className="input-field flex-1 px-4 py-3 bg-[var(--color-background)]"
                 required
               />
               <button 
                 type="submit"
-                className="text-white px-6 py-3 rounded-[var(--radius-button)] font-bold transition-all hover:bg-[var(--color-primary-hover)] shrink-0"
-                style={{ backgroundColor: 'var(--color-text-main)', fontFamily: 'var(--font-heading)', fontSize: '14px' }}
+                className="text-white px-8 py-3 rounded-[var(--radius-button)] font-bold transition-all hover:bg-[var(--color-primary-hover)] shrink-0"
+                style={{ backgroundColor: 'var(--color-primary)', fontFamily: 'var(--font-heading)', fontSize: '14px' }}
               >
                 Track Shipment
               </button>
@@ -150,168 +150,288 @@ function LandingPage() {
       </section>
 
       {/* Pricing Estimator Section */}
-      <section id="pricing" className="py-20 px-6 border-b border-[var(--color-border)]">
-        <div className="max-w-[1550px] mx-auto px-4 sm:px-8">
+      <section id="pricing" className="py-20 px-6 border-b border-[var(--color-border)]" style={{ backgroundColor: 'var(--color-background)' }}>
+        <div className="max-w-[1750px] mx-auto px-4 sm:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
             <h2 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>
               Instant Delivery Price Estimator
             </h2>
             <p className="text-md font-medium" style={{ color: 'var(--color-text-muted)' }}>
-              No hidden fees. Input your cargo dimensions and distance to see our transparent breakdown.
+              Get transparent pricing instantly. Adjust details below to see changes in real-time.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Calculator Input Form */}
-            <form onSubmit={calculateQuote} className="lg:col-span-7 p-6 rounded-[var(--radius-card)] border bg-[var(--color-card)] space-y-4" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
-                <div>
-                  <label className="block text-xs font-bold mb-1.5" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>
-                    Weight (kg)
-                  </label>
-                  <input 
-                    type="number" 
-                    value={form.weightKg} 
-                    onChange={(e) => setForm({...form, weightKg: +e.target.value})}
-                    className="input-field"
-                    required 
-                    min={1}
-                  />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+            {/* Calculator Input Panel Form */}
+            <form 
+              onSubmit={calculateQuote}
+              className="lg:col-span-7 p-8 rounded-[var(--radius-card)] border bg-[var(--color-card)] space-y-6 shadow-sm flex flex-col justify-between" 
+              style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}
+            >
+              <div className="space-y-6">
+                {/* Inputs Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-left">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>
+                      Weight (kg)
+                    </label>
+                    <input 
+                      type="number" 
+                      value={form.weightKg} 
+                      onChange={(e) => setForm({...form, weightKg: Math.max(1, +e.target.value)})}
+                      className="input-field px-4 py-3 bg-[var(--color-background)] w-full border rounded-[var(--radius-card)]"
+                      style={{ borderColor: 'var(--color-border)' }}
+                      required 
+                      min={1}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>
+                      Distance (km)
+                    </label>
+                    <input 
+                      type="number" 
+                      value={form.distanceKm} 
+                      onChange={(e) => setForm({...form, distanceKm: Math.max(1, +e.target.value)})}
+                      className="input-field px-4 py-3 bg-[var(--color-background)] w-full border rounded-[var(--radius-card)]"
+                      style={{ borderColor: 'var(--color-border)' }}
+                      required 
+                      min={1}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold mb-1.5" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>
-                    Distance (km)
-                  </label>
-                  <input 
-                    type="number" 
-                    value={form.distanceKm} 
-                    onChange={(e) => setForm({...form, distanceKm: +e.target.value})}
-                    className="input-field"
-                    required 
-                    min={1}
-                  />
-                </div>
-              </div>
 
-              <div className="text-left">
-                <label className="block text-xs font-bold mb-1.5" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>
-                  Dimensions
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="relative flex items-center">
-                    <input 
-                      type="number" 
-                      placeholder="L"
-                      value={form.lengthCm} 
-                      onChange={(e) => setForm({...form, lengthCm: +e.target.value})}
-                      className="input-field pr-8"
-                      required 
-                      min={1}
-                    />
-                    <span className="absolute right-2.5 text-[10px] font-bold" style={{ color: 'var(--color-text-muted)' }}>cm</span>
-                  </div>
-                  <div className="relative flex items-center">
-                    <input 
-                      type="number" 
-                      placeholder="W"
-                      value={form.widthCm} 
-                      onChange={(e) => setForm({...form, widthCm: +e.target.value})}
-                      className="input-field pr-8"
-                      required 
-                      min={1}
-                    />
-                    <span className="absolute right-2.5 text-[10px] font-bold" style={{ color: 'var(--color-text-muted)' }}>cm</span>
-                  </div>
-                  <div className="relative flex items-center">
-                    <input 
-                      type="number" 
-                      placeholder="H"
-                      value={form.heightCm} 
-                      onChange={(e) => setForm({...form, heightCm: +e.target.value})}
-                      className="input-field pr-8"
-                      required 
-                      min={1}
-                    />
-                    <span className="absolute right-2.5 text-[10px] font-bold" style={{ color: 'var(--color-text-muted)' }}>cm</span>
+                {/* Dimensions Section */}
+                <div className="text-left space-y-2">
+                  <label className="block text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>
+                    Dimensions (Length / Width / Height)
+                  </label>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="relative flex items-center">
+                      <input 
+                        type="number" 
+                        placeholder="L"
+                        value={form.lengthCm} 
+                        onChange={(e) => setForm({...form, lengthCm: Math.max(1, +e.target.value)})}
+                        className="input-field pr-8 px-3.5 py-3 bg-[var(--color-background)] text-center w-full border rounded-[var(--radius-card)]"
+                        style={{ borderColor: 'var(--color-border)' }}
+                        required 
+                        min={1}
+                      />
+                      <span className="absolute right-2.5 text-[10px] font-bold text-slate-400">cm</span>
+                    </div>
+                    <div className="relative flex items-center">
+                      <input 
+                        type="number" 
+                        placeholder="W"
+                        value={form.widthCm} 
+                        onChange={(e) => setForm({...form, widthCm: Math.max(1, +e.target.value)})}
+                        className="input-field pr-8 px-3.5 py-3 bg-[var(--color-background)] text-center w-full border rounded-[var(--radius-card)]"
+                        style={{ borderColor: 'var(--color-border)' }}
+                        required 
+                        min={1}
+                      />
+                      <span className="absolute right-2.5 text-[10px] font-bold text-slate-400">cm</span>
+                    </div>
+                    <div className="relative flex items-center">
+                      <input 
+                        type="number" 
+                        placeholder="H"
+                        value={form.heightCm} 
+                        onChange={(e) => setForm({...form, heightCm: Math.max(1, +e.target.value)})}
+                        className="input-field pr-8 px-3.5 py-3 bg-[var(--color-background)] text-center w-full border rounded-[var(--radius-card)]"
+                        style={{ borderColor: 'var(--color-border)' }}
+                        required 
+                        min={1}
+                      />
+                      <span className="absolute right-2.5 text-[10px] font-bold text-slate-400">cm</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="text-left">
-                <label className="block text-xs font-bold mb-1.5" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>
-                  Vehicle Type
-                </label>
-                <select 
-                  value={form.vehicleType} 
-                  onChange={(e) => setForm({...form, vehicleType: e.target.value as any})}
-                  className="input-field"
-                >
-                  <option value="MINI_TEMPO">Mini Tempo</option>
-                  <option value="PICKUP_TRUCK">Pickup Truck</option>
-                  <option value="CONTAINER_3TON">3-Ton Container</option>
-                </select>
+                {/* Dropdown Menu for Vehicle selection */}
+                <div className="text-left space-y-2">
+                  <label className="block text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>
+                    Vehicle Type
+                  </label>
+                  <select
+                    value={form.vehicleType}
+                    onChange={(e) => setForm({...form, vehicleType: e.target.value as any})}
+                    className="input-field px-4 py-3 bg-[var(--color-background)] w-full border rounded-[var(--radius-card)] focus:outline-none"
+                    style={{ borderColor: 'var(--color-border)' }}
+                  >
+                    <option value="MINI_TEMPO">Mini Tempo (Up to 500 kg)</option>
+                    <option value="PICKUP_TRUCK">Pickup Truck (Up to 1.5 Tons)</option>
+                    <option value="CONTAINER_3TON">3-Ton Container (Up to 3.0 Tons)</option>
+                  </select>
+                </div>
               </div>
 
               <button 
                 type="submit"
-                className="w-full text-white p-3 rounded-[var(--radius-button)] font-bold transition-all hover:opacity-90 pt-4"
-                style={{ backgroundColor: 'var(--color-primary-hover)', fontFamily: 'var(--font-heading)', fontSize: '14px' }}
+                className="w-full text-white py-3.5 rounded-[var(--radius-button)] font-bold transition-all hover:bg-[var(--color-primary-hover)] text-center text-sm shadow-md mt-6"
+                style={{ backgroundColor: 'var(--color-primary)', fontFamily: 'var(--font-heading)' }}
               >
                 Calculate Estimate Price
               </button>
             </form>
 
-            {/* Price Result Box */}
-            <div className="lg:col-span-5">
-              {quote ? (
-                <div className="p-6 rounded-[var(--radius-card)] border bg-[var(--color-card)] space-y-4" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
-                  <h3 className="text-lg font-bold pb-2 border-b border-[var(--color-border)] text-left" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>
-                    Price Breakdown Details
-                  </h3>
-                  <div className="space-y-3 text-sm text-left" style={{ color: 'var(--color-text-muted)' }}>
-                    <div className="flex justify-between">
-                      <span>Base Fare:</span>
-                      <span className="font-semibold text-[var(--color-text-main)]">₹{quote.basePrice}</span>
+            {/* Price Result Panel */}
+            <div className="lg:col-span-5 h-full">
+              <div className="p-8 rounded-[var(--radius-card)] border bg-[var(--color-card)] space-y-6 shadow-sm h-full flex flex-col justify-between" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
+                {!quote ? (
+                  <div className="flex flex-col items-center justify-center text-center py-16 space-y-4 my-auto h-full">
+                    <div className="p-4 rounded-full bg-slate-100 dark:bg-slate-900 text-slate-400">
+                      <Receipt size={32} />
                     </div>
-                    <div className="flex justify-between">
-                      <span>Distance Cost ({quote.distanceKm} km):</span>
-                      <span className="font-semibold text-[var(--color-text-main)]">₹{quote.pricePerKm * quote.distanceKm}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Billed Weight Charge ({quote.chargeable} kg):</span>
-                      <span className="font-semibold text-[var(--color-text-main)]">₹{Math.round(quote.costPerUnit * quote.chargeable)}</span>
-                    </div>
-                    <p className="text-[10px] leading-relaxed pt-1" style={{ color: 'var(--color-text-muted)' }}>
-                      * Billed weight is calculated as the larger of actual weight ({form.weightKg}kg) and volumetric weight ({quote.volumetric}kg).
-                    </p>
-                    <div className="border-t border-[var(--color-border)] pt-4 flex justify-between items-center">
-                      <span className="text-sm font-bold text-[var(--color-text-main)]">Estimated Total:</span>
-                      <span className="text-3xl font-extrabold text-[var(--color-text-main)]">₹{quote.estimated}</span>
+                    <div className="space-y-2">
+                      <h4 className="font-bold text-base text-[var(--color-text-main)]">No Quote Calculated</h4>
+                      <p className="text-xs max-w-[280px]" style={{ color: 'var(--color-text-muted)' }}>
+                        Fill out the details on the left and click <strong>"Calculate Estimate Price"</strong> to see your detailed breakdown.
+                      </p>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => navigate('/register')}
-                    className="w-full text-white py-3 rounded-[var(--radius-button)] font-bold transition-all hover:opacity-90 mt-2 text-center"
-                    style={{ backgroundColor: '#0F1B2E', fontFamily: 'var(--font-heading)', fontSize: '13px' }}
-                  >
-                    Proceed to Book Delivery
-                  </button>
+                ) : (
+                  <>
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-bold pb-2 border-b border-[var(--color-border)] text-left" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>
+                        Price Breakdown Details
+                      </h3>
+                      <div className="space-y-3.5 text-sm text-left" style={{ color: 'var(--color-text-muted)' }}>
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-slate-500">Base Fare:</span>
+                          <span className="font-bold text-[var(--color-text-main)]">₹{quote.basePrice}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-slate-500">Distance Cost ({quote.distanceKm} km):</span>
+                          <span className="font-bold text-[var(--color-text-main)]">₹{quote.pricePerKm * quote.distanceKm}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-slate-500">Billed Weight Charge ({quote.chargeable} kg):</span>
+                          <span className="font-bold text-[var(--color-text-main)]">₹{Math.round(quote.costPerUnit * quote.chargeable)}</span>
+                        </div>
+                        <p className="text-[10px] leading-relaxed pt-1 border-t border-dashed border-[var(--color-border)]" style={{ color: 'var(--color-text-muted)' }}>
+                          * Billed weight is calculated as the larger of actual weight ({form.weightKg}kg) and package volume weight ({quote.volumetric}kg).
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4 pt-4 border-t border-[var(--color-border)]">
+                      <div className="flex justify-between items-center text-left">
+                        <span className="text-sm font-bold text-[var(--color-text-main)]">Estimated Total:</span>
+                        <span className="text-3xl font-extrabold text-[var(--color-text-main)]">₹{quote.estimated}</span>
+                      </div>
+                      <button 
+                        type="button"
+                        onClick={() => navigate('/register')}
+                        className="w-full text-white py-3.5 rounded-[var(--radius-button)] font-bold transition-all hover:bg-[var(--color-primary-hover)] text-center text-sm shadow-md"
+                        style={{ backgroundColor: 'var(--color-primary)', fontFamily: 'var(--font-heading)' }}
+                      >
+                        Proceed to Book Delivery
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Fleet Catalog Section */}
+          <div className="mt-16 space-y-6 text-left">
+            <h3 className="text-xl font-bold border-b border-[var(--color-border)] pb-3" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>
+              Our Cargo Fleet & Rates
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Mini Tempo Details */}
+              <div className="p-6 rounded-[var(--radius-card)] border bg-[var(--color-card)] flex flex-col justify-between space-y-4" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300">
+                      <Truck size={22} />
+                    </div>
+                    <div>
+                      <h4 className="font-extrabold text-base" style={{ color: 'var(--color-text-main)' }}>Mini Tempo</h4>
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-indigo-500">Up to 500 kg</span>
+                    </div>
+                  </div>
+                  <p className="text-xs leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
+                    Perfect for swift local deliveries of household items, boxes, and small shipments. Highly maneuverable in tight city streets.
+                  </p>
                 </div>
-              ) : (
-                <div className="p-6 rounded-[var(--radius-card)] border bg-[var(--color-card)] text-center py-20" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)', color: 'var(--color-text-muted)' }}>
-                  <svg className="mx-auto h-12 w-12 text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
-                  <p className="text-sm font-medium">Enter details and click calculate to view your quote breakdown.</p>
+                <div className="pt-3 border-t border-[var(--color-border)] flex justify-between items-center">
+                  <div>
+                    <span className="block text-[10px] uppercase font-bold text-slate-400">Base Price</span>
+                    <span className="text-base font-extrabold" style={{ color: 'var(--color-text-main)' }}>₹50</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="block text-[10px] uppercase font-bold text-slate-400">Distance Rate</span>
+                    <span className="text-base font-extrabold" style={{ color: 'var(--color-text-main)' }}>₹12 / km</span>
+                  </div>
                 </div>
-              )}
+              </div>
+
+              {/* Pickup Truck Details */}
+              <div className="p-6 rounded-[var(--radius-card)] border bg-[var(--color-card)] flex flex-col justify-between space-y-4" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300">
+                      <Truck size={22} />
+                    </div>
+                    <div>
+                      <h4 className="font-extrabold text-base" style={{ color: 'var(--color-text-main)' }}>Pickup Truck</h4>
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-indigo-500">Up to 1.5 Tons</span>
+                    </div>
+                  </div>
+                  <p className="text-xs leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
+                    Ideal for commercial cargo, medium-sized furniture, and construction materials. Offers an open deck layout for easy loading.
+                  </p>
+                </div>
+                <div className="pt-3 border-t border-[var(--color-border)] flex justify-between items-center">
+                  <div>
+                    <span className="block text-[10px] uppercase font-bold text-slate-400">Base Price</span>
+                    <span className="text-base font-extrabold" style={{ color: 'var(--color-text-main)' }}>₹80</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="block text-[10px] uppercase font-bold text-slate-400">Distance Rate</span>
+                    <span className="text-base font-extrabold" style={{ color: 'var(--color-text-main)' }}>₹15 / km</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3-Ton Container Details */}
+              <div className="p-6 rounded-[var(--radius-card)] border bg-[var(--color-card)] flex flex-col justify-between space-y-4" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300">
+                      <Truck size={22} />
+                    </div>
+                    <div>
+                      <h4 className="font-extrabold text-base" style={{ color: 'var(--color-text-main)' }}>3-Ton Container</h4>
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-indigo-500">Up to 3.0 Tons</span>
+                    </div>
+                  </div>
+                  <p className="text-xs leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
+                    Fully enclosed metal container truck. Ideal for high-value logistics, sensitive industrial freight, and heavy distributions.
+                  </p>
+                </div>
+                <div className="pt-3 border-t border-[var(--color-border)] flex justify-between items-center">
+                  <div>
+                    <span className="block text-[10px] uppercase font-bold text-slate-400">Base Price</span>
+                    <span className="text-base font-extrabold" style={{ color: 'var(--color-text-main)' }}>₹150</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="block text-[10px] uppercase font-bold text-slate-400">Distance Rate</span>
+                    <span className="text-base font-extrabold" style={{ color: 'var(--color-text-main)' }}>₹20 / km</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* For Shippers Detail Section */}
-      <section id="shippers" className="relative py-24 px-6 overflow-hidden animate-fade-in">
+      <section id="shippers" className="relative py-36 px-6 overflow-hidden animate-fade-in flex items-center min-h-[450px]">
         {/* Background Image */}
         <div 
           className="absolute inset-0 bg-cover bg-center"
@@ -327,27 +447,17 @@ function LandingPage() {
           }}
         />
         
-        <div className="max-w-[1550px] mx-auto px-4 sm:px-8 relative z-20 text-left">
+        <div className="max-w-[1750px] mx-auto px-4 sm:px-8 w-full relative z-20 flex justify-start text-left">
           <div className="max-w-2xl space-y-6">
             <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">
               For Shippers
             </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-white" style={{ fontFamily: 'var(--font-heading)' }}>
-              Designed to keep cargo moving seamlessly
+              Designed to keep cargo moving
             </h2>
-            <p className="text-base leading-relaxed text-slate-300">
-              Whether you are dispatching office supplies, heavy merchandise, or personal appliances, our platform bridges the gap to reliable freight transport without agency margins.
+            <p className="text-base sm:text-lg leading-relaxed text-slate-300">
+              Book verified local trucks instantly to ship anything from office supplies to heavy freight. No brokers, no hidden margins, and complete delivery security from start to finish.
             </p>
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-bold text-sm text-white">Volumetric Math Estimator</h4>
-                <p className="text-xs text-slate-400">Charges are computed using cargo shapes and actual weight, protecting you from arbitrary markups.</p>
-              </div>
-              <div>
-                <h4 className="font-bold text-sm text-white">Secure Handshake Verification</h4>
-                <p className="text-xs text-slate-400">High-value cargo matches are sealed using individual security keys generated only on your screen.</p>
-              </div>
-            </div>
             <div className="pt-2">
               <button 
                 onClick={() => navigate('/register')}
@@ -362,7 +472,7 @@ function LandingPage() {
       </section>
 
       {/* For Drivers Detail Section */}
-      <section id="drivers" className="relative py-24 px-6 overflow-hidden">
+      <section id="drivers" className="relative py-36 px-6 overflow-hidden flex items-center min-h-[450px]">
         {/* Background Image */}
         <div 
           className="absolute inset-0 bg-cover bg-center"
@@ -378,34 +488,24 @@ function LandingPage() {
           }}
         />
         
-        <div className="max-w-[1550px] mx-auto px-4 sm:px-8 relative z-20 flex justify-end text-left">
+        <div className="max-w-[1750px] mx-auto px-4 sm:px-8 w-full relative z-20 flex justify-end text-left">
           <div className="max-w-2xl space-y-6">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
               For Drivers
             </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-white" style={{ fontFamily: 'var(--font-heading)' }}>
-              Run cargo, earn instantly, and optimize routes
+              Keep 100% of your earnings
             </h2>
-            <p className="text-base leading-relaxed text-slate-300">
-              Connect directly with local businesses needing freight capacities. We take zero cuts of your matched base fares, keeping money in your pocket.
+            <p className="text-base sm:text-lg leading-relaxed text-slate-300">
+              Get matched directly with local shippers needing vehicle capacity. We take zero commission cuts from your matched base fares, keeping more money in your pocket.
             </p>
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-bold text-sm text-white">Automatic Smart Route Plotting</h4>
-                <p className="text-xs text-slate-400">Receive live maps and route guides to load points based on vehicle payload size limits.</p>
-              </div>
-              <div>
-                <h4 className="font-bold text-sm text-white">Prompt Ledger Settlements</h4>
-                <p className="text-xs text-slate-400">Your driver balance updates instantly as soon as drop-off key validations succeed.</p>
-              </div>
-            </div>
             <div className="pt-2">
               <button 
                 onClick={() => navigate('/register')}
                 className="bg-white text-[var(--color-primary)] px-8 py-3.5 rounded-[var(--radius-button)] font-bold transition-all hover:bg-slate-100 shadow-lg inline-block text-sm"
                 style={{ fontFamily: 'var(--font-heading)' }}
               >
-                Join as a Dispatch Partner
+                Sign Up as a Driver
               </button>
             </div>
           </div>
@@ -413,14 +513,14 @@ function LandingPage() {
       </section>
 
       {/* Services Section */}
-      <section id="services" className="py-24 px-6 bg-[var(--color-background)] border-t border-b border-[var(--color-border)] animate-fade-in">
-        <div className="max-w-[1550px] mx-auto px-4 sm:px-8 text-left">
+      <section id="services" className="py-24 px-6 border-t border-b border-[var(--color-border)] animate-fade-in" style={{ backgroundColor: 'var(--color-background)' }}>
+        <div className="max-w-[1750px] mx-auto px-4 sm:px-8 text-left">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>
-              Our Logistics Services
+              How We Help You Ship
             </h2>
             <p className="text-base font-medium" style={{ color: 'var(--color-text-muted)' }}>
-              We've replaced the manual complexities of cargo shipping with automated, reliable systems.
+              Simple, reliable shipping tools designed to make moving cargo stress-free.
             </p>
           </div>
 
@@ -429,15 +529,15 @@ function LandingPage() {
             <div className="group rounded-[var(--radius-card)] border bg-[var(--color-card)] overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
               <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)] relative">
                 <img 
-                  src="https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=600&q=80" 
+                  src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80" 
                   alt="Volumetric Pricing math cargo palettes" 
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
               <div className="p-6 space-y-3 flex-1">
-                <h3 className="text-lg font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Volumetric Pricing</h3>
+                <h3 className="text-lg font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Fair Pricing</h3>
                 <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
-                  Say goodbye to arbitrary pricing. We calculate shipping weights dynamically using cargo physical volume to ensure honest rates.
+                  No surprise fees. We calculate rates automatically based on your cargo dimensions and shipping weight to ensure honest rates.
                 </p>
               </div>
             </div>
@@ -446,15 +546,15 @@ function LandingPage() {
             <div className="group rounded-[var(--radius-card)] border bg-[var(--color-card)] overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
               <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)] relative">
                 <img 
-                  src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=600&q=80" 
+                  src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=600&q=80" 
                   alt="OTP Security passcode screen verification" 
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
               <div className="p-6 space-y-3 flex-1">
-                <h3 className="text-lg font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>OTP Security Verification</h3>
+                <h3 className="text-lg font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Secure Handshakes</h3>
                 <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
-                  Protect high-value shipments. Drivers must enter verification keys shared directly with the customer at both pickup and drop-off.
+                  Protect your goods. Drivers must enter a security code sent directly to you at both pickup and drop-off to confirm loading and delivery.
                 </p>
               </div>
             </div>
@@ -463,15 +563,15 @@ function LandingPage() {
             <div className="group rounded-[var(--radius-card)] border bg-[var(--color-card)] overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
               <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)] relative">
                 <img 
-                  src="https://images.unsplash.com/photo-1580674684081-7617fbf3d745?auto=format&fit=crop&w=600&q=80" 
+                  src="https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=600&q=80" 
                   alt="Intelligent fleet trucks logistics center warehouse" 
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
               <div className="p-6 space-y-3 flex-1">
-                <h3 className="text-lg font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Intelligent Fleet Routing</h3>
+                <h3 className="text-lg font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Fast & Direct Routes</h3>
                 <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
-                  Maximize driver efficiency. Routes are plotted automatically by considering multiple pickup points and vehicle weight limits.
+                  Avoid unnecessary delays. Routes are plotted instantly to find the quickest path, avoiding heavy traffic zones and low-clearance bridges.
                 </p>
               </div>
             </div>
@@ -479,68 +579,68 @@ function LandingPage() {
         </div>
       </section>
       {/* Capacity Network Section */}
-      <section className="py-24 px-6 border-b border-[var(--color-border)] bg-[var(--color-card)]">
-        <div className="max-w-[1550px] mx-auto px-4 sm:px-8 text-left">
+      <section className="py-24 px-6 border-b border-[var(--color-border)]" style={{ backgroundColor: 'var(--color-background)' }}>
+        <div className="max-w-[1750px] mx-auto px-4 sm:px-8 text-left">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
             <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
-              Our Fleet Network
+              Our Vehicles
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>
-              Logistics Capacity Network
+              A Fleet for Any Cargo Size
             </h2>
             <p className="text-base font-medium" style={{ color: 'var(--color-text-muted)' }}>
-              Get matched with the ideal shipping capacity from our extensive partner fleet.
+              Choose from a wide variety of verified local delivery vehicles to match your load.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Feature 1 */}
-            <div className="group rounded-[var(--radius-card)] border bg-[var(--color-background)] overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
+            <div className="group rounded-[var(--radius-card)] border bg-[var(--color-card)] overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
               <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)] relative">
                 <img 
-                  src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80" 
-                  alt="Volumetric pricing engine" 
+                  src="https://images.unsplash.com/photo-1606185540834-d6e7483ee1a4?auto=format&fit=crop&w=600&q=80" 
+                  alt="Smart vehicle matching" 
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
               <div className="p-6 space-y-3 flex-1">
                 <h3 className="text-lg font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Smart Vehicle Matching</h3>
                 <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
-                  Our volumetric engine automatically evaluates cargo shapes, weight, and distance to assign the most cost-effective vehicle class in our network.
+                  Our booking system automatically recommends the most cost-effective vehicle class based on your cargo dimensions.
                 </p>
               </div>
             </div>
 
             {/* Feature 2 */}
-            <div className="group rounded-[var(--radius-card)] border bg-[var(--color-background)] overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
+            <div className="group rounded-[var(--radius-card)] border bg-[var(--color-card)] overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
               <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)] relative">
                 <img 
-                  src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80" 
+                  src="https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?auto=format&fit=crop&w=600&q=80" 
                   alt="Verified box container truck network" 
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
               <div className="p-6 space-y-3 flex-1">
-                <h3 className="text-lg font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>On-Demand Capacity</h3>
+                <h3 className="text-lg font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>On-Demand Booking</h3>
                 <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
-                  Instantly access hundreds of verified partner vehicles, spanning small local delivery tempos, flatbed utility pickups, and closed box containers.
+                  Book mini tempos, utility pickups, or large container trucks instantly whenever you need them—no long-term contracts.
                 </p>
               </div>
             </div>
 
             {/* Feature 3 */}
-            <div className="group rounded-[var(--radius-card)] border bg-[var(--color-background)] overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
+            <div className="group rounded-[var(--radius-card)] border bg-[var(--color-card)] overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
               <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)] relative">
                 <img 
-                  src="https://images.unsplash.com/photo-1549194388-f61be84a6e9e?auto=format&fit=crop&w=600&q=80" 
+                  src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80" 
                   alt="Payload capacity optimization cargo loader" 
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
               <div className="p-6 space-y-3 flex-1">
-                <h3 className="text-lg font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Payload Optimization</h3>
+                <h3 className="text-lg font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Space Optimization</h3>
                 <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
-                  Never pay for empty logistics space. Our platform optimizes layout space, ensuring you only pay for the exact volume your cargo requires.
+                  Never pay for empty cargo space. We organize load layouts to ensure you only pay for the exact volume your boxes require.
                 </p>
               </div>
             </div>
@@ -549,8 +649,8 @@ function LandingPage() {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="py-24 px-6 border-b border-[var(--color-border)] bg-[var(--color-card)]">
-        <div className="max-w-[1550px] mx-auto px-4 sm:px-8">
+      <section id="faq" className="py-24 px-6 border-b border-[var(--color-border)]" style={{ backgroundColor: 'var(--color-background)' }}>
+        <div className="max-w-[1750px] mx-auto px-4 sm:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start text-left">
             
             {/* Left Column: Heading and Info Image */}
@@ -600,8 +700,8 @@ function LandingPage() {
       </section>
 
       {/* Support Section */}
-      <section id="support" className="py-24 px-6">
-        <div className="max-w-[1550px] mx-auto px-4 sm:px-8">
+      <section id="support" className="py-24 px-6" style={{ backgroundColor: 'var(--color-background)' }}>
+        <div className="max-w-[1750px] mx-auto px-4 sm:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center text-left">
             
             {/* Left Column: Heading and Cards */}
@@ -682,18 +782,151 @@ function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="mt-auto py-12 px-6 border-t border-[var(--color-border)] bg-[var(--color-card)] text-sm" style={{ color: 'var(--color-text-muted)' }}>
-        <div className="max-w-[1550px] mx-auto px-4 sm:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="space-y-1 text-center md:text-left">
-            <span className="text-base font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>CargoGo Logistics Partners</span>
-            <p className="text-xs">Secure commercial and personal cargo transportation dispatch.</p>
+      <footer className="mt-auto py-20 px-6 border-t border-slate-800 text-sm transition-all duration-300" style={{ background: 'linear-gradient(to right, #050b14, #142134)', color: '#94A3B8' }}>
+        <div className="max-w-[1750px] mx-auto px-4 sm:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-10 pb-16 border-b border-slate-800 text-left">
+            
+            {/* Column 1: Brand & Compliance */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="flex items-center gap-1">
+                <span className="px-2 py-0.5 text-xs font-black tracking-tighter text-[#09121F] bg-white rounded" style={{ fontFamily: 'Space Grotesk' }}>
+                  Cargo
+                </span>
+                <span className="text-lg font-black tracking-tight text-white" style={{ fontFamily: 'Space Grotesk' }}>
+                  Go
+                </span>
+              </div>
+              <p className="text-xs leading-relaxed max-w-sm text-slate-300">
+                Next-generation freight coordination, algorithmic transit optimization, and cryptographic OTP-verified dispatch networks. Empowering corporate enterprise logistics with margin-free cargo matching.
+              </p>
+              
+              {/* Trust & Compliance Badges */}
+              <div className="space-y-2 pt-1">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-200 block mb-1">Security & Compliance</span>
+                <div className="flex flex-wrap gap-1.5">
+                  <span className="px-2 py-1 text-[10px] font-semibold bg-slate-800/80 text-slate-300 rounded flex items-center gap-1 border border-slate-700 shadow-sm">
+                    <Shield size={11} className="text-indigo-400" /> SOC 2 Type II Certified
+                  </span>
+                  <span className="px-2 py-1 text-[10px] font-semibold bg-slate-800/80 text-slate-300 rounded flex items-center gap-1 border border-slate-700 shadow-sm">
+                    FMCSA Compliant
+                  </span>
+                  <span className="px-2 py-1 text-[10px] font-semibold bg-slate-800/80 text-slate-300 rounded flex items-center gap-1 border border-slate-700 shadow-sm">
+                    ISO 27001
+                  </span>
+                </div>
+              </div>
+
+              {/* Social Channels */}
+              <div className="flex gap-4 pt-1">
+                <a href="#linkedin" aria-label="LinkedIn" className="text-slate-400 hover:text-white transition-colors p-1 hover:bg-slate-800 rounded">
+                  <svg className="w-[18px] h-[18px]" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                  </svg>
+                </a>
+                <a href="#twitter" aria-label="Twitter/X" className="text-slate-400 hover:text-white transition-colors p-1 hover:bg-slate-800 rounded">
+                  <svg className="w-[18px] h-[18px]" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                </a>
+                <a href="#github" aria-label="GitHub" className="text-slate-400 hover:text-white transition-colors p-1 hover:bg-slate-800 rounded">
+                  <svg className="w-[18px] h-[18px]" fill="currentColor" viewBox="0 0 24 24">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+                  </svg>
+                </a>
+                <a href="#globe" aria-label="Website" className="text-slate-400 hover:text-white transition-colors p-1 hover:bg-slate-800 rounded">
+                  <Globe size={18} />
+                </a>
+              </div>
+            </div>
+
+            {/* Column 2: Solutions */}
+            <div className="space-y-4">
+              <h4 className="font-bold text-xs uppercase tracking-wider text-white">Solutions</h4>
+              <ul className="space-y-2.5 text-xs">
+                <li><a href="#pricing" className="text-slate-300 hover:text-white transition-colors">Volumetric Billing</a></li>
+                <li><a href="#services" className="text-slate-300 hover:text-white transition-colors">Intelligent Fleet Routing</a></li>
+                <li><a href="#shippers" className="text-slate-300 hover:text-white transition-colors">Enterprise Freight Portal</a></li>
+                <li><a href="#drivers" className="text-slate-300 hover:text-white transition-colors">Dispatch APIs</a></li>
+                <li><span className="text-slate-500 cursor-not-allowed">Cold-Chain Logistics <span className="text-[9px] font-bold text-indigo-400 bg-slate-800 px-1 py-0.5 rounded">BETA</span></span></li>
+              </ul>
+            </div>
+
+            {/* Column 3: Developer API & Platform */}
+            <div className="space-y-4">
+              <h4 className="font-bold text-xs uppercase tracking-wider text-white">Developers</h4>
+              <ul className="space-y-2.5 text-xs">
+                <li><span className="text-slate-300 hover:text-white cursor-pointer transition-colors">API Documentation</span></li>
+                <li><span className="text-slate-300 hover:text-white cursor-pointer transition-colors">Webhooks Registry</span></li>
+                <li><span className="text-slate-300 hover:text-white cursor-pointer transition-colors">System Architecture</span></li>
+                <li><span className="text-slate-300 hover:text-white cursor-pointer transition-colors">Github Integrations</span></li>
+              </ul>
+            </div>
+
+            {/* Column 4: Legal & Governance */}
+            <div className="space-y-4">
+              <h4 className="font-bold text-xs uppercase tracking-wider text-white">Governance</h4>
+              <ul className="space-y-2.5 text-xs">
+                <li><span className="text-slate-300 hover:text-white cursor-pointer transition-colors">Privacy Policy SLA</span></li>
+                <li><span className="text-slate-300 hover:text-white cursor-pointer transition-colors">Terms of Service</span></li>
+                <li><span className="text-slate-300 hover:text-white cursor-pointer transition-colors">Cargo Insurance Bond</span></li>
+                <li><span className="text-slate-300 hover:text-white cursor-pointer transition-colors">OTP Protocol Patent</span></li>
+                <li><span className="text-slate-300 hover:text-white cursor-pointer transition-colors">Incident Reports</span></li>
+              </ul>
+            </div>
+
+            {/* Column 5: Offices & Corporate Info */}
+            <div className="space-y-4">
+              <h4 className="font-bold text-xs uppercase tracking-wider text-white">HQ Offices</h4>
+              <ul className="space-y-2.5 text-xs leading-relaxed">
+                <li>
+                  <span className="font-semibold text-slate-200 block">North America HQ</span>
+                  <span className="text-slate-400">120 N LaSalle St, Chicago, IL 60602</span>
+                </li>
+                <li>
+                  <span className="font-semibold text-slate-200 block">Europe Hub</span>
+                  <span className="text-slate-400">Rotterdam Port Plaza, 3012 CL, NL</span>
+                </li>
+                <li>
+                  <span className="font-semibold text-slate-200 block">Asia Pacific Office</span>
+                  <span className="text-slate-400">Marina Bay Sands Tower 3, Singapore</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 6: Newsletter / Updates */}
+            <div className="space-y-4">
+              <h4 className="font-bold text-xs uppercase tracking-wider text-white">Subscribe</h4>
+              <p className="text-xs leading-relaxed text-slate-300">
+                Get quarterly reports on logistics optimization, fuel surcharges, and tech integrations.
+              </p>
+              <form className="space-y-2" onSubmit={(e) => { e.preventDefault(); alert('Subscribed to corporate logistics insights!'); }}>
+                <input 
+                  type="email" 
+                  placeholder="corp@address.com" 
+                  className="w-full px-3 py-2 text-xs border rounded bg-slate-900/50 border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                  required
+                />
+                <button 
+                  type="submit" 
+                  className="w-full px-4 py-2 text-xs font-bold text-[#09121F] bg-white hover:bg-slate-100 rounded transition-colors shadow-sm"
+                >
+                  Join Insights List
+                </button>
+              </form>
+            </div>
+
           </div>
-          <div className="flex flex-wrap justify-center gap-6">
-            <span>Support: help@cargogo.com</span>
-            <span>Hotline: +1-800-CARGOGO</span>
-          </div>
-          <div className="text-xs">
-            &copy; {new Date().getFullYear()} CargoGo. All rights reserved.
+
+          {/* Bottom Footer Section */}
+          <div className="pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs">
+            <div className="text-slate-400">
+              &copy; {new Date().getFullYear()} CargoGo Technologies Inc. All rights reserved. &bull; Registered DOT No. 3940822
+            </div>
+            <div className="flex gap-6 text-slate-400">
+              <span className="hover:text-white cursor-pointer">Security SLA</span>
+              <span className="hover:text-white cursor-pointer">Platform Status</span>
+              <span className="hover:text-white cursor-pointer">Sitemap</span>
+            </div>
           </div>
         </div>
       </footer>

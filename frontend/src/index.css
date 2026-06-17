@@ -6,7 +6,7 @@
   /* Brand & Layout Colors */
   --color-primary: #09121F;
   --color-primary-hover: #1E293B;
-  --color-background: #F5F7FA;
+  --color-background: #E2E8F0;
   --color-card: #FFFFFF;
   --color-border: #E2E8F0;
   --color-input-border: #CBD5E1;
@@ -33,6 +33,13 @@
 }
 
 @layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+    background-color: #050b14;
+  }
   html, body, *, *::before, *::after {
     font-family: var(--font-body);
   }
@@ -66,4 +73,16 @@
   .font-tech-space {
     font-family: 'Space Grotesk', sans-serif;
   }
+}
+
+/* Hide spin-buttons for Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide spin-buttons for Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }
