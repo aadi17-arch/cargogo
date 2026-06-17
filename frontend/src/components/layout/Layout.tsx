@@ -18,7 +18,7 @@ function Layout() {
   }, []); // Empty deps — run once on mount only
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: '#F8F9FA' }}>
       <Navbar />
       <main className="p-6 max-w-[1600px] mx-auto w-full">
         <Outlet />
