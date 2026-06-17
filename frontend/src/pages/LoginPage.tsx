@@ -47,11 +47,23 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Login</h2>
+    <div className="min-h-screen flex items-center justify-center bg-[var(--color-background)]" style={{ fontFamily: 'var(--font-body)' }}>
+      <form 
+        onSubmit={handleSubmit} 
+        className="bg-[var(--color-card)] p-8 w-full max-w-sm"
+        style={{
+          border: 'var(--border-width) solid var(--color-border)',
+          borderRadius: 'var(--radius-card)',
+        }}
+      >
+        <h2 className="text-2xl font-bold mb-6 text-center" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>
+          Login
+        </h2>
         
         <div className="mb-4">
+          <label className="block text-xs font-bold mb-1.5" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>
+            Email
+          </label>
           <input
             type="email"
             placeholder="Email"
@@ -60,16 +72,19 @@ function LoginPage() {
               setEmail(e.target.value);
               if (errors.email) setErrors({ ...errors, email: undefined });
             }}
-            className={`w-full p-2.5 border rounded-lg transition-all focus:outline-none focus:ring-2 ${
+            className={`w-full p-3 bg-white text-[var(--color-text-main)] placeholder-[#94A3B8] font-medium rounded-[var(--radius-card)] border-[var(--border-width)] focus:outline-none transition-all text-sm ${
               errors.email 
-                ? 'border-red-500 focus:ring-red-200' 
-                : 'border-gray-300 focus:ring-blue-100 focus:border-blue-500'
+                ? 'border-red-500 focus:border-red-500' 
+                : 'border-[var(--color-input-border)] focus:border-[var(--color-primary)]'
             }`}
           />
           {errors.email && <p className="text-red-500 text-xs mt-1.5 pl-1">{errors.email}</p>}
         </div>
 
         <div className="mb-6">
+          <label className="block text-xs font-bold mb-1.5" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>
+            Password
+          </label>
           <input
             type="password"
             placeholder="Password"
@@ -78,20 +93,34 @@ function LoginPage() {
               setPassword(e.target.value);
               if (errors.password) setErrors({ ...errors, password: undefined });
             }}
-            className={`w-full p-2.5 border rounded-lg transition-all focus:outline-none focus:ring-2 ${
+            className={`w-full p-3 bg-white text-[var(--color-text-main)] placeholder-[#94A3B8] font-medium rounded-[var(--radius-card)] border-[var(--border-width)] focus:outline-none transition-all text-sm ${
               errors.password 
-                ? 'border-red-500 focus:ring-red-200' 
-                : 'border-gray-300 focus:ring-blue-100 focus:border-blue-500'
+                ? 'border-red-500 focus:border-red-500' 
+                : 'border-[var(--color-input-border)] focus:border-[var(--color-primary)]'
             }`}
           />
           {errors.password && <p className="text-red-500 text-xs mt-1.5 pl-1">{errors.password}</p>}
         </div>
 
-        <button type="submit" className="w-full bg-blue-600 text-white p-2.5 rounded-lg hover:bg-blue-700 font-semibold shadow transition">
+        <button 
+          type="submit" 
+          className="w-full text-white p-3 rounded-[var(--radius-button)] font-bold transition-all"
+          style={{
+            backgroundColor: 'var(--color-primary)',
+            fontFamily: 'var(--font-heading)',
+            fontSize: '14px',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--color-primary)';
+          }}
+        >
           Login
         </button>
-        <p className="mt-4 text-center text-sm text-gray-600">
-          No account? <Link to="/register" className="text-blue-600 font-medium hover:underline">Register</Link>
+        <p className="mt-5 text-center text-sm text-[var(--color-text-muted)]">
+          Don't have an account? <Link to="/register" className="font-semibold hover:underline" style={{ color: 'var(--color-primary)' }}>Register here</Link>
         </p>
       </form>
     </div>
