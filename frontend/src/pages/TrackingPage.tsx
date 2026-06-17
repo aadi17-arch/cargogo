@@ -151,27 +151,38 @@ function TrackingPage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-semibold text-slate-900 font-sans-outfit tracking-tight">Track Booking</h2>
-      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-2">
-        <p className="text-sm text-slate-600 flex items-center gap-2">
+      <h2 className="text-[24px] font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Track Delivery</h2>
+      <div className="p-6 shadow-none space-y-2" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
+        <p className="text-sm flex items-center gap-2" style={{ color: 'var(--color-text-main)' }}>
           Status: 
-          <span className={`px-2.5 py-1 rounded-full text-xs font-bold tracking-wide uppercase border font-tech-space ${
-            booking.status === 'PENDING' ? 'bg-slate-50 text-slate-600 border-slate-200' :
-            booking.status === 'ACCEPTED' ? 'bg-blue-50 text-blue-600 border-blue-200' :
-            booking.status === 'IN_TRANSIT' ? 'bg-indigo-50 text-indigo-600 border-indigo-200' :
-            booking.status === 'DELIVERED' ? 'bg-amber-50 text-amber-600 border-amber-200' :
-            booking.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
-            booking.status === 'CANCELLED' ? 'bg-rose-50 text-rose-600 border-rose-200' :
-            'bg-orange-50 text-orange-600 border-orange-200'
-          }`}>
+          <span 
+            className="px-2 py-0.5 rounded-[4px] text-[10px] font-bold tracking-wide uppercase border-[1.5px] bg-transparent shrink-0"
+            style={{
+              fontFamily: 'var(--font-mono)',
+              borderColor: 
+                booking.status === 'PENDING' ? 'var(--color-status-pending)' :
+                booking.status === 'ACCEPTED' ? 'var(--color-status-accepted)' :
+                booking.status === 'IN_TRANSIT' ? 'var(--color-status-transit)' :
+                booking.status === 'DELIVERED' ? 'var(--color-status-delivered)' :
+                booking.status === 'COMPLETED' ? 'var(--color-status-completed)' :
+                booking.status === 'CANCELLED' ? 'var(--color-status-cancelled)' : 'var(--color-text-muted)',
+              color:
+                booking.status === 'PENDING' ? 'var(--color-status-pending)' :
+                booking.status === 'ACCEPTED' ? 'var(--color-status-accepted)' :
+                booking.status === 'IN_TRANSIT' ? 'var(--color-status-transit)' :
+                booking.status === 'DELIVERED' ? 'var(--color-status-delivered)' :
+                booking.status === 'COMPLETED' ? 'var(--color-status-completed)' :
+                booking.status === 'CANCELLED' ? 'var(--color-status-cancelled)' : 'var(--color-text-muted)'
+            }}
+          >
             {booking.status}
           </span>
         </p>
-        <p className="text-sm text-slate-700">Cargo: <span className="font-semibold text-slate-900">{booking.cargoType}</span></p>
-        <p className="text-sm text-slate-700">Price: <span className="font-bold text-slate-900 font-tech-space">₹{booking.price}</span></p>
+        <p className="text-sm" style={{ color: 'var(--color-text-main)' }}>Cargo: <span className="font-semibold">{booking.cargoType}</span></p>
+        <p className="text-sm" style={{ color: 'var(--color-text-main)' }}>Price: <span className="font-bold" style={{ color: 'var(--color-primary)' }}>₹{booking.price}</span></p>
       </div>
 
-      <div className="h-96 rounded-lg overflow-hidden shadow">
+      <div className="h-96 overflow-hidden shadow-none" style={{ border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
         <MapContainer center={pickup} zoom={13} style={{ height: '100%', width: '100%' }}>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <Marker position={pickup}>
@@ -187,52 +198,53 @@ function TrackingPage() {
       </div>
 
       {booking.status === 'ACCEPTED' && (
-        <div className="bg-amber-50 border border-amber-100 p-6 rounded-2xl shadow-sm">
+        <div className="p-6 shadow-none" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
           {user?.role === 'DRIVER' ? (
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <span className="font-semibold text-amber-800 text-sm">Enter Pickup OTP:</span>
+              <span className="font-semibold text-sm" style={{ color: 'var(--color-text-main)' }}>Enter Pickup OTP:</span>
               <div className="flex gap-2">
-                <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={6} className="input-field max-w-[120px] text-center font-mono text-lg tracking-widest" placeholder="000000" />
-                <button onClick={() => verifyOTP('pickup')} className="bg-slate-900 hover:bg-black text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Verify Pickup</button>
+                <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={6} className="input-field max-w-[120px] text-center text-lg tracking-widest" placeholder="000000" style={{ fontFamily: 'var(--font-mono)' }} />
+                <button onClick={() => verifyOTP('pickup')} className="text-white px-4 py-2 text-sm font-bold transition" style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>Verify Pickup</button>
               </div>
             </div>
           ) : (
-            <p className="font-semibold text-amber-800 text-sm">
-              Share this Pickup OTP with your driver to start the trip: <span className="bg-amber-200 px-3 py-1 rounded-lg font-mono text-xl ml-2">{booking.pickupOTP}</span>
+            <p className="font-semibold text-sm" style={{ color: 'var(--color-text-main)' }}>
+              Share this OTP with the driver to start the delivery: <span className="border px-3 py-1 font-mono text-xl ml-2 font-bold" style={{ backgroundColor: 'var(--color-background)', borderColor: 'var(--color-border)', borderRadius: 'var(--radius-card)', color: 'var(--color-primary)' }}>{booking.pickupOTP}</span>
             </p>
           )}
         </div>
       )}
 
       {booking.status === 'IN_TRANSIT' && (
-        <div className="bg-blue-50 border border-blue-100 p-6 rounded-2xl shadow-sm">
+        <div className="p-6 shadow-none" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
           {user?.role === 'DRIVER' ? (
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <span className="font-semibold text-blue-800 text-sm">Enter Dropoff OTP:</span>
+              <span className="font-semibold text-sm" style={{ color: 'var(--color-text-main)' }}>Enter Dropoff OTP:</span>
               <div className="flex gap-2">
-                <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={6} className="input-field max-w-[120px] text-center font-mono text-lg tracking-widest" placeholder="000000" />
-                <button onClick={() => verifyOTP('dropoff')} className="bg-slate-900 hover:bg-black text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Verify Dropoff</button>
+                <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={6} className="input-field max-w-[120px] text-center text-lg tracking-widest" placeholder="000000" style={{ fontFamily: 'var(--font-mono)' }} />
+                <button onClick={() => verifyOTP('dropoff')} className="text-white px-4 py-2 text-sm font-bold transition" style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>Verify Dropoff</button>
               </div>
             </div>
           ) : (
-            <p className="font-semibold text-blue-800 text-sm">
-              Share this Dropoff OTP with your driver to complete the delivery: <span className="bg-blue-200 px-3 py-1 rounded-lg font-mono text-xl ml-2">{booking.dropoffOTP}</span>
+            <p className="font-semibold text-sm" style={{ color: 'var(--color-text-main)' }}>
+              Share this OTP with the driver to complete the delivery: <span className="border px-3 py-1 font-mono text-xl ml-2 font-bold" style={{ backgroundColor: 'var(--color-background)', borderColor: 'var(--color-border)', borderRadius: 'var(--radius-card)', color: 'var(--color-primary)' }}>{booking.dropoffOTP}</span>
             </p>
           )}
         </div>
       )}
 
       {booking.status === 'DELIVERED' && (
-        <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-2xl shadow-sm text-center space-y-4 animate-pulse">
-          <p className="text-xl font-bold text-emerald-800">Package Delivered!</p>
+        <div className="p-6 shadow-none text-center space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
+          <p className="text-xl font-bold" style={{ color: 'var(--color-status-delivered)' }}>Package Delivered!</p>
           {user?.role === 'SHIPPER' && (
             <div className="flex flex-col items-center">
-              <p className="text-sm text-emerald-700 mb-4">Please review the invoice details below and complete the payment.</p>
+              <p className="text-sm mb-4" style={{ color: 'var(--color-text-muted)' }}>Please review the invoice details below and complete the payment.</p>
               <button 
                 onClick={handlePayment} 
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm shadow-sm transition"
+                className="text-white font-bold px-6 py-2.5 text-sm transition hover:opacity-90"
+                style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
               >
-                Pay & Complete Booking (₹{booking.price})
+                Pay & Complete Delivery (₹{booking.price})
               </button>
             </div>
           )}
@@ -240,46 +252,46 @@ function TrackingPage() {
       )}
 
       {booking.status === 'COMPLETED' && (
-        <div className="bg-blue-50 p-6 rounded-lg shadow text-center">
-          <p className="text-2xl font-bold text-blue-700">Booking Completed & Paid!</p>
+        <div className="p-6 shadow-none text-center" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
+          <p className="text-2xl font-bold" style={{ color: 'var(--color-status-completed)' }}>Delivery Completed & Paid!</p>
         </div>
       )}
 
       {booking.status === 'DISPUTED' && (
-        <div className="bg-red-50 p-6 rounded-lg shadow text-center border-l-4 border-red-500">
-          <p className="text-2xl font-bold text-red-700">Booking Under Dispute</p>
-          <p className="text-gray-700 mt-2">Our support team is currently reviewing your claim. We will contact you shortly.</p>
+        <div className="p-6 shadow-none text-center" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-status-cancelled)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
+          <p className="text-2xl font-bold" style={{ color: 'var(--color-status-cancelled)' }}>Delivery Under Dispute</p>
+          <p className="mt-2" style={{ color: 'var(--color-text-muted)' }}>Our support team is currently reviewing your claim. We will contact you shortly.</p>
         </div>
       )}
 
       {invoice && (
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
-          <h3 className="text-xl font-semibold text-slate-800 border-b border-slate-100 pb-2 font-sans-outfit">Invoice Details</h3>
-          <div className="grid grid-cols-2 gap-y-2 text-xs text-slate-600 font-sans-outfit">
+        <div className="p-6 shadow-none space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
+          <h3 className="text-xl font-semibold pb-2 border-b" style={{ color: 'var(--color-text-main)', borderColor: 'var(--color-border)', fontFamily: 'var(--font-heading)' }}>Invoice Details</h3>
+          <div className="grid grid-cols-2 gap-y-2 text-xs" style={{ color: 'var(--color-text-muted)' }}>
             <span>Base Fare:</span>
-            <span className="font-semibold text-right text-slate-800 font-tech-space">₹{invoice.basePrice}</span>
+            <span className="font-semibold text-right" style={{ color: 'var(--color-text-main)' }}>₹{invoice.basePrice}</span>
             <span>Distance Charge:</span>
-            <span className="font-semibold text-right text-slate-800 font-tech-space">₹{invoice.distanceCost}</span>
+            <span className="font-semibold text-right" style={{ color: 'var(--color-text-main)' }}>₹{invoice.distanceCost}</span>
             <span>Weight Surcharge:</span>
-            <span className="font-semibold text-right text-slate-800 font-tech-space">₹{invoice.weightCost}</span>
-            <div className="col-span-2 border-t border-slate-100 my-2"></div>
-            <span className="text-sm font-bold text-slate-900">Total Price:</span>
-            <span className="text-lg font-bold text-right text-green-600 font-tech-space">₹{invoice.totalPrice}</span>
+            <span className="font-semibold text-right" style={{ color: 'var(--color-text-main)' }}>₹{invoice.weightCost}</span>
+            <div className="col-span-2 border-t my-2" style={{ borderColor: 'var(--color-border)' }}></div>
+            <span className="text-sm font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Total Price:</span>
+            <span className="text-lg font-bold text-right" style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-heading)' }}>₹{invoice.totalPrice}</span>
           </div>
         </div>
       )}
 
       {booking.review && (
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-3">
-          <h3 className="text-xl font-semibold text-slate-800 border-b border-slate-100 pb-2 font-sans-outfit">Customer Feedback</h3>
+        <div className="p-6 shadow-none space-y-3" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
+          <h3 className="text-xl font-semibold pb-2 border-b" style={{ color: 'var(--color-text-main)', borderColor: 'var(--color-border)', fontFamily: 'var(--font-heading)' }}>Customer Feedback</h3>
           <div className="flex items-center gap-2">
             <span className="text-amber-400 text-xl font-bold">
               {'★'.repeat(booking.review.rating)}{'☆'.repeat(5 - booking.review.rating)}
             </span>
-            <span className="text-sm font-semibold text-slate-700 font-tech-space">({booking.review.rating} / 5 stars)</span>
+            <span className="text-sm font-semibold" style={{ color: 'var(--color-text-main)' }}>({booking.review.rating} / 5 stars)</span>
           </div>
           {booking.review.comment && (
-            <p className="text-sm text-slate-600 italic bg-slate-50 p-4 rounded-xl border border-slate-100 mt-2">
+            <p className="text-sm italic p-4 border mt-2" style={{ backgroundColor: 'var(--color-background)', borderColor: 'var(--color-border)', borderRadius: 'var(--radius-card)', color: 'var(--color-text-main)' }}>
               "{booking.review.comment}"
             </p>
           )}
@@ -287,11 +299,11 @@ function TrackingPage() {
       )}
 
       {booking.status === 'COMPLETED' && user?.role === 'SHIPPER' && !booking.review && !reviewSubmitted && (
-        <form onSubmit={handleReviewSubmit} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
-          <h3 className="text-md font-bold text-slate-800 border-b border-slate-100 pb-2">Rate Driver Experience</h3>
+        <form onSubmit={handleReviewSubmit} className="p-6 shadow-none space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
+          <h3 className="text-md font-bold pb-2 border-b" style={{ color: 'var(--color-text-main)', borderColor: 'var(--color-border)', fontFamily: 'var(--font-heading)' }}>Rate Driver Experience</h3>
           
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Rating</label>
+            <label className="block text-[10px] font-bold tracking-[0.08em] mb-1" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>Rating</label>
             <div className="flex space-x-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -307,34 +319,35 @@ function TrackingPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Comment</label>
+            <label className="block text-[10px] font-bold tracking-[0.08em] mb-1" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>Comment</label>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Tell us about your experience..."
               className="input-field h-24"
+              style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}
             />
           </div>
 
-          <button type="submit" className="w-full bg-slate-900 hover:bg-black text-white font-semibold py-2.5 rounded-xl text-sm transition">
+          <button type="submit" className="w-full text-white font-bold py-2.5 text-sm transition" style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>
             Submit Rating
           </button>
         </form>
       )}
 
       {['DELIVERED', 'COMPLETED'].includes(booking.status) && user?.role === 'SHIPPER' && (
-        <div className="pt-4 text-center">
+        <div className="pt-4 text-center font-sans">
           {!showDisputeForm ? (
             <button 
               onClick={() => setShowDisputeForm(true)} 
-              className="text-red-600 hover:text-red-800 text-xs font-semibold underline uppercase tracking-wider"
+              className="text-[#DC2626] hover:opacity-85 text-xs font-bold underline tracking-wider"
             >
               Have an issue? File a Dispute
             </button>
           ) : (
-            <form onSubmit={handleDisputeSubmit} className="bg-red-50 border border-red-100 p-6 rounded-2xl text-left space-y-4 mt-2">
-              <h3 className="text-sm font-bold text-red-800 uppercase tracking-wide">File a Dispute</h3>
-              <p className="text-xs text-red-600">Please describe the problem you encountered with your delivery (e.g., damaged items, delay, driver behavior).</p>
+            <form onSubmit={handleDisputeSubmit} className="p-6 text-left space-y-4 mt-2" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-status-cancelled)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
+              <h3 className="text-sm font-bold uppercase tracking-wide" style={{ color: 'var(--color-status-cancelled)', fontFamily: 'var(--font-heading)' }}>File a Dispute</h3>
+              <p className="text-xs" style={{ color: 'var(--color-status-cancelled)' }}>Please describe the problem you encountered with your delivery (e.g., damaged items, delay, driver behavior).</p>
               
               <div>
                 <textarea
@@ -343,17 +356,25 @@ function TrackingPage() {
                   placeholder="Describe your issue in detail..."
                   required
                   className="input-field h-24 bg-white"
+                  style={{ color: 'var(--color-text-main)' }}
                 />
               </div>
 
               <div className="flex gap-2">
-                <button type="submit" className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">
+                <button type="submit" className="text-white px-4 py-2 text-sm font-bold transition" style={{ backgroundColor: 'var(--color-status-cancelled)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>
                   Submit Dispute
                 </button>
                 <button 
                   type="button" 
                   onClick={() => setShowDisputeForm(false)} 
-                  className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-2 rounded-xl text-sm font-semibold transition"
+                  className="px-4 py-2 text-sm font-bold transition hover:bg-[var(--color-background)]"
+                  style={{
+                    backgroundColor: 'var(--color-card)',
+                    color: 'var(--color-text-muted)',
+                    border: 'var(--border-width) solid var(--color-input-border)',
+                    borderRadius: 'var(--radius-button)',
+                    fontFamily: 'var(--font-heading)'
+                  }}
                 >
                   Cancel
                 </button>
