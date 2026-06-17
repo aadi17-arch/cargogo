@@ -548,61 +548,97 @@ function LandingPage() {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="py-20 px-6 border-b border-[var(--color-border)] bg-[var(--color-card)]">
-        <div className="max-w-[1100px] mx-auto px-4 sm:px-8 text-left">
-          <div className="text-center mb-12 space-y-3">
-            <h2 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>
-              Frequently Asked Questions
-            </h2>
-            <p className="text-md font-medium" style={{ color: 'var(--color-text-muted)' }}>
-              Everything you need to know about booking, pricing, and driver verification.
-            </p>
-          </div>
-          <div className="space-y-6">
-            <div className="p-5 border border-[var(--color-border)] rounded-[var(--radius-card)] bg-[var(--color-background)]">
-              <h4 className="font-bold text-md mb-2" style={{ color: 'var(--color-text-main)' }}>How is shipment pricing calculated?</h4>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
-                Our volumetric engine takes your cargo dimensions (Length × Width × Height) and computes volumetric weight. The quote uses the larger value between actual weight and volumetric weight, multiplied by the distance.
+      <section id="faq" className="py-24 px-6 border-b border-[var(--color-border)] bg-[var(--color-card)]">
+        <div className="max-w-[1550px] mx-auto px-4 sm:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start text-left">
+            
+            {/* Left Column: Heading and Info Image */}
+            <div className="lg:col-span-5 space-y-6">
+              <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                FAQ
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>
+                Frequently Asked Questions
+              </h2>
+              <p className="text-base font-medium" style={{ color: 'var(--color-text-muted)' }}>
+                Everything you need to know about booking, volumetric pricing calculation, and OTP safety verification.
               </p>
+              <div className="h-64 rounded-[var(--radius-card)] overflow-hidden border border-[var(--color-border)] shadow-sm">
+                <img 
+                  src="https://images.unsplash.com/photo-1521791136368-1a8519007b51?auto=format&fit=crop&w=800&q=80" 
+                  alt="Customer support handshake helpdesk" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
-            <div className="p-5 border border-[var(--color-border)] rounded-[var(--radius-card)] bg-[var(--color-background)]">
-              <h4 className="font-bold text-md mb-2" style={{ color: 'var(--color-text-main)' }}>What is the OTP verification system?</h4>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
-                To ensure cargo safety, the shipper receives a secure Pickup OTP and a Drop-off OTP. The matched driver must input these keys at both points to confirm shipment transfers in the ledger.
-              </p>
+
+            {/* Right Column: Accordion Questions */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="p-5 border border-[var(--color-border)] rounded-[var(--radius-card)] bg-[var(--color-background)]">
+                <h4 className="font-bold text-md mb-2" style={{ color: 'var(--color-text-main)' }}>How is shipment pricing calculated?</h4>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
+                  Our volumetric engine takes your cargo dimensions (Length × Width × Height) and computes volumetric weight. The quote uses the larger value between actual weight and volumetric weight, multiplied by the distance.
+                </p>
+              </div>
+              <div className="p-5 border border-[var(--color-border)] rounded-[var(--radius-card)] bg-[var(--color-background)]">
+                <h4 className="font-bold text-md mb-2" style={{ color: 'var(--color-text-main)' }}>What is the OTP verification system?</h4>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
+                  To ensure cargo safety, the shipper receives a secure Pickup OTP and a Drop-off OTP. The matched driver must input these keys at both points to confirm shipment transfers in the ledger.
+                </p>
+              </div>
+              <div className="p-5 border border-[var(--color-border)] rounded-[var(--radius-card)] bg-[var(--color-background)]">
+                <h4 className="font-bold text-md mb-2" style={{ color: 'var(--color-text-main)' }}>Can I cancel a booking?</h4>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
+                  Yes. You can cancel any cargo request directly from your shipper dashboard as long as a driver has not accepted/claimed it.
+                </p>
+              </div>
             </div>
-            <div className="p-5 border border-[var(--color-border)] rounded-[var(--radius-card)] bg-[var(--color-background)]">
-              <h4 className="font-bold text-md mb-2" style={{ color: 'var(--color-text-main)' }}>Can I cancel a booking?</h4>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
-                Yes. You can cancel any cargo request directly from your shipper dashboard as long as a driver has not accepted/claimed it.
-              </p>
-            </div>
+
           </div>
         </div>
       </section>
 
       {/* Support Section */}
-      <section id="support" className="py-20 px-6">
-        <div className="max-w-[1100px] mx-auto px-4 sm:px-8 text-center space-y-8">
-          <div className="space-y-3">
-            <h2 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>
-              Here to Help 24/7
-            </h2>
-            <p className="text-md font-medium" style={{ color: 'var(--color-text-muted)' }}>
-              Our dedicated dispatch support team is always standing by to secure your cargo lanes.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="p-6 border border-[var(--color-border)] rounded-[var(--radius-card)] bg-[var(--color-card)] space-y-2 text-left">
-              <h4 className="font-bold text-sm" style={{ color: 'var(--color-text-main)' }}>Email Assistance</h4>
-              <p className="text-lg font-bold text-indigo-600">help@cargogo.com</p>
-              <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Expect response within 15 minutes.</p>
+      <section id="support" className="py-24 px-6">
+        <div className="max-w-[1550px] mx-auto px-4 sm:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center text-left">
+            
+            {/* Left Column: Heading and Cards */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="space-y-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
+                  Support
+                </span>
+                <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>
+                  Here to Help 24/7
+                </h2>
+                <p className="text-base font-medium" style={{ color: 'var(--color-text-muted)' }}>
+                  Our dedicated dispatch support team is always standing by to secure your cargo lanes.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="p-6 border border-[var(--color-border)] rounded-[var(--radius-card)] bg-[var(--color-card)] space-y-2 text-left shadow-sm">
+                  <h4 className="font-bold text-sm" style={{ color: 'var(--color-text-main)' }}>Email Assistance</h4>
+                  <p className="text-lg font-bold text-indigo-600">help@cargogo.com</p>
+                  <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Expect response within 15 minutes.</p>
+                </div>
+                <div className="p-6 border border-[var(--color-border)] rounded-[var(--radius-card)] bg-[var(--color-card)] space-y-2 text-left shadow-sm">
+                  <h4 className="font-bold text-sm" style={{ color: 'var(--color-text-main)' }}>Support Hotline</h4>
+                  <p className="text-lg font-bold text-indigo-600">+1-800-CARGOGO</p>
+                  <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Toll-free cargo assistance line.</p>
+                </div>
+              </div>
             </div>
-            <div className="p-6 border border-[var(--color-border)] rounded-[var(--radius-card)] bg-[var(--color-card)] space-y-2 text-left">
-              <h4 className="font-bold text-sm" style={{ color: 'var(--color-text-main)' }}>Support Hotline</h4>
-              <p className="text-lg font-bold text-indigo-600">+1-800-CARGOGO</p>
-              <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>Toll-free cargo assistance line.</p>
+
+            {/* Right Column: Dispatch Image */}
+            <div className="lg:col-span-5 h-[340px] rounded-[var(--radius-card)] overflow-hidden border border-[var(--color-border)] shadow-sm">
+              <img 
+                src="https://images.unsplash.com/photo-1549923746-c502d488b3ea?auto=format&fit=crop&w=800&q=80" 
+                alt="Logistics team dispatch center support" 
+                className="w-full h-full object-cover"
+              />
             </div>
+
           </div>
         </div>
       </section>
