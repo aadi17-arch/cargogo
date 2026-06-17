@@ -2,15 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Brand & Layout Colors */
+  --color-primary: #09121F;
+  --color-primary-hover: #1E293B;
+  --color-background: #F5F7FA;
+  --color-card: #FFFFFF;
+  --color-border: #E2E8F0;
+  --color-input-border: #CBD5E1;
+  --color-text-main: #0F1B2E;
+  --color-text-muted: #5C6B84;
+
+  /* Status Colors */
+  --color-status-pending: #D97706;
+  --color-status-accepted: #8B5CF6;
+  --color-status-transit: #EA580C;
+  --color-status-delivered: #0D9488;
+  --color-status-completed: #059669;
+  --color-status-cancelled: #DC2626;
+
+  /* Dimensions & Shapes */
+  --radius-card: 6px;
+  --radius-button: 6px;
+  --border-width: 1.5px;
+
+  /* Fonts */
+  --font-heading: 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+}
+
 @layer base {
   html, body, *, *::before, *::after {
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-body);
   }
 }
 
 @layer components {
   .input-field {
-    @apply w-full p-3 bg-white text-black placeholder-slate-400 font-medium rounded-xl border border-slate-200 focus:outline-none focus:border-slate-500 focus:ring-0 transition-all text-sm;
+    @apply w-full p-3 bg-white text-[var(--color-text-main)] placeholder-slate-400 font-medium rounded-[6px] border-[1.5px] focus:outline-none transition-all text-sm;
+    border-color: var(--color-input-border);
+    border-width: var(--border-width);
+    border-radius: var(--radius-card);
+  }
+  .input-field:focus {
+    border-color: #0F1B2E;
   }
   .btn-primary {
     @apply w-full bg-[#1A1A1A] hover:bg-black text-white py-3 px-4 font-bold text-sm rounded-xl transition-colors shadow-sm flex items-center justify-center gap-2;
