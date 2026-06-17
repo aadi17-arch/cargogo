@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
 
+
 interface NavbarProps {
   userName?: string;
   userRole?: string;
@@ -27,6 +28,12 @@ export default function Navbar({
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const [logoutHovered, setLogoutHovered] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  
+  // New Guest state Modals & inputs
+  const [showTrackModal, setShowTrackModal] = useState(false);
+  const [showShippersModal, setShowShippersModal] = useState(false);
+  const [showDriversModal, setShowDriversModal] = useState(false);
+  const [trackingIdInput, setTrackingIdInput] = useState('');
 
   // Track window width for mobile responsiveness
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
@@ -48,10 +55,10 @@ export default function Navbar({
   const [showDriverStats, setShowDriverStats] = useState(false);
 
   useEffect(() => {
-    if (showActiveRuns || showDriverStats) {
+    if (token && (showActiveRuns || showDriverStats)) {
       fetchMyBookings().catch(err => console.error('Failed to load bookings in navbar', err));
     }
-  }, [showActiveRuns, showDriverStats]);
+  }, [showActiveRuns, showDriverStats, token]);
 
   // Derived lists
   const activeShipperRuns = bookings.filter(
@@ -74,44 +81,69 @@ export default function Navbar({
 
   // Define navigation options based on role
   const getNavLinks = () => {
-    if (role === 'DRIVER') {
-      return ['Dashboard', 'Performance Stats', 'FAQ', 'Support'];
+    if (!token) {
+      return ['Pricing', 'Track Shipment', 'For Shippers', 'For Drivers', 'Services', 'FAQ', 'Support'];
     }
-    return ['Book Delivery', 'Active Runs', 'Rates', 'Services', 'FAQ', 'Support'];
+    if (role === 'DRIVER') {
+      return ['Dashboard', 'Performance', 'FAQ', 'Support'];
+    }
+    return ['Book Delivery', 'Active Deliveries', 'Pricing', 'Services', 'FAQ', 'Support'];
   };
 
   const navLinks = getNavLinks();
+
 
   const handleLinkClick = (linkName: string) => {
     setActiveLink(linkName);
     setMenuOpen(false);
     if (linkName === 'Book Delivery') {
       navigate('/shipper');
-    } else if (linkName === 'Dashboard') {
+      return;
+    }
+    if (linkName === 'Dashboard') {
       navigate('/driver');
-    } else if (linkName === 'Active Runs') {
+      return;
+    }
+    if (linkName === 'Active Deliveries') {
       setShowActiveRuns(true);
-    } else if (linkName === 'Rates') {
-      setShowRates(true);
-    } else if (linkName === 'Services') {
-      setShowServices(true);
-    } else if (linkName === 'FAQ') {
-      setShowFAQ(true);
-    } else if (linkName === 'Support') {
-      setShowSupport(true);
-    } else if (linkName === 'Performance Stats') {
+      return;
+    }
+    if (linkName === 'Performance') {
       setShowDriverStats(true);
+      return;
+    }
+
+    const sectionIds: Record<string, string> = {
+      'Pricing': 'pricing',
+      'Track Shipment': 'track',
+      'For Shippers': 'shippers',
+      'For Drivers': 'drivers',
+      'Services': 'services',
+      'FAQ': 'faq',
+      'Support': 'support'
+    };
+
+    const targetId = sectionIds[linkName];
+    if (targetId) {
+      if (window.location.pathname !== '/') {
+        navigate(`/#${targetId}`);
+      } else {
+        const element = document.getElementById(targetId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
     }
   };
 
-  // Color constants from the strict design system spec
+  // Color constants for the eye-friendly steel blue theme
   const COLORS = {
-    espresso: '#120B04',
-    surface: '#1A0F07',
-    cream: '#F2E6D0',
-    mutedCream: 'rgba(184, 168, 152, 0.6)',
-    amber: '#C8813A',
-    border: 'rgba(224, 206, 174, 0.15)',
+    espresso: 'var(--color-primary)',         // Solid primary blue navbar background
+    surface: 'var(--color-primary)',             
+    cream: '#FFFFFF',                         // White text for active states
+    mutedCream: 'rgba(255, 255, 255, 0.75)',  // Semi-transparent white for inactive link text
+    amber: '#FFFFFF',                         // White for active border/accents
+    border: 'rgba(255, 255, 255, 0.15)',      // Muted white border
   };
 
   // Styles
@@ -122,13 +154,14 @@ export default function Navbar({
     width: '100%',
     height: '64px',
     backgroundColor: COLORS.espresso,
-    borderBottom: `1.5px solid ${COLORS.border}`,
+    borderBottom: `1px solid ${COLORS.border}`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: isMobile ? '0 16px' : '0 24px',
+    paddingLeft: isMobile ? '16px' : '24px',
+    paddingRight: '24px',
     boxSizing: 'border-box',
-    fontFamily: "'DM Sans', sans-serif",
+    fontFamily: 'var(--font-body)',
   };
 
   const logoStyle: React.CSSProperties = {
@@ -142,10 +175,10 @@ export default function Navbar({
     fontFamily: "'Space Grotesk', sans-serif",
     fontWeight: 850,
     fontSize: '14px',
-    color: COLORS.espresso,
-    backgroundColor: COLORS.amber,
+    color: 'var(--color-primary)',
+    backgroundColor: '#FFFFFF',
     padding: '2px 8px',
-    borderRadius: '6px',
+    borderRadius: 'var(--radius-card)',
     letterSpacing: '-0.025em',
   };
 
@@ -153,7 +186,7 @@ export default function Navbar({
     fontFamily: "'Space Grotesk', sans-serif",
     fontWeight: 'bold',
     fontSize: '20px',
-    color: COLORS.cream,
+    color: '#FFFFFF',
     marginLeft: '6px',
     letterSpacing: '-0.025em',
   };
@@ -169,6 +202,9 @@ export default function Navbar({
     display: 'flex',
     alignItems: 'center',
     gap: '16px',
+    height: '100%',
+    backgroundColor: 'transparent',
+    boxSizing: 'border-box',
   };
 
   const userInfoStyle: React.CSSProperties = {
@@ -179,27 +215,27 @@ export default function Navbar({
   };
 
   const userNameStyle: React.CSSProperties = {
-    fontFamily: "'Outfit', sans-serif",
+    fontFamily: 'var(--font-heading)',
     fontSize: '13px',
     fontWeight: 500,
-    color: COLORS.cream,
+    color: '#FFFFFF',
   };
 
   const userRoleStyle: React.CSSProperties = {
-    fontFamily: "'Space Mono', monospace",
+    fontFamily: 'var(--font-mono)',
     fontSize: '10px',
-    color: COLORS.amber,
+    color: '#93C5FD',
     letterSpacing: '0.05em',
   };
 
   const logoutButtonStyle = (isHovered: boolean): React.CSSProperties => ({
-    fontFamily: "'Outfit', sans-serif",
+    fontFamily: 'var(--font-heading)',
     fontSize: '12px',
     fontWeight: 'bold',
-    color: isHovered ? COLORS.espresso : COLORS.cream,
-    backgroundColor: isHovered ? COLORS.amber : 'transparent',
-    border: `1.5px solid ${COLORS.border}`,
-    borderRadius: '6px',
+    color: isHovered ? 'var(--color-primary)' : '#FFFFFF',
+    backgroundColor: isHovered ? '#FFFFFF' : 'transparent',
+    border: `var(--border-width) solid #FFFFFF`,
+    borderRadius: 'var(--radius-card)',
     padding: '6px 14px',
     cursor: 'pointer',
     transition: 'all 0.15s ease-in-out',
@@ -212,7 +248,7 @@ export default function Navbar({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(18, 11, 4, 0.85)',
+    backgroundColor: 'rgba(15, 23, 42, 0.45)', // Eye-friendly slate overlay
     zIndex: 9999,
     display: 'flex',
     alignItems: 'center',
@@ -221,33 +257,33 @@ export default function Navbar({
   };
 
   const modalBoxStyle: React.CSSProperties = {
-    backgroundColor: COLORS.surface,
-    border: `1.5px solid ${COLORS.border}`,
-    borderRadius: '6px',
+    backgroundColor: 'var(--color-card)',
+    border: 'var(--border-width) solid var(--color-border)',
+    borderRadius: 'var(--radius-card)',
     maxWidth: '480px',
     width: '100%',
     padding: '24px',
-    color: COLORS.cream,
+    color: 'var(--color-text-main)',
     boxSizing: 'border-box',
-    fontFamily: "'DM Sans', sans-serif",
+    fontFamily: 'var(--font-body)',
   };
 
   const modalHeaderStyle: React.CSSProperties = {
-    fontFamily: "'Outfit', sans-serif",
+    fontFamily: 'var(--font-heading)',
     fontWeight: 'bold',
     fontSize: '20px',
-    color: COLORS.amber,
+    color: 'var(--color-primary)',
     margin: '0 0 16px 0',
-    borderBottom: `1.5px solid ${COLORS.border}`,
+    borderBottom: 'var(--border-width) solid var(--color-border)',
     paddingBottom: '8px',
   };
 
   const modalBtnStyle: React.CSSProperties = {
     width: '100%',
     backgroundColor: 'transparent',
-    border: `1.5px solid ${COLORS.border}`,
-    borderRadius: '6px',
-    color: COLORS.cream,
+    border: 'var(--border-width) solid var(--color-border)',
+    borderRadius: 'var(--radius-card)',
+    color: 'var(--color-text-main)',
     padding: '10px',
     fontWeight: 'bold',
     fontSize: '14px',
@@ -255,8 +291,6 @@ export default function Navbar({
     marginTop: '20px',
     transition: 'all 0.15s ease',
   };
-
-  if (!token) return null;
 
   return (
     <>
@@ -276,10 +310,10 @@ export default function Navbar({
               const isPrimaryAction = link === 'Book Delivery' || link === 'Dashboard';
 
               const linkStyle: React.CSSProperties = {
-                fontFamily: "'Outfit', sans-serif",
+                fontFamily: "var(--font-body)",
                 fontSize: '14px',
                 fontWeight: isPrimaryAction ? 700 : 500,
-                color: (isActive || isHovered) ? COLORS.amber : COLORS.cream,
+                color: (isActive || isHovered) ? COLORS.amber : COLORS.mutedCream,
                 cursor: 'pointer',
                 height: '100%',
                 display: 'flex',
@@ -312,42 +346,98 @@ export default function Navbar({
         {/* Desktop Right: User info & Action */}
         {!isMobile ? (
           <div style={rightNavStyle}>
-            <div style={userInfoStyle}>
-              <span style={userNameStyle}>{name}</span>
-              <span style={userRoleStyle}>{role}</span>
-            </div>
+            {token ? (
+              <>
+                <div style={userInfoStyle}>
+                  <span style={userNameStyle}>{name}</span>
+                  <span style={userRoleStyle}>{role}</span>
+                </div>
 
-            <button
-              onClick={handleLogout}
-              onMouseEnter={() => setLogoutHovered(true)}
-              onMouseLeave={() => setLogoutHovered(false)}
-              style={logoutButtonStyle(logoutHovered)}
-            >
-              Logout
-            </button>
+                <button
+                  onClick={handleLogout}
+                  onMouseEnter={() => setLogoutHovered(true)}
+                  onMouseLeave={() => setLogoutHovered(false)}
+                  style={logoutButtonStyle(logoutHovered)}
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <button
+                  onClick={() => navigate('/login')}
+                  style={{
+                    fontFamily: 'var(--font-heading)',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    color: '#FFFFFF',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'opacity 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => navigate('/register')}
+                  style={{
+                    fontFamily: 'var(--font-heading)',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    color: 'var(--color-primary)',
+                    backgroundColor: '#FFFFFF',
+                    border: '1px solid #FFFFFF',
+                    borderRadius: 'var(--radius-card)',
+                    padding: '6px 14px',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease-in-out',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#FFFFFF';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#FFFFFF';
+                    e.currentTarget.style.color = 'var(--color-primary)';
+                  }}
+                >
+                  Register
+                </button>
+              </div>
+            )}
           </div>
         ) : (
-          /* Mobile Hamburger Button */
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '4px',
-              width: '32px',
-              height: '32px',
-            }}
-            aria-label="Toggle menu"
-          >
-            <span style={{ display: 'block', width: '20px', height: '2px', backgroundColor: COLORS.cream, transition: 'all 0.2s', transform: menuOpen ? 'rotate(45deg) translate(4px, 4px)' : 'none' }} />
-            <span style={{ display: 'block', width: '20px', height: '2px', backgroundColor: COLORS.cream, transition: 'all 0.2s', opacity: menuOpen ? 0 : 1 }} />
-            <span style={{ display: 'block', width: '20px', height: '2px', backgroundColor: COLORS.cream, transition: 'all 0.2s', transform: menuOpen ? 'rotate(-45deg) translate(4px, -4px)' : 'none' }} />
-          </button>
+          /* Mobile Hamburger Button Container */
+          <div style={{
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            boxSizing: 'border-box',
+          }}>
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '4px',
+                width: '32px',
+                height: '32px',
+              }}
+              aria-label="Toggle menu"
+            >
+              <span style={{ display: 'block', width: '20px', height: '2px', backgroundColor: '#FFFFFF', transition: 'all 0.2s', transform: menuOpen ? 'rotate(45deg) translate(4px, 4px)' : 'none' }} />
+              <span style={{ display: 'block', width: '20px', height: '2px', backgroundColor: '#FFFFFF', transition: 'all 0.2s', opacity: menuOpen ? 0 : 1 }} />
+              <span style={{ display: 'block', width: '20px', height: '2px', backgroundColor: '#FFFFFF', transition: 'all 0.2s', transform: menuOpen ? 'rotate(-45deg) translate(4px, -4px)' : 'none' }} />
+            </button>
+          </div>
         )}
       </nav>
 
@@ -366,7 +456,7 @@ export default function Navbar({
             display: 'flex',
             flexDirection: 'column',
             gap: '16px',
-            fontFamily: "'Outfit', sans-serif",
+            fontFamily: "var(--font-body)",
           }}
         >
           {/* Nav Links Stacked */}
@@ -378,10 +468,10 @@ export default function Navbar({
                   key={link}
                   onClick={() => handleLinkClick(link)}
                   style={{
-                    fontFamily: "'Outfit', sans-serif",
+                    fontFamily: "var(--font-body)",
                     fontSize: '14px',
                     fontWeight: isActive ? 700 : 500,
-                    color: isActive ? COLORS.amber : COLORS.cream,
+                    color: isActive ? COLORS.amber : COLORS.mutedCream,
                     textAlign: 'left',
                     background: 'none',
                     border: 'none',
@@ -396,30 +486,79 @@ export default function Navbar({
             })}
           </div>
 
-          <hr style={{ border: 'none', borderTop: `1px solid rgba(224, 206, 174, 0.2)`, margin: 0 }} />
+          <hr style={{ border: 'none', borderTop: '1px solid #E2E8F0', margin: 0 }} />
 
           {/* User Info & Logout Button Row */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: '1.2' }}>
-              <span style={{ fontSize: '13px', fontWeight: 'bold', color: COLORS.cream }}>{name}</span>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '10px', color: COLORS.amber }}>{role}</span>
-            </div>
-            <button
-              onClick={handleLogout}
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '12px',
-                fontWeight: 'bold',
-                color: COLORS.espresso,
-                backgroundColor: COLORS.amber,
-                border: 'none',
-                borderRadius: '6px',
-                padding: '8px 16px',
-                cursor: 'pointer',
-              }}
-            >
-              Logout
-            </button>
+            {token ? (
+              <>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: '1.2' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 'bold', color: COLORS.cream }}>{name}</span>
+                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '10px', color: COLORS.amber }}>{role}</span>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    color: COLORS.espresso,
+                    backgroundColor: COLORS.amber,
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '8px 16px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    navigate('/login');
+                  }}
+                  style={{
+                    flex: 1,
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    color: '#FFFFFF',
+                    backgroundColor: 'transparent',
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    borderRadius: '6px',
+                    padding: '8px 16px',
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                  }}
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    navigate('/register');
+                  }}
+                  style={{
+                    flex: 1,
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    color: 'var(--color-primary)',
+                    backgroundColor: '#FFFFFF',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '8px 16px',
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                  }}
+                >
+                  Register
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -430,25 +569,25 @@ export default function Navbar({
       {showRates && (
         <div style={modalOverlayStyle} onClick={() => setShowRates(false)}>
           <div style={modalBoxStyle} onClick={(e) => e.stopPropagation()}>
-            <h3 style={modalHeaderStyle}>Delivery Rates</h3>
+            <h3 style={modalHeaderStyle}>Pricing Rates</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px' }}>
-              <div style={{ borderBottom: `1px solid rgba(224, 206, 174, 0.3)`, paddingBottom: '6px', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+              <div style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '6px', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
                 <span>Vehicle Type</span>
                 <span>Base Price + Per Km</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>Mini Tempo</span>
-                <span style={{ fontFamily: "'Space Mono', monospace", color: COLORS.amber }}>₹50 + ₹12/km</span>
+                <span style={{ fontFamily: "'Space Mono', monospace", color: 'var(--color-primary)' }}>₹50 + ₹12/km</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>Pickup Truck</span>
-                <span style={{ fontFamily: "'Space Mono', monospace", color: COLORS.amber }}>₹80 + ₹15/km</span>
+                <span style={{ fontFamily: "'Space Mono', monospace", color: 'var(--color-primary)' }}>₹80 + ₹15/km</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>3-Ton Container</span>
-                <span style={{ fontFamily: "'Space Mono', monospace", color: COLORS.amber }}>₹150 + ₹20/km</span>
+                <span style={{ fontFamily: "'Space Mono', monospace", color: 'var(--color-primary)' }}>₹150 + ₹20/km</span>
               </div>
-              <p style={{ fontSize: '11px', color: COLORS.mutedCream, marginTop: '12px', lineHeight: '1.4' }}>
+              <p style={{ fontSize: '11px', color: '#64748B', marginTop: '12px', lineHeight: '1.4' }}>
                 * Billed weight is determined dynamically as the maximum of actual package weight and volumetric cargo weight.
               </p>
             </div>
@@ -456,12 +595,12 @@ export default function Navbar({
               onClick={() => setShowRates(false)}
               style={modalBtnStyle}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = COLORS.amber;
-                e.currentTarget.style.color = COLORS.espresso;
+                e.currentTarget.style.backgroundColor = 'var(--color-primary)';
+                e.currentTarget.style.color = '#FFFFFF';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = COLORS.cream;
+                e.currentTarget.style.color = '#1E293B';
               }}
             >
               Close
@@ -476,29 +615,29 @@ export default function Navbar({
           <div style={modalBoxStyle} onClick={(e) => e.stopPropagation()}>
             <h3 style={modalHeaderStyle}>Our Services</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px' }}>
-              <div style={{ padding: '10px', backgroundColor: COLORS.espresso, border: `1px solid rgba(224, 206, 174, 0.2)`, borderRadius: '4px' }}>
-                <p style={{ fontWeight: 'bold', color: COLORS.amber, margin: '0 0 4px 0' }}>Express Delivery</p>
-                <p style={{ fontSize: '12px', color: COLORS.mutedCream, margin: 0 }}>Fast tracking, priority routing, and quick driver dispatch for urgent loads.</p>
+              <div style={{ padding: '10px', backgroundColor: '#F8F9FA', border: '1px solid #E2E8F0', borderRadius: '4px' }}>
+                <p style={{ fontWeight: 'bold', color: 'var(--color-primary)', margin: '0 0 4px 0' }}>Express Delivery</p>
+                <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>Fast tracking, priority routing, and quick driver dispatch for urgent loads.</p>
               </div>
-              <div style={{ padding: '10px', backgroundColor: COLORS.espresso, border: `1px solid rgba(224, 206, 174, 0.2)`, borderRadius: '4px' }}>
-                <p style={{ fontWeight: 'bold', color: COLORS.amber, margin: '0 0 4px 0' }}>Bulk Cargo Transport</p>
-                <p style={{ fontSize: '12px', color: COLORS.mutedCream, margin: 0 }}>Perfect for high-volume items. Fits easily inside our 3-Ton containers.</p>
+              <div style={{ padding: '10px', backgroundColor: '#F8F9FA', border: '1px solid #E2E8F0', borderRadius: '4px' }}>
+                <p style={{ fontWeight: 'bold', color: 'var(--color-primary)', margin: '0 0 4px 0' }}>Bulk Cargo Transport</p>
+                <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>Perfect for high-volume items. Fits easily inside our 3-Ton containers.</p>
               </div>
-              <div style={{ padding: '10px', backgroundColor: COLORS.espresso, border: `1px solid rgba(224, 206, 174, 0.2)`, borderRadius: '4px' }}>
-                <p style={{ fontWeight: 'bold', color: COLORS.amber, margin: '0 0 4px 0' }}>Secure Handling</p>
-                <p style={{ fontSize: '12px', color: COLORS.mutedCream, margin: 0 }}>Sealed cargo chambers and verified OTP authentication for secure pickups.</p>
+              <div style={{ padding: '10px', backgroundColor: '#F8F9FA', border: '1px solid #E2E8F0', borderRadius: '4px' }}>
+                <p style={{ fontWeight: 'bold', color: 'var(--color-primary)', margin: '0 0 4px 0' }}>Secure Handling</p>
+                <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>Sealed cargo chambers and verified OTP authentication for secure pickups.</p>
               </div>
             </div>
             <button 
               onClick={() => setShowServices(false)}
               style={modalBtnStyle}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = COLORS.amber;
-                e.currentTarget.style.color = COLORS.espresso;
+                e.currentTarget.style.backgroundColor = 'var(--color-primary)';
+                e.currentTarget.style.color = '#FFFFFF';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = COLORS.cream;
+                e.currentTarget.style.color = '#1E293B';
               }}
             >
               Close
@@ -516,31 +655,31 @@ export default function Navbar({
               {role === 'DRIVER' ? (
                 <>
                   <div>
-                    <p style={{ fontWeight: 'bold', color: COLORS.cream, margin: '0 0 4px 0' }}>How do I start a delivery?</p>
-                    <p style={{ fontSize: '12px', color: COLORS.mutedCream, margin: 0 }}>Ask the shipper for the pickup OTP when you arrive at the pickup point, enter it into your dashboard, and confirm.</p>
+                    <p style={{ fontWeight: 'bold', color: '#1E293B', margin: '0 0 4px 0' }}>How do I start a delivery?</p>
+                    <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>Ask the shipper for the pickup OTP when you arrive at the pickup point, enter it into your dashboard, and confirm.</p>
                   </div>
                   <div>
-                    <p style={{ fontWeight: 'bold', color: COLORS.cream, margin: '0 0 4px 0' }}>How do I mark as delivered?</p>
-                    <p style={{ fontSize: '12px', color: COLORS.mutedCream, margin: 0 }}>Upon reaching the dropoff point, ask the shipper/receiver for the dropoff OTP, enter it, and submit to complete the run.</p>
+                    <p style={{ fontWeight: 'bold', color: '#1E293B', margin: '0 0 4px 0' }}>How do I mark as delivered?</p>
+                    <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>Upon reaching the dropoff point, ask the shipper/receiver for the dropoff OTP, enter it, and submit to complete the run.</p>
                   </div>
                   <div>
-                    <p style={{ fontWeight: 'bold', color: COLORS.cream, margin: '0 0 4px 0' }}>When do my earnings update?</p>
-                    <p style={{ fontSize: '12px', color: COLORS.mutedCream, margin: 0 }}>Earnings update instantly on your dashboard and performance stats once a shipment status changes to Completed.</p>
+                    <p style={{ fontWeight: 'bold', color: '#1E293B', margin: '0 0 4px 0' }}>When do my earnings update?</p>
+                    <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>Earnings update instantly on your dashboard and performance stats once a shipment status changes to Completed.</p>
                   </div>
                 </>
               ) : (
                 <>
                   <div>
-                    <p style={{ fontWeight: 'bold', color: COLORS.cream, margin: '0 0 4px 0' }}>How is the price calculated?</p>
-                    <p style={{ fontSize: '12px', color: COLORS.mutedCream, margin: 0 }}>Pricing depends on distance, chosen vehicle type, and the volumetric weight of your items.</p>
+                    <p style={{ fontWeight: 'bold', color: '#1E293B', margin: '0 0 4px 0' }}>How is the price calculated?</p>
+                    <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>Pricing depends on distance, chosen vehicle type, and the volumetric weight of your items.</p>
                   </div>
                   <div>
-                    <p style={{ fontWeight: 'bold', color: COLORS.cream, margin: '0 0 4px 0' }}>What is the OTP verification system?</p>
-                    <p style={{ fontSize: '12px', color: COLORS.mutedCream, margin: 0 }}>We verify runs at pickup and dropoff. When the driver arrives, share the security pin from your dashboard to proceed.</p>
+                    <p style={{ fontWeight: 'bold', color: '#1E293B', margin: '0 0 4px 0' }}>What is the OTP verification system?</p>
+                    <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>We verify runs at pickup and dropoff. When the driver arrives, share the security pin from your dashboard to proceed.</p>
                   </div>
                   <div>
-                    <p style={{ fontWeight: 'bold', color: COLORS.cream, margin: '0 0 4px 0' }}>How do I cancel my order?</p>
-                    <p style={{ fontSize: '12px', color: COLORS.mutedCream, margin: 0 }}>You can cancel any booking before a driver accepts it. Once matched, please contact support immediately.</p>
+                    <p style={{ fontWeight: 'bold', color: '#1E293B', margin: '0 0 4px 0' }}>How do I cancel my order?</p>
+                    <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>You can cancel any booking before a driver accepts it. Once matched, please contact support immediately.</p>
                   </div>
                 </>
               )}
@@ -549,12 +688,12 @@ export default function Navbar({
               onClick={() => setShowFAQ(false)}
               style={modalBtnStyle}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = COLORS.amber;
-                e.currentTarget.style.color = COLORS.espresso;
+                e.currentTarget.style.backgroundColor = 'var(--color-primary)';
+                e.currentTarget.style.color = '#FFFFFF';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = COLORS.cream;
+                e.currentTarget.style.color = '#1E293B';
               }}
             >
               Close
@@ -567,18 +706,18 @@ export default function Navbar({
       {showActiveRuns && (
         <div style={modalOverlayStyle} onClick={() => setShowActiveRuns(false)}>
           <div style={{ ...modalBoxStyle, maxWidth: '540px' }} onClick={(e) => e.stopPropagation()}>
-            <h3 style={modalHeaderStyle}>Your Active Shipments</h3>
+            <h3 style={modalHeaderStyle}>Active Deliveries</h3>
             {activeShipperRuns.length === 0 ? (
-              <p style={{ fontSize: '14px', color: COLORS.mutedCream, textAlign: 'center', margin: '24px 0' }}>No active shipments at this time.</p>
+              <p style={{ fontSize: '14px', color: '#64748B', textAlign: 'center', margin: '24px 0' }}>No active deliveries at this time.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {activeShipperRuns.map((b: any) => (
-                  <div key={b.id} style={{ padding: '12px', backgroundColor: COLORS.espresso, border: `1px solid rgba(224, 206, 174, 0.2)`, borderRadius: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div key={b.id} style={{ padding: '12px', backgroundColor: '#F8F9FA', border: '1px solid #E2E8F0', borderRadius: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <p style={{ fontFamily: "'Space Mono', monospace", fontSize: '11px', color: COLORS.mutedCream, margin: 0 }}>ID: {b.id.substring(0, 8)}</p>
+                      <p style={{ fontFamily: "'Space Mono', monospace", fontSize: '11px', color: '#64748B', margin: 0 }}>ID: {b.id.substring(0, 8)}</p>
                       <p style={{ fontSize: '14px', fontWeight: 'bold', margin: '4px 0' }}>{b.cargoType}</p>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '10px', fontWeight: 'bold', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(200, 129, 58, 0.1)', color: COLORS.amber, border: `1px solid ${COLORS.amber}22` }}>
+                        <span style={{ fontSize: '10px', fontWeight: 'bold', padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(45, 91, 227, 0.1)', color: 'var(--color-primary)', border: '1px solid rgba(45, 91, 227, 0.15)' }}>
                           {b.status}
                         </span>
                         <span style={{ fontSize: '12px', fontWeight: 'bold', fontFamily: "'Space Mono', monospace" }}>₹{b.price}</span>
@@ -590,10 +729,10 @@ export default function Navbar({
                         navigate(`/track/${b.id}`);
                       }}
                       style={{
-                        backgroundColor: COLORS.amber,
+                        backgroundColor: 'var(--color-primary)',
                         border: 'none',
                         borderRadius: '4px',
-                        color: COLORS.espresso,
+                        color: '#FFFFFF',
                         fontSize: '12px',
                         fontWeight: 'bold',
                         padding: '6px 12px',
@@ -613,12 +752,12 @@ export default function Navbar({
               onClick={() => setShowActiveRuns(false)}
               style={modalBtnStyle}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = COLORS.amber;
-                e.currentTarget.style.color = COLORS.espresso;
+                e.currentTarget.style.backgroundColor = 'var(--color-primary)';
+                e.currentTarget.style.color = '#FFFFFF';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = COLORS.cream;
+                e.currentTarget.style.color = '#1E293B';
               }}
             >
               Close
@@ -631,28 +770,28 @@ export default function Navbar({
       {showDriverStats && (
         <div style={modalOverlayStyle} onClick={() => setShowDriverStats(false)}>
           <div style={modalBoxStyle} onClick={(e) => e.stopPropagation()}>
-            <h3 style={modalHeaderStyle}>Performance Metrics</h3>
+            <h3 style={modalHeaderStyle}>My Performance</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-              <div style={{ backgroundColor: COLORS.espresso, padding: '16px', borderRadius: '4px', textAlign: 'center', border: `1px solid rgba(224, 206, 174, 0.2)` }}>
-                <p style={{ fontSize: '10px', color: COLORS.mutedCream, textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.05em', margin: '0 0 4px 0' }}>Total Earnings</p>
+              <div style={{ backgroundColor: '#F8F9FA', padding: '16px', borderRadius: '4px', textAlign: 'center', border: '1px solid #E2E8F0' }}>
+                <p style={{ fontSize: '10px', color: '#64748B', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.05em', margin: '0 0 4px 0' }}>Total Earnings</p>
                 <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#10B981', margin: 0, fontFamily: "'Space Mono', monospace" }}>₹{driverEarnings}</p>
               </div>
-              <div style={{ backgroundColor: COLORS.espresso, padding: '16px', borderRadius: '4px', textAlign: 'center', border: `1px solid rgba(224, 206, 174, 0.2)` }}>
-                <p style={{ fontSize: '10px', color: COLORS.mutedCream, textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.05em', margin: '0 0 4px 0' }}>Runs Completed</p>
-                <p style={{ fontSize: '24px', fontWeight: 'bold', color: COLORS.cream, margin: 0 }}>{completedDriverJobs.length}</p>
+              <div style={{ backgroundColor: '#F8F9FA', padding: '16px', borderRadius: '4px', textAlign: 'center', border: '1px solid #E2E8F0' }}>
+                <p style={{ fontSize: '10px', color: '#64748B', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.05em', margin: '0 0 4px 0' }}>Deliveries Completed</p>
+                <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#1E293B', margin: 0 }}>{completedDriverJobs.length}</p>
               </div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', borderTop: `1px solid rgba(224, 206, 174, 0.3)`, paddingTop: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px', borderTop: '1px solid #E2E8F0', paddingTop: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: COLORS.mutedCream }}>Active Runs:</span>
+                <span style={{ color: '#64748B' }}>Active Deliveries:</span>
                 <span style={{ fontWeight: 'bold' }}>{activeDriverJobs.length}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: COLORS.mutedCream }}>Acceptance Rate:</span>
-                <span style={{ fontWeight: 'bold', color: COLORS.amber }}>100%</span>
+                <span style={{ color: '#64748B' }}>Acceptance Rate:</span>
+                <span style={{ fontWeight: 'bold', color: 'var(--color-primary)' }}>100%</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: COLORS.mutedCream }}>Profile Status:</span>
+                <span style={{ color: '#64748B' }}>Profile Status:</span>
                 <span style={{ color: '#10B981', fontWeight: 'bold' }}>Verified Partner</span>
               </div>
             </div>
@@ -660,12 +799,12 @@ export default function Navbar({
               onClick={() => setShowDriverStats(false)}
               style={modalBtnStyle}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = COLORS.amber;
-                e.currentTarget.style.color = COLORS.espresso;
+                e.currentTarget.style.backgroundColor = 'var(--color-primary)';
+                e.currentTarget.style.color = '#FFFFFF';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = COLORS.cream;
+                e.currentTarget.style.color = '#1E293B';
               }}
             >
               Close
@@ -678,35 +817,154 @@ export default function Navbar({
       {showSupport && (
         <div style={modalOverlayStyle} onClick={() => setShowSupport(false)}>
           <div style={modalBoxStyle} onClick={(e) => e.stopPropagation()}>
-            <h3 style={modalHeaderStyle}>Support & Help</h3>
+            <h3 style={modalHeaderStyle}>Customer Support</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '14px' }}>
               <div>
-                <p style={{ fontWeight: 'bold', color: COLORS.cream, margin: '0 0 4px 0' }}>Support Hotline</p>
-                <p style={{ color: COLORS.amber, fontWeight: 'bold', fontSize: '16px', margin: 0, fontFamily: "'Space Mono', monospace" }}>+1-800-CARGOGO (227-4646)</p>
+                <p style={{ fontWeight: 'bold', color: '#1E293B', margin: '0 0 4px 0' }}>Support Hotline</p>
+                <p style={{ color: 'var(--color-primary)', fontWeight: 'bold', fontSize: '16px', margin: 0, fontFamily: "'Space Mono', monospace" }}>+1-800-CARGOGO (227-4646)</p>
               </div>
               <div>
-                <p style={{ fontWeight: 'bold', color: COLORS.cream, margin: '0 0 4px 0' }}>Email Assistance</p>
-                <p style={{ color: COLORS.amber, fontWeight: 'bold', margin: 0 }}>help@cargogo.com</p>
+                <p style={{ fontWeight: 'bold', color: '#1E293B', margin: '0 0 4px 0' }}>Email Assistance</p>
+                <p style={{ color: 'var(--color-primary)', fontWeight: 'bold', margin: 0 }}>help@cargogo.com</p>
               </div>
               <div>
-                <p style={{ fontWeight: 'bold', color: COLORS.cream, margin: '0 0 4px 0' }}>Claims & Disputes</p>
-                <p style={{ fontSize: '12px', color: COLORS.mutedCream, margin: 0, lineHeight: '1.4' }}>For live tracking and pricing disputes, use the "File a Dispute" interface inside the invoice summary on the delivery tracking page.</p>
+                <p style={{ fontWeight: 'bold', color: '#1E293B', margin: '0 0 4px 0' }}>Claims & Disputes</p>
+                <p style={{ fontSize: '12px', color: '#64748B', margin: 0, lineHeight: '1.4' }}>For live tracking and pricing disputes, use the "File a Dispute" interface inside the invoice summary on the delivery tracking page.</p>
               </div>
             </div>
             <button 
               onClick={() => setShowSupport(false)}
               style={modalBtnStyle}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = COLORS.amber;
-                e.currentTarget.style.color = COLORS.espresso;
+                e.currentTarget.style.backgroundColor = 'var(--color-primary)';
+                e.currentTarget.style.color = '#FFFFFF';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = COLORS.cream;
+                e.currentTarget.style.color = '#1E293B';
               }}
             >
               Close
             </button>
+          </div>
+        </div>
+      )}
+      {/* Quick Track Shipment Modal */}
+      {showTrackModal && (
+        <div style={modalOverlayStyle} onClick={() => setShowTrackModal(false)}>
+          <div style={modalBoxStyle} onClick={(e) => e.stopPropagation()}>
+            <h3 style={modalHeaderStyle}>Quick Track Shipment</h3>
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (trackingIdInput.trim()) {
+                  setShowTrackModal(false);
+                  navigate(`/track/${trackingIdInput.trim()}`);
+                }
+              }}
+              style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}
+            >
+              <label style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--color-text-muted)' }}>
+                Enter your Booking Tracking ID:
+              </label>
+              <input 
+                type="text" 
+                placeholder="e.g. 550e8400-e29b-41d4-a716-446655440000"
+                value={trackingIdInput}
+                onChange={(e) => setTrackingIdInput(e.target.value)}
+                className="w-full p-3 bg-white text-[var(--color-text-main)] rounded-[var(--radius-card)] border focus:outline-none focus:border-[var(--color-primary)] text-sm transition-all"
+                style={{ borderWidth: 'var(--border-width)', borderColor: 'var(--color-input-border)' }}
+                required 
+              />
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <button 
+                  type="button"
+                  onClick={() => setShowTrackModal(false)}
+                  style={{ ...modalBtnStyle, marginTop: 0, flex: 1 }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  style={{ 
+                    ...modalBtnStyle, 
+                    marginTop: 0, 
+                    flex: 1, 
+                    backgroundColor: 'var(--color-primary)', 
+                    color: '#FFFFFF',
+                    border: 'none'
+                  }}
+                >
+                  Track Status
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* For Shippers Informational Modal */}
+      {showShippersModal && (
+        <div style={modalOverlayStyle} onClick={() => setShowShippersModal(false)}>
+          <div style={{ ...modalBoxStyle, maxWidth: '500px' }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={modalHeaderStyle}>CargoGo For Shippers</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', lineHeight: '1.5' }}>
+              <p>Ship cargo seamlessly with enterprise-grade logistics tools built for businesses and individuals:</p>
+              <ul style={{ paddingLeft: '20px', listStyleType: 'disc', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <li><strong>Volumetric Math Engine</strong>: Input physical package sizes to automatically generate transparent estimates based on size or weight.</li>
+                <li><strong>OTP Security Handshakes</strong>: High-value cargo keys are shared directly with the driver to authenticate both pickup and deliveries safely.</li>
+                <li><strong>Instant Driver Matching</strong>: Post your shipment and get automatically connected with vetted local truck and tempo drivers immediately.</li>
+              </ul>
+              <button 
+                onClick={() => {
+                  setShowShippersModal(false);
+                  navigate('/register');
+                }}
+                className="w-full text-white p-3 rounded-[var(--radius-button)] font-bold mt-4"
+                style={{ backgroundColor: 'var(--color-primary)', border: 'none' }}
+              >
+                Sign Up as a Shipper
+              </button>
+              <button 
+                onClick={() => setShowShippersModal(false)}
+                style={{ ...modalBtnStyle, marginTop: '4px' }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* For Drivers Informational Modal */}
+      {showDriversModal && (
+        <div style={modalOverlayStyle} onClick={() => setShowDriversModal(false)}>
+          <div style={{ ...modalBoxStyle, maxWidth: '500px' }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={modalHeaderStyle}>CargoGo For Drivers</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '14px', lineHeight: '1.5' }}>
+              <p>Earn more money and maximize your vehicle efficiency by partner dispatching with CargoGo:</p>
+              <ul style={{ paddingLeft: '20px', listStyleType: 'disc', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <li><strong>Smart Route Optimization</strong>: Accept multiple nearby freight runs and get instant navigation route planning directly to save fuel.</li>
+                <li><strong>Prompt Digital Payouts</strong>: Earnings update instantly on your dashboard when a shipper confirms the drop-off verification key.</li>
+                <li><strong>Flexible Schedule</strong>: Work on your own terms. Select runs matching your tempo, pickup truck, or container vehicle type.</li>
+              </ul>
+              <button 
+                onClick={() => {
+                  setShowDriversModal(false);
+                  navigate('/register');
+                }}
+                className="w-full text-white p-3 rounded-[var(--radius-button)] font-bold mt-4"
+                style={{ backgroundColor: 'var(--color-primary)', border: 'none' }}
+              >
+                Join as a Partner Driver
+              </button>
+              <button 
+                onClick={() => setShowDriversModal(false)}
+                style={{ ...modalBtnStyle, marginTop: '4px' }}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
