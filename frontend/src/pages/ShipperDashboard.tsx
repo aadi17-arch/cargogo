@@ -279,12 +279,12 @@ function ShipperDashboard() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-semibold text-slate-900 font-sans-outfit tracking-tight">Shipper Dashboard</h2>
+      <h2 className="text-[24px] font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Shipper Dashboard</h2>
       
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
         {/* Left Column: Form & Map */}
-        <div className="xl:col-span-2 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-          <h3 className="text-xl font-semibold text-slate-800 mb-4 font-sans-outfit">Book a Delivery</h3>
+        <div className="xl:col-span-2 p-6 shadow-none" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
+          <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Book a Delivery</h3>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Form Fields Column */}
@@ -292,31 +292,34 @@ function ShipperDashboard() {
             
             {/* Pickup Address Search Input */}
             <div className="relative">
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">From (Pickup Address)</label>
+              <label className="block text-[10px] font-extrabold mb-1 tracking-tight uppercase" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>Pickup Location</label>
               <div className="flex items-center gap-2">
                 <input 
                   placeholder="Type pickup address..." 
                   value={pickupSearch} 
                   onChange={(e) => setPickupSearch(e.target.value)} 
-                  className="input-field flex-1"
+                  className="input-field flex-1 tracking-tight"
+                  style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}
                 />
                 <button 
                   type="button"
                   onClick={() => searchAddress(pickupSearch, 'pickup')}
-                  className="bg-slate-900 text-white px-4 py-3 rounded-xl text-sm font-semibold hover:bg-black transition whitespace-nowrap shrink-0"
+                  className="text-white px-4 py-3 text-sm font-bold transition whitespace-nowrap shrink-0"
+                  style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
                 >
                   Search
                 </button>
               </div>
-              {searchingPickup && <p className="text-xs text-gray-400 mt-1">Searching...</p>}
+              {searchingPickup && <p className="text-xs font-medium mt-1" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>Searching...</p>}
               {pickupResults.length > 0 && (
-                <div className="absolute z-[1000] bg-white border border-gray-200 w-full rounded-xl shadow-lg mt-1 max-h-48 overflow-y-auto">
+                <div className="absolute z-[1000] w-full mt-1 max-h-48 overflow-y-auto" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
                   {pickupResults.map((r, i) => (
                     <button
-                      key={i}
-                      type="button"
-                      onClick={() => handleSelectResult(r, 'pickup')}
-                      className="w-full text-left p-2.5 hover:bg-gray-50 text-xs border-b last:border-b-0 border-gray-100 block truncate"
+                       key={i}
+                       type="button"
+                       onClick={() => handleSelectResult(r, 'pickup')}
+                       className="w-full text-left p-2.5 hover:bg-[var(--color-background)] text-xs border-b last:border-b-0 block truncate"
+                       style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}
                     >
                       {r.display_name}
                     </button>
@@ -329,7 +332,14 @@ function ShipperDashboard() {
               <button 
                 type="button" 
                 onClick={locateMe}
-                className="bg-slate-50 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-slate-100 flex items-center gap-1 transition"
+                className="px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-all hover:bg-[var(--color-background)]"
+                style={{
+                  backgroundColor: 'var(--color-card)',
+                  color: 'var(--color-text-muted)',
+                  border: 'var(--border-width) solid var(--color-input-border)',
+                  borderRadius: 'var(--radius-button)',
+                  fontFamily: 'var(--font-heading)'
+                }}
               >
                 My Location
               </button>
@@ -337,31 +347,34 @@ function ShipperDashboard() {
 
             {/* Drop-off Address Search Input */}
             <div className="relative">
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">To (Drop-off Address)</label>
+              <label className="block text-[10px] font-extrabold mb-1 tracking-tight uppercase" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>Delivery Location</label>
               <div className="flex items-center gap-2">
                 <input 
                   placeholder="Type drop-off address..." 
                   value={dropoffSearch} 
                   onChange={(e) => setDropoffSearch(e.target.value)} 
-                  className="input-field flex-1"
+                  className="input-field flex-1 tracking-tight"
+                  style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}
                 />
                 <button 
                   type="button"
                   onClick={() => searchAddress(dropoffSearch, 'dropoff')}
-                  className="bg-slate-900 text-white px-4 py-3 rounded-xl text-sm font-semibold hover:bg-black transition whitespace-nowrap shrink-0"
+                  className="text-white px-4 py-3 text-sm font-bold transition whitespace-nowrap shrink-0"
+                  style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
                 >
                   Search
                 </button>
               </div>
-              {searchingDropoff && <p className="text-xs text-gray-400 mt-1">Searching...</p>}
+              {searchingDropoff && <p className="text-xs font-medium mt-1" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>Searching...</p>}
               {dropoffResults.length > 0 && (
-                <div className="absolute z-[1000] bg-white border border-gray-200 w-full rounded-xl shadow-lg mt-1 max-h-48 overflow-y-auto">
+                <div className="absolute z-[1000] w-full mt-1 max-h-48 overflow-y-auto" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
                   {dropoffResults.map((r, i) => (
                     <button
                       key={i}
                       type="button"
                       onClick={() => handleSelectResult(r, 'dropoff')}
-                      className="w-full text-left p-2.5 hover:bg-gray-50 text-xs border-b last:border-b-0 border-gray-100 block truncate"
+                      className="w-full text-left p-2.5 hover:bg-[var(--color-background)] text-xs border-b last:border-b-0 block truncate"
+                      style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}
                     >
                       {r.display_name}
                     </button>
@@ -370,61 +383,93 @@ function ShipperDashboard() {
               )}
             </div>
 
-            <hr className="my-2 border-slate-100" />
+            <hr className="my-2" style={{ borderColor: 'var(--color-border)' }} />
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Cargo Type</label>
-                <input placeholder="e.g. Electronics" value={form.cargoType} onChange={(e) => setForm({...form, cargoType: e.target.value})} className="input-field" />
+            {/* Cargo Information Group */}
+            <div className="p-4 space-y-4 tracking-tight" style={{ backgroundColor: 'var(--color-background)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
+              <h4 className="text-xs font-extrabold tracking-tight uppercase" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Cargo Details</h4>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-extrabold mb-1 tracking-tight" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>Cargo Type</label>
+                  <input placeholder="e.g. Electronics" value={form.cargoType} onChange={(e) => setForm({...form, cargoType: e.target.value})} className="input-field tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }} />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-extrabold mb-1 tracking-tight" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>Weight</label>
+                  <div className="relative flex items-center">
+                    <input placeholder="Weight" type="number" value={form.weightKg} onChange={(e) => setForm({...form, weightKg: +e.target.value})} className="input-field pr-10 tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }} />
+                    <span className="absolute right-3 text-xs font-extrabold pointer-events-none select-none tracking-tight" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>kg</span>
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Weight (kg)</label>
-                <input placeholder="Weight" type="number" value={form.weightKg} onChange={(e) => setForm({...form, weightKg: +e.target.value})} className="input-field" />
-              </div>
-            </div>
 
-            <div className="grid grid-cols-3 gap-2">
               <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Length (cm)</label>
-                <input placeholder="Length" type="number" value={form.lengthCm} onChange={(e) => setForm({...form, lengthCm: +e.target.value})} className="input-field" />
+                <label className="block text-[10px] font-extrabold mb-1 tracking-tight" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>Dimensions</label>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="relative flex items-center">
+                    <input placeholder="Length" type="number" value={form.lengthCm} onChange={(e) => setForm({...form, lengthCm: +e.target.value})} className="input-field pr-12 tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }} />
+                    <span className="absolute right-3 text-[10px] font-extrabold pointer-events-none select-none tracking-tight" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>L (cm)</span>
+                  </div>
+                  <div className="relative flex items-center">
+                    <input placeholder="Width" type="number" value={form.widthCm} onChange={(e) => setForm({...form, widthCm: +e.target.value})} className="input-field pr-12 tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }} />
+                    <span className="absolute right-3 text-[10px] font-extrabold pointer-events-none select-none tracking-tight" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>W (cm)</span>
+                  </div>
+                  <div className="relative flex items-center">
+                    <input placeholder="Height" type="number" value={form.heightCm} onChange={(e) => setForm({...form, heightCm: +e.target.value})} className="input-field pr-12 tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }} />
+                    <span className="absolute right-3 text-[10px] font-extrabold pointer-events-none select-none tracking-tight" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>H (cm)</span>
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Width (cm)</label>
-                <input placeholder="Width" type="number" value={form.widthCm} onChange={(e) => setForm({...form, widthCm: +e.target.value})} className="input-field" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Height (cm)</label>
-                <input placeholder="Height" type="number" value={form.heightCm} onChange={(e) => setForm({...form, heightCm: +e.target.value})} className="input-field" />
-              </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Vehicle Type</label>
-              <select value={form.vehicleType} onChange={(e) => setForm({...form, vehicleType: e.target.value as any})} className="input-field bg-white">
-                <option value="MINI_TEMPO">Mini Tempo</option>
-                <option value="PICKUP_TRUCK">Pickup Truck</option>
-                <option value="CONTAINER_3TON">3-Ton Container</option>
-              </select>
+              <div>
+                <label className="block text-[10px] font-extrabold mb-1 tracking-tight" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>Vehicle Selection</label>
+                <select value={form.vehicleType} onChange={(e) => setForm({...form, vehicleType: e.target.value as any})} className="input-field tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}>
+                  <option value="MINI_TEMPO">Mini Tempo</option>
+                  <option value="PICKUP_TRUCK">Pickup Truck</option>
+                  <option value="CONTAINER_3TON">3-Ton Container</option>
+                </select>
+              </div>
             </div>
 
             <div className="pt-2 flex gap-2">
-              <button onClick={getQuote} className="flex-1 bg-slate-100 text-slate-800 px-4 py-3 rounded-xl hover:bg-slate-200 font-semibold transition text-sm">Get Price</button>
-              <button onClick={handleBooking} className="flex-1 bg-slate-900 text-white px-4 py-3 rounded-xl hover:bg-black font-semibold transition text-sm">Book Now</button>
+              <button 
+                onClick={getQuote} 
+                className="flex-1 bg-transparent px-4 py-3 font-bold transition text-sm hover:bg-[var(--color-background)]"
+                style={{
+                  color: 'var(--color-primary)',
+                  border: 'var(--border-width) solid var(--color-primary)',
+                  borderRadius: 'var(--radius-button)',
+                  fontFamily: 'var(--font-heading)'
+                }}
+              >
+                Get Price
+              </button>
+              <button 
+                onClick={handleBooking} 
+                className="flex-1 text-white px-4 py-3 font-bold transition text-sm hover:opacity-90"
+                style={{
+                  backgroundColor: 'var(--color-primary)',
+                  borderRadius: 'var(--radius-button)',
+                  fontFamily: 'var(--font-heading)'
+                }}
+              >
+                Book Now
+              </button>
             </div>
             
             {quote && (
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-2 text-xs font-sans-outfit">
-                <p className="text-slate-500 font-bold uppercase tracking-wider text-[10px] font-tech-space">Pricing Breakdown Scheme</p>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-slate-700">
-                  <p>Distance: <span className="font-bold font-tech-space">{quote.distanceKm} km</span></p>
-                  <p>Billed Weight: <span className="font-bold font-tech-space">{quote.chargeable} kg</span></p>
-                  <p>Base Fare: <span className="font-bold font-tech-space">₹{quote.basePrice}</span></p>
-                  <p>Distance Rate: <span className="font-bold font-tech-space">₹{quote.pricePerKm}/km</span></p>
-                  <p>Weight Rate: <span className="font-bold font-tech-space">₹{quote.costPerUnit}/kg</span></p>
+              <div className="space-y-2 text-xs" style={{ backgroundColor: 'var(--color-background)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', padding: '16px', fontFamily: 'var(--font-body)' }}>
+                <p className="tracking-[0.08em] text-[10px]" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>Pricing Breakdown Scheme</p>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1" style={{ color: 'var(--color-text-main)' }}>
+                  <p>Distance: <span className="font-bold">{quote.distanceKm} km</span></p>
+                  <p>Billed Weight: <span className="font-bold">{quote.chargeable} kg</span></p>
+                  <p>Base Fare: <span className="font-bold">₹{quote.basePrice}</span></p>
+                  <p>Distance Rate: <span className="font-bold">₹{quote.pricePerKm}/km</span></p>
+                  <p>Weight Rate: <span className="font-bold">₹{quote.costPerUnit}/kg</span></p>
                 </div>
-                <div className="border-t border-slate-200 pt-2 flex justify-between items-center">
-                  <span className="text-sm font-bold text-slate-800">Total Price Estimate:</span>
-                  <span className="text-2xl font-bold text-green-600 font-tech-space">₹{Math.round(quote.estimated)}</span>
+                <div className="border-t pt-2 flex justify-between items-center" style={{ borderColor: 'var(--color-border)' }}>
+                  <span className="text-sm font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Total Price Estimate:</span>
+                  <span className="text-2xl font-bold" style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-heading)' }}>₹{Math.round(quote.estimated)}</span>
                 </div>
               </div>
             )}
@@ -432,8 +477,8 @@ function ShipperDashboard() {
 
           {/* Interactive Map Column */}
           <div className="flex flex-col space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Drag map pins to select locations</label>
-            <div className="h-80 lg:h-full rounded-lg overflow-hidden border shadow-sm relative min-h-[300px]" style={{ isolation: 'isolate' }}>
+            <label className="block text-[10px] font-bold tracking-[0.08em]" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>Drag map pins to select locations</label>
+            <div className="h-80 lg:h-full overflow-hidden shadow-none relative min-h-[300px]" style={{ isolation: 'isolate', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
               <MapContainer center={mapCenter} zoom={12} style={{ height: '100%', width: '100%' }}>
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <ChangeMapView center={mapCenter} />
@@ -464,29 +509,53 @@ function ShipperDashboard() {
         </div>
       
         {/* Right Column: My Bookings Feed */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-          <h3 className="text-xl font-semibold text-slate-800 mb-4 font-sans-outfit">My Bookings</h3>
-        <button onClick={fetchMyBookings} className="mb-4 bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-2 rounded-xl text-sm font-semibold transition">Refresh</button>
+        <div className="p-6 shadow-none" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
+          <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>My Bookings</h3>
+        <button 
+          onClick={fetchMyBookings} 
+          className="mb-4 px-4 py-2 text-sm font-semibold transition-all hover:bg-[var(--color-background)]"
+          style={{
+            backgroundColor: 'var(--color-card)',
+            color: 'var(--color-text-muted)',
+            border: 'var(--border-width) solid var(--color-input-border)',
+            borderRadius: 'var(--radius-button)',
+            fontFamily: 'var(--font-heading)'
+          }}
+        >
+          Refresh
+        </button>
         <div className="space-y-2">
+        <div className="divide-y divide-[var(--color-border)]">
           {bookings.map((b: any) => (
-            <div key={b.id} className="border p-4 rounded-xl flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 hover:bg-gray-50 transition">
-              <div className="space-y-1.5">
-                <p className="font-medium text-slate-800 flex flex-wrap items-center gap-2 mb-1">
-                  {b.cargoType}
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border font-tech-space ${
-                    b.status === 'PENDING' ? 'bg-slate-50 text-slate-600 border-slate-200' :
-                    b.status === 'ACCEPTED' ? 'bg-blue-50 text-blue-600 border-blue-200' :
-                    b.status === 'IN_TRANSIT' ? 'bg-indigo-50 text-indigo-600 border-indigo-200' :
-                    b.status === 'DELIVERED' ? 'bg-amber-50 text-amber-600 border-amber-200' :
-                    b.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
-                    b.status === 'CANCELLED' ? 'bg-rose-50 text-rose-600 border-rose-200' :
-                    'bg-orange-50 text-orange-600 border-orange-200'
-                  }`}>
+            <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 transition">
+              <div className="space-y-1.5 flex-1 w-full" style={{ fontFamily: 'var(--font-body)' }}>
+                <div className="flex items-center justify-between gap-2 mb-1 w-full">
+                  <span className="font-semibold text-[var(--color-text-main)]">{b.cargoType}</span>
+                  <span 
+                    className="px-2 py-0.5 rounded-[4px] text-[10px] font-bold tracking-wide uppercase border-[1.5px] bg-transparent shrink-0"
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      borderColor: 
+                        b.status === 'PENDING' ? 'var(--color-status-pending)' :
+                        b.status === 'ACCEPTED' ? 'var(--color-status-accepted)' :
+                        b.status === 'IN_TRANSIT' ? 'var(--color-status-transit)' :
+                        b.status === 'DELIVERED' ? 'var(--color-status-delivered)' :
+                        b.status === 'COMPLETED' ? 'var(--color-status-completed)' :
+                        b.status === 'CANCELLED' ? 'var(--color-status-cancelled)' : 'var(--color-text-muted)',
+                      color:
+                        b.status === 'PENDING' ? 'var(--color-status-pending)' :
+                        b.status === 'ACCEPTED' ? 'var(--color-status-accepted)' :
+                        b.status === 'IN_TRANSIT' ? 'var(--color-status-transit)' :
+                        b.status === 'DELIVERED' ? 'var(--color-status-delivered)' :
+                        b.status === 'COMPLETED' ? 'var(--color-status-completed)' :
+                        b.status === 'CANCELLED' ? 'var(--color-status-cancelled)' : 'var(--color-text-muted)'
+                    }}
+                  >
                     {b.status}
                   </span>
-                </p>
-                <p className="text-xs text-gray-500 font-tech-space leading-relaxed">
-                  Price: ₹{b.price}
+                </div>
+                <p className="text-xs font-medium text-[var(--color-text-muted)] leading-relaxed">
+                  Price: <span className="font-semibold text-[var(--color-primary)]">₹{b.price}</span>
                   {b.status === 'ACCEPTED' && ` | Pickup OTP: ${b.pickupOTP}`}
                   {b.status === 'IN_TRANSIT' && ` | Dropoff OTP: ${b.dropoffOTP}`}
                 </p>
@@ -495,7 +564,8 @@ function ShipperDashboard() {
                 {['PENDING', 'ACCEPTED'].includes(b.status) && (
                   <button 
                     onClick={() => handleCancelBooking(b.id)} 
-                    className="bg-red-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-red-700 transition"
+                    className="bg-transparent text-[var(--color-status-cancelled)] px-3.5 py-2 text-xs font-bold hover:bg-[#FEF2F2] transition-all"
+                    style={{ border: 'var(--border-width) solid var(--color-status-cancelled)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
                   >
                     Cancel
                   </button>
@@ -503,35 +573,42 @@ function ShipperDashboard() {
                 {b.status === 'DELIVERED' && (
                   <button 
                     onClick={() => setSelectedBookingForPayment(b)} 
-                    className="bg-green-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-green-700 transition"
+                    className="text-white px-3.5 py-2 text-xs font-bold hover:opacity-90 transition"
+                    style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
                   >
                     Pay
                   </button>
                 )}
-                <button onClick={() => navigate(`/track/${b.id}`)} className="bg-blue-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-blue-700 transition">
+                <button 
+                  onClick={() => navigate(`/track/${b.id}`)} 
+                  className="text-white px-3.5 py-2 text-xs font-bold hover:opacity-90 transition"
+                  style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
+                >
                   Track
                 </button>
               </div>
             </div>
           ))}
         </div>
+        </div>
       </div>
       </div>
 
       {selectedBookingForPayment && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[2000] p-4">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full shadow-xl animate-fade-in">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">Complete Payment</h3>
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[2000] p-4">
+          <div className="border p-6 max-w-md w-full shadow-none animate-fade-in" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
+            <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Complete Payment</h3>
             <div className="space-y-3 mb-6">
-              <p className="text-sm text-gray-600">Cargo: <span className="font-semibold text-gray-800">{selectedBookingForPayment.cargoType}</span></p>
-              <p className="text-sm text-gray-600">Total Amount: <span className="font-bold text-green-600">₹{selectedBookingForPayment.price}</span></p>
+              <p className="text-sm" style={{ color: 'var(--color-text-main)' }}>Cargo: <span className="font-semibold">{selectedBookingForPayment.cargoType}</span></p>
+              <p className="text-sm" style={{ color: 'var(--color-text-main)' }}>Total Amount: <span className="font-bold" style={{ color: 'var(--color-primary)' }}>₹{selectedBookingForPayment.price}</span></p>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Select Payment Method</label>
+                <label className="block text-[10px] font-normal tracking-[0.08em] mb-1" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>Select Payment Method</label>
                 <select 
                   value={paymentMethod} 
                   onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-full p-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  className="input-field w-full"
+                  style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}
                 >
                   <option value="CARD">Credit / Debit Card</option>
                   <option value="UPI">UPI (Google Pay / PhonePe)</option>
@@ -544,14 +621,26 @@ function ShipperDashboard() {
               <button 
                 onClick={() => setSelectedBookingForPayment(null)} 
                 disabled={processingPayment}
-                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg text-sm font-semibold transition"
+                className="flex-1 text-sm font-semibold transition hover:bg-[var(--color-background)]"
+                style={{
+                  backgroundColor: 'var(--color-card)',
+                  color: 'var(--color-text-muted)',
+                  border: 'var(--border-width) solid var(--color-input-border)',
+                  borderRadius: 'var(--radius-button)',
+                  fontFamily: 'var(--font-heading)'
+                }}
               >
                 Cancel
               </button>
               <button 
                 onClick={handleProcessPayment} 
                 disabled={processingPayment}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-1"
+                className="flex-1 text-white py-2.5 text-sm font-semibold transition flex items-center justify-center gap-1 hover:opacity-90"
+                style={{
+                  backgroundColor: 'var(--color-primary)',
+                  borderRadius: 'var(--radius-button)',
+                  fontFamily: 'var(--font-heading)'
+                }}
               >
                 {processingPayment ? 'Processing...' : `Pay ₹${selectedBookingForPayment.price}`}
               </button>
