@@ -328,7 +328,7 @@ function LandingPage() {
         
         <div className="max-w-[1550px] mx-auto px-4 sm:px-8 relative z-20 text-left">
           <div className="max-w-2xl space-y-6">
-            <span className="inline-block px-3 py-1 text-xs font-bold uppercase tracking-wider text-white bg-indigo-600 rounded-full">
+            <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">
               For Shippers
             </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-white" style={{ fontFamily: 'var(--font-heading)' }}>
@@ -379,7 +379,7 @@ function LandingPage() {
         
         <div className="max-w-[1550px] mx-auto px-4 sm:px-8 relative z-20 flex justify-end text-left">
           <div className="max-w-2xl space-y-6">
-            <span className="inline-block px-3 py-1 text-xs font-bold uppercase tracking-wider text-white bg-emerald-600 rounded-full">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
               For Drivers
             </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-white" style={{ fontFamily: 'var(--font-heading)' }}>
@@ -412,7 +412,7 @@ function LandingPage() {
       </section>
 
       {/* Services Section */}
-      <section id="services" className="py-24 px-6 bg-[var(--color-card)] border-t border-b border-[var(--color-border)] animate-fade-in">
+      <section id="services" className="py-24 px-6 bg-[var(--color-background)] border-t border-b border-[var(--color-border)] animate-fade-in">
         <div className="max-w-[1550px] mx-auto px-4 sm:px-8 text-left">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>
@@ -425,12 +425,12 @@ function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Feature 1 */}
-            <div className="rounded-[var(--radius-card)] border bg-[var(--color-background)] overflow-hidden shadow-sm flex flex-col" style={{ borderColor: 'var(--color-border)' }}>
-              <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)]">
+            <div className="group rounded-[var(--radius-card)] border bg-[var(--color-card)] overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
+              <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)] relative">
                 <img 
-                  src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80" 
+                  src="https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=600&q=80" 
                   alt="Volumetric Pricing math cargo palettes" 
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
               <div className="p-6 space-y-3 flex-1">
@@ -442,12 +442,12 @@ function LandingPage() {
             </div>
 
             {/* Feature 2 */}
-            <div className="rounded-[var(--radius-card)] border bg-[var(--color-background)] overflow-hidden shadow-sm flex flex-col" style={{ borderColor: 'var(--color-border)' }}>
-              <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)]">
+            <div className="group rounded-[var(--radius-card)] border bg-[var(--color-card)] overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
+              <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)] relative">
                 <img 
-                  src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=600&q=80" 
+                  src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=600&q=80" 
                   alt="OTP Security passcode screen verification" 
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
               <div className="p-6 space-y-3 flex-1">
@@ -459,12 +459,12 @@ function LandingPage() {
             </div>
 
             {/* Feature 3 */}
-            <div className="rounded-[var(--radius-card)] border bg-[var(--color-background)] overflow-hidden shadow-sm flex flex-col" style={{ borderColor: 'var(--color-border)' }}>
-              <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)]">
+            <div className="group rounded-[var(--radius-card)] border bg-[var(--color-card)] overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
+              <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)] relative">
                 <img 
-                  src="https://images.unsplash.com/photo-1519003722824-192d992a7de6?auto=format&fit=crop&w=600&q=80" 
+                  src="https://images.unsplash.com/photo-1580674684081-7617fbf3d745?auto=format&fit=crop&w=600&q=80" 
                   alt="Intelligent fleet trucks logistics center warehouse" 
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
               <div className="p-6 space-y-3 flex-1">
@@ -477,77 +477,70 @@ function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* Fleet Overview Section */}
-      <section className="py-20 px-6">
+      {/* Capacity Network Section */}
+      <section className="py-24 px-6 border-b border-[var(--color-border)] bg-[var(--color-card)]">
         <div className="max-w-[1550px] mx-auto px-4 sm:px-8 text-left">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-            <h2 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>
-              Our Fleet Selection
+            <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+              Our Fleet Network
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>
+              Logistics Capacity Network
             </h2>
-            <p className="text-md font-medium" style={{ color: 'var(--color-text-muted)' }}>
-              Choose the perfect vehicle size matching your cargo requirements.
+            <p className="text-base font-medium" style={{ color: 'var(--color-text-muted)' }}>
+              Get matched with the ideal shipping capacity from our extensive partner fleet.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            {/* Vehicle Card 1 */}
-            <div className="rounded-[var(--radius-card)] border bg-[var(--color-card)] overflow-hidden shadow-sm flex flex-col" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
-              <div className="h-48 w-full overflow-hidden border-b border-[var(--color-border)]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Feature 1 */}
+            <div className="group rounded-[var(--radius-card)] border bg-[var(--color-background)] overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
+              <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)] relative">
                 <img 
-                  src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=600&q=80" 
-                  alt="Mini Tempo delivery van" 
-                  className="w-full h-full object-cover"
+                  src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80" 
+                  alt="Volumetric pricing engine" 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
-              <div className="p-6 space-y-4 flex-1">
-                <h3 className="text-xl font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Mini Tempo</h3>
-                <div className="py-2 font-mono text-2xl font-bold" style={{ color: 'var(--color-text-main)' }}>₹50 Base</div>
-                <ul className="text-sm space-y-2" style={{ color: 'var(--color-text-muted)' }}>
-                  <li>Best for small package loads</li>
-                  <li>Weight Limit: Up to 500 kg</li>
-                  <li>Per-Km Cost: ₹12/km</li>
-                </ul>
+              <div className="p-6 space-y-3 flex-1">
+                <h3 className="text-lg font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Smart Vehicle Matching</h3>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
+                  Our volumetric engine automatically evaluates cargo shapes, weight, and distance to assign the most cost-effective vehicle class in our network.
+                </p>
               </div>
             </div>
 
-            {/* Vehicle Card 2 */}
-            <div className="rounded-[var(--radius-card)] border bg-[var(--color-card)] overflow-hidden shadow-sm flex flex-col" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
-              <div className="h-48 w-full overflow-hidden border-b border-[var(--color-border)]">
-                <img 
-                  src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80" 
-                  alt="Pickup Truck loaded with cargo" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="p-6 space-y-4 flex-1">
-                <h3 className="text-xl font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Pickup Truck</h3>
-                <div className="py-2 font-mono text-2xl font-bold" style={{ color: 'var(--color-text-main)' }}>₹80 Base</div>
-                <ul className="text-sm space-y-2" style={{ color: 'var(--color-text-muted)' }}>
-                  <li>Best for home furnishings</li>
-                  <li>Weight Limit: Up to 1,200 kg</li>
-                  <li>Per-Km Cost: ₹15/km</li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Vehicle Card 3 */}
-            <div className="rounded-[var(--radius-card)] border bg-[var(--color-card)] overflow-hidden shadow-sm flex flex-col" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
-              <div className="h-48 w-full overflow-hidden border-b border-[var(--color-border)]">
+            {/* Feature 2 */}
+            <div className="group rounded-[var(--radius-card)] border bg-[var(--color-background)] overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
+              <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)] relative">
                 <img 
                   src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80" 
-                  alt="3-Ton Container commercial box truck" 
-                  className="w-full h-full object-cover"
+                  alt="Verified box container truck network" 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
-              <div className="p-6 space-y-4 flex-1">
-                <h3 className="text-xl font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>3-Ton Container</h3>
-                <div className="py-2 font-mono text-2xl font-bold" style={{ color: 'var(--color-text-main)' }}>₹150 Base</div>
-                <ul className="text-sm space-y-2" style={{ color: 'var(--color-text-muted)' }}>
-                  <li>Best for commercial freight</li>
-                  <li>Weight Limit: Up to 3,000 kg</li>
-                  <li>Per-Km Cost: ₹20/km</li>
-                </ul>
+              <div className="p-6 space-y-3 flex-1">
+                <h3 className="text-lg font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>On-Demand Capacity</h3>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
+                  Instantly access hundreds of verified partner vehicles, spanning small local delivery tempos, flatbed utility pickups, and closed box containers.
+                </p>
+              </div>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="group rounded-[var(--radius-card)] border bg-[var(--color-background)] overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
+              <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)] relative">
+                <img 
+                  src="https://images.unsplash.com/photo-1549194388-f61be84a6e9e?auto=format&fit=crop&w=600&q=80" 
+                  alt="Payload capacity optimization cargo loader" 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              </div>
+              <div className="p-6 space-y-3 flex-1">
+                <h3 className="text-lg font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Payload Optimization</h3>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
+                  Never pay for empty logistics space. Our platform optimizes layout space, ensuring you only pay for the exact volume your cargo requires.
+                </p>
               </div>
             </div>
           </div>
