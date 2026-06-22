@@ -6,10 +6,12 @@ export const createBookingSchema = z.object({
       .min(-90).max(90),
     pickupLng: z.number({ required_error: 'Pickup longitude is required' })
       .min(-180).max(180),
+    pickupAddress: z.string({ required_error: 'Pickup address is required' }).min(1),
     dropoffLat: z.number({ required_error: 'Dropoff latitude is required' })
       .min(-90).max(90),
     dropoffLng: z.number({ required_error: 'Dropoff longitude is required' })
       .min(-180).max(180),
+    dropoffAddress: z.string({ required_error: 'Dropoff address is required' }).min(1),
     cargoType: z.string({ required_error: 'Cargo type is required' })
       .min(2, 'Cargo type must be at least 2 characters'),
     weightKg: z.number({ required_error: 'Weight in kg is required' })
