@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
 import { useSocket } from '@/hooks/useSocket';
+import api from '@/services/api';
 import PaymentModal from '@/components/dashboard/PaymentModal';
 import { toast } from 'react-hot-toast';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
@@ -36,8 +37,10 @@ function ShipperDashboard() {
   const [form, setForm] = useState({
     pickupLat: null as number | null,
     pickupLng: null as number | null,
+    pickupAddress: '',
     dropoffLat: null as number | null,
     dropoffLng: null as number | null,
+    dropoffAddress: '',
     cargoType: 'Electronics',
     weightKg: 50,
     lengthCm: 100,
@@ -61,17 +64,19 @@ function ShipperDashboard() {
   // Reverse Geocoding
   const reverseGeocode = async (lat: number, lng: number, type: 'pickup' | 'dropoff') => {
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&email=cargogo-dev@example.com`);
-      const data = await res.json();
+      const res = await api.get(`/geocoding/reverse?lat=${lat}&lon=${lng}`, { skipGlobalToast: true });
+      const data = res.data.data;
       if (data && data.display_name) {
         if (type === 'pickup') {
           setPickupSearch(data.display_name);
+          setForm(prev => ({ ...prev, pickupAddress: data.display_name }));
         } else {
           setDropoffSearch(data.display_name);
+          setForm(prev => ({ ...prev, dropoffAddress: data.display_name }));
         }
       }
     } catch (e) {
-      console.error('Reverse geocoding error:', e);
+      console.error(e);
     }
   };
 
@@ -81,39 +86,21 @@ function ShipperDashboard() {
     if (type === 'pickup') setSearchingPickup(true);
     else setSearchingDropoff(true);
 
-    const mockPlaces = [
-      { display_name: "Andheri West, Mumbai, Maharashtra", lat: "19.1363", lon: "72.8271" },
-      { display_name: "Bandra West, Mumbai, Maharashtra", lat: "19.0600", lon: "72.8295" },
-      { display_name: "Powai, Mumbai, Maharashtra", lat: "19.1176", lon: "72.9060" },
-      { display_name: "Thane West, Thane, Maharashtra", lat: "19.2183", lon: "72.9781" },
-      { display_name: "Mumbai Central, Mumbai, Maharashtra", lat: "18.9696", lon: "72.8193" },
-      { display_name: "Colaba, South Mumbai, Maharashtra", lat: "18.9067", lon: "72.8147" },
-      { display_name: "Dadar East, Mumbai, Maharashtra", lat: "19.0178", lon: "72.8478" },
-      { display_name: "Vashi, Navi Mumbai, Maharashtra", lat: "19.0745", lon: "73.0019" },
-      { display_name: "Chembur, Mumbai, Maharashtra", lat: "19.0617", lon: "72.8970" },
-      { display_name: "Ghatkopar East, Mumbai, Maharashtra", lat: "19.0865", lon: "72.9090" }
-    ];
-
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&email=cargogo-dev@example.com`);
-      if (!res.ok) throw new Error('Nominatim geocoded search status error');
-      const data = await res.json();
+      const res = await api.get(`/geocoding/search?q=${encodeURIComponent(query)}`, { skipGlobalToast: true });
+      const data = res.data.data;
       if (Array.isArray(data) && data.length > 0) {
         if (type === 'pickup') setPickupResults(data);
         else setDropoffResults(data);
         return;
       }
-      throw new Error('No results from Nominatim API');
+      throw new Error('No results from geocoding service');
     } catch (e) {
-      console.warn('Geocoding search failed, falling back to local mocks:', e);
-      const filteredMocks = mockPlaces.filter(p => 
-        p.display_name.toLowerCase().includes(query.toLowerCase())
-      );
-      const finalMocks = filteredMocks.length > 0 ? filteredMocks : mockPlaces;
+      console.warn('Geocoding search failed:', e);
       if (type === 'pickup') {
-        setPickupResults(finalMocks);
+        setPickupResults([]);
       } else {
-        setDropoffResults(finalMocks);
+        setDropoffResults([]);
       }
     } finally {
       if (type === 'pickup') setSearchingPickup(false);
@@ -126,11 +113,11 @@ function ShipperDashboard() {
     const lng = parseFloat(result.lon);
     
     if (type === 'pickup') {
-      setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng }));
+      setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng, pickupAddress: result.display_name }));
       setPickupSearch(result.display_name);
       setPickupResults([]);
     } else {
-      setForm(prev => ({ ...prev, dropoffLat: lat, dropoffLng: lng }));
+      setForm(prev => ({ ...prev, dropoffLat: lat, dropoffLng: lng, dropoffAddress: result.display_name }));
       setDropoffSearch(result.display_name);
       setDropoffResults([]);
     }
@@ -255,6 +242,10 @@ function ShipperDashboard() {
   const handleBooking = async () => {
     if (form.pickupLat === null || form.pickupLng === null || form.dropoffLat === null || form.dropoffLng === null) {
       toast.error('Please select both From and To locations first.');
+      return;
+    }
+    if (!form.pickupAddress || !form.dropoffAddress) {
+      toast.error('Please select valid addresses from the search dropdown.');
       return;
     }
     setBookingLoading(true);
@@ -595,7 +586,7 @@ function ShipperDashboard() {
                   className="text-white px-3.5 py-2 text-xs font-bold hover:opacity-90 transition"
                   style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
                 >
-                  Track
+                  {['DELIVERED', 'COMPLETED'].includes(b.status) ? 'Details' : 'Track'}
                 </button>
               </div>
             </div>
