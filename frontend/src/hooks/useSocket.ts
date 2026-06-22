@@ -6,7 +6,7 @@ export const useSocket = (token?: string | null) => {
     if (token) socketService.connect(token);
 
     return () => { };
-  }, []);
+  }, [token]);
   const connect = useCallback((userToken: string) => {
     socketService.connect(userToken);
   }, []);
