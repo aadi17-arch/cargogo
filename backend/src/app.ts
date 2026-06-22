@@ -46,14 +46,14 @@ app.use(requestLogger);
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });
 });
-app.use(globalRateLimiter);
-app.use('/api/auth',strictLimiter, authRoutes);
+// app.use(globalRateLimiter);
+app.use('/api/auth', /*strictLimiter,*/ authRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/review', reviewRoutes);
 app.use('/api/disputes', disputeRoutes);
 app.use('/api/vehicles', vehicleRoutes);
-app.use('/api/payment', strictLimiter,paymentRoutes);
+app.use('/api/payment', /*strictLimiter,*/ paymentRoutes);
 app.use(errorHandler);
 
 
