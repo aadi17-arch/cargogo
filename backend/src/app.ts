@@ -34,11 +34,8 @@ app.use(cors({
     origin: env.NODE_ENV === 'production' 
       ? 'https://cargogo-frontend.vercel.app' 
       : (origin, callback) => {
-          if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-              callback(null, true);
-          } else {
-              callback(new Error('Not allowed by CORS'));
-          }
+          // Allow any origin in development to facilitate testing on local network (e.g. mobile phones)
+          callback(null, true);
       },
     credentials: true,
 }));
