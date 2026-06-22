@@ -52,4 +52,12 @@ export const bookingService = {
     const response = await api.post<ApiResponse<Booking>>(`/bookings/${id}/cancel`);
     return response.data.data!;
   },
+
+  async submitReview(bookingId: string, rating: number, comment: string): Promise<void> {
+    await api.post('/review/createReview', { bookingId, rating, comment });
+  },
+
+  async fileDispute(bookingId: string, reason: string): Promise<void> {
+    await api.post('/disputes/fileDispute', { bookingId, reason });
+  },
 };
