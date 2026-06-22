@@ -86,8 +86,10 @@ model Booking {
 
   pickupLat       Float
   pickupLng       Float
+  pickupAddress   String        @default("Unknown Pickup Address")
   dropoffLat      Float
   dropoffLng      Float
+  dropoffAddress  String        @default("Unknown Dropoff Address")
 
   cargoType       String
   weightKg        Float
