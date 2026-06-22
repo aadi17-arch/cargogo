@@ -316,27 +316,27 @@ function DriverDashboard() {
                             {index + 1}
                           </span>
                           
-                          <div className="p-4 flex flex-col gap-3" style={{ backgroundColor: 'var(--color-background)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
-                            <div className="flex flex-wrap items-center justify-between gap-2">
-                              <div className="flex items-center gap-2">
+                          <div className="p-3 flex flex-col gap-2" style={{ backgroundColor: 'var(--color-background)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-1.5 min-w-0">
                                 <span 
-                                  className="text-[9px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-[4px] border bg-transparent"
+                                  className="text-[8px] font-extrabold tracking-wide uppercase px-1.5 py-0.5 rounded-[4px] border bg-transparent shrink-0"
                                   style={{
                                     fontFamily: 'var(--font-mono)',
                                     borderColor: stop.type === 'PICKUP' ? 'var(--color-status-completed)' : 'var(--color-status-transit)',
                                     color: stop.type === 'PICKUP' ? 'var(--color-status-completed)' : 'var(--color-status-transit)'
                                   }}
                                 >
-                                  {stop.type === 'PICKUP' ? 'Pickup' : 'Dropoff'}
+                                  {stop.type === 'PICKUP' ? 'Pick' : 'Drop'}
                                 </span>
-                                <span className="text-sm font-semibold text-[var(--color-text-main)]" style={{ fontFamily: 'var(--font-heading)' }}>
+                                <span className="text-xs font-bold text-[var(--color-text-main)] truncate" style={{ fontFamily: 'var(--font-heading)' }}>
                                   {stop.cargoType}
                                 </span>
                               </div>
 
                               {booking && (
                                 <span 
-                                  className="px-2 py-0.5 rounded-[4px] text-[9px] font-bold tracking-wide uppercase border-[1.5px] bg-transparent shrink-0"
+                                  className="px-1.5 py-0.5 rounded-[4px] text-[8px] font-bold tracking-wide uppercase border-[1.5px] bg-transparent shrink-0"
                                   style={{
                                     fontFamily: 'var(--font-mono)',
                                     borderColor: 
@@ -360,23 +360,22 @@ function DriverDashboard() {
                               )}
                             </div>
 
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-[var(--color-border)] border-dashed">
-                              <div className="space-y-1">
-                                <p className="text-xs font-medium text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>
-                                  Payout: <span className="font-semibold text-[var(--color-primary)]">₹{(booking as any)?.price || booking?.totalPrice || 0}</span> | Weight: <span className="font-semibold text-[var(--color-text-main)]">{stop.weightKg} kg</span>
-                                </p>
-                                <p className="text-[10px] text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>
-                                  Vehicle Load: <span className="font-semibold text-[var(--color-text-main)]">{stop.expectedAccumulatedWeight} kg</span>
-                                </p>
+                            <div className="flex items-center justify-between gap-4 pt-1.5 border-t border-[var(--color-border)] border-dashed">
+                              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>
+                                <span>Payout: <span className="font-semibold text-[var(--color-primary)]">₹{(booking as any)?.price || booking?.totalPrice || 0}</span></span>
+                                <span className="text-[var(--color-border)]">|</span>
+                                <span>Wt: <span className="font-medium text-[var(--color-text-main)]">{stop.weightKg}kg</span></span>
+                                <span className="text-[var(--color-border)]">|</span>
+                                <span>Load: <span className="font-medium text-[var(--color-text-main)]">{stop.expectedAccumulatedWeight}kg</span></span>
                               </div>
 
                               {booking && status !== 'CANCELLED' && (
                                 <button
                                   onClick={() => navigate(`/track/${booking.id}`)}
-                                  className="text-white px-3.5 py-1.5 text-xs font-bold hover:opacity-90 transition w-full sm:w-auto text-center shrink-0"
-                                  style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
+                                  className="text-white px-2.5 py-1 text-[10px] font-bold hover:opacity-90 transition rounded-[4px] shrink-0"
+                                  style={{ backgroundColor: 'var(--color-primary)', fontFamily: 'var(--font-heading)' }}
                                 >
-                                  {['DELIVERED', 'COMPLETED'].includes(status) ? 'View Details' : 'Track & OTP'}
+                                  {['DELIVERED', 'COMPLETED'].includes(status) ? 'Details' : 'Track'}
                                 </button>
                               )}
                             </div>
