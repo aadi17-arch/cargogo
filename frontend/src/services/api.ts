@@ -1,5 +1,12 @@
 import axios from 'axios';
 import { API_URL } from '@/utils/constants';
+import toast from 'react-hot-toast';
+
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    skipGlobalToast?: boolean;
+  }
+}
 
 const api = axios.create({
   baseURL: API_URL,
@@ -20,7 +27,9 @@ api.interceptors.response.use(
   async (e) => {
     const originalRequest = e.config;
 
-    if (e.response?.status === 401 && !originalRequest._retry) {
+    const isAuthRequest = originalRequest.url?.includes('/auth/login') || originalRequest.url?.includes('/auth/register');
+
+    if (e.response?.status === 401 && !originalRequest._retry && !isAuthRequest) {
       originalRequest._retry = true;
 
       try {
@@ -35,10 +44,22 @@ api.interceptors.response.use(
       }
       catch (refreshError) {
         localStorage.removeItem('token');
-        window.location.href = '/login';
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
         return Promise.reject(refreshError);
       }
     }
+
+    // Extract error message
+    const errMsg = e.response?.data?.message || e.message || 'Something went wrong';
+
+    // Show toast error globally if not explicitly skipped, and not a 401 unauthorized error
+    if (!originalRequest?.skipGlobalToast && e.response?.status !== 401) {
+      toast.dismiss();
+      toast.error(errMsg);
+    }
+
     return Promise.reject(e);
   }
 );
