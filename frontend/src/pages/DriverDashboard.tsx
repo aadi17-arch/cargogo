@@ -269,127 +269,144 @@ function DriverDashboard() {
 
       {activeTab === 'my_jobs' && bookings.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
-          {/* Left Column: Accepted Deliveries list & Stops text details */}
+          {/* Left Column: Unified Delivery Timeline */}
           <div className="lg:col-span-5 space-y-6 w-full">
-            {/* Accepted Deliveries Card */}
-            <div className="p-6 shadow-none space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
-              <div className="flex justify-between items-center">
-                <h3 className="text-xl font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Accepted Deliveries</h3>
-                <button 
-                  onClick={fetchMyBookings} 
-                  className="px-4 py-1.5 text-sm font-bold transition-all hover:bg-[var(--color-background)]"
-                  style={{
-                    backgroundColor: 'var(--color-card)',
-                    color: 'var(--color-text-muted)',
-                    border: 'var(--border-width) solid var(--color-input-border)',
-                    borderRadius: 'var(--radius-button)',
-                    fontFamily: 'var(--font-heading)'
-                  }}
-                >
-                  Refresh
-                </button>
-              </div>
-              <div className="divide-y divide-[var(--color-border)]">
-                {bookings.map((b: any) => (
-                  <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 transition">
-                    <div className="space-y-1.5 flex-1 w-full" style={{ fontFamily: 'var(--font-body)' }}>
-                      <div className="flex items-center justify-between gap-2 mb-1 w-full">
-                        <span className="font-semibold text-[var(--color-text-main)]">{b.cargoType}</span>
-                        <span 
-                          className="px-2 py-0.5 rounded-[4px] text-[10px] font-bold tracking-wide uppercase border-[1.5px] bg-transparent shrink-0"
-                          style={{
-                            fontFamily: 'var(--font-mono)',
-                            borderColor: 
-                              b.status === 'PENDING' ? 'var(--color-status-pending)' :
-                              b.status === 'ACCEPTED' ? 'var(--color-status-accepted)' :
-                              b.status === 'IN_TRANSIT' ? 'var(--color-status-transit)' :
-                              b.status === 'DELIVERED' ? 'var(--color-status-delivered)' :
-                              b.status === 'COMPLETED' ? 'var(--color-status-completed)' :
-                              b.status === 'CANCELLED' ? 'var(--color-status-cancelled)' : 'var(--color-text-muted)',
-                            color:
-                              b.status === 'PENDING' ? 'var(--color-status-pending)' :
-                              b.status === 'ACCEPTED' ? 'var(--color-status-accepted)' :
-                              b.status === 'IN_TRANSIT' ? 'var(--color-status-transit)' :
-                              b.status === 'DELIVERED' ? 'var(--color-status-delivered)' :
-                              b.status === 'COMPLETED' ? 'var(--color-status-completed)' :
-                              b.status === 'CANCELLED' ? 'var(--color-status-cancelled)' : 'var(--color-text-muted)'
-                          }}
-                        >
-                          {b.status}
-                        </span>
-                      </div>
-                      <p className="text-xs font-medium text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>Payout: <span className="font-semibold text-[var(--color-primary)]">₹{b.price}</span> | Weight: <span className="font-semibold text-[var(--color-text-main)]">{b.weightKg}kg</span></p>
-                    </div>
-                    {b.status !== 'CANCELLED' && (
-                      <button
-                        onClick={() => navigate(`/track/${b.id}`)}
-                        className="text-white px-3.5 py-2 text-xs font-bold hover:opacity-90 transition w-full sm:w-auto text-center shrink-0"
-                        style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
-                      >
-                        {['DELIVERED', 'COMPLETED'].includes(b.status) ? 'View Details' : 'Track'}
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Delivery Stops Card */}
+            {/* Optimized Delivery Timeline Card */}
             <div className="p-6 shadow-none space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
               <div className="flex justify-between items-center mb-4">
-                <h4 className="text-md font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Delivery Stops</h4>
-                <button
-                  onClick={fetchRoute}
-                  disabled={loadingRoute}
-                  className="bg-[var(--color-card)] border-[var(--color-input-border)] px-3.5 py-2 text-xs font-bold hover:bg-[var(--color-background)] transition disabled:opacity-50"
-                  style={{ color: 'var(--color-text-muted)', border: 'var(--border-width) solid var(--color-input-border)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
-                >
-                  {loadingRoute ? 'Planning...' : 'Re-plan Route'}
-                </button>
+                <div>
+                  <h3 className="text-xl font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Delivery Timeline</h3>
+                  <p className="text-xs text-[var(--color-text-muted)] mt-0.5" style={{ fontFamily: 'var(--font-body)' }}>Optimized stop-by-stop route sequence</p>
+                </div>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={loadData} 
+                    className="px-3 py-1.5 text-xs font-bold transition-all hover:bg-[var(--color-background)]"
+                    style={{
+                      backgroundColor: 'var(--color-card)',
+                      color: 'var(--color-text-muted)',
+                      border: 'var(--border-width) solid ' + (loadingRoute ? 'transparent' : 'var(--color-input-border)'),
+                      borderRadius: 'var(--radius-button)',
+                      fontFamily: 'var(--font-heading)'
+                    }}
+                  >
+                    Refresh
+                  </button>
+                  <button
+                    onClick={fetchRoute}
+                    disabled={loadingRoute}
+                    className="bg-[var(--color-card)] border-[var(--color-input-border)] px-3 py-1.5 text-xs font-bold hover:bg-[var(--color-background)] transition disabled:opacity-50"
+                    style={{ color: 'var(--color-text-muted)', border: 'var(--border-width) solid var(--color-input-border)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
+                  >
+                    {loadingRoute ? 'Planning...' : 'Re-plan'}
+                  </button>
+                </div>
               </div>
 
               {routeData && routeData.route.length > 0 ? (
                 <div className="space-y-4">
-                  <div className="relative border-l ml-3 pl-6 space-y-4" style={{ borderColor: 'var(--color-border)' }}>
-                    {routeData.route.map((stop: any, index: number) => (
-                      <div key={index} className="relative">
-                        <span className="absolute -left-[35px] top-3.5 w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-bold bg-[var(--color-card)] shadow-none" style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>
-                          {index + 1}
-                        </span>
-                        
-                        <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3" style={{ backgroundColor: 'var(--color-background)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <span 
-                                className="text-[10px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-[4px] border bg-transparent"
-                                style={{
-                                  fontFamily: 'var(--font-mono)',
-                                  borderColor: stop.type === 'PICKUP' ? 'var(--color-status-completed)' : 'var(--color-status-transit)',
-                                  color: stop.type === 'PICKUP' ? 'var(--color-status-completed)' : 'var(--color-status-transit)'
-                                }}
-                              >
-                                {stop.type === 'PICKUP' ? 'Pickup' : 'Dropoff'}
-                              </span>
-                              <span className="text-sm font-semibold text-[var(--color-text-main)]" style={{ fontFamily: 'var(--font-heading)' }}>
-                                {stop.cargoType}
-                              </span>
-                            </div>
-                            <p className="text-xs font-medium text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>
-                              Weight: <span className="font-semibold text-[var(--color-text-main)]">{stop.weightKg} kg</span>
-                            </p>
-                          </div>
+                  <div className="relative border-l ml-3 pl-6 space-y-5" style={{ borderColor: 'var(--color-border)' }}>
+                    {routeData.route.map((stop: any, index: number) => {
+                      const booking = bookings.find((b: any) => b.id === stop.bookingId);
+                      const status = booking?.status || 'PENDING';
+                      
+                      return (
+                        <div key={index} className="relative">
+                          <span className="absolute -left-[35px] top-3.5 w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-bold bg-[var(--color-card)] shadow-none" style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>
+                            {index + 1}
+                          </span>
                           
-                          <div className="bg-[var(--color-card)] border rounded-[6px] px-3 py-1.5 text-[10px] font-bold text-[var(--color-text-main)] text-right shrink-0" style={{ borderColor: 'var(--color-border)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
-                            <span className="block text-[var(--color-text-muted)] font-bold text-[8px] tracking-wider mb-0.5" style={{ fontFamily: 'var(--font-mono)' }}>Vehicle Load</span>
-                            {stop.expectedAccumulatedWeight} kg
+                          <div className="p-4 flex flex-col gap-3" style={{ backgroundColor: 'var(--color-background)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <span 
+                                  className="text-[9px] font-bold tracking-wide uppercase px-2 py-0.5 rounded-[4px] border bg-transparent"
+                                  style={{
+                                    fontFamily: 'var(--font-mono)',
+                                    borderColor: stop.type === 'PICKUP' ? 'var(--color-status-completed)' : 'var(--color-status-transit)',
+                                    color: stop.type === 'PICKUP' ? 'var(--color-status-completed)' : 'var(--color-status-transit)'
+                                  }}
+                                >
+                                  {stop.type === 'PICKUP' ? 'Pickup' : 'Dropoff'}
+                                </span>
+                                <span className="text-sm font-semibold text-[var(--color-text-main)]" style={{ fontFamily: 'var(--font-heading)' }}>
+                                  {stop.cargoType}
+                                </span>
+                              </div>
+
+                              {booking && (
+                                <span 
+                                  className="px-2 py-0.5 rounded-[4px] text-[9px] font-bold tracking-wide uppercase border-[1.5px] bg-transparent shrink-0"
+                                  style={{
+                                    fontFamily: 'var(--font-mono)',
+                                    borderColor: 
+                                      status === 'PENDING' ? 'var(--color-status-pending)' :
+                                      status === 'ACCEPTED' ? 'var(--color-status-accepted)' :
+                                      status === 'IN_TRANSIT' ? 'var(--color-status-transit)' :
+                                      status === 'DELIVERED' ? 'var(--color-status-delivered)' :
+                                      status === 'COMPLETED' ? 'var(--color-status-completed)' :
+                                      status === 'CANCELLED' ? 'var(--color-status-cancelled)' : 'var(--color-text-muted)',
+                                    color:
+                                      status === 'PENDING' ? 'var(--color-status-pending)' :
+                                      status === 'ACCEPTED' ? 'var(--color-status-accepted)' :
+                                      status === 'IN_TRANSIT' ? 'var(--color-status-transit)' :
+                                      status === 'DELIVERED' ? 'var(--color-status-delivered)' :
+                                      status === 'COMPLETED' ? 'var(--color-status-completed)' :
+                                      status === 'CANCELLED' ? 'var(--color-status-cancelled)' : 'var(--color-text-muted)'
+                                  }}
+                                >
+                                  {status}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-[var(--color-border)] border-dashed">
+                              <div className="space-y-1">
+                                <p className="text-xs font-medium text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>
+                                  Payout: <span className="font-semibold text-[var(--color-primary)]">₹{(booking as any)?.price || booking?.totalPrice || 0}</span> | Weight: <span className="font-semibold text-[var(--color-text-main)]">{stop.weightKg} kg</span>
+                                </p>
+                                <p className="text-[10px] text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>
+                                  Vehicle Load: <span className="font-semibold text-[var(--color-text-main)]">{stop.expectedAccumulatedWeight} kg</span>
+                                </p>
+                              </div>
+
+                              {booking && status !== 'CANCELLED' && (
+                                <button
+                                  onClick={() => navigate(`/track/${booking.id}`)}
+                                  className="text-white px-3.5 py-1.5 text-xs font-bold hover:opacity-90 transition w-full sm:w-auto text-center shrink-0"
+                                  style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
+                                >
+                                  {['DELIVERED', 'COMPLETED'].includes(status) ? 'View Details' : 'Track & OTP'}
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-xs text-center py-4" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>No active route sequence stops found. Showing raw accepted bookings list below:</p>
+                  <div className="divide-y divide-[var(--color-border)]">
+                    {bookings.map((b: any) => (
+                      <div key={b.id} className="py-3 flex justify-between items-center">
+                        <div>
+                          <p className="text-sm font-semibold text-[var(--color-text-main)]">{b.cargoType}</p>
+                          <p className="text-xs text-[var(--color-text-muted)]">Payout: ₹{b.price} | Status: {b.status}</p>
+                        </div>
+                        <button
+                          onClick={() => navigate(`/track/${b.id}`)}
+                          className="text-white px-3 py-1 text-xs font-bold hover:opacity-90 transition"
+                          style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)' }}
+                        >
+                          Track
+                        </button>
                       </div>
                     ))}
                   </div>
                 </div>
-              ) : (
-                <p className="text-xs text-center py-2" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>No active route stops found.</p>
               )}
             </div>
           </div>
