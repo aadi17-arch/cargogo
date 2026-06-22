@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
@@ -29,13 +29,25 @@ const driverIcon = new L.Icon({
 
 function RecenterButton({ coords }: { coords: [number, number] | null }) {
   const map = useMap();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      L.DomEvent.disableClickPropagation(containerRef.current);
+    }
+  }, []);
+
   const handleClick = () => {
     if (coords) {
       map.setView(coords, map.getZoom(), { animate: true });
     }
   };
   return (
-    <div className="leaflet-top leaflet-right" style={{ zIndex: 1000, margin: '10px' }}>
+    <div 
+      ref={containerRef}
+      className="leaflet-top leaflet-right" 
+      style={{ zIndex: 1000, margin: '10px' }}
+    >
       <button 
         onClick={handleClick}
         disabled={!coords}
