@@ -113,6 +113,7 @@ export default function Navbar({
       return;
     }
 
+    // Intercept clicks for logged-in users to display local overlay modals instead of landing page redirects
     if (token) {
       if (linkName === 'FAQ') {
         setShowFAQ(true);
