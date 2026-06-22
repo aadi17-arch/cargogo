@@ -29,12 +29,12 @@ export const bookingService = {
   },
 
   async confirmPickup(id: string, otp: string): Promise<Booking> {
-    const response = await api.post<ApiResponse<Booking>>(`/bookings/${id}/pickup`, { otp });
+    const response = await api.post<ApiResponse<Booking>>(`/bookings/${id}/pickup`, { otp }, { skipGlobalToast: true });
     return response.data.data!;
   },
 
   async confirmDropoff(id: string, otp: string): Promise<Booking> {
-    const response = await api.post<ApiResponse<Booking>>(`/bookings/${id}/dropoff`, { otp });
+    const response = await api.post<ApiResponse<Booking>>(`/bookings/${id}/dropoff`, { otp }, { skipGlobalToast: true });
     return response.data.data!;
   },
 
