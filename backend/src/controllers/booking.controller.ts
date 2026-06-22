@@ -1,62 +1,72 @@
 import { Request, Response } from 'express';
-import { createBooking, getBookingById, getShipperBookings, getDriverBookings, verifyDropOffOTP, verifyPickupOTP, getPendingBookings ,cancelBooking} from '@/services/booking.service';
+import {
+    createBooking,
+    getBookingById,
+    getShipperBookings,
+    getDriverBookings,
+    verifyDropOffOTP,
+    verifyPickupOTP,
+    getPendingBookings,
+    cancelBooking,
+    completeBooking,
+    getInvoice,
+} from '@/services/booking.service';
 import { acceptBooking } from '@/services/matching.service';
 import { startGpsSimulation } from '@/services/gps-simulator.service';
-import { completeBooking,getInvoice } from '@/services/booking.service';
 import { catchAsync } from '@/utils/catchAsync';
 
+/** Asserts the current user can access a booking (owner / assigned driver / admin).
+ *  Returns 403 response if denied — returns `true` if access is allowed. */
+function assertBookingAccess(
+    req: Request,
+    res: Response,
+    booking: { shipperId: string; driverId: string | null; status: string }
+): boolean {
+    const { id, role } = req.user;
+    const isShipperOwner    = id === booking.shipperId;
+    const isDriverAssigned  = id === booking.driverId;
+    const isPendingForDriver = role === 'DRIVER' && booking.status === 'PENDING';
+    const isAdmin            = role === 'ADMIN';
+    if (!isShipperOwner && !isDriverAssigned && !isPendingForDriver && !isAdmin) {
+        res.status(403).json({ success: false, message: 'Access denied: You are not authorized to view this booking.' });
+        return false;
+    }
+    return true;
+}
+
 export const create = catchAsync(async (req: Request, res: Response) => {
-    const result = await createBooking({
-        ...req.body,
-        shipperId: req.user.id,
-    });
+    const result = await createBooking({ ...req.body, shipperId: req.user.id });
     res.status(201).json({ success: true, data: result });
 });
 
 export const getBookingsById = catchAsync(async (req: Request, res: Response) => {
     const booking = await getBookingById(req.params.id);
     if (!booking) return res.status(404).json({ success: false, message: 'Not found' });
-    
-    const isShipperOwner = req.user.id === booking.shipperId;
-    const isDriverAssigned = req.user.id === booking.driverId;
-    const isPendingForDriver = req.user.role === 'DRIVER' && booking.status === 'PENDING';
-    const isAdmin = req.user.role === 'ADMIN';
-
-    if (!isShipperOwner && !isDriverAssigned && !isPendingForDriver && !isAdmin) {
-        return res.status(403).json({ success: false, message: 'Access denied: You are not authorized to view this booking.' });
-    }
-
+    if (!assertBookingAccess(req, res, booking)) return;
     res.json({ success: true, data: booking });
 });
 
 export const getMyBookings = catchAsync(async (req: Request, res: Response) => {
     if (req.user.role === 'DRIVER') {
-        const driverBookings = await getDriverBookings(req.user.id);
-        return res.json({ success: true, data: driverBookings });
+        const data = await getDriverBookings(req.user.id);
+        return res.json({ success: true, data });
     }
-    const shipperBookings = await getShipperBookings(req.user.id);
-    res.json({ success: true, data: shipperBookings });
+    const data = await getShipperBookings(req.user.id);
+    res.json({ success: true, data });
 });
 
 export const confirmPickup = catchAsync(async (req: Request, res: Response) => {
     const { otp } = req.body;
-    const checkOTP = await verifyPickupOTP(req.params.id, otp, req.user.id);
+    const updated = await verifyPickupOTP(req.params.id, otp, req.user.id);
     const io = req.app.get('io');
-    startGpsSimulation(
-        checkOTP.id,
-        checkOTP.pickupLat,
-        checkOTP.pickupLng,
-        checkOTP.dropoffLat,
-        checkOTP.dropoffLng,
-        io
-    );
-    res.status(201).json({ success: true, data: checkOTP });
+    startGpsSimulation(updated.id, updated.pickupLat, updated.pickupLng, updated.dropoffLat, updated.dropoffLng, io);
+    res.status(201).json({ success: true, data: updated });
 });
 
 export const confirmDropOff = catchAsync(async (req: Request, res: Response) => {
     const { otp } = req.body;
-    const checkOTP = await verifyDropOffOTP(req.params.id, otp, req.user.id);
-    res.status(201).json({ success: true, data: checkOTP });
+    const updated = await verifyDropOffOTP(req.params.id, otp, req.user.id);
+    res.status(201).json({ success: true, data: updated });
 });
 
 export const getPending = catchAsync(async (req: Request, res: Response) => {
@@ -77,15 +87,11 @@ export const complete = catchAsync(async (req: Request, res: Response) => {
 export const getInvoiceDetail = catchAsync(async (req: Request, res: Response) => {
     const booking = await getBookingById(req.params.id);
     if (!booking) return res.status(404).json({ success: false, message: 'Not found' });
-
-    const isShipperOwner = req.user.id === booking.shipperId;
-    const isDriverAssigned = req.user.id === booking.driverId;
-    const isAdmin = req.user.role === 'ADMIN';
-
-    if (!isShipperOwner && !isDriverAssigned && !isAdmin) {
+    // Invoice uses a narrower access check (no pending-driver exception)
+    const { id, role } = req.user;
+    if (id !== booking.shipperId && id !== booking.driverId && role !== 'ADMIN') {
         return res.status(403).json({ success: false, message: 'Access denied: You are not authorized to view this invoice.' });
     }
-
     const invoice = await getInvoice(req.params.id);
     res.json({ success: true, data: invoice });
 });
@@ -96,9 +102,8 @@ export const cancel = catchAsync(async (req: Request, res: Response) => {
         const io = req.app.get('io');
         io.to(`driver:${booking.driverId}`).emit('booking-cancelled', {
             bookingId: booking.id,
-            message: 'Shipper has cancelled this booking.'
+            message: 'Shipper has cancelled this booking.',
         });
     }
-
     res.json({ success: true, data: booking });
 });
