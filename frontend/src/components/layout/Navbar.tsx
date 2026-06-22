@@ -113,6 +113,25 @@ export default function Navbar({
       return;
     }
 
+    if (token) {
+      if (linkName === 'FAQ') {
+        setShowFAQ(true);
+        return;
+      }
+      if (linkName === 'Support') {
+        setShowSupport(true);
+        return;
+      }
+      if (linkName === 'Pricing') {
+        setShowRates(true);
+        return;
+      }
+      if (linkName === 'Services') {
+        setShowServices(true);
+        return;
+      }
+    }
+
     const sectionIds: Record<string, string> = {
       'Pricing': 'pricing',
       'Track Shipment': 'track',
@@ -164,34 +183,7 @@ export default function Navbar({
     fontFamily: 'var(--font-body)',
   };
 
-  const logoStyle: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    textDecoration: 'none',
-    userSelect: 'none',
-  };
 
-
-
-  const logoCargoStyle: React.CSSProperties = {
-    fontFamily: "'Space Grotesk', sans-serif",
-    fontWeight: 850,
-    fontSize: '14px',
-    color: 'var(--color-primary)',
-    backgroundColor: '#FFFFFF',
-    padding: '2px 8px',
-    borderRadius: 'var(--radius-card)',
-    letterSpacing: '-0.025em',
-  };
-
-  const logoGoStyle: React.CSSProperties = {
-    fontFamily: "'Space Grotesk', sans-serif",
-    fontWeight: 'bold',
-    fontSize: '20px',
-    color: '#FFFFFF',
-    marginLeft: '6px',
-    letterSpacing: '-0.025em',
-  };
 
   const centerNavStyle: React.CSSProperties = {
     display: 'flex',
@@ -298,9 +290,25 @@ export default function Navbar({
     <>
       <nav style={navStyle}>
         {/* Left Side: Brand Logo */}
-        <Link to="/" style={logoStyle}>
-          <span style={logoCargoStyle}>Cargo</span>
-          <span style={logoGoStyle}>Go</span>
+        <Link to={token ? (role === 'DRIVER' ? '/driver' : '/shipper') : '/'} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <span style={{
+            fontFamily: "'Space Grotesk', sans-serif",
+            fontWeight: 850,
+            fontSize: '14px',
+            color: 'var(--color-primary)',
+            backgroundColor: '#FFFFFF',
+            padding: '2px 8px',
+            borderRadius: 'var(--radius-card)',
+            letterSpacing: '-0.025em',
+          }}>Cargo</span>
+          <span style={{
+            fontFamily: "'Space Grotesk', sans-serif",
+            fontWeight: 'bold',
+            fontSize: '20px',
+            color: '#FFFFFF',
+            marginLeft: '6px',
+            letterSpacing: '-0.025em',
+          }}>Go</span>
         </Link>
 
         {/* Desktop Center: Navigation Options */}
