@@ -1,15 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotification } from '@/hooks/useNotification';
+import { Eye, EyeOff } from 'lucide-react';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, clearError } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const { login, clearError, isAuthenticated, user } = useAuth();
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const navigate = useNavigate();
   const notify = useNotification();
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      navigate(user.role === 'SHIPPER' ? '/shipper' : '/driver');
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,8 +34,6 @@ function LoginPage() {
 
     if (!password) {
       tempErrors.password = 'Password is required';
-    } else if (password.length < 6) {
-      tempErrors.password = 'Password must be at least 6 characters';
     }
 
     if (Object.keys(tempErrors).length > 0) {
@@ -85,20 +91,30 @@ function LoginPage() {
           <label className="block text-xs font-bold mb-1.5" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>
             Password
           </label>
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              if (errors.password) setErrors({ ...errors, password: undefined });
-            }}
-            className={`w-full p-3 bg-white text-[var(--color-text-main)] placeholder-[#94A3B8] font-medium rounded-[var(--radius-card)] border-[var(--border-width)] focus:outline-none transition-all text-sm ${
-              errors.password 
-                ? 'border-red-500 focus:border-red-500' 
-                : 'border-[var(--color-input-border)] focus:border-[var(--color-primary)]'
-            }`}
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (errors.password) setErrors({ ...errors, password: undefined });
+              }}
+              className={`w-full p-3 pr-10 bg-white text-[var(--color-text-main)] placeholder-[#94A3B8] font-medium rounded-[var(--radius-card)] border-[var(--border-width)] focus:outline-none transition-all text-sm ${
+                errors.password 
+                  ? 'border-red-500 focus:border-red-500' 
+                  : 'border-[var(--color-input-border)] focus:border-[var(--color-primary)]'
+              }`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors focus:outline-none"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
           {errors.password && <p className="text-red-500 text-xs mt-1.5 pl-1">{errors.password}</p>}
         </div>
 
