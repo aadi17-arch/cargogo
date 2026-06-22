@@ -45,7 +45,8 @@ export const startDispatchWorker = (io: any) => {
         return;
 
       }
-      const nearby = await findNearbyDrivers(pickupLat, pickupLng, 5);
+      const searchRadius = process.env.NODE_ENV === 'production' ? 5 : 100;
+      const nearby = await findNearbyDrivers(pickupLat, pickupLng, searchRadius);
 
       if (driverIndex >= nearby.length) {
         io.to(`shipper:${booking.shipperId}`).emit('no-drivers', {
