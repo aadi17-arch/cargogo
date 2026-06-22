@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
 import { useSocket } from '@/hooks/useSocket';
 import api from '@/services/api';
 import { paymentService } from '@/services/payment.service';
+import { toast } from 'react-hot-toast';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -21,6 +22,7 @@ function TrackingPage() {
   const { token, user } = useAuth();
   const { confirmPickup, confirmDropoff } = useBooking();
   const { on } = useSocket(token);
+  const navigate = useNavigate();
 
   const [booking, setBooking] = useState<any>(null);
   const [driverLocation, setDriverLocation] = useState<[number, number] | null>(null);
@@ -35,9 +37,24 @@ function TrackingPage() {
   const fetchBooking = async () => {
     try {
       const res = await api.get(`/bookings/${bookingId}`);
-      setBooking(res.data.data);
-    } catch (err) {
+      const data = res.data.data;
+      if (user && data) {
+        if (user.role === 'SHIPPER' && data.shipperId !== user.id) {
+          toast.error('You are not authorized to track this booking.');
+          navigate('/shipper');
+          return;
+        }
+        if (user.role === 'DRIVER' && data.driverId !== user.id) {
+          toast.error('You are not authorized to track this booking.');
+          navigate('/driver');
+          return;
+        }
+      }
+      setBooking(data);
+    } catch (err: any) {
       console.error(err);
+      toast.error('Unauthorized or booking not found.');
+      navigate(user?.role === 'DRIVER' ? '/driver' : '/shipper');
     }
   };
 
@@ -52,13 +69,13 @@ function TrackingPage() {
 
     const offArrived = on('driver:arrived', (data: any) => {
       if (data.bookingId === bookingId) {
-        alert('Driver has arrived at the destination!');
+        toast.success('Driver has arrived at the destination!');
         fetchBooking();
       }
     });
 
     const offTripCompleted = on('trip:completed', () => {
-      alert('Trip completed!');
+      toast.success('Trip completed!');
       fetchBooking();
     });
 
@@ -76,11 +93,11 @@ function TrackingPage() {
       } else {
         await confirmDropoff(bookingId!, otp);
       }
-      alert(`${type} verified!`);
+      toast.success(`${type === 'pickup' ? 'Pickup' : 'Dropoff'} verified!`);
       setOtp('');
       fetchBooking();
     } catch (err: any) {
-      alert(err.message || 'Invalid OTP');
+      toast.error(err.message || 'Invalid OTP');
     }
   };
 
@@ -100,10 +117,10 @@ function TrackingPage() {
         'CARD',
         booking.price
       );
-      alert('Payment Successful! Booking status updated to COMPLETED.');
+      toast.success('Payment Successful! Booking status updated to COMPLETED.');
       fetchBooking();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Payment failed');
+      toast.error(err.response?.data?.message || 'Payment failed');
     }
   };
 
@@ -115,11 +132,11 @@ function TrackingPage() {
         rating,
         comment
       });
-      alert('Thank you! Your review has been submitted.');
+      toast.success('Thank you! Your review has been submitted.');
       setReviewSubmitted(true);
       fetchBooking();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to submit review');
+      toast.error(err.response?.data?.message || 'Failed to submit review');
     }
   };
 
@@ -130,11 +147,11 @@ function TrackingPage() {
         bookingId,
         reason: disputeReason
       });
-      alert('Dispute filed successfully. Booking status changed to DISPUTED.');
+      toast.success('Dispute filed successfully. Booking status changed to DISPUTED.');
       setShowDisputeForm(false);
       fetchBooking();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to file dispute');
+      toast.error(err.response?.data?.message || 'Failed to file dispute');
     }
   };
 
