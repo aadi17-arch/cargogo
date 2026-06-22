@@ -346,6 +346,7 @@ function DriverDashboard() {
                           </Popup>
                         </Marker>
                       ))}
+                      {/* Plot optimized connection path (polyline) connecting driver location to VRP stops sequentially */}
                       <Polyline 
                         positions={[
                           ...(driverCoords ? [driverCoords] : []),
