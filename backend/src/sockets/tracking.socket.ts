@@ -1,11 +1,13 @@
 import { Server as SocketIOServer } from 'socket.io';
 import prisma from '@/config/database';
+import { addDriverLocation } from '@/services/grid-index.service';
 
 export const registerTrackingHandlers = (io: SocketIOServer) => {
   io.on('connection', (socket) => {
     const user = socket.data.user;
     socket.on('driver:location', async ({ lat, lng }) => {
       if (user.role !== 'DRIVER') return;
+      await addDriverLocation(user.id, lat, lng);
       await prisma.driverProfile.update({
         where: { userId: user.id },
         data: {
