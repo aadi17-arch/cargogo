@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
-import { useSocket } from '@/hooks/useSocket';
+import { useSocket,useSocketListener } from '@/hooks/useSocket';
 import { driverService } from '@/services/driver.service';
+import { geocodingService } from '@/services/geocoding.service';
 import { VrpRouteResponse } from '@/types/driver.types';
 import { toast } from 'react-hot-toast';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
@@ -40,7 +41,7 @@ function DriverDashboard() {
   const { token } = useAuth();
   const { bookings, fetchMyBookings, fetchPendingBookings, acceptBooking: apiAcceptBooking } = useBooking();
   const { isOnline, updateStatus } = useDriverStatus();
-  const { acceptBid: socketAcceptBid, rejectBid: socketRejectBid, on } = useSocket(token);
+  const { acceptBid: socketAcceptBid, rejectBid: socketRejectBid} = useSocket(token);
 
   const [bid, setBid] = useState<any>(null);
   const [countdown, setCountdown] = useState(30);
@@ -57,49 +58,43 @@ function DriverDashboard() {
   const navigate = useNavigate();
 
   const resolveDriverAddress = async (lat: number, lng: number) => {
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&email=cargogo-dev@example.com`);
-      const data = await res.json();
-      if (data && data.address) {
-        const addr = data.address;
-        const name = addr.road || addr.suburb || addr.neighbourhood || addr.city || addr.town || 'Mumbai';
-        setDriverLocationName(name);
-      }
-    } catch (e) {
-      console.error(e);
+  try {
+    const data = await geocodingService.reverse(lat, lng);
+    if (data && data.display_name) {
+      setDriverLocationName(data.display_name.split(',')[0] || 'Mumbai');
     }
-  };
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 
   const resolveAddresses = async (stops: any[]) => {
-    const newAddresses: { [key: string]: string } = { ...addressCache };
-    let updated = false;
-    for (const stop of stops) {
-      const key = `${stop.location.lat.toFixed(4)},${stop.location.lng.toFixed(4)}`;
-      if (!newAddresses[key]) {
-        try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${stop.location.lat}&lon=${stop.location.lng}&email=cargogo-dev@example.com`);
-          const data = await res.json();
-          if (data && data.address) {
-            const addr = data.address;
-            const name = addr.road || addr.suburb || addr.neighbourhood || addr.city || addr.town || 'Unknown Location';
-            newAddresses[key] = name;
-            updated = true;
-          }
-        } catch (e) {
-          console.error(e);
+  const newAddresses = { ...addressCache };
+  let updated = false;
+  for (const stop of stops) {
+    const key = `${stop.location.lat.toFixed(4)},${stop.location.lng.toFixed(4)}`;
+    if (!newAddresses[key]) {
+      try {
+        const data = await geocodingService.reverse(stop.location.lat, stop.location.lng);
+        if (data && data.display_name) {
+          newAddresses[key] = data.display_name.split(',')[0] || 'Unknown Location';
+          updated = true;
         }
+      } catch (e) {
+        console.error(e);
       }
     }
-    if (updated) {
-      setAddressCache(newAddresses);
-    }
-  };
+  }
+  if (updated) setAddressCache(newAddresses);
+};
+
 
   useEffect(() => {
     if (!driverCoords) return;
     const [lat, lng] = driverCoords;
-    if (!lastGeocodedCoords.current || 
-        Math.abs(lastGeocodedCoords.current[0] - lat) > 0.001 || 
+    if (!lastGeocodedCoords.current ||
+        Math.abs(lastGeocodedCoords.current[0] - lat) > 0.001 ||
         Math.abs(lastGeocodedCoords.current[1] - lng) > 0.001) {
       lastGeocodedCoords.current = [lat, lng];
       resolveDriverAddress(lat, lng);
@@ -124,79 +119,73 @@ function DriverDashboard() {
   };
 
   const fetchRoute = async () => {
+    let lat: number | undefined;
+    let lng: number | undefined;
+
     setLoadingRoute(true);
-    try {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const { latitude, longitude } = position.coords;
-            setDriverCoords([latitude, longitude]);
-            const data = await driverService.getOptimizedRoute(latitude, longitude);
-            setRouteData(data);
-            setLoadingRoute(false);
-          },
-          async () => {
-            setDriverCoords([19.0760, 72.8777]); // fallback to Mumbai coords
-            const data = await driverService.getOptimizedRoute();
-            setRouteData(data);
-            setLoadingRoute(false);
-          }
-        );
-      } else {
-        setDriverCoords([19.0760, 72.8777]); // fallback to Mumbai coords
-        const data = await driverService.getOptimizedRoute();
-        setRouteData(data);
-        setLoadingRoute(false);
+
+    if (navigator.geolocation)
+    {
+      try {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+        });
+        lat = position.coords.latitude;
+        lng = position.coords.longitude;
+        setDriverCoords([lat, lng]);
       }
-    } catch (err) {
-      console.error('Failed to fetch optimized route:', err);
+      catch (e) {
+      console.warn('Failed to fetch optimized route:', e);
+    }
+    }
+    if (!lat || !lng) {
+      lat = 19.0760; // Mumbai fallback
+      lng = 72.8777;
+      setDriverCoords([lat, lng]);
+    }
+    try {
+      const data = await driverService.getOptimizedRoute(lat, lng);
+      setRouteData(data);
+    } catch (e) {
+      console.error('Failed to fetch optimized route:', e);
+    } finally {
       setLoadingRoute(false);
     }
   };
 
   useEffect(() => {
-    if (!token) return;
+    if (token) {
+      loadData();
+    }
+  },[token])
 
+
+
+    useSocketListener('incoming-bid', (data: any) => {
+    setBid(data);
+    setCountdown(30);
+  });
+  useSocketListener('bid-accepted', () => {
+    toast.success('Bid accepted! Go to pickup.');
+    setBid(null);
     loadData();
+  });
+  useSocketListener('driver:location:update', (data: any) => {
+    if (data && data.lat && data.lng) {
+      setDriverCoords([data.lat, data.lng]);
+    }
+  });
+  useSocketListener('driver:arrived', () => {
+    loadData();
+  });
+  useSocketListener('trip:completed', () => {
+    loadData();
+  });
+  useSocketListener('booking-cancelled', () => {
+    loadData();
+  });
 
-    const offIncomingBid = on('incoming-bid', (data: any) => {
-      setBid(data);
-      setCountdown(30);
-    });
 
-    const offBidAccepted = on('bid-accepted', () => {
-      toast.success('Bid accepted! Go to pickup.');
-      setBid(null);
-      loadData();
-    });
-
-    const offLocation = on('driver:location:update', (data: any) => {
-      if (data && data.lat && data.lng) {
-        setDriverCoords([data.lat, data.lng]);
-      }
-    });
-
-    const offArrived = on('driver:arrived', () => {
-      loadData();
-    });
-
-    const offTripCompleted = on('trip:completed', () => {
-      loadData();
-    });
-
-    const offBookingCancelled = on('booking-cancelled', () => {
-      loadData();
-    });
-
-    return () => {
-      offIncomingBid();
-      offBidAccepted();
-      offLocation();
-      offArrived();
-      offTripCompleted();
-      offBookingCancelled();
-    };
-  }, [token, on]);
 
   useEffect(() => {
     const total = bookings
@@ -275,8 +264,8 @@ function DriverDashboard() {
           <p className="text-xs sm:text-sm font-medium mt-1" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>Location: <span className="font-semibold text-[var(--color-text-main)]">{driverLocationName}</span></p>
           <p className="text-xs sm:text-sm font-medium mt-0.5" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>Earnings: <span className="font-semibold" style={{ color: 'var(--color-status-completed)' }}>₹{earnings}</span></p>
         </div>
-        <button 
-          onClick={toggleOnline} 
+        <button
+          onClick={toggleOnline}
           className="px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-bold text-white transition-all animate-none"
           style={{
             borderRadius: 'var(--radius-button)',
@@ -374,8 +363,8 @@ function DriverDashboard() {
                   <p className="text-xs text-[var(--color-text-muted)] mt-0.5" style={{ fontFamily: 'var(--font-body)' }}>Optimized stop-by-stop route sequence</p>
                 </div>
                 <div className="flex gap-2">
-                  <button 
-                    onClick={loadData} 
+                  <button
+                    onClick={loadData}
                     className="px-2.5 py-1.5 text-xs font-bold transition-all hover:bg-[var(--color-background)]"
                     style={{
                       backgroundColor: 'var(--color-card)',
@@ -404,17 +393,17 @@ function DriverDashboard() {
                     {routeData.route.map((stop: any, index: number) => {
                       const booking = bookings.find((b: any) => b.id === stop.bookingId);
                       const status = booking?.status || 'PENDING';
-                      
+
                       return (
                         <div key={index} className="relative">
                           <span className="absolute -left-[35px] top-3.5 w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-bold bg-[var(--color-card)] shadow-none" style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>
                             {index + 1}
                           </span>
-                          
+
                           <div className="p-3 flex flex-col gap-2" style={{ backgroundColor: 'var(--color-background)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-1.5 min-w-0">
-                                <span 
+                                <span
                                   className="text-[8px] font-extrabold tracking-wide uppercase px-1.5 py-0.5 rounded-[4px] border bg-transparent shrink-0"
                                   style={{
                                     fontFamily: 'var(--font-mono)',
@@ -430,11 +419,11 @@ function DriverDashboard() {
                               </div>
 
                               {booking && (
-                                <span 
+                                <span
                                   className="px-1.5 py-0.5 rounded-[4px] text-[8px] font-bold tracking-wide uppercase border-[1.5px] bg-transparent shrink-0"
                                   style={{
                                     fontFamily: 'var(--font-mono)',
-                                    borderColor: 
+                                    borderColor:
                                       status === 'PENDING' ? 'var(--color-status-pending)' :
                                       status === 'ACCEPTED' ? 'var(--color-status-accepted)' :
                                       status === 'IN_TRANSIT' ? 'var(--color-status-transit)' :
@@ -517,12 +506,12 @@ function DriverDashboard() {
                     </p>
                   </div>
                 </div>
-                
+
                 {/* VRP Multi-Stop Optimized Route Map */}
                 <div className="h-[300px] sm:h-[400px] lg:h-[480px] overflow-hidden shadow-none relative" style={{ border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
-                  <MapContainer 
-                    center={driverCoords || [routeData.route[0].location.lat, routeData.route[0].location.lng]} 
-                    zoom={11} 
+                  <MapContainer
+                    center={driverCoords || [routeData.route[0].location.lat, routeData.route[0].location.lng]}
+                    zoom={11}
                     style={{ height: '100%', width: '100%', zIndex: 1 }}
                   >
                     <MapInstanceTracker setMap={setMap} />
@@ -540,17 +529,17 @@ function DriverDashboard() {
                       </Marker>
                     ))}
                     {/* Plot optimized connection path (polyline) connecting driver location to VRP stops sequentially */}
-                    <Polyline 
+                    <Polyline
                       positions={[
                         ...(driverCoords ? [driverCoords] : []),
                         ...routeData.route.map((stop: any) => [stop.location.lat, stop.location.lng] as [number, number])
-                      ]} 
-                      color="indigo" 
+                      ]}
+                      color="indigo"
                     />
                   </MapContainer>
-                  
+
                   {driverCoords && map && (
-                    <button 
+                    <button
                       onClick={() => {
                         map.setView(driverCoords, map.getZoom(), { animate: true });
                       }}
@@ -572,8 +561,8 @@ function DriverDashboard() {
         <div className="p-6 shadow-none space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
           <div className="flex justify-between items-center">
             <h3 className="text-xl font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Available Deliveries</h3>
-            <button 
-              onClick={loadData} 
+            <button
+              onClick={loadData}
               className="px-4 py-1.5 text-sm font-bold transition-all hover:bg-[var(--color-background)]"
               style={{
                 backgroundColor: 'var(--color-card)',

@@ -30,7 +30,7 @@ export const useSocket = (token?: string | null) => {
   }, []);
   const acceptBid = useCallback((bookingId: string) => {
     socketService.acceptBid(bookingId);
-  },[]);
+  }, []);
   const rejectBid = useCallback((bookingId: string) => {
     socketService.rejectBid(bookingId);
   }, []);
@@ -49,4 +49,15 @@ export const useSocket = (token?: string | null) => {
     rejectBid,
     updateLocation,
   }
+};
+export const useSocketListener = (
+  event: string,
+  callback: (data: any) => void,
+  dependencies : any[]=[]
+) => {
+  const { on } = useSocket();
+  useEffect(() => {
+    const unsubscribe = on(event, callback);
+    return () => unsubscribe();
+  }, [event, on, ...dependencies]);
 }

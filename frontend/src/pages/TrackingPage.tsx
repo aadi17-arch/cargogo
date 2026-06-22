@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
-import { useSocket } from '@/hooks/useSocket';
+import { useSocketListener } from '@/hooks/useSocket';
 import api from '@/services/api';
 import { paymentService } from '@/services/payment.service';
 import { toast } from 'react-hot-toast';
@@ -19,9 +19,8 @@ L.Icon.Default.mergeOptions({
 
 function TrackingPage() {
   const { bookingId } = useParams();
-  const { token, user } = useAuth();
+  const { user } = useAuth();
   const { confirmPickup, confirmDropoff } = useBooking();
-  const { on } = useSocket(token);
   const navigate = useNavigate();
 
   const [booking, setBooking] = useState<any>(null);
@@ -61,31 +60,25 @@ function TrackingPage() {
 
   useEffect(() => {
     fetchBooking();
+  }, [bookingId]);
 
-    const offLocation = on('driver:location:update', (data: any) => {
-      if (data.bookingId === bookingId) {
-        setDriverLocation([data.lat, data.lng]);
-      }
-    });
+  useSocketListener('driver:location:update', (data: any) => {
+    if (data.bookingId === bookingId) {
+      setDriverLocation([data.lat, data.lng]);
+    }
+  }, [bookingId]);
 
-    const offArrived = on('driver:arrived', (data: any) => {
-      if (data.bookingId === bookingId) {
-        toast.success('Driver has arrived at the destination!');
-        fetchBooking();
-      }
-    });
-
-    const offTripCompleted = on('trip:completed', () => {
-      toast.success('Trip completed!');
+  useSocketListener('driver:arrived', (data: any) => {
+    if (data.bookingId === bookingId) {
+      toast.success('Driver has arrived at the destination!');
       fetchBooking();
-    });
+    }
+  }, [bookingId]);
 
-    return () => {
-      offLocation();
-      offArrived();
-      offTripCompleted();
-    };
-  }, [bookingId, on]);
+  useSocketListener('trip:completed', () => {
+    toast.success('Trip completed!');
+    fetchBooking();
+  }, [bookingId]);
 
   const verifyOTP = async (type: 'pickup' | 'dropoff') => {
     try {
@@ -170,7 +163,7 @@ function TrackingPage() {
   return (
     <div className="space-y-6">
       <h2 className="text-[24px] font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Track Delivery</h2>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Column: Map */}
         <div className="space-y-6">
@@ -194,12 +187,12 @@ function TrackingPage() {
         <div className="space-y-6">
           <div className="p-6 shadow-none space-y-2" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
             <p className="text-sm flex items-center gap-2" style={{ color: 'var(--color-text-main)' }}>
-              Status: 
-              <span 
+              Status:
+              <span
                 className="px-2 py-0.5 rounded-[4px] text-[10px] font-bold tracking-wide uppercase border-[1.5px] bg-transparent shrink-0"
                 style={{
                   fontFamily: 'var(--font-mono)',
-                  borderColor: 
+                  borderColor:
                     booking.status === 'PENDING' ? 'var(--color-status-pending)' :
                     booking.status === 'ACCEPTED' ? 'var(--color-status-accepted)' :
                     booking.status === 'IN_TRANSIT' ? 'var(--color-status-transit)' :
@@ -264,8 +257,8 @@ function TrackingPage() {
               {user?.role === 'SHIPPER' && (
                 <div className="flex flex-col items-center">
                   <p className="text-sm mb-4" style={{ color: 'var(--color-text-muted)' }}>Please review the invoice details below and complete the payment.</p>
-                  <button 
-                    onClick={handlePayment} 
+                  <button
+                    onClick={handlePayment}
                     className="text-white font-bold px-6 py-2.5 text-sm transition hover:opacity-90"
                     style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
                   >
@@ -326,7 +319,7 @@ function TrackingPage() {
           {booking.status === 'COMPLETED' && user?.role === 'SHIPPER' && !booking.review && !reviewSubmitted && (
             <form onSubmit={handleReviewSubmit} className="p-6 shadow-none space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
               <h3 className="text-md font-bold pb-2 border-b" style={{ color: 'var(--color-text-main)', borderColor: 'var(--color-border)', fontFamily: 'var(--font-heading)' }}>Rate Driver Experience</h3>
-              
+
               <div>
                 <label className="block text-[10px] font-bold tracking-[0.08em] mb-1" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>Rating</label>
                 <div className="flex space-x-1">
@@ -363,8 +356,8 @@ function TrackingPage() {
           {['DELIVERED', 'COMPLETED'].includes(booking.status) && user?.role === 'SHIPPER' && (
             <div className="pt-4 text-center font-sans">
               {!showDisputeForm ? (
-                <button 
-                  onClick={() => setShowDisputeForm(true)} 
+                <button
+                  onClick={() => setShowDisputeForm(true)}
                   className="text-[#DC2626] hover:opacity-85 text-xs font-bold underline tracking-wider"
                 >
                   Have an issue? File a Dispute
@@ -373,7 +366,7 @@ function TrackingPage() {
                 <form onSubmit={handleDisputeSubmit} className="p-6 text-left space-y-4 mt-2" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-status-cancelled)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
                   <h3 className="text-sm font-bold uppercase tracking-wide" style={{ color: 'var(--color-status-cancelled)', fontFamily: 'var(--font-heading)' }}>File a Dispute</h3>
                   <p className="text-xs" style={{ color: 'var(--color-status-cancelled)' }}>Please describe the problem you encountered with your delivery (e.g., damaged items, delay, driver behavior).</p>
-                  
+
                   <div>
                     <textarea
                       value={disputeReason}
@@ -389,9 +382,9 @@ function TrackingPage() {
                     <button type="submit" className="text-white px-4 py-2 text-sm font-bold transition" style={{ backgroundColor: 'var(--color-status-cancelled)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>
                       Submit Dispute
                     </button>
-                    <button 
-                      type="button" 
-                      onClick={() => setShowDisputeForm(false)} 
+                    <button
+                      type="button"
+                      onClick={() => setShowDisputeForm(false)}
                       className="px-4 py-2 text-sm font-bold transition hover:bg-[var(--color-background)]"
                       style={{
                         backgroundColor: 'var(--color-card)',
