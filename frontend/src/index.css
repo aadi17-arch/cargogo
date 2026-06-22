@@ -64,6 +64,19 @@
   .dark-input-field {
     @apply w-full p-3 bg-[#2D2D2D] text-white placeholder-slate-500 font-medium rounded-xl border border-transparent focus:outline-none focus:border-slate-500 transition-all text-sm;
   }
+  /* ─── Shared card shell ─────────────────────────────────── */
+  .card {
+    background-color: var(--color-card);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-card);
+  }
+  /* Same as .card but for inner content padding — add p-4/p-6 with tailwind */
+  .card-danger {
+    background-color: var(--color-card);
+    border: var(--border-width) solid var(--color-status-cancelled);
+    border-radius: var(--radius-card);
+  }
+
   .font-serif-display {
     font-family: 'Playfair Display', serif;
   }
@@ -85,4 +98,5 @@ input::-webkit-inner-spin-button {
 /* Hide spin-buttons for Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
