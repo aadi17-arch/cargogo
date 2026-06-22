@@ -2,13 +2,15 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
-import { useSocket } from '@/hooks/useSocket';
-import api from '@/services/api';
+import { useSocket, useSocketListener } from '@/hooks/useSocket';
 import PaymentModal from '@/components/dashboard/PaymentModal';
 import { toast } from 'react-hot-toast';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { geocodingService } from '@/services/geocoding.service';
+import { calculateDistance } from '@/utils/geo';
+
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -28,7 +30,7 @@ function ChangeMapView({ center }: { center: [number, number] }) {
 function ShipperDashboard() {
   const { token } = useAuth();
   const { bookings, fetchMyBookings, createBooking: apiCreateBooking, cancelBooking } = useBooking();
-  const { bookCargo, on } = useSocket(token);
+  const { bookCargo } = useSocket(token);
   const navigate = useNavigate();
 
   const [selectedBookingForPayment, setSelectedBookingForPayment] = useState<any | null>(null);
@@ -64,8 +66,8 @@ function ShipperDashboard() {
   // Reverse Geocoding
   const reverseGeocode = async (lat: number, lng: number, type: 'pickup' | 'dropoff') => {
     try {
-      const res = await api.get(`/geocoding/reverse?lat=${lat}&lon=${lng}`, { skipGlobalToast: true });
-      const data = res.data.data;
+
+      const data = await geocodingService.reverse(lat,lng);
       if (data && data.display_name) {
         if (type === 'pickup') {
           setPickupSearch(data.display_name);
@@ -87,8 +89,7 @@ function ShipperDashboard() {
     else setSearchingDropoff(true);
 
     try {
-      const res = await api.get(`/geocoding/search?q=${encodeURIComponent(query)}`, { skipGlobalToast: true });
-      const data = res.data.data;
+      const data = await geocodingService.search(query);
       if (Array.isArray(data) && data.length > 0) {
         if (type === 'pickup') setPickupResults(data);
         else setDropoffResults(data);
@@ -111,7 +112,7 @@ function ShipperDashboard() {
   const handleSelectResult = (result: any, type: 'pickup' | 'dropoff') => {
     const lat = parseFloat(result.lat);
     const lng = parseFloat(result.lon);
-    
+
     if (type === 'pickup') {
       setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng, pickupAddress: result.display_name }));
       setPickupSearch(result.display_name);
@@ -180,42 +181,26 @@ function ShipperDashboard() {
 
   useEffect(() => {
     fetchMyBookings();
+  }, []);
 
-    const offAccepted = on('booking-accepted', (data: any) => {
-      toast.success(`Driver ${data.driverName} has accepted your booking!`);
-      fetchMyBookings();
-    });
+  useSocketListener('booking-accepted', (data: any) => {
+    toast.success(`Driver ${data.driverName} has accepted your booking!`);
+    fetchMyBookings();
+  });
 
-    const offNoDrivers = on('no-drivers', (data: any) => {
-      toast.error(`Driver matching update: ${data.message}`);
-      fetchMyBookings();
-    });
+  useSocketListener('no-drivers', (data: any) => {
+    toast.error(`Driver matching update: ${data.message}`);
+    fetchMyBookings();
+  });
 
-    return () => {
-      offAccepted();
-      offNoDrivers();
-    };
-  }, [on]);
-
-  const getHaversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-    const R = 6371; // Earth radius in km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  };
 
   const getQuote = async () => {
     if (form.pickupLat === null || form.pickupLng === null || form.dropoffLat === null || form.dropoffLng === null) {
       toast.error('Please select both From and To locations to calculate the price.');
       return;
     }
-    
-    const distanceKm = getHaversineDistance(form.pickupLat, form.pickupLng, form.dropoffLat, form.dropoffLng);
+
+    const distanceKm = calculateDistance(form.pickupLat, form.pickupLng, form.dropoffLat, form.dropoffLng);
     const volumetric = (form.lengthCm * form.widthCm * form.heightCm) / 5000;
     const chargeable = Math.max(form.weightKg, volumetric);
 
@@ -274,35 +259,35 @@ function ShipperDashboard() {
 
 
 
-  const mapCenter: [number, number] = (form.pickupLat !== null && form.pickupLng !== null) 
-    ? [form.pickupLat, form.pickupLng] 
+  const mapCenter: [number, number] = (form.pickupLat !== null && form.pickupLng !== null)
+    ? [form.pickupLat, form.pickupLng]
     : [19.0760, 72.8777]; // Center on Mumbai by default if no location is selected yet
 
   return (
     <div className="space-y-6">
       <h2 className="text-[24px] font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Shipper Dashboard</h2>
-      
+
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
         {/* Left Column: Form & Map */}
         <div className="xl:col-span-2 p-6 shadow-none" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
           <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Book a Delivery</h3>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Form Fields Column */}
           <div className="space-y-4">
-            
+
             {/* Pickup Address Search Input */}
             <div className="relative">
               <label className="block text-[10px] font-extrabold mb-1 tracking-tight uppercase" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>Pickup Location</label>
               <div className="flex items-center gap-2">
-                <input 
-                  placeholder="Type pickup address..." 
-                  value={pickupSearch} 
-                  onChange={(e) => setPickupSearch(e.target.value)} 
+                <input
+                  placeholder="Type pickup address..."
+                  value={pickupSearch}
+                  onChange={(e) => setPickupSearch(e.target.value)}
                   className="input-field flex-1 tracking-tight"
                   style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}
                 />
-                <button 
+                <button
                   type="button"
                   onClick={() => searchAddress(pickupSearch, 'pickup')}
                   className="text-white px-4 py-3 text-sm font-bold transition whitespace-nowrap shrink-0"
@@ -330,8 +315,8 @@ function ShipperDashboard() {
             </div>
 
             <div className="flex justify-end">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={locateMe}
                 className="px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-all hover:bg-[var(--color-background)]"
                 style={{
@@ -350,14 +335,14 @@ function ShipperDashboard() {
             <div className="relative">
               <label className="block text-[10px] font-extrabold mb-1 tracking-tight uppercase" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>Delivery Location</label>
               <div className="flex items-center gap-2">
-                <input 
-                  placeholder="Type drop-off address..." 
-                  value={dropoffSearch} 
-                  onChange={(e) => setDropoffSearch(e.target.value)} 
+                <input
+                  placeholder="Type drop-off address..."
+                  value={dropoffSearch}
+                  onChange={(e) => setDropoffSearch(e.target.value)}
                   className="input-field flex-1 tracking-tight"
                   style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}
                 />
-                <button 
+                <button
                   type="button"
                   onClick={() => searchAddress(dropoffSearch, 'dropoff')}
                   className="text-white px-4 py-3 text-sm font-bold transition whitespace-nowrap shrink-0"
@@ -389,7 +374,7 @@ function ShipperDashboard() {
             {/* Cargo Information Group */}
             <div className="p-4 space-y-4 tracking-tight" style={{ backgroundColor: 'var(--color-background)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
               <h4 className="text-xs font-extrabold tracking-tight uppercase" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Cargo Details</h4>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-extrabold mb-1 tracking-tight" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>Cargo Type</label>
@@ -433,8 +418,8 @@ function ShipperDashboard() {
             </div>
 
             <div className="pt-2 flex gap-2">
-              <button 
-                onClick={getQuote} 
+              <button
+                onClick={getQuote}
                 className="flex-1 bg-transparent px-4 py-3 font-bold transition text-sm hover:bg-[var(--color-background)]"
                 style={{
                   color: 'var(--color-primary)',
@@ -445,8 +430,8 @@ function ShipperDashboard() {
               >
                 Get Price
               </button>
-              <button 
-                onClick={handleBooking} 
+              <button
+                onClick={handleBooking}
                 disabled={bookingLoading}
                 className="flex-1 text-white px-4 py-3 font-bold transition text-sm hover:opacity-90 disabled:opacity-50"
                 style={{
@@ -458,7 +443,7 @@ function ShipperDashboard() {
                 {bookingLoading ? 'Booking...' : 'Book Now'}
               </button>
             </div>
-            
+
             {quote && (
               <div className="space-y-2 text-xs" style={{ backgroundColor: 'var(--color-background)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', padding: '16px', fontFamily: 'var(--font-body)' }}>
                 <p className="tracking-[0.08em] text-[10px]" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>Pricing Breakdown Scheme</p>
@@ -485,20 +470,20 @@ function ShipperDashboard() {
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <ChangeMapView center={mapCenter} />
                 {form.pickupLat !== null && form.pickupLng !== null && (
-                  <Marker 
-                    position={[form.pickupLat, form.pickupLng]} 
-                    draggable={true} 
-                    eventHandlers={pickupHandlers} 
+                  <Marker
+                    position={[form.pickupLat, form.pickupLng]}
+                    draggable={true}
+                    eventHandlers={pickupHandlers}
                     ref={pickupMarkerRef}
                   >
                     <Popup>Pickup (Drag me)</Popup>
                   </Marker>
                 )}
                 {form.dropoffLat !== null && form.dropoffLng !== null && (
-                  <Marker 
-                    position={[form.dropoffLat, form.dropoffLng]} 
-                    draggable={true} 
-                    eventHandlers={dropoffHandlers} 
+                  <Marker
+                    position={[form.dropoffLat, form.dropoffLng]}
+                    draggable={true}
+                    eventHandlers={dropoffHandlers}
                     ref={dropoffMarkerRef}
                   >
                     <Popup>Drop-off (Drag me)</Popup>
@@ -509,12 +494,12 @@ function ShipperDashboard() {
           </div>
         </div>
         </div>
-      
+
         {/* Right Column: My Bookings Feed */}
         <div className="p-6 shadow-none" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
           <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>My Bookings</h3>
-        <button 
-          onClick={fetchMyBookings} 
+        <button
+          onClick={fetchMyBookings}
           className="mb-4 px-4 py-2 text-sm font-semibold transition-all hover:bg-[var(--color-background)]"
           style={{
             backgroundColor: 'var(--color-card)',
@@ -533,11 +518,11 @@ function ShipperDashboard() {
               <div className="space-y-1.5 flex-1 w-full" style={{ fontFamily: 'var(--font-body)' }}>
                 <div className="flex items-center justify-between gap-2 mb-1 w-full">
                   <span className="font-semibold text-[var(--color-text-main)]">{b.cargoType}</span>
-                  <span 
+                  <span
                     className="px-2 py-0.5 rounded-[4px] text-[10px] font-bold tracking-wide uppercase border-[1.5px] bg-transparent shrink-0"
                     style={{
                       fontFamily: 'var(--font-mono)',
-                      borderColor: 
+                      borderColor:
                         b.status === 'PENDING' ? 'var(--color-status-pending)' :
                         b.status === 'ACCEPTED' ? 'var(--color-status-accepted)' :
                         b.status === 'IN_TRANSIT' ? 'var(--color-status-transit)' :
@@ -564,8 +549,8 @@ function ShipperDashboard() {
               </div>
               <div className="flex gap-2 w-full sm:w-auto justify-end shrink-0">
                 {['PENDING', 'ACCEPTED'].includes(b.status) && (
-                  <button 
-                    onClick={() => handleCancelBooking(b.id)} 
+                  <button
+                    onClick={() => handleCancelBooking(b.id)}
                     className="bg-transparent text-[var(--color-status-cancelled)] px-3.5 py-2 text-xs font-bold hover:bg-[#FEF2F2] transition-all"
                     style={{ border: 'var(--border-width) solid var(--color-status-cancelled)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
                   >
@@ -573,16 +558,16 @@ function ShipperDashboard() {
                   </button>
                 )}
                 {b.status === 'DELIVERED' && (
-                  <button 
-                    onClick={() => setSelectedBookingForPayment(b)} 
+                  <button
+                    onClick={() => setSelectedBookingForPayment(b)}
                     className="text-white px-3.5 py-2 text-xs font-bold hover:opacity-90 transition"
                     style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
                   >
                     Pay
                   </button>
                 )}
-                <button 
-                  onClick={() => navigate(`/track/${b.id}`)} 
+                <button
+                  onClick={() => navigate(`/track/${b.id}`)}
                   className="text-white px-3.5 py-2 text-xs font-bold hover:opacity-90 transition"
                   style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
                 >
