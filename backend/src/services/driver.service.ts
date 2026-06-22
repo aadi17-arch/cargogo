@@ -49,8 +49,8 @@ export const updateLocation = async (
     driverId: string,
     lat: number,
     lng: number
-
 ) => {
+    await addDriverLocation(driverId, lat, lng);
     return prisma.driverProfile.update({
         where: { userId: driverId },
         data: {
@@ -58,7 +58,6 @@ export const updateLocation = async (
             longitude: lng
         }
     });
-
 };
 export const getOnlineDrivers = async () => {
     return prisma.driverProfile.findMany({
