@@ -19,8 +19,10 @@ export interface Booking {
   status: BookingStatus;
   pickupLat: number;
   pickupLng: number;
+  pickupAddress?: string;
   dropoffLat: number;
   dropoffLng: number;
+  dropoffAddress?: string;
   cargoType: string;
   weightKg: number;
   lengthCm: number;
@@ -49,8 +51,10 @@ export interface CargoDetails {
 export interface CreateBookingRequest {
   pickupLat: number;
   pickupLng: number;
+  pickupAddress?: string;
   dropoffLat: number;
   dropoffLng: number;
+  dropoffAddress?: string;
   cargoType: string;
   weightKg: number;
   lengthCm: number;
