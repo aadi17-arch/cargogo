@@ -16,6 +16,16 @@ export const create = catchAsync(async (req: Request, res: Response) => {
 export const getBookingsById = catchAsync(async (req: Request, res: Response) => {
     const booking = await getBookingById(req.params.id);
     if (!booking) return res.status(404).json({ success: false, message: 'Not found' });
+    
+    const isShipperOwner = req.user.id === booking.shipperId;
+    const isDriverAssigned = req.user.id === booking.driverId;
+    const isPendingForDriver = req.user.role === 'DRIVER' && booking.status === 'PENDING';
+    const isAdmin = req.user.role === 'ADMIN';
+
+    if (!isShipperOwner && !isDriverAssigned && !isPendingForDriver && !isAdmin) {
+        return res.status(403).json({ success: false, message: 'Access denied: You are not authorized to view this booking.' });
+    }
+
     res.json({ success: true, data: booking });
 });
 
@@ -65,6 +75,17 @@ export const complete = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const getInvoiceDetail = catchAsync(async (req: Request, res: Response) => {
+    const booking = await getBookingById(req.params.id);
+    if (!booking) return res.status(404).json({ success: false, message: 'Not found' });
+
+    const isShipperOwner = req.user.id === booking.shipperId;
+    const isDriverAssigned = req.user.id === booking.driverId;
+    const isAdmin = req.user.role === 'ADMIN';
+
+    if (!isShipperOwner && !isDriverAssigned && !isAdmin) {
+        return res.status(403).json({ success: false, message: 'Access denied: You are not authorized to view this invoice.' });
+    }
+
     const invoice = await getInvoice(req.params.id);
     res.json({ success: true, data: invoice });
 });
