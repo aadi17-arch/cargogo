@@ -4,14 +4,14 @@ import { ApiResponse } from '@/types/api.types';
 
 export const authService = {
   async login(credentials: Record<string, string>): Promise<AuthResponse> {
-    const res = await api.post<ApiResponse<any>>('/auth/login', credentials);
+    const res = await api.post<ApiResponse<any>>('/auth/login', credentials, { skipGlobalToast: true });
     return {
       user: res.data.data.user,
       accessToken: res.data.data.token || res.data.data.accessToken,
     };
   },
   async register(userData: Record<string, any>): Promise<AuthResponse> {
-    const res = await api.post<ApiResponse<any>>('/auth/register', userData);
+    const res = await api.post<ApiResponse<any>>('/auth/register', userData, { skipGlobalToast: true });
     return {
       user: res.data.data.user,
       accessToken: res.data.data.token || res.data.data.accessToken,
