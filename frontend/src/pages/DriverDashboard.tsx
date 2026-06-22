@@ -240,74 +240,81 @@ function DriverDashboard() {
         </button>
       </div>
 
-      {activeTab === 'my_jobs' && (
-        <div className="p-6 shadow-none space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
-          <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Accepted Deliveries</h3>
-            <button 
-              onClick={fetchMyBookings} 
-              className="px-4 py-1.5 text-sm font-bold transition-all hover:bg-[var(--color-background)]"
-              style={{
-                backgroundColor: 'var(--color-card)',
-                color: 'var(--color-text-muted)',
-                border: 'var(--border-width) solid var(--color-input-border)',
-                borderRadius: 'var(--radius-button)',
-                fontFamily: 'var(--font-heading)'
-              }}
-            >
-              Refresh
-            </button>
-          </div>
-          {bookings.length > 0 ? (
-            <div className="divide-y divide-[var(--color-border)]">
-              {bookings.map((b: any) => (
-                <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 transition">
-                  <div className="space-y-1.5 flex-1 w-full" style={{ fontFamily: 'var(--font-body)' }}>
-                    <div className="flex items-center justify-between gap-2 mb-1 w-full">
-                      <span className="font-semibold text-[var(--color-text-main)]">{b.cargoType}</span>
-                      <span 
-                        className="px-2 py-0.5 rounded-[4px] text-[10px] font-bold tracking-wide uppercase border-[1.5px] bg-transparent shrink-0"
-                        style={{
-                          fontFamily: 'var(--font-mono)',
-                          borderColor: 
-                            b.status === 'PENDING' ? 'var(--color-status-pending)' :
-                            b.status === 'ACCEPTED' ? 'var(--color-status-accepted)' :
-                            b.status === 'IN_TRANSIT' ? 'var(--color-status-transit)' :
-                            b.status === 'DELIVERED' ? 'var(--color-status-delivered)' :
-                            b.status === 'COMPLETED' ? 'var(--color-status-completed)' :
-                            b.status === 'CANCELLED' ? 'var(--color-status-cancelled)' : 'var(--color-text-muted)',
-                          color:
-                            b.status === 'PENDING' ? 'var(--color-status-pending)' :
-                            b.status === 'ACCEPTED' ? 'var(--color-status-accepted)' :
-                            b.status === 'IN_TRANSIT' ? 'var(--color-status-transit)' :
-                            b.status === 'DELIVERED' ? 'var(--color-status-delivered)' :
-                            b.status === 'COMPLETED' ? 'var(--color-status-completed)' :
-                            b.status === 'CANCELLED' ? 'var(--color-status-cancelled)' : 'var(--color-text-muted)'
-                        }}
-                      >
-                        {b.status}
-                      </span>
-                    </div>
-                    <p className="text-xs font-medium text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>Payout: <span className="font-semibold text-[var(--color-primary)]">₹{b.price}</span> | Weight: <span className="font-semibold text-[var(--color-text-main)]">{b.weightKg}kg</span></p>
-                  </div>
-                  {b.status !== 'CANCELLED' && (
-                    <button
-                      onClick={() => navigate(`/track/${b.id}`)}
-                      className="text-white px-3.5 py-2 text-xs font-bold hover:opacity-90 transition w-full sm:w-auto text-center shrink-0"
-                      style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
-                    >
-                      {['DELIVERED', 'COMPLETED'].includes(b.status) ? 'View Details' : 'Track'}
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-center py-4" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>No active shipments. Go online to receive orders!</p>
-          )}
+      {activeTab === 'my_jobs' && bookings.length === 0 && (
+        <div className="p-6 text-center font-medium" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>
+          No active shipments. Go online to receive orders!
+        </div>
+      )}
 
-          {bookings.length > 0 && (
-            <div className="mt-6 border-t pt-6" style={{ borderColor: 'var(--color-border)' }}>
+      {activeTab === 'my_jobs' && bookings.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
+          {/* Left Column: Accepted Deliveries list & Stops text details */}
+          <div className="lg:col-span-5 space-y-6 w-full">
+            {/* Accepted Deliveries Card */}
+            <div className="p-6 shadow-none space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Accepted Deliveries</h3>
+                <button 
+                  onClick={fetchMyBookings} 
+                  className="px-4 py-1.5 text-sm font-bold transition-all hover:bg-[var(--color-background)]"
+                  style={{
+                    backgroundColor: 'var(--color-card)',
+                    color: 'var(--color-text-muted)',
+                    border: 'var(--border-width) solid var(--color-input-border)',
+                    borderRadius: 'var(--radius-button)',
+                    fontFamily: 'var(--font-heading)'
+                  }}
+                >
+                  Refresh
+                </button>
+              </div>
+              <div className="divide-y divide-[var(--color-border)]">
+                {bookings.map((b: any) => (
+                  <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 transition">
+                    <div className="space-y-1.5 flex-1 w-full" style={{ fontFamily: 'var(--font-body)' }}>
+                      <div className="flex items-center justify-between gap-2 mb-1 w-full">
+                        <span className="font-semibold text-[var(--color-text-main)]">{b.cargoType}</span>
+                        <span 
+                          className="px-2 py-0.5 rounded-[4px] text-[10px] font-bold tracking-wide uppercase border-[1.5px] bg-transparent shrink-0"
+                          style={{
+                            fontFamily: 'var(--font-mono)',
+                            borderColor: 
+                              b.status === 'PENDING' ? 'var(--color-status-pending)' :
+                              b.status === 'ACCEPTED' ? 'var(--color-status-accepted)' :
+                              b.status === 'IN_TRANSIT' ? 'var(--color-status-transit)' :
+                              b.status === 'DELIVERED' ? 'var(--color-status-delivered)' :
+                              b.status === 'COMPLETED' ? 'var(--color-status-completed)' :
+                              b.status === 'CANCELLED' ? 'var(--color-status-cancelled)' : 'var(--color-text-muted)',
+                            color:
+                              b.status === 'PENDING' ? 'var(--color-status-pending)' :
+                              b.status === 'ACCEPTED' ? 'var(--color-status-accepted)' :
+                              b.status === 'IN_TRANSIT' ? 'var(--color-status-transit)' :
+                              b.status === 'DELIVERED' ? 'var(--color-status-delivered)' :
+                              b.status === 'COMPLETED' ? 'var(--color-status-completed)' :
+                              b.status === 'CANCELLED' ? 'var(--color-status-cancelled)' : 'var(--color-text-muted)'
+                          }}
+                        >
+                          {b.status}
+                        </span>
+                      </div>
+                      <p className="text-xs font-medium text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>Payout: <span className="font-semibold text-[var(--color-primary)]">₹{b.price}</span> | Weight: <span className="font-semibold text-[var(--color-text-main)]">{b.weightKg}kg</span></p>
+                    </div>
+                    {b.status !== 'CANCELLED' && (
+                      <button
+                        onClick={() => navigate(`/track/${b.id}`)}
+                        className="text-white px-3.5 py-2 text-xs font-bold hover:opacity-90 transition w-full sm:w-auto text-center shrink-0"
+                        style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
+                      >
+                        {['DELIVERED', 'COMPLETED'].includes(b.status) ? 'View Details' : 'Track'}
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Delivery Stops Card */}
+            <div className="p-6 shadow-none space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
               <div className="flex justify-between items-center mb-4">
                 <h4 className="text-md font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Delivery Stops</h4>
                 <button
@@ -322,41 +329,6 @@ function DriverDashboard() {
 
               {routeData && routeData.route.length > 0 ? (
                 <div className="space-y-4">
-                  <p className="text-xs text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>
-                    Total Distance: <span className="font-bold text-[var(--color-text-main)]">{routeData.totalDistanceKm} km</span> | Max Weight: {routeData.vehicleCapacityKg} kg
-                  </p>
-
-                  {/* VRP Multi-Stop Optimized Route Map */}
-                  <div className="h-72 overflow-hidden shadow-none mb-6" style={{ border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
-                    <MapContainer 
-                      center={driverCoords || [routeData.route[0].location.lat, routeData.route[0].location.lng]} 
-                      zoom={11} 
-                      style={{ height: '100%', width: '100%', zIndex: 1 }}
-                    >
-                      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                      {driverCoords && (
-                        <Marker position={driverCoords}>
-                          <Popup>Your Location (Driver)</Popup>
-                        </Marker>
-                      )}
-                      {routeData.route.map((stop: any, idx: number) => (
-                        <Marker key={idx} position={[stop.location.lat, stop.location.lng]}>
-                          <Popup>
-                            <strong>Stop {idx + 1}</strong>: {stop.type === 'PICKUP' ? 'Pickup' : 'Dropoff'} ({stop.cargoType})
-                          </Popup>
-                        </Marker>
-                      ))}
-                      {/* Plot optimized connection path (polyline) connecting driver location to VRP stops sequentially */}
-                      <Polyline 
-                        positions={[
-                          ...(driverCoords ? [driverCoords] : []),
-                          ...routeData.route.map((stop: any) => [stop.location.lat, stop.location.lng] as [number, number])
-                        ]} 
-                        color="indigo" 
-                      />
-                    </MapContainer>
-                  </div>
-
                   <div className="relative border-l ml-3 pl-6 space-y-4" style={{ borderColor: 'var(--color-border)' }}>
                     {routeData.route.map((stop: any, index: number) => (
                       <div key={index} className="relative">
@@ -399,7 +371,54 @@ function DriverDashboard() {
                 <p className="text-xs text-center py-2" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>No active route stops found.</p>
               )}
             </div>
-          )}
+          </div>
+
+          {/* Right Column: Sticky Route Map */}
+          <div className="lg:col-span-7 lg:sticky lg:top-[88px] w-full">
+            {routeData && routeData.route.length > 0 && (
+              <div className="p-6 shadow-none space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-lg font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Active Route Map</h3>
+                    <p className="text-xs text-[var(--color-text-muted)] mt-1" style={{ fontFamily: 'var(--font-body)' }}>
+                      Total Distance: <span className="font-bold text-[var(--color-text-main)]">{routeData.totalDistanceKm} km</span> | Max Capacity: {routeData.vehicleCapacityKg} kg
+                    </p>
+                  </div>
+                </div>
+                
+                {/* VRP Multi-Stop Optimized Route Map */}
+                <div className="h-[480px] overflow-hidden shadow-none" style={{ border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
+                  <MapContainer 
+                    center={driverCoords || [routeData.route[0].location.lat, routeData.route[0].location.lng]} 
+                    zoom={11} 
+                    style={{ height: '100%', width: '100%', zIndex: 1 }}
+                  >
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    {driverCoords && (
+                      <Marker position={driverCoords}>
+                        <Popup>Your Location (Driver)</Popup>
+                      </Marker>
+                    )}
+                    {routeData.route.map((stop: any, idx: number) => (
+                      <Marker key={idx} position={[stop.location.lat, stop.location.lng]}>
+                        <Popup>
+                          <strong>Stop {idx + 1}</strong>: {stop.type === 'PICKUP' ? 'Pickup' : 'Dropoff'} ({stop.cargoType})
+                        </Popup>
+                      </Marker>
+                    ))}
+                    {/* Plot optimized connection path (polyline) connecting driver location to VRP stops sequentially */}
+                    <Polyline 
+                      positions={[
+                        ...(driverCoords ? [driverCoords] : []),
+                        ...routeData.route.map((stop: any) => [stop.location.lat, stop.location.lng] as [number, number])
+                      ]} 
+                      color="indigo" 
+                    />
+                  </MapContainer>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
