@@ -190,17 +190,17 @@ function DriverDashboard() {
   };
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-[24px] font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Driver Dashboard</h2>
+    <div className="space-y-4 sm:space-y-6">
+      <h2 className="text-xl sm:text-[24px] font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Driver Dashboard</h2>
 
-      <div className="p-6 shadow-none flex justify-between items-center" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
+      <div className="p-4 sm:p-6 shadow-none flex justify-between items-center" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
         <div>
-          <p className="text-lg font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}>Status: <span className="font-bold" style={{ color: isOnline ? 'var(--color-status-completed)' : 'var(--color-status-cancelled)' }}>{isOnline ? 'Online' : 'Offline'}</span></p>
-          <p className="text-sm font-medium mt-1" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>Earnings: <span className="font-semibold" style={{ color: 'var(--color-status-completed)' }}>₹{earnings}</span></p>
+          <p className="text-base sm:text-lg font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}>Status: <span className="font-bold" style={{ color: isOnline ? 'var(--color-status-completed)' : 'var(--color-status-cancelled)' }}>{isOnline ? 'Online' : 'Offline'}</span></p>
+          <p className="text-xs sm:text-sm font-medium mt-1" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>Earnings: <span className="font-semibold" style={{ color: 'var(--color-status-completed)' }}>₹{earnings}</span></p>
         </div>
         <button 
           onClick={toggleOnline} 
-          className="px-6 py-2.5 text-sm font-bold text-white transition-all animate-none"
+          className="px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-bold text-white transition-all animate-none"
           style={{
             borderRadius: 'var(--radius-button)',
             backgroundColor: isOnline ? 'var(--color-status-cancelled)' : 'var(--color-primary)',
@@ -220,15 +220,15 @@ function DriverDashboard() {
       </div>
 
       {bid && (
-        <div className="p-6 shadow-none" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-primary)', borderRadius: 'var(--radius-card)' }}>
-          <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-heading)' }}>New Delivery Request!</h3>
+        <div className="p-4 sm:p-6 shadow-none" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-primary)', borderRadius: 'var(--radius-card)' }}>
+          <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-heading)' }}>New Delivery Request!</h3>
           <p style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}>Cargo: {bid.cargoType}</p>
           <p style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}>Payout: ₹{bid.price}</p>
           <p style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}>Distance: {bid.distanceKm} km</p>
-          <p className="text-2xl font-bold mt-2" style={{ color: 'var(--color-status-cancelled)', fontFamily: 'var(--font-heading)' }}>Time left: {countdown}s</p>
+          <p className="text-xl sm:text-2xl font-bold mt-2" style={{ color: 'var(--color-status-cancelled)', fontFamily: 'var(--font-heading)' }}>Time left: {countdown}s</p>
           <div className="flex gap-4 mt-4">
-            <button onClick={handleAcceptBid} className="flex-1 text-white py-3 font-bold transition-all" style={{ backgroundColor: 'var(--color-status-completed)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>Accept</button>
-            <button onClick={handleRejectBid} className="flex-1 text-white py-3 font-bold transition-all" style={{ backgroundColor: 'var(--color-status-cancelled)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>Decline</button>
+            <button onClick={handleAcceptBid} className="flex-1 text-white py-2.5 sm:py-3 font-bold transition-all text-sm" style={{ backgroundColor: 'var(--color-status-completed)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>Accept</button>
+            <button onClick={handleRejectBid} className="flex-1 text-white py-2.5 sm:py-3 font-bold transition-all text-sm" style={{ backgroundColor: 'var(--color-status-cancelled)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>Decline</button>
           </div>
         </div>
       )}
@@ -236,7 +236,7 @@ function DriverDashboard() {
       <div className="flex border-b border-[var(--color-border)]">
         <button
           onClick={() => setActiveTab('my_jobs')}
-          className="py-3 px-6 font-bold border-b-2 transition-all hover:text-[var(--color-text-main)]"
+          className="py-2.5 px-4 sm:py-3 sm:px-6 text-sm sm:text-base font-bold border-b-2 transition-all hover:text-[var(--color-text-main)]"
           style={{
             borderColor: activeTab === 'my_jobs' ? 'var(--color-primary)' : 'transparent',
             color: activeTab === 'my_jobs' ? 'var(--color-primary)' : 'var(--color-text-muted)',
@@ -250,7 +250,7 @@ function DriverDashboard() {
             setActiveTab('jobs_board');
             loadData();
           }}
-          className="py-3 px-6 font-bold border-b-2 transition-all hover:text-[var(--color-text-main)]"
+          className="py-2.5 px-4 sm:py-3 sm:px-6 text-sm sm:text-base font-bold border-b-2 transition-all hover:text-[var(--color-text-main)]"
           style={{
             borderColor: activeTab === 'jobs_board' ? 'var(--color-primary)' : 'transparent',
             color: activeTab === 'jobs_board' ? 'var(--color-primary)' : 'var(--color-text-muted)',
@@ -269,19 +269,19 @@ function DriverDashboard() {
 
       {activeTab === 'my_jobs' && bookings.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
-          {/* Left Column: Unified Delivery Timeline */}
-          <div className="lg:col-span-5 space-y-6 w-full">
+          {/* Left Column: Unified Delivery Timeline (order-2 on mobile) */}
+          <div className="lg:col-span-5 space-y-6 w-full order-2 lg:order-1">
             {/* Optimized Delivery Timeline Card */}
-            <div className="p-6 shadow-none space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
-              <div className="flex justify-between items-center mb-4">
+            <div className="p-4 sm:p-6 shadow-none space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
                 <div>
-                  <h3 className="text-xl font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Delivery Timeline</h3>
+                  <h3 className="text-lg sm:text-xl font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Delivery Timeline</h3>
                   <p className="text-xs text-[var(--color-text-muted)] mt-0.5" style={{ fontFamily: 'var(--font-body)' }}>Optimized stop-by-stop route sequence</p>
                 </div>
                 <div className="flex gap-2">
                   <button 
                     onClick={loadData} 
-                    className="px-3 py-1.5 text-xs font-bold transition-all hover:bg-[var(--color-background)]"
+                    className="px-2.5 py-1.5 text-xs font-bold transition-all hover:bg-[var(--color-background)]"
                     style={{
                       backgroundColor: 'var(--color-card)',
                       color: 'var(--color-text-muted)',
@@ -411,21 +411,21 @@ function DriverDashboard() {
             </div>
           </div>
 
-          {/* Right Column: Sticky Route Map */}
-          <div className="lg:col-span-7 lg:sticky lg:top-[88px] w-full">
+          {/* Right Column: Sticky Route Map (order-1 on mobile) */}
+          <div className="lg:col-span-7 lg:sticky lg:top-[88px] w-full order-1 lg:order-2">
             {routeData && routeData.route.length > 0 && (
-              <div className="p-6 shadow-none space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
+              <div className="p-4 sm:p-6 shadow-none space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="text-lg font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Active Route Map</h3>
-                    <p className="text-xs text-[var(--color-text-muted)] mt-1" style={{ fontFamily: 'var(--font-body)' }}>
+                    <h3 className="text-base sm:text-lg font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Active Route Map</h3>
+                    <p className="text-[10px] sm:text-xs text-[var(--color-text-muted)] mt-1" style={{ fontFamily: 'var(--font-body)' }}>
                       Total Distance: <span className="font-bold text-[var(--color-text-main)]">{routeData.totalDistanceKm} km</span> | Max Capacity: {routeData.vehicleCapacityKg} kg
                     </p>
                   </div>
                 </div>
                 
                 {/* VRP Multi-Stop Optimized Route Map */}
-                <div className="h-[480px] overflow-hidden shadow-none" style={{ border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
+                <div className="h-[300px] sm:h-[400px] lg:h-[480px] overflow-hidden shadow-none" style={{ border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
                   <MapContainer 
                     center={driverCoords || [routeData.route[0].location.lat, routeData.route[0].location.lng]} 
                     zoom={11} 
