@@ -60,6 +60,7 @@ export const useAuth = () => {
       return profile;
     } catch (e: any) {
       dispatch(authFailure(getErrMsg(e, 'Failed to load profile')));
+      dispatch(logoutAction());
       throw e;
     }
   };
