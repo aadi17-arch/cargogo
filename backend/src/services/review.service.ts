@@ -1,24 +1,19 @@
-import prisma from "@/config/database"
+import prisma from "@/config/database";
+import { getBookingOrThrow } from "@/services/booking.service";
+import { AppError } from "@/utils/AppError";
+
 export const createDriverReview = async (
   bookingId: string,
   rating: number,
   comment: string,
   shipperId: string
 ) => {
-  const booking = await prisma.booking.findUnique({
-    where: { id: bookingId }
-  });
-  if (!booking || (booking.status !== 'DELIVERED' && booking.status !== 'COMPLETED'))
-    throw new Error('Can only review completed or delivered bookings');
-  if (booking.shipperId !== shipperId) return;
-  const review = await prisma.review.create({
-    data: {
-      bookingId: bookingId,
-      rating: rating,
-      comment: comment
-    }
-  });
-  return review;
+  const booking = await getBookingOrThrow(bookingId);
+  if (booking.status !== 'DELIVERED' && booking.status !== 'COMPLETED')
+    throw new AppError('Can only review completed or delivered bookings', 400);
+  if (booking.shipperId !== shipperId)
+    throw new AppError('Unauthorized', 403);
+  return prisma.review.create({ data: { bookingId, rating, comment } });
 };
 
 export const fileDispute = async (
@@ -26,22 +21,11 @@ export const fileDispute = async (
   reason: string,
   shipperId: string,
 ) => {
-  const booking = await prisma.booking.findUnique({
-    where: { id: bookingId }
-  });
-  if (!booking || booking.status !== 'DELIVERED') throw new Error('Booking hasnt delivered yet!');
-  if (booking.shipperId !== shipperId) throw new Error('Unauthorized');
+  const booking = await getBookingOrThrow(bookingId);
+  if (booking.status !== 'DELIVERED') throw new AppError("Booking hasn't been delivered yet", 400);
+  if (booking.shipperId !== shipperId) throw new AppError('Unauthorized', 403);
   return prisma.$transaction(async (tx) => {
-    await tx.booking.update({
-      where: { id: bookingId },
-      data: { status: 'DISPUTED' }
-    });
-    const dispute = await tx.dispute.create({
-      data: {
-        bookingId: bookingId,
-        reason: reason
-      }
-    });
-    return dispute;
+    await tx.booking.update({ where: { id: bookingId }, data: { status: 'DISPUTED' } });
+    return tx.dispute.create({ data: { bookingId, reason } });
   });
-}
+};
