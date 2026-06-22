@@ -12,9 +12,8 @@ import {
 } from '../store/booking.slice';
 import { CreateBookingRequest, BookingStatus } from '../types/booking.types';
 
-const getErrMsg = (err: any, fallback: string): string => {
-  return err?.response?.data?.message || fallback;
-};
+const getErrMsg = (err: any, fallback: string): string =>
+  err?.response?.data?.message || fallback;
 
 export const useBooking = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -22,34 +21,41 @@ export const useBooking = () => {
     (state: RootState) => state.booking
   );
 
-  const fetchMyBookings = async () => {
+    const withLoading = async <T>(fn: () => Promise<T>, errMsg: string): Promise<T> => {
     dispatch(bookingStart());
     try {
+      return await fn();
+    } catch (err: any) {
+      dispatch(bookingFailure(getErrMsg(err, errMsg)));
+      throw err;
+    }
+  };
+
+  const fetchMyBookings = () =>
+    withLoading(async () => {
       const data = await bookingService.getMyBookings();
       dispatch(fetchBookingsSuccess(data));
       return data;
-    } catch (err: any) {
-      dispatch(bookingFailure(getErrMsg(err, 'Failed to fetch bookings')));
-      throw err;
-    }
-  };
+    }, 'Failed to fetch bookings');
 
-  const createBooking = async (bookingData: CreateBookingRequest) => {
-    dispatch(bookingStart());
-    try {
+  const createBooking = (bookingData: CreateBookingRequest) =>
+    withLoading(async () => {
       const booking = await bookingService.createBooking(bookingData);
       dispatch(createBookingSuccess(booking));
       return booking;
-    } catch (err: any) {
-      dispatch(bookingFailure(getErrMsg(err, 'Failed to create booking')));
-      throw err;
-    }
-  };
+    }, 'Failed to create booking');
+
+  const cancelBooking = (id: string) =>
+    withLoading(async () => {
+      const booking = await bookingService.cancelBooking(id);
+      dispatch(updateBookingStatus({ id, status: 'CANCELLED' as BookingStatus }));
+      return booking;
+    }, 'Failed to cancel booking');
+
 
   const fetchPendingBookings = async () => {
     try {
-      const data = await bookingService.getPendingBookings();
-      return data;
+      return await bookingService.getPendingBookings();
     } catch (err: any) {
       dispatch(bookingFailure(getErrMsg(err, 'Failed to fetch pending bookings')));
       throw err;
@@ -85,18 +91,6 @@ export const useBooking = () => {
       return booking;
     } catch (err: any) {
       dispatch(bookingFailure(getErrMsg(err, 'Dropoff verification failed')));
-      throw err;
-    }
-  };
-
-  const cancelBooking = async (id: string) => {
-    dispatch(bookingStart());
-    try {
-      const booking = await bookingService.cancelBooking(id);
-      dispatch(updateBookingStatus({ id, status: 'CANCELLED' as BookingStatus }));
-      return booking;
-    } catch (err: any) {
-      dispatch(bookingFailure(getErrMsg(err, 'Failed to cancel booking')));
       throw err;
     }
   };
