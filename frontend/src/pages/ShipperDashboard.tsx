@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
 import { useSocket } from '@/hooks/useSocket';
-import { paymentService } from '@/services/payment.service';
+import PaymentModal from '@/components/dashboard/PaymentModal';
+import { toast } from 'react-hot-toast';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -30,8 +31,6 @@ function ShipperDashboard() {
   const navigate = useNavigate();
 
   const [selectedBookingForPayment, setSelectedBookingForPayment] = useState<any | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState('CARD');
-  const [processingPayment, setProcessingPayment] = useState(false);
 
   const [form, setForm] = useState({
     pickupLat: null as number | null,
@@ -146,7 +145,7 @@ function ShipperDashboard() {
 
   const locateMe = () => {
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser');
+      toast.error('Geolocation is not supported by your browser');
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -162,7 +161,7 @@ function ShipperDashboard() {
         reverseGeocode(lat, lng, 'pickup');
       },
       () => {
-        alert('Could not retrieve your location. Please check browser permissions.');
+        toast.error('Could not retrieve your location. Please check browser permissions.');
       }
     );
   };
@@ -171,12 +170,12 @@ function ShipperDashboard() {
     fetchMyBookings();
 
     const offAccepted = on('booking-accepted', (data: any) => {
-      alert(`Driver ${data.driverName} has accepted your booking!`);
+      toast.success(`Driver ${data.driverName} has accepted your booking!`);
       fetchMyBookings();
     });
 
     const offNoDrivers = on('no-drivers', (data: any) => {
-      alert(`Driver matching update: ${data.message}`);
+      toast.error(`Driver matching update: ${data.message}`);
       fetchMyBookings();
     });
 
@@ -200,7 +199,7 @@ function ShipperDashboard() {
 
   const getQuote = async () => {
     if (form.pickupLat === null || form.pickupLng === null || form.dropoffLat === null || form.dropoffLng === null) {
-      alert('Please select both From and To locations to calculate the price.');
+      toast.error('Please select both From and To locations to calculate the price.');
       return;
     }
     
@@ -230,16 +229,16 @@ function ShipperDashboard() {
 
   const handleBooking = async () => {
     if (form.pickupLat === null || form.pickupLng === null || form.dropoffLat === null || form.dropoffLng === null) {
-      alert('Please select both From and To locations first.');
+      toast.error('Please select both From and To locations first.');
       return;
     }
     try {
       const booking = await apiCreateBooking(form as any);
-      alert('Booking created! ID: ' + booking.id);
+      toast.success('Booking created! ID: ' + booking.id);
       bookCargo(booking.id);
       fetchMyBookings();
     } catch (err: any) {
-      alert(err?.response?.data?.message || 'Failed to create booking');
+      toast.error(err?.response?.data?.message || 'Failed to create booking');
     }
   };
 
@@ -247,31 +246,14 @@ function ShipperDashboard() {
     if (!window.confirm('Are you sure you want to cancel this booking?')) return;
     try {
       await cancelBooking(id);
-      alert('Booking cancelled successfully.');
+      toast.success('Booking cancelled successfully.');
       fetchMyBookings();
     } catch (err: any) {
-      alert(err?.response?.data?.message || 'Failed to cancel booking');
+      toast.error(err?.response?.data?.message || 'Failed to cancel booking');
     }
   };
 
-  const handleProcessPayment = async () => {
-    if (!selectedBookingForPayment) return;
-    setProcessingPayment(true);
-    try {
-      await paymentService.processCheckout(
-        selectedBookingForPayment.id,
-        paymentMethod,
-        selectedBookingForPayment.price
-      );
-      alert('Payment successful! Booking completed.');
-      setSelectedBookingForPayment(null);
-      fetchMyBookings();
-    } catch (err: any) {
-      alert(err?.response?.data?.message || 'Payment failed. Please try again.');
-    } finally {
-      setProcessingPayment(false);
-    }
-  };
+
 
   const mapCenter: [number, number] = (form.pickupLat !== null && form.pickupLng !== null) 
     ? [form.pickupLat, form.pickupLng] 
@@ -595,58 +577,14 @@ function ShipperDashboard() {
       </div>
 
       {selectedBookingForPayment && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[2000] p-4">
-          <div className="border p-6 max-w-md w-full shadow-none animate-fade-in" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
-            <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Complete Payment</h3>
-            <div className="space-y-3 mb-6">
-              <p className="text-sm" style={{ color: 'var(--color-text-main)' }}>Cargo: <span className="font-semibold">{selectedBookingForPayment.cargoType}</span></p>
-              <p className="text-sm" style={{ color: 'var(--color-text-main)' }}>Total Amount: <span className="font-bold" style={{ color: 'var(--color-primary)' }}>₹{selectedBookingForPayment.price}</span></p>
-              
-              <div>
-                <label className="block text-[10px] font-normal tracking-[0.08em] mb-1" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>Select Payment Method</label>
-                <select 
-                  value={paymentMethod} 
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="input-field w-full"
-                  style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}
-                >
-                  <option value="CARD">Credit / Debit Card</option>
-                  <option value="UPI">UPI (Google Pay / PhonePe)</option>
-                  <option value="NET_BANKING">Net Banking</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button 
-                onClick={() => setSelectedBookingForPayment(null)} 
-                disabled={processingPayment}
-                className="flex-1 text-sm font-semibold transition hover:bg-[var(--color-background)]"
-                style={{
-                  backgroundColor: 'var(--color-card)',
-                  color: 'var(--color-text-muted)',
-                  border: 'var(--border-width) solid var(--color-input-border)',
-                  borderRadius: 'var(--radius-button)',
-                  fontFamily: 'var(--font-heading)'
-                }}
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={handleProcessPayment} 
-                disabled={processingPayment}
-                className="flex-1 text-white py-2.5 text-sm font-semibold transition flex items-center justify-center gap-1 hover:opacity-90"
-                style={{
-                  backgroundColor: 'var(--color-primary)',
-                  borderRadius: 'var(--radius-button)',
-                  fontFamily: 'var(--font-heading)'
-                }}
-              >
-                {processingPayment ? 'Processing...' : `Pay ₹${selectedBookingForPayment.price}`}
-              </button>
-            </div>
-          </div>
-        </div>
+        <PaymentModal
+          booking={selectedBookingForPayment}
+          onClose={() => setSelectedBookingForPayment(null)}
+          onSuccess={() => {
+            setSelectedBookingForPayment(null);
+            fetchMyBookings();
+          }}
+        />
       )}
     </div>
   );
