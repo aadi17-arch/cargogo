@@ -13,11 +13,11 @@ const getErrMsg = (err: any, fallback: string): string => {
 
 export const useDriverStatus = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { profile, isLoading, error } = useSelector(
-    (state: RootState) => state.driver
-  );
+  const { profile, isLoading, error } = useSelector((state: RootState) => state.driver);
+  const { user } = useSelector((state: RootState) => state.auth);
 
-  const isOnline = profile?.isOnline || false;
+  const activeProfile = profile || (user as any)?.driverProfile;
+  const isOnline = activeProfile?.isOnline || false;
   const updateStatus = async (status: 'ONLINE' | 'OFFLINE', latitude?: number, longitude?: number) => {
     dispatch(driverStart());
     try {
@@ -40,7 +40,7 @@ export const useDriverStatus = () => {
   };
 
   return {
-    profile,
+    profile: activeProfile,
     isOnline,
     isLoading,
     error,
