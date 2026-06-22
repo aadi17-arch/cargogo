@@ -1,15 +1,6 @@
 import prisma from "@/config/database";
-function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371; // Earth radius in km
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
+import { haversineDistance } from "@/utils/haversine";
+
 export const OptimizedRoute = async (
   driverId: string,
   lat?: number,
@@ -64,7 +55,7 @@ export const OptimizedRoute = async (
       // Option A: Pickup (if status is ACCEPTED, not picked up yet, and fits in vehicle capacity)
       if (b.status === 'ACCEPTED' && !visitedPickups.has(b.id)) {
         if (currentWeight + b.weightKg <= capacity) {
-          const dist = getDistance(currentLat, currentLng, b.pickupLat, b.pickupLng);
+          const dist = haversineDistance(currentLat, currentLng, b.pickupLat, b.pickupLng);
           if (!bestCandidate || dist < bestCandidate.distance) {
             bestCandidate = { type: 'PICKUP', booking: b, distance: dist };
           }
@@ -75,7 +66,7 @@ export const OptimizedRoute = async (
       const isAlreadyPickedUp = b.status === 'IN_TRANSIT' || visitedPickups.has(b.id);
       const isNotDroppedOffYet = !visitedDropoffs.has(b.id);
       if (isAlreadyPickedUp && isNotDroppedOffYet) {
-        const dist = getDistance(currentLat, currentLng, b.dropoffLat, b.dropoffLng);
+        const dist = haversineDistance(currentLat, currentLng, b.dropoffLat, b.dropoffLng);
         if (!bestCandidate || dist < bestCandidate.distance) {
           bestCandidate = { type: 'DROPOFF', booking: b, distance: dist };
         }
