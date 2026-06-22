@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
@@ -27,38 +27,12 @@ const driverIcon = new L.Icon({
   shadowSize: [41, 41]
 });
 
-function RecenterButton({ coords }: { coords: [number, number] | null }) {
+function MapInstanceTracker({ setMap }: { setMap: (map: L.Map) => void }) {
   const map = useMap();
-  const containerRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    if (containerRef.current) {
-      L.DomEvent.disableClickPropagation(containerRef.current);
-    }
-  }, []);
-
-  const handleClick = () => {
-    if (coords) {
-      map.setView(coords, map.getZoom(), { animate: true });
-    }
-  };
-  return (
-    <div 
-      ref={containerRef}
-      className="leaflet-top leaflet-right" 
-      style={{ zIndex: 1000, margin: '10px' }}
-    >
-      <button 
-        onClick={handleClick}
-        disabled={!coords}
-        className="flex items-center justify-center bg-white hover:bg-slate-50 border shadow-md rounded-md p-1.5 transition disabled:opacity-50"
-        title="Focus current location"
-        style={{ width: '34px', height: '34px', borderColor: 'rgba(0,0,0,0.2)', cursor: 'pointer' }}
-      >
-        <span style={{ fontSize: '18px' }}>🎯</span>
-      </button>
-    </div>
-  );
+    if (map) setMap(map);
+  }, [map, setMap]);
+  return null;
 }
 
 function DriverDashboard() {
@@ -75,6 +49,7 @@ function DriverDashboard() {
   const [routeData, setRouteData] = useState<VrpRouteResponse | null>(null);
   const [loadingRoute, setLoadingRoute] = useState(false);
   const [driverCoords, setDriverCoords] = useState<[number, number] | null>(null);
+  const [map, setMap] = useState<L.Map | null>(null);
   const navigate = useNavigate();
 
   const loadData = async () => {
@@ -472,12 +447,13 @@ function DriverDashboard() {
                 </div>
                 
                 {/* VRP Multi-Stop Optimized Route Map */}
-                <div className="h-[300px] sm:h-[400px] lg:h-[480px] overflow-hidden shadow-none" style={{ border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
+                <div className="h-[300px] sm:h-[400px] lg:h-[480px] overflow-hidden shadow-none relative" style={{ border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
                   <MapContainer 
                     center={driverCoords || [routeData.route[0].location.lat, routeData.route[0].location.lng]} 
                     zoom={11} 
                     style={{ height: '100%', width: '100%', zIndex: 1 }}
                   >
+                    <MapInstanceTracker setMap={setMap} />
                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                     {driverCoords && (
                       <Marker position={driverCoords} icon={driverIcon}>
@@ -499,8 +475,20 @@ function DriverDashboard() {
                       ]} 
                       color="indigo" 
                     />
-                    {driverCoords && <RecenterButton coords={driverCoords} />}
                   </MapContainer>
+                  
+                  {driverCoords && map && (
+                    <button 
+                      onClick={() => {
+                        map.setView(driverCoords, map.getZoom(), { animate: true });
+                      }}
+                      className="absolute top-3 right-3 z-[1000] flex items-center justify-center bg-white hover:bg-slate-50 border shadow-md rounded-md p-1.5 transition"
+                      title="Focus current location"
+                      style={{ width: '34px', height: '34px', borderColor: 'rgba(0,0,0,0.2)', cursor: 'pointer' }}
+                    >
+                      <span style={{ fontSize: '18px' }}>🎯</span>
+                    </button>
+                  )}
                 </div>
               </div>
             )}
