@@ -40,7 +40,7 @@ export const getMyBookings = catchAsync(async (req: Request, res: Response) => {
 
 export const confirmPickup = catchAsync(async (req: Request, res: Response) => {
     const { otp } = req.body;
-    const checkOTP = await verifyPickupOTP(req.params.id, otp);
+    const checkOTP = await verifyPickupOTP(req.params.id, otp, req.user.id);
     const io = req.app.get('io');
     startGpsSimulation(
         checkOTP.id,
@@ -55,7 +55,7 @@ export const confirmPickup = catchAsync(async (req: Request, res: Response) => {
 
 export const confirmDropOff = catchAsync(async (req: Request, res: Response) => {
     const { otp } = req.body;
-    const checkOTP = await verifyDropOffOTP(req.params.id, otp);
+    const checkOTP = await verifyDropOffOTP(req.params.id, otp, req.user.id);
     res.status(201).json({ success: true, data: checkOTP });
 });
 
