@@ -161,7 +161,8 @@ function RegisterPage() {
           <select 
             value={form.role} 
             onChange={(e) => setForm({...form, role: e.target.value as 'SHIPPER' | 'DRIVER'})} 
-            className="w-full p-3 bg-white text-[var(--color-text-main)] font-medium rounded-[var(--radius-card)] border-[var(--border-width)] border-[var(--color-input-border)] focus:outline-none focus:border-[var(--color-primary)] transition-all text-sm"
+            className="w-full p-3 bg-white text-[var(--color-text-main)] font-medium rounded-[var(--radius-card)] focus:outline-none focus:border-[var(--color-primary)] transition-all text-sm border"
+            style={{ borderWidth: 'var(--border-width)', borderColor: 'var(--color-input-border)' }}
           >
             <option value="SHIPPER">Shipper</option>
             <option value="DRIVER">Driver</option>
@@ -200,7 +201,8 @@ function RegisterPage() {
               <select 
                 value={form.vehicle.type} 
                 onChange={(e) => setForm({...form, vehicle: {...form.vehicle, type: e.target.value as any}})} 
-                className="w-full p-3 bg-white text-[var(--color-text-main)] font-medium rounded-[var(--radius-card)] border-[var(--border-width)] border-[var(--color-input-border)] focus:outline-none focus:border-[var(--color-primary)] transition-all text-sm"
+                className="w-full p-3 bg-white text-[var(--color-text-main)] font-medium rounded-[var(--radius-card)] focus:outline-none focus:border-[var(--color-primary)] transition-all text-sm border"
+                style={{ borderWidth: 'var(--border-width)', borderColor: 'var(--color-input-border)' }}
               >
                 <option value="MINI_TEMPO">Mini Tempo</option>
                 <option value="PICKUP_TRUCK">Pickup Truck</option>
