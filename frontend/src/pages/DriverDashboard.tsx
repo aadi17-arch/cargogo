@@ -111,11 +111,21 @@ function DriverDashboard() {
       loadData();
     });
 
+    const offTripCompleted = on('trip:completed', () => {
+      loadData();
+    });
+
+    const offBookingCancelled = on('booking-cancelled', () => {
+      loadData();
+    });
+
     return () => {
       offIncomingBid();
       offBidAccepted();
       offLocation();
       offArrived();
+      offTripCompleted();
+      offBookingCancelled();
     };
   }, [token, on]);
 
@@ -180,10 +190,7 @@ function DriverDashboard() {
       await apiAcceptBooking(bookingId);
       // Switch to My Shipments and refresh immediately — no manual tap needed
       setActiveTab('my_jobs');
-      await fetchMyBookings();
-      // Refresh pending list too (remove accepted job from board)
-      const updated = await fetchPendingBookings();
-      setPendingBookings(updated || []);
+      await loadData();
     } catch (err: any) {
       toast.error(err.message || 'Failed to accept shipment');
     }
@@ -272,7 +279,14 @@ function DriverDashboard() {
           {/* Left Column: Unified Delivery Timeline (order-2 on mobile) */}
           <div className="lg:col-span-5 space-y-6 w-full order-2 lg:order-1">
             {/* Optimized Delivery Timeline Card */}
-            <div className="p-4 sm:p-6 shadow-none space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
+            <div className="p-4 sm:p-6 shadow-none space-y-4 relative animate-none" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
+              {loadingRoute && (
+                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-[2px] transition-all" style={{ borderRadius: 'var(--radius-card)' }}>
+                  <div className="w-8 h-8 border-3 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--color-primary)' }}></div>
+                  <p className="mt-3 text-xs font-extrabold text-[var(--color-text-main)]" style={{ fontFamily: 'var(--font-heading)' }}>Wait, re-routing...</p>
+                  <p className="text-[9px] font-bold text-[var(--color-text-muted)] mt-0.5" style={{ fontFamily: 'var(--font-body)' }}>Optimizing stop-by-stop route sequence</p>
+                </div>
+              )}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
                 <div>
                   <h3 className="text-lg sm:text-xl font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Delivery Timeline</h3>
