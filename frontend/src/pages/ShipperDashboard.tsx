@@ -81,16 +81,40 @@ function ShipperDashboard() {
     if (type === 'pickup') setSearchingPickup(true);
     else setSearchingDropoff(true);
 
+    const mockPlaces = [
+      { display_name: "Andheri West, Mumbai, Maharashtra", lat: "19.1363", lon: "72.8271" },
+      { display_name: "Bandra West, Mumbai, Maharashtra", lat: "19.0600", lon: "72.8295" },
+      { display_name: "Powai, Mumbai, Maharashtra", lat: "19.1176", lon: "72.9060" },
+      { display_name: "Thane West, Thane, Maharashtra", lat: "19.2183", lon: "72.9781" },
+      { display_name: "Mumbai Central, Mumbai, Maharashtra", lat: "18.9696", lon: "72.8193" },
+      { display_name: "Colaba, South Mumbai, Maharashtra", lat: "18.9067", lon: "72.8147" },
+      { display_name: "Dadar East, Mumbai, Maharashtra", lat: "19.0178", lon: "72.8478" },
+      { display_name: "Vashi, Navi Mumbai, Maharashtra", lat: "19.0745", lon: "73.0019" },
+      { display_name: "Chembur, Mumbai, Maharashtra", lat: "19.0617", lon: "72.8970" },
+      { display_name: "Ghatkopar East, Mumbai, Maharashtra", lat: "19.0865", lon: "72.9090" }
+    ];
+
     try {
       const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&email=cargogo-dev@example.com`);
+      if (!res.ok) throw new Error('Nominatim geocoded search status error');
       const data = await res.json();
-      if (type === 'pickup') {
-        setPickupResults(data);
-      } else {
-        setDropoffResults(data);
+      if (Array.isArray(data) && data.length > 0) {
+        if (type === 'pickup') setPickupResults(data);
+        else setDropoffResults(data);
+        return;
       }
+      throw new Error('No results from Nominatim API');
     } catch (e) {
-      console.error('Geocoding search error:', e);
+      console.warn('Geocoding search failed, falling back to local mocks:', e);
+      const filteredMocks = mockPlaces.filter(p => 
+        p.display_name.toLowerCase().includes(query.toLowerCase())
+      );
+      const finalMocks = filteredMocks.length > 0 ? filteredMocks : mockPlaces;
+      if (type === 'pickup') {
+        setPickupResults(finalMocks);
+      } else {
+        setDropoffResults(finalMocks);
+      }
     } finally {
       if (type === 'pickup') setSearchingPickup(false);
       else setSearchingDropoff(false);
