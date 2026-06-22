@@ -84,6 +84,8 @@ async function main() {
       price: 320,
       pickupOTP: '111111',
       dropoffOTP: '222222',
+      pickupAddress: 'Lalpur, Ranchi, Jharkhand',
+      dropoffAddress: 'Kanke, Ranchi, Jharkhand',
     }
   });
 
@@ -108,6 +110,8 @@ async function main() {
       price: 450,
       pickupOTP: '333333',
       dropoffOTP: '444444',
+      pickupAddress: 'Kanke, Ranchi, Jharkhand',
+      dropoffAddress: 'Argora, Ranchi, Jharkhand',
     }
   });
 
@@ -133,6 +137,8 @@ async function main() {
       pickupOTP: '555555',
       dropoffOTP: '666666',
       pickupVerified: true,
+      pickupAddress: 'Argora, Ranchi, Jharkhand',
+      dropoffAddress: 'Lalpur, Ranchi, Jharkhand',
     }
   });
 
