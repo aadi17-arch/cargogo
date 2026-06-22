@@ -31,6 +31,7 @@ function ShipperDashboard() {
   const navigate = useNavigate();
 
   const [selectedBookingForPayment, setSelectedBookingForPayment] = useState<any | null>(null);
+  const [bookingLoading, setBookingLoading] = useState(false);
 
   const [form, setForm] = useState({
     pickupLat: null as number | null,
@@ -232,6 +233,7 @@ function ShipperDashboard() {
       toast.error('Please select both From and To locations first.');
       return;
     }
+    setBookingLoading(true);
     try {
       const booking = await apiCreateBooking(form as any);
       toast.success('Booking created! ID: ' + booking.id);
@@ -239,6 +241,8 @@ function ShipperDashboard() {
       fetchMyBookings();
     } catch (err: any) {
       toast.error(err?.response?.data?.message || 'Failed to create booking');
+    } finally {
+      setBookingLoading(false);
     }
   };
 
@@ -428,14 +432,15 @@ function ShipperDashboard() {
               </button>
               <button 
                 onClick={handleBooking} 
-                className="flex-1 text-white px-4 py-3 font-bold transition text-sm hover:opacity-90"
+                disabled={bookingLoading}
+                className="flex-1 text-white px-4 py-3 font-bold transition text-sm hover:opacity-90 disabled:opacity-50"
                 style={{
                   backgroundColor: 'var(--color-primary)',
                   borderRadius: 'var(--radius-button)',
                   fontFamily: 'var(--font-heading)'
                 }}
               >
-                Book Now
+                {bookingLoading ? 'Booking...' : 'Book Now'}
               </button>
             </div>
             
