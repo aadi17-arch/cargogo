@@ -2,12 +2,15 @@ import prisma from "@/config/database";
 import { calculatePrice } from "@/services/pricing.service";
 import { generateOTP } from "@/services/otp.service";
 import { VEHICLE_RATES } from "@/services/pricing.service";
+import { AppError } from "@/utils/AppError";
 interface createBookingInput {
     shipperId: string,
     pickupLat: number,
     pickupLng: number,
+    pickupAddress: string,
     dropoffLat: number,
     dropoffLng: number,
+    dropoffAddress: string,
     cargoType: string,
     weightKg: number
     lengthCm: number;
@@ -32,8 +35,10 @@ export const createBooking = async (input: createBookingInput) => {
             shipperId: input.shipperId,
             pickupLat: input.pickupLat,
             pickupLng: input.pickupLng,
+            pickupAddress: input.pickupAddress,
             dropoffLat: input.dropoffLat,
             dropoffLng: input.dropoffLng,
+            dropoffAddress: input.dropoffAddress,
             cargoType: input.cargoType,
             weightKg: input.weightKg,
             lengthCm: input.lengthCm,
@@ -79,26 +84,28 @@ export const getShipperBookings = async (shipperId: string) => {
         }
     });
 };
-export const verifyPickupOTP = async (bookingId: string, otp: string) => {
+export const verifyPickupOTP = async (bookingId: string, otp: string, driverId: string) => {
     const booking = await prisma.booking.findUnique({
         where: { id: bookingId },
     });
-    if (!booking) throw new Error('Booking not found');
-    if (booking.status !== 'ACCEPTED') throw new Error('Booking has not been accepted by a driver yet.');
-    if (booking.pickupOTP !== otp) throw new Error('Wrong OTP');
+    if (!booking) throw new AppError('Booking not found', 404);
+    if (booking.driverId !== driverId) throw new AppError('Unauthorized: You are not the assigned driver for this booking.', 403);
+    if (booking.status !== 'ACCEPTED') throw new AppError('Booking has not been accepted by a driver yet.', 400);
+    if (booking.pickupOTP !== otp) throw new AppError('Wrong OTP', 400);
     const updatedDeliveryStatus = await prisma.booking.update({
         where: { id: bookingId },
         data: { status: 'IN_TRANSIT', pickupVerified: true }
     });
     return updatedDeliveryStatus;
 };
-export const verifyDropOffOTP = async (bookingId: string, otp: string) => {
+export const verifyDropOffOTP = async (bookingId: string, otp: string, driverId: string) => {
     const booking = await prisma.booking.findUnique({
         where: { id: bookingId }
     });
-    if (!booking) throw new Error('Booking not found');
-    if (booking.status !== 'IN_TRANSIT') throw new Error('Booking not in transit');
-    if (booking.dropoffOTP !== otp) throw new Error('Wrong OTP');
+    if (!booking) throw new AppError('Booking not found', 404);
+    if (booking.driverId !== driverId) throw new AppError('Unauthorized: You are not the assigned driver for this booking.', 403);
+    if (booking.status !== 'IN_TRANSIT') throw new AppError('Booking not in transit', 400);
+    if (booking.dropoffOTP !== otp) throw new AppError('Wrong OTP', 400);
     const updatedDeliveryStatus = await prisma.booking.update({
         where: { id: bookingId },
         data: {
