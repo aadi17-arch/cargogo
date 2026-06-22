@@ -132,3 +132,9 @@ Use these pre-seeded accounts to test the shipper-to-driver workflow:
 - **Password (All Accounts)**: `123456`
 - **Shipper Accounts**: `s1@g.com` / `s2@g.com`
 - **Driver Accounts**: `d1@g.com` / `d2@g.com`
+
+---
+
+## 🔒 Security & Geocoding Upgrades
+- **Address Resolution Fallbacks**: Geocoding routes automatically fall back to standard local lookup schemas when open external geocoding endpoints rate-limit or fail, ensuring uninterrupted location rendering.
+- **Assigned Driver OTP Constraints**: Endpoint validation restricts OTP confirmation routes exclusively to the assigned driver's active security context. Any attempt by other users to verify state transitions is blocked with a 403 Forbidden error.
