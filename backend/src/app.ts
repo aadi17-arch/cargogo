@@ -13,6 +13,7 @@ import reviewRoutes from '@/routes/review.routes';
 import disputeRoutes from '@/routes/dispute.routes';
 import vehicleRoutes from '@/routes/vehicle.routes';
 import paymentRoutes from '@/routes/payment.routes';
+import geocodingRoutes from '@/routes/geocoding.routes';
 import { errorHandler } from '@/middleware/error.middleware';
 import helmet from 'helmet';
 import { globalRateLimiter, strictLimiter } from '@/middleware/rate-limit.middleware';
@@ -54,6 +55,7 @@ app.use('/api/review', reviewRoutes);
 app.use('/api/disputes', disputeRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/payment', /*strictLimiter,*/ paymentRoutes);
+app.use('/api/geocoding', geocodingRoutes);
 app.use(errorHandler);
 
 
