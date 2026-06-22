@@ -1,11 +1,270 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
-import { PhoneCall, Mail, Receipt, Truck, Globe, Shield } from 'lucide-react';
+import { Check, ExternalLink, Lock, Receipt, PhoneCall, Mail, Truck } from 'lucide-react';
+import ApiDocsModal from '@/components/landing/ApiDocsModal';
+import StatusModal from '@/components/landing/StatusModal';
+import SlaModal from '@/components/landing/SlaModal';
+import { useAuth } from '@/hooks/useAuth';
+
+const FLEET_DATA = [
+  {
+    title: 'Mini Tempo',
+    sub: 'Up to 500 kg',
+    description: 'Perfect for swift local deliveries of household items, boxes, and small shipments. Highly maneuverable in tight city streets.',
+    basePrice: '₹50',
+    rate: '₹12 / km',
+    img: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80',
+    alt: 'Mini Tempo utility local truck'
+  },
+  {
+    title: 'Pickup Truck',
+    sub: 'Up to 1.5 Tons',
+    description: 'Ideal for commercial cargo, medium-sized furniture, and construction materials. Offers an open deck layout for easy loading.',
+    basePrice: '₹80',
+    rate: '₹15 / km',
+    img: 'https://images.unsplash.com/photo-1501700493788-fa1a4fc9fe62?auto=format&fit=crop&w=600&q=80',
+    alt: 'Pickup Truck cargo delivery'
+  },
+  {
+    title: '3-Ton Container',
+    sub: 'Up to 3.0 Tons',
+    description: 'Fully enclosed metal container truck. Ideal for high-value logistics, sensitive industrial freight, and heavy distributions.',
+    basePrice: '₹150',
+    rate: '₹20 / km',
+    img: 'https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?auto=format&fit=crop&w=600&q=80',
+    alt: '3-Ton enclosed container truck'
+  }
+];
+
+const SERVICES_DATA = [
+  {
+    title: 'Fair Pricing',
+    description: 'No surprise fees. We calculate rates automatically based on your cargo dimensions and shipping weight to ensure honest rates.',
+    img: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80',
+    alt: 'Volumetric Pricing math cargo palettes'
+  },
+  {
+    title: 'Secure Handshakes',
+    description: 'Protect your goods. Drivers must enter a security code sent directly to you at both pickup and drop-off to confirm loading and delivery.',
+    img: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=600&q=80',
+    alt: 'OTP Security passcode screen verification'
+  },
+  {
+    title: 'Fast & Direct Routes',
+    description: 'Avoid unnecessary delays. Routes are plotted instantly to find the quickest path, avoiding heavy traffic zones and low-clearance bridges.',
+    img: 'https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=600&q=80',
+    alt: 'Intelligent fleet trucks logistics center warehouse'
+  }
+];
+
+const CAPACITY_DATA = [
+  {
+    title: 'Smart Vehicle Matching',
+    description: 'Our booking system automatically recommends the most cost-effective vehicle class based on your cargo dimensions.',
+    img: 'https://images.unsplash.com/photo-1606185540834-d6e7483ee1a4?auto=format&fit=crop&w=600&q=80',
+    alt: 'Smart vehicle matching'
+  },
+  {
+    title: 'On-Demand Booking',
+    description: 'Book mini tempos, utility pickups, or large container trucks instantly whenever you need them—no long-term contracts.',
+    img: 'https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?auto=format&fit=crop&w=600&q=80',
+    alt: 'Verified box container truck network'
+  },
+  {
+    title: 'Space Optimization',
+    description: 'Never pay for empty cargo space. We organize load layouts to ensure you only pay for the exact volume your boxes require.',
+    img: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80',
+    alt: 'Payload capacity optimization cargo loader'
+  }
+];
+
+const SUPPORT_DATA = [
+  {
+    title: '24/7 Dispatch Hotline',
+    sub: '+1-800-CARGOGO',
+    description: 'Direct line to active dispatch agents standing by to secure your cargo lanes.',
+    img: 'https://images.unsplash.com/photo-1577563908411-5077b6dc7624?auto=format&fit=crop&w=800&q=80',
+    alt: 'Support helpline headset desk',
+    icon: PhoneCall
+  },
+  {
+    title: 'Billing & Rates Help',
+    sub: 'billing@cargogo.com',
+    description: 'Inquiries regarding invoices, payment receipts, and volumetric quote estimates.',
+    img: 'https://images.unsplash.com/photo-1521791136368-1a8519007b51?auto=format&fit=crop&w=800&q=80',
+    alt: 'Billing help desk',
+    icon: Receipt
+  },
+  {
+    title: 'Driver Assistance',
+    sub: 'drivers@cargogo.com',
+    description: 'Dedicated support for active drivers regarding match notifications and quick payouts.',
+    img: 'https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=600&q=80',
+    alt: 'Driver help desk',
+    icon: Truck
+  },
+  {
+    title: 'General Support',
+    sub: 'help@cargogo.com',
+    description: 'General platform questions (15-min response).',
+    img: 'https://images.unsplash.com/photo-1521791136368-1a8519007b51?auto=format&fit=crop&w=800&q=80',
+    alt: 'Support help desk',
+    icon: Mail
+  }
+];
+
+function SwipeableCardStack({
+  cards,
+  activeIndex,
+  onChangeIndex,
+  isFleet = false,
+  isSupport = false
+}: {
+  cards: any[];
+  activeIndex: number;
+  onChangeIndex: (idx: number) => void;
+  isFleet?: boolean;
+  isSupport?: boolean;
+}) {
+  const [touchStart, setTouchStart] = useState(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const touchEnd = e.changedTouches[0].clientX;
+    const diff = touchStart - touchEnd;
+    if (diff > 50) {
+      onChangeIndex(Math.min(cards.length - 1, activeIndex + 1));
+    } else if (diff < -50) {
+      onChangeIndex(Math.max(0, activeIndex - 1));
+    }
+  };
+
+  return (
+    <div className="relative w-full max-w-sm mx-auto flex flex-col items-center py-4">
+      <div 
+        className="relative w-full h-[400px] flex items-center justify-center overflow-hidden"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {cards.map((card, idx) => {
+          const isActive = idx === activeIndex;
+          const Icon = card.icon;
+          return (
+            <div
+              key={idx}
+              onClick={() => onChangeIndex(idx)}
+              className="absolute w-[92%] h-[370px] rounded-[var(--radius-card)] border bg-[var(--color-card)] overflow-hidden shadow-2xl flex flex-col justify-between transition-all duration-300 cursor-pointer text-left"
+              style={{
+                borderColor: 'var(--color-border)',
+                borderWidth: 'var(--border-width)',
+                zIndex: 10 - Math.abs(idx - activeIndex),
+                transform: `translateX(${isActive ? 0 : (idx - activeIndex) * 105}%) scale(${isActive ? 1 : 0.9})`,
+                opacity: isActive ? 1 : 0,
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                pointerEvents: isActive ? 'auto' : 'none',
+              }}
+            >
+              <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)] relative">
+                <img
+                  src={card.img}
+                  alt={card.alt}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
+                {card.sub && !isSupport && (
+                  <span className="absolute top-3 left-3 px-2 py-0.5 text-[9px] font-black uppercase bg-white text-[#09121F] rounded">
+                    {card.sub}
+                  </span>
+                )}
+              </div>
+
+              <div className="p-5 flex-1 flex flex-col justify-between">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    {isSupport && Icon && (
+                      <div className="p-1 text-slate-400">
+                        <Icon size={16} />
+                      </div>
+                    )}
+                    <h4 className="text-base font-bold tracking-tight text-[var(--color-text-main)]" style={{ fontFamily: 'var(--font-heading)' }}>
+                      {card.title}
+                    </h4>
+                  </div>
+                  {isSupport && card.sub && (
+                    <span className="text-xs font-bold text-indigo-400 block">{card.sub}</span>
+                  )}
+                  <p className="text-xs leading-relaxed text-[var(--color-text-muted)]">
+                    {card.description}
+                  </p>
+                </div>
+
+                {isFleet && card.basePrice && (
+                  <div className="pt-2.5 border-t border-[var(--color-border)] flex justify-between items-center text-[10px]">
+                    <div>
+                      <span className="block text-[8px] uppercase font-bold text-slate-400">Base Price</span>
+                      <span className="text-xs font-extrabold text-[var(--color-text-main)]">{card.basePrice}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="block text-[8px] uppercase font-bold text-slate-400">Distance Rate</span>
+                      <span className="text-xs font-extrabold text-[var(--color-text-main)]">{card.rate}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex justify-center items-center gap-2 mt-2">
+        {cards.map((_, idx) => (
+          <button
+            key={idx}
+            type="button"
+            onClick={() => onChangeIndex(idx)}
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              idx === activeIndex ? 'w-5 bg-indigo-500' : 'w-1.5 bg-slate-650'
+            }`}
+            aria-label={`Go to slide ${idx + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function LandingPage() {
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
   const [trackingIdInput, setTrackingIdInput] = useState('');
+  
+  // Interactive Modals & Footer Newsletter States
+  const [apiDocsOpen, setApiDocsOpen] = useState(false);
+  const [statusOpen, setStatusOpen] = useState(false);
+  const [slaOpen, setSlaOpen] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
+  const [newsletterSubmitting, setNewsletterSubmitting] = useState(false);
+
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail) return;
+    setNewsletterSubmitting(true);
+    setTimeout(() => {
+      setNewsletterSubmitting(false);
+      setNewsletterSubscribed(true);
+    }, 800);
+  };
+
+  // Stack card active index states for phone screens
+  const [fleetActive, setFleetActive] = useState(0);
+  const [servicesActive, setServicesActive] = useState(0);
+  const [capacityActive, setCapacityActive] = useState(0);
+  const [supportActive, setSupportActive] = useState(0);
 
   // Smooth scroll to hash anchor on load
   useEffect(() => {
@@ -63,7 +322,7 @@ function LandingPage() {
       <Navbar />
 
       {/* Hero Section with Full Flipped Background Image for Perfect Blending */}
-      <header className="relative px-8 sm:px-16 border-b border-[var(--color-border)] flex items-center overflow-hidden" style={{ height: 'calc(100vh - 64px)', minHeight: '850px' }}>
+      <header className="relative px-4 sm:px-16 border-b border-[var(--color-border)] flex items-center overflow-hidden py-16 sm:py-0 h-auto sm:h-[calc(100vh-64px)] min-h-[650px] sm:min-h-[750px]">
         {/* Background Image (Twilight shipping harbor container cargo loading dock) */}
         <div 
           className="absolute inset-0 bg-cover bg-center"
@@ -90,11 +349,11 @@ function LandingPage() {
             </p>
             <div className="flex flex-wrap gap-4 pt-2">
               <button 
-                onClick={() => navigate('/register')}
-                className="bg-white text-[var(--color-primary)] px-8 py-3.5 rounded-[var(--radius-button)] font-bold transition-all hover:bg-slate-100 shadow-lg"
+                onClick={() => navigate(isAuthenticated ? (user?.role === 'DRIVER' ? '/driver' : '/shipper') : '/register')}
+                className="bg-white text-[var(--color-primary)] hover:bg-slate-100 px-8 py-3.5 rounded-[var(--radius-button)] font-bold transition-all shadow-lg hover:shadow-cyan-400/20 hover:scale-[1.02] active:scale-[0.98]"
                 style={{ fontFamily: 'var(--font-heading)', fontSize: '15px' }}
               >
-                Start Shipping
+                {isAuthenticated ? 'Go to Dashboard' : 'Start Shipping'}
               </button>
               <a 
                 href="#calculator"
@@ -323,11 +582,11 @@ function LandingPage() {
                       </div>
                       <button 
                         type="button"
-                        onClick={() => navigate('/register')}
+                        onClick={() => navigate(isAuthenticated ? (user?.role === 'DRIVER' ? '/driver' : '/shipper') : '/register')}
                         className="w-full text-white py-3.5 rounded-[var(--radius-button)] font-bold transition-all hover:bg-[var(--color-primary-hover)] text-center text-sm shadow-md"
                         style={{ backgroundColor: 'var(--color-primary)', fontFamily: 'var(--font-heading)' }}
                       >
-                        Proceed to Book Delivery
+                        {isAuthenticated ? (user?.role === 'DRIVER' ? 'Go to Dashboard' : 'Proceed to Book Delivery') : 'Proceed to Book Delivery'}
                       </button>
                     </div>
                   </>
@@ -341,7 +600,8 @@ function LandingPage() {
             <h3 className="text-xl font-bold border-b border-[var(--color-border)] pb-3" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>
               Our Cargo Fleet & Rates
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Desktop Grid Layout */}
+            <div className="hidden md:grid md:grid-cols-3 gap-6">
               {/* Mini Tempo Details */}
               <div className="p-6 rounded-[var(--radius-card)] border bg-[var(--color-card)] flex flex-col justify-between space-y-4" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
                 <div className="space-y-2">
@@ -426,6 +686,16 @@ function LandingPage() {
                 </div>
               </div>
             </div>
+
+            {/* Mobile Stacked Slider */}
+            <div className="md:hidden">
+              <SwipeableCardStack
+                cards={FLEET_DATA}
+                activeIndex={fleetActive}
+                onChangeIndex={setFleetActive}
+                isFleet={true}
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -460,11 +730,11 @@ function LandingPage() {
             </p>
             <div className="pt-2">
               <button 
-                onClick={() => navigate('/register')}
+                onClick={() => navigate(isAuthenticated ? (user?.role === 'DRIVER' ? '/driver' : '/shipper') : '/register')}
                 className="bg-white text-[var(--color-primary)] px-8 py-3.5 rounded-[var(--radius-button)] font-bold transition-all hover:bg-slate-100 shadow-lg inline-block text-sm"
                 style={{ fontFamily: 'var(--font-heading)' }}
               >
-                Create Shipper Account
+                {isAuthenticated ? 'Go to Dashboard' : 'Create Shipper Account'}
               </button>
             </div>
           </div>
@@ -501,11 +771,11 @@ function LandingPage() {
             </p>
             <div className="pt-2">
               <button 
-                onClick={() => navigate('/register')}
+                onClick={() => navigate(isAuthenticated ? (user?.role === 'DRIVER' ? '/driver' : '/shipper') : '/register')}
                 className="bg-white text-[var(--color-primary)] px-8 py-3.5 rounded-[var(--radius-button)] font-bold transition-all hover:bg-slate-100 shadow-lg inline-block text-sm"
                 style={{ fontFamily: 'var(--font-heading)' }}
               >
-                Sign Up as a Driver
+                {isAuthenticated ? 'Go to Dashboard' : 'Sign Up as a Driver'}
               </button>
             </div>
           </div>
@@ -524,7 +794,8 @@ function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Desktop Grid Layout */}
+          <div className="hidden md:grid md:grid-cols-3 gap-8">
             {/* Feature 1 */}
             <div className="group rounded-[var(--radius-card)] border bg-[var(--color-card)] overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
               <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)] relative">
@@ -576,6 +847,15 @@ function LandingPage() {
               </div>
             </div>
           </div>
+
+          {/* Mobile Stacked Slider */}
+          <div className="md:hidden">
+            <SwipeableCardStack
+              cards={SERVICES_DATA}
+              activeIndex={servicesActive}
+              onChangeIndex={setServicesActive}
+            />
+          </div>
         </div>
       </section>
       {/* Capacity Network Section */}
@@ -593,7 +873,8 @@ function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Desktop Grid Layout */}
+          <div className="hidden md:grid md:grid-cols-3 gap-8">
             {/* Feature 1 */}
             <div className="group rounded-[var(--radius-card)] border bg-[var(--color-card)] overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
               <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)] relative">
@@ -644,6 +925,15 @@ function LandingPage() {
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* Mobile Stacked Slider */}
+          <div className="md:hidden">
+            <SwipeableCardStack
+              cards={CAPACITY_DATA}
+              activeIndex={capacityActive}
+              onChangeIndex={setCapacityActive}
+            />
           </div>
         </div>
       </section>
@@ -717,7 +1007,8 @@ function LandingPage() {
                   Our dedicated dispatch support team is always standing by to secure your cargo lanes.
                 </p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Desktop grid for Support Cards */}
+              <div className="hidden md:grid md:grid-cols-2 gap-6">
                 {/* Dispatch Support */}
                 <div className="p-5 border border-[var(--color-border)] rounded-[var(--radius-card)] bg-[var(--color-card)] space-y-3 shadow-sm flex items-start gap-4">
                   <div className="p-2.5 bg-slate-100 rounded-lg text-slate-600 mt-1">
@@ -766,10 +1057,20 @@ function LandingPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Mobile Stacked Slider */}
+              <div className="md:hidden">
+                <SwipeableCardStack
+                  cards={SUPPORT_DATA}
+                  activeIndex={supportActive}
+                  onChangeIndex={setSupportActive}
+                  isSupport={true}
+                />
+              </div>
             </div>
 
             {/* Right Column: Dispatch Image */}
-            <div className="lg:col-span-5 h-[340px] rounded-[var(--radius-card)] overflow-hidden border border-[var(--color-border)] shadow-sm">
+            <div className="hidden lg:block lg:col-span-5 h-[340px] rounded-[var(--radius-card)] overflow-hidden border border-[var(--color-border)] shadow-sm">
               <img 
                 src="https://images.unsplash.com/photo-1577563908411-5077b6dc7624?auto=format&fit=crop&w=800&q=80" 
                 alt="Support helpline headset desk" 
@@ -782,40 +1083,24 @@ function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="mt-auto py-20 px-6 border-t border-slate-800 text-sm transition-all duration-300" style={{ background: 'linear-gradient(to right, #050b14, #142134)', color: '#94A3B8' }}>
+      <footer className="mt-auto py-16 px-6 border-t border-slate-800 text-sm transition-all duration-300 animate-fade-in" style={{ background: 'linear-gradient(to right, #050b14, #101c2c)', color: '#94A3B8' }}>
         <div className="max-w-[1750px] mx-auto px-4 sm:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-10 pb-16 border-b border-slate-800 text-left">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 pb-12 border-b border-slate-800 text-left">
             
-            {/* Column 1: Brand & Compliance */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="flex items-center gap-1">
+            {/* Column 1: Brand & Socials */}
+            <div className="space-y-5">
+              <div className="flex items-center">
                 <span className="px-2 py-0.5 text-xs font-black tracking-tighter text-[#09121F] bg-white rounded" style={{ fontFamily: 'Space Grotesk' }}>
                   Cargo
                 </span>
-                <span className="text-lg font-black tracking-tight text-white" style={{ fontFamily: 'Space Grotesk' }}>
+                <span className="text-lg font-black tracking-tight text-white ml-1.5" style={{ fontFamily: 'Space Grotesk' }}>
                   Go
                 </span>
               </div>
-              <p className="text-xs leading-relaxed max-w-sm text-slate-300">
-                Next-generation freight coordination, algorithmic transit optimization, and cryptographic OTP-verified dispatch networks. Empowering corporate enterprise logistics with margin-free cargo matching.
+              <p className="text-xs leading-relaxed text-slate-350 max-w-xs">
+                Next-generation freight coordination, volumetric transit calculation, and secure OTP-verified dispatch networks.
               </p>
               
-              {/* Trust & Compliance Badges */}
-              <div className="space-y-2 pt-1">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-200 block mb-1">Security & Compliance</span>
-                <div className="flex flex-wrap gap-1.5">
-                  <span className="px-2 py-1 text-[10px] font-semibold bg-slate-800/80 text-slate-300 rounded flex items-center gap-1 border border-slate-700 shadow-sm">
-                    <Shield size={11} className="text-indigo-400" /> SOC 2 Type II Certified
-                  </span>
-                  <span className="px-2 py-1 text-[10px] font-semibold bg-slate-800/80 text-slate-300 rounded flex items-center gap-1 border border-slate-700 shadow-sm">
-                    FMCSA Compliant
-                  </span>
-                  <span className="px-2 py-1 text-[10px] font-semibold bg-slate-800/80 text-slate-300 rounded flex items-center gap-1 border border-slate-700 shadow-sm">
-                    ISO 27001
-                  </span>
-                </div>
-              </div>
-
               {/* Social Channels */}
               <div className="flex gap-4 pt-1">
                 <a href="#linkedin" aria-label="LinkedIn" className="text-slate-400 hover:text-white transition-colors p-1 hover:bg-slate-800 rounded">
@@ -833,103 +1118,108 @@ function LandingPage() {
                     <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
                   </svg>
                 </a>
-                <a href="#globe" aria-label="Website" className="text-slate-400 hover:text-white transition-colors p-1 hover:bg-slate-800 rounded">
-                  <Globe size={18} />
-                </a>
               </div>
             </div>
-
-            {/* Column 2: Solutions */}
+ 
+            {/* Column 2: Navigation */}
             <div className="space-y-4">
-              <h4 className="font-bold text-xs uppercase tracking-wider text-white">Solutions</h4>
+              <h4 className="font-bold text-xs uppercase tracking-wider text-white">Platform</h4>
               <ul className="space-y-2.5 text-xs">
-                <li><a href="#pricing" className="text-slate-300 hover:text-white transition-colors">Volumetric Billing</a></li>
-                <li><a href="#services" className="text-slate-300 hover:text-white transition-colors">Intelligent Fleet Routing</a></li>
-                <li><a href="#shippers" className="text-slate-300 hover:text-white transition-colors">Enterprise Freight Portal</a></li>
-                <li><a href="#drivers" className="text-slate-300 hover:text-white transition-colors">Dispatch APIs</a></li>
-                <li><span className="text-slate-500 cursor-not-allowed">Cold-Chain Logistics <span className="text-[9px] font-bold text-indigo-400 bg-slate-800 px-1 py-0.5 rounded">BETA</span></span></li>
+                <li><a href="#pricing" className="text-slate-300 hover:text-white transition-colors">Volumetric Quote Calculator</a></li>
+                <li><a href="#services" className="text-slate-300 hover:text-white transition-colors">Our Services</a></li>
+                <li><a href="#faq" className="text-slate-300 hover:text-white transition-colors">FAQ Support</a></li>
+                <li><a href="#support" className="text-slate-300 hover:text-white transition-colors">Dispatch Helpline</a></li>
               </ul>
             </div>
-
-            {/* Column 3: Developer API & Platform */}
+ 
+            {/* Column 3: Interactive Developer & Info Hub */}
             <div className="space-y-4">
-              <h4 className="font-bold text-xs uppercase tracking-wider text-white">Developers</h4>
+              <h4 className="font-bold text-xs uppercase tracking-wider text-white">Developer Hub</h4>
               <ul className="space-y-2.5 text-xs">
-                <li><span className="text-slate-300 hover:text-white cursor-pointer transition-colors">API Documentation</span></li>
-                <li><span className="text-slate-300 hover:text-white cursor-pointer transition-colors">Webhooks Registry</span></li>
-                <li><span className="text-slate-300 hover:text-white cursor-pointer transition-colors">System Architecture</span></li>
-                <li><span className="text-slate-300 hover:text-white cursor-pointer transition-colors">Github Integrations</span></li>
-              </ul>
-            </div>
-
-            {/* Column 4: Legal & Governance */}
-            <div className="space-y-4">
-              <h4 className="font-bold text-xs uppercase tracking-wider text-white">Governance</h4>
-              <ul className="space-y-2.5 text-xs">
-                <li><span className="text-slate-300 hover:text-white cursor-pointer transition-colors">Privacy Policy SLA</span></li>
-                <li><span className="text-slate-300 hover:text-white cursor-pointer transition-colors">Terms of Service</span></li>
-                <li><span className="text-slate-300 hover:text-white cursor-pointer transition-colors">Cargo Insurance Bond</span></li>
-                <li><span className="text-slate-300 hover:text-white cursor-pointer transition-colors">OTP Protocol Patent</span></li>
-                <li><span className="text-slate-300 hover:text-white cursor-pointer transition-colors">Incident Reports</span></li>
-              </ul>
-            </div>
-
-            {/* Column 5: Offices & Corporate Info */}
-            <div className="space-y-4">
-              <h4 className="font-bold text-xs uppercase tracking-wider text-white">HQ Offices</h4>
-              <ul className="space-y-2.5 text-xs leading-relaxed">
                 <li>
-                  <span className="font-semibold text-slate-200 block">North America HQ</span>
-                  <span className="text-slate-400">120 N LaSalle St, Chicago, IL 60602</span>
+                  <button 
+                    type="button"
+                    onClick={() => setApiDocsOpen(true)} 
+                    className="text-slate-300 hover:text-white transition-colors flex items-center gap-1.5 bg-transparent border-0 p-0 cursor-pointer"
+                  >
+                    API Documentation <ExternalLink size={12} className="text-indigo-400" />
+                  </button>
                 </li>
                 <li>
-                  <span className="font-semibold text-slate-200 block">Europe Hub</span>
-                  <span className="text-slate-400">Rotterdam Port Plaza, 3012 CL, NL</span>
+                  <button 
+                    type="button"
+                    onClick={() => setStatusOpen(true)} 
+                    className="text-slate-300 hover:text-white transition-colors flex items-center gap-1.5 bg-transparent border-0 p-0 cursor-pointer"
+                  >
+                    System Status <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block animate-pulse" />
+                  </button>
                 </li>
                 <li>
-                  <span className="font-semibold text-slate-200 block">Asia Pacific Office</span>
-                  <span className="text-slate-400">Marina Bay Sands Tower 3, Singapore</span>
+                  <button 
+                    type="button"
+                    onClick={() => setSlaOpen(true)} 
+                    className="text-slate-300 hover:text-white transition-colors flex items-center gap-1.5 bg-transparent border-0 p-0 cursor-pointer"
+                  >
+                    Enterprise SLA Terms <Lock size={12} className="text-slate-400" />
+                  </button>
                 </li>
               </ul>
             </div>
-
-            {/* Column 6: Newsletter / Updates */}
+ 
+            {/* Column 4: Newsletter / Updates */}
             <div className="space-y-4">
-              <h4 className="font-bold text-xs uppercase tracking-wider text-white">Subscribe</h4>
+              <h4 className="font-bold text-xs uppercase tracking-wider text-white">Insights Newsletter</h4>
               <p className="text-xs leading-relaxed text-slate-300">
-                Get quarterly reports on logistics optimization, fuel surcharges, and tech integrations.
+                Get quarterly updates on transit metrics, fuel rates, and direct APIs.
               </p>
-              <form className="space-y-2" onSubmit={(e) => { e.preventDefault(); alert('Subscribed to corporate logistics insights!'); }}>
-                <input 
-                  type="email" 
-                  placeholder="corp@address.com" 
-                  className="w-full px-3 py-2 text-xs border rounded bg-slate-900/50 border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
-                  required
-                />
-                <button 
-                  type="submit" 
-                  className="w-full px-4 py-2 text-xs font-bold text-[#09121F] bg-white hover:bg-slate-100 rounded transition-colors shadow-sm"
-                >
-                  Join Insights List
-                </button>
-              </form>
+              {newsletterSubscribed ? (
+                <div className="flex items-center gap-2 p-3 bg-slate-900/80 border border-green-800 text-green-400 text-xs rounded font-medium animate-fade-in">
+                  <Check size={16} /> Subscribed to insights!
+                </div>
+              ) : (
+                <form className="space-y-2" onSubmit={handleNewsletterSubmit}>
+                  <input 
+                    type="email" 
+                    placeholder="corp@address.com" 
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                    className="w-full px-3 py-2 text-xs border rounded bg-slate-900/50 border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                    required
+                  />
+                  <button 
+                    type="submit" 
+                    disabled={newsletterSubmitting}
+                    className="w-full px-4 py-2 text-xs font-bold text-[#09121F] bg-white hover:bg-slate-100 rounded transition-colors shadow-sm disabled:opacity-50"
+                  >
+                    {newsletterSubmitting ? 'Subscribing...' : 'Join Insights List'}
+                  </button>
+                </form>
+              )}
             </div>
-
+ 
           </div>
-
+ 
           {/* Bottom Footer Section */}
           <div className="pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs">
             <div className="text-slate-400">
               &copy; {new Date().getFullYear()} CargoGo Technologies Inc. All rights reserved. &bull; Registered DOT No. 3940822
             </div>
             <div className="flex gap-6 text-slate-400">
-              <span className="hover:text-white cursor-pointer">Security SLA</span>
-              <span className="hover:text-white cursor-pointer">Platform Status</span>
-              <span className="hover:text-white cursor-pointer">Sitemap</span>
+              <button type="button" onClick={() => setSlaOpen(true)} className="hover:text-white transition-colors bg-transparent border-0 p-0 cursor-pointer">Security SLA</button>
+              <button type="button" onClick={() => setStatusOpen(true)} className="hover:text-white transition-colors bg-transparent border-0 p-0 cursor-pointer">Platform Status</button>
             </div>
           </div>
         </div>
       </footer>
+
+      {/* API Explorer Modal */}
+      {apiDocsOpen && <ApiDocsModal onClose={() => setApiDocsOpen(false)} />}
+
+      {/* Platform Status Modal */}
+      {statusOpen && <StatusModal onClose={() => setStatusOpen(false)} />}
+
+      {/* Security SLA Modal */}
+      {slaOpen && <SlaModal onClose={() => setSlaOpen(false)} />}
     </div>
   );
 }
