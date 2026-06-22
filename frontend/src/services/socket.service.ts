@@ -3,6 +3,7 @@ import { SOCKET_URL } from '../utils/constants';
 
 class SocketService {
   private socket: Socket | null = null;
+  private listeners: { event: string; callback: (data: any) => void }[] = [];
 
   connect(token: string) {
     if (this.socket?.connected) return;
@@ -11,6 +12,11 @@ class SocketService {
       auth: { token },
       autoConnect: true,
       reconnection: true,
+    });
+
+    // Bind all registered listeners to the new socket instance
+    this.listeners.forEach(({ event, callback }) => {
+      this.socket?.on(event, callback);
     });
 
     this.socket.on('connect', () => {
@@ -42,16 +48,23 @@ class SocketService {
   }
 
   on(event: string, callback: (data: any) => void) {
+    // Save listener so it can be re-bound if socket reconnects/initializes later
+    this.listeners.push({ event, callback });
     if (this.socket) {
       this.socket.on(event, callback);
-    } else {
-      console.warn(`Socket not initialized yet. Callback for ${event} might not trigger.`);
     }
   }
 
   off(event: string, callback?: (data: any) => void) {
+    this.listeners = this.listeners.filter(
+      (l) => !(l.event === event && (!callback || l.callback === callback))
+    );
     if (this.socket) {
-      this.socket.off(event, callback);
+      if (callback) {
+        this.socket.off(event, callback);
+      } else {
+        this.socket.off(event);
+      }
     }
   }
 
