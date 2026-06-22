@@ -7,7 +7,7 @@ import { useSocket } from '@/hooks/useSocket';
 import { driverService } from '@/services/driver.service';
 import { VrpRouteResponse } from '@/types/driver.types';
 import { toast } from 'react-hot-toast';
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -26,6 +26,28 @@ const driverIcon = new L.Icon({
   popupAnchor: [1, -34],
   shadowSize: [41, 41]
 });
+
+function RecenterButton({ coords }: { coords: [number, number] | null }) {
+  const map = useMap();
+  const handleClick = () => {
+    if (coords) {
+      map.setView(coords, map.getZoom(), { animate: true });
+    }
+  };
+  return (
+    <div className="leaflet-top leaflet-right" style={{ zIndex: 1000, margin: '10px' }}>
+      <button 
+        onClick={handleClick}
+        disabled={!coords}
+        className="flex items-center justify-center bg-white hover:bg-slate-50 border shadow-md rounded-md p-1.5 transition disabled:opacity-50"
+        title="Focus current location"
+        style={{ width: '34px', height: '34px', borderColor: 'rgba(0,0,0,0.2)', cursor: 'pointer' }}
+      >
+        <span style={{ fontSize: '18px' }}>🎯</span>
+      </button>
+    </div>
+  );
+}
 
 function DriverDashboard() {
   const { token } = useAuth();
@@ -465,6 +487,7 @@ function DriverDashboard() {
                       ]} 
                       color="indigo" 
                     />
+                    {driverCoords && <RecenterButton coords={driverCoords} />}
                   </MapContainer>
                 </div>
               </div>
