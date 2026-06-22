@@ -3,6 +3,7 @@ import { calculatePrice } from "@/services/pricing.service";
 import { generateOTP } from "@/services/otp.service";
 import { VEHICLE_RATES } from "@/services/pricing.service";
 import { AppError } from "@/utils/AppError";
+
 interface createBookingInput {
     shipperId: string,
     pickupLat: number,
@@ -18,6 +19,19 @@ interface createBookingInput {
     heightCm: number,
     vehicleType: 'TWO_WHEELER' | 'THREE_WHEELER' | 'MINI_TEMPO' | 'PICKUP_TRUCK' | 'CONTAINER_3TON' | 'HEAVY_DUTY_TRUCK';
 }
+
+export async function getBookingOrThrow(bookingId: string) {
+    const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
+    if (!booking) throw new AppError('Booking not found', 404);
+    return booking;
+}
+
+function assertDriverOwnership(booking: { driverId: string | null }, driverId: string) {
+    if (booking.driverId !== driverId) {
+        throw new AppError('Unauthorized: You are not the assigned driver for this booking.', 403);
+    }
+}
+
 export const createBooking = async (input: createBookingInput) => {
     const pricing = calculatePrice({
         pickupLat: input.pickupLat,
@@ -54,116 +68,65 @@ export const createBooking = async (input: createBookingInput) => {
     });
     return { booking, pricing };
 }
+
 export const getBookingById = async (bookingId: string) => {
     return prisma.booking.findUnique({
         where: { id: bookingId },
         include: {
-            shipper: {
-                select: {
-                    id: true,
-                    name: true,
-                    email: true
-                }
-            },
-            driver: {
-                select: {
-                    id: true,
-                    name: true,
-                    email: true
-                }
-            },
+            shipper: { select: { id: true, name: true, email: true } },
+            driver:  { select: { id: true, name: true, email: true } },
             review: true
         }
     });
 };
+
 export const getShipperBookings = async (shipperId: string) => {
-    return prisma.booking.findMany({
-        where: { shipperId },
-        orderBy: {
-            createdAt: 'desc'
-        }
-    });
+    return prisma.booking.findMany({ where: { shipperId }, orderBy: { createdAt: 'desc' } });
 };
+
 export const verifyPickupOTP = async (bookingId: string, otp: string, driverId: string) => {
-    const booking = await prisma.booking.findUnique({
-        where: { id: bookingId },
-    });
-    if (!booking) throw new AppError('Booking not found', 404);
-    if (booking.driverId !== driverId) throw new AppError('Unauthorized: You are not the assigned driver for this booking.', 403);
+    const booking = await getBookingOrThrow(bookingId);
+    assertDriverOwnership(booking, driverId);
     if (booking.status !== 'ACCEPTED') throw new AppError('Booking has not been accepted by a driver yet.', 400);
     if (booking.pickupOTP !== otp) throw new AppError('Wrong OTP', 400);
-    const updatedDeliveryStatus = await prisma.booking.update({
+    return prisma.booking.update({
         where: { id: bookingId },
         data: { status: 'IN_TRANSIT', pickupVerified: true }
     });
-    return updatedDeliveryStatus;
 };
+
 export const verifyDropOffOTP = async (bookingId: string, otp: string, driverId: string) => {
-    const booking = await prisma.booking.findUnique({
-        where: { id: bookingId }
-    });
-    if (!booking) throw new AppError('Booking not found', 404);
-    if (booking.driverId !== driverId) throw new AppError('Unauthorized: You are not the assigned driver for this booking.', 403);
+    const booking = await getBookingOrThrow(bookingId);
+    assertDriverOwnership(booking, driverId);
     if (booking.status !== 'IN_TRANSIT') throw new AppError('Booking not in transit', 400);
     if (booking.dropoffOTP !== otp) throw new AppError('Wrong OTP', 400);
-    const updatedDeliveryStatus = await prisma.booking.update({
+    return prisma.booking.update({
         where: { id: bookingId },
-        data: {
-            status: 'DELIVERED',
-            dropoffVerified: true
-        }
+        data: { status: 'DELIVERED', dropoffVerified: true }
     });
-    return updatedDeliveryStatus;
 };
 
 export const getDriverBookings = async (driverId: string) => {
-    return prisma.booking.findMany({
-        where: { driverId },
-        orderBy: {
-            createdAt: 'desc'
-        }
-    });
+    return prisma.booking.findMany({ where: { driverId }, orderBy: { createdAt: 'desc' } });
 };
 
 export const getPendingBookings = async () => {
-    return prisma.booking.findMany({
-        where: { status: 'PENDING' },
-        orderBy: {
-            createdAt: 'desc'
-        }
-    });
+    return prisma.booking.findMany({ where: { status: 'PENDING' }, orderBy: { createdAt: 'desc' } });
 };
 
-export const completeBooking = async (
-    bookingId: string,
-    driverId: string,
-) => {
-    const booking = await prisma.booking.findUnique({
-        where: { id: bookingId }
-    });
-    if (!booking || booking.driverId !== driverId) throw new Error('Unauthorized');
-if (booking.status === 'DISPUTED') throw new Error('Cannot complete disputed booking');
-
-    await prisma.booking.update({
-        where: { id: bookingId },
-        data: {
-            status: 'COMPLETED'
-        }
-    });
+export const completeBooking = async (bookingId: string, driverId: string) => {
+    const booking = await getBookingOrThrow(bookingId);
+    assertDriverOwnership(booking, driverId);
+    if (booking.status === 'DISPUTED') throw new AppError('Cannot complete a disputed booking', 400);
+    await prisma.booking.update({ where: { id: bookingId }, data: { status: 'COMPLETED' } });
 };
 
 export const getInvoice = async (bookingId: string) => {
-    const booking = await prisma.booking.findUnique({
-        where: { id: bookingId }
-    });
-    if (!booking) throw new Error('Booking not found');
-
+    const booking = await getBookingOrThrow(bookingId);
     const rates = VEHICLE_RATES[booking.vehicleType];
     const chargeableWeight = Math.max(booking.weightKg, booking.volumetricWeight);
-
     const distanceCost = rates.pricePerKm * booking.distanceKm;
     const weightCost = rates.costPerUnit * chargeableWeight;
-
     return {
         bookingId: booking.id,
         vehicleType: booking.vehicleType,
@@ -179,18 +142,13 @@ export const getInvoice = async (bookingId: string) => {
         totalPrice: booking.price
     };
 };
+
 export const cancelBooking = async (bookingId: string, userId: string) => {
-    const booking = await prisma.booking.findUnique({
-        where: { id: bookingId }
-    });
-    if (!booking) throw new Error('Booking not found');
-    if (booking.shipperId !== userId) throw new Error('Unauthorized');
-
+    const booking = await getBookingOrThrow(bookingId);
+    if (booking.shipperId !== userId) throw new AppError('Unauthorized', 403);
     const allowedStatuses = ['PENDING', 'ACCEPTED'];
-
-    if (!allowedStatuses.includes(booking.status)) throw new Error('Cannot cancel booking once it is in transit or completed');
-    return prisma.booking.update({
-        where: { id: bookingId },
-        data: { status: 'CANCELLED' }
-    });
+    if (!allowedStatuses.includes(booking.status)) {
+        throw new AppError('Cannot cancel booking once it is in transit or completed', 400);
+    }
+    return prisma.booking.update({ where: { id: bookingId }, data: { status: 'CANCELLED' } });
 };
