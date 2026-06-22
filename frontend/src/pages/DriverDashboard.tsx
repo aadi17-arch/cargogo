@@ -46,7 +46,7 @@ function DriverDashboard() {
   const [countdown, setCountdown] = useState(30);
   const [earnings, setEarnings] = useState(0);
   const [pendingBookings, setPendingBookings] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'my_jobs' | 'jobs_board'>('my_jobs');
+  const [activeTab, setActiveTab] = useState<'my_jobs' | 'jobs_board' | 'past_jobs'>('my_jobs');
   const [routeData, setRouteData] = useState<VrpRouteResponse | null>(null);
   const [loadingRoute, setLoadingRoute] = useState(false);
   const [driverCoords, setDriverCoords] = useState<[number, number] | null>(null);
@@ -320,7 +320,7 @@ function DriverDashboard() {
             fontFamily: 'var(--font-heading)'
           }}
         >
-          My Deliveries
+          My Deliveries ({bookings.filter((b: any) => !['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status)).length})
         </button>
         <button
           onClick={() => {
@@ -336,15 +336,26 @@ function DriverDashboard() {
         >
           Available Deliveries ({pendingBookings.length})
         </button>
+        <button
+          onClick={() => setActiveTab('past_jobs')}
+          className="py-2.5 px-4 sm:py-3 sm:px-6 text-sm sm:text-base font-bold border-b-2 transition-all hover:text-[var(--color-text-main)]"
+          style={{
+            borderColor: activeTab === 'past_jobs' ? 'var(--color-primary)' : 'transparent',
+            color: activeTab === 'past_jobs' ? 'var(--color-primary)' : 'var(--color-text-muted)',
+            fontFamily: 'var(--font-heading)'
+          }}
+        >
+          Past Deliveries ({bookings.filter((b: any) => ['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status)).length})
+        </button>
       </div>
 
-      {activeTab === 'my_jobs' && bookings.length === 0 && (
+      {activeTab === 'my_jobs' && bookings.filter((b: any) => !['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status)).length === 0 && (
         <div className="p-6 text-center font-medium" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>
           No active shipments. Go online to receive orders!
         </div>
       )}
 
-      {activeTab === 'my_jobs' && bookings.length > 0 && (
+      {activeTab === 'my_jobs' && bookings.filter((b: any) => !['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status)).length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
           {/* Left Column: Unified Delivery Timeline (order-2 on mobile) */}
           <div className="lg:col-span-5 space-y-6 w-full order-2 lg:order-1">
@@ -473,7 +484,7 @@ function DriverDashboard() {
                 <div className="space-y-4">
                   <p className="text-xs text-center py-4" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>No active route sequence stops found. Showing raw accepted bookings list below:</p>
                   <div className="divide-y divide-[var(--color-border)]">
-                    {bookings.map((b: any) => (
+                    {bookings.filter((b: any) => !['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status)).map((b: any) => (
                       <div key={b.id} className="py-3 flex justify-between items-center">
                         <div>
                           <p className="text-sm font-semibold text-[var(--color-text-main)]">{b.cargoType}</p>
@@ -484,7 +495,7 @@ function DriverDashboard() {
                           className="text-white px-3 py-1 text-xs font-bold hover:opacity-90 transition"
                           style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)' }}
                         >
-                          Track
+                          {['DELIVERED', 'COMPLETED'].includes(b.status) ? 'Details' : 'Track'}
                         </button>
                       </div>
                     ))}
@@ -602,7 +613,46 @@ function DriverDashboard() {
         </div>
       )}
 
-      {!bid && isOnline && activeTab === 'my_jobs' && (
+      {activeTab === 'past_jobs' && (
+        <div className="p-6 shadow-none space-y-4" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
+          <div className="flex justify-between items-center">
+            <h3 className="text-xl font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Past Deliveries</h3>
+          </div>
+          {bookings.filter((b: any) => ['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status)).length > 0 ? (
+            <div className="divide-y divide-[var(--color-border)]">
+              {bookings.filter((b: any) => ['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status)).map((b: any) => (
+                <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div className="space-y-1">
+                    <p className="font-semibold text-[var(--color-text-main)]" style={{ fontFamily: 'var(--font-heading)' }}>{b.cargoType}</p>
+                    <p className="text-xs font-medium text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>
+                      Payout: <span className="text-[var(--color-primary)] font-semibold">₹{b.price}</span> | Status: <span className="font-bold tracking-wide uppercase" style={{
+                        color: b.status === 'CANCELLED' ? 'var(--color-status-cancelled)' : 'var(--color-status-completed)'
+                      }}>{b.status}</span>
+                    </p>
+                    {b.pickupAddress && b.dropoffAddress && (
+                      <p className="text-[11px] text-[var(--color-text-muted)] mt-1" style={{ fontFamily: 'var(--font-body)' }}>
+                        <strong>Route:</strong> {b.pickupAddress} → {b.dropoffAddress}
+                      </p>
+                    )}
+                    <p className="text-[10px] text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-mono)' }}>Date: {new Date(b.createdAt).toLocaleString()}</p>
+                  </div>
+                  <button
+                    onClick={() => navigate(`/track/${b.id}`)}
+                    className="text-white px-4 py-2 text-xs font-bold hover:opacity-90 transition shrink-0"
+                    style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
+                  >
+                    Details
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center py-4" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>No past deliveries found.</p>
+          )}
+        </div>
+      )}
+
+      {!bid && isOnline && activeTab === 'my_jobs' && bookings.filter((b: any) => !['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status)).length === 0 && (
         <div className="p-6 text-center font-medium" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>
           Waiting for deliveries...
         </div>
