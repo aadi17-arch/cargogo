@@ -6,6 +6,17 @@ import { useDriverStatus } from '@/hooks/useDriverStatus';
 import { useSocket } from '@/hooks/useSocket';
 import { driverService } from '@/services/driver.service';
 import { VrpRouteResponse } from '@/types/driver.types';
+import { toast } from 'react-hot-toast';
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 function DriverDashboard() {
   const { token } = useAuth();
@@ -20,6 +31,7 @@ function DriverDashboard() {
   const [activeTab, setActiveTab] = useState<'my_jobs' | 'jobs_board'>('my_jobs');
   const [routeData, setRouteData] = useState<VrpRouteResponse | null>(null);
   const [loadingRoute, setLoadingRoute] = useState(false);
+  const [driverCoords, setDriverCoords] = useState<[number, number] | null>(null);
   const navigate = useNavigate();
 
   const loadData = async () => {
@@ -40,17 +52,20 @@ function DriverDashboard() {
         navigator.geolocation.getCurrentPosition(
           async (position) => {
             const { latitude, longitude } = position.coords;
+            setDriverCoords([latitude, longitude]);
             const data = await driverService.getOptimizedRoute(latitude, longitude);
             setRouteData(data);
             setLoadingRoute(false);
           },
           async () => {
+            setDriverCoords([19.0760, 72.8777]); // fallback to Mumbai coords
             const data = await driverService.getOptimizedRoute();
             setRouteData(data);
             setLoadingRoute(false);
           }
         );
       } else {
+        setDriverCoords([19.0760, 72.8777]); // fallback to Mumbai coords
         const data = await driverService.getOptimizedRoute();
         setRouteData(data);
         setLoadingRoute(false);
@@ -72,7 +87,7 @@ function DriverDashboard() {
     });
 
     const offBidAccepted = on('bid-accepted', () => {
-      alert('Bid accepted! Go to pickup.');
+      toast.success('Bid accepted! Go to pickup.');
       setBid(null);
       loadData();
     });
@@ -109,7 +124,7 @@ function DriverDashboard() {
           await updateStatus('ONLINE', latitude,longitude);
         },
           (e) => {
-            alert('Loaction access is granted is required to go online.' + e.message);
+            toast.error('Location access is required to go online: ' + e.message);
           }
         )
       }
@@ -117,7 +132,7 @@ function DriverDashboard() {
         await updateStatus('OFFLINE', 0, 0);
       }
     } catch (err: any) {
-      alert(err.message || 'Failed to update status');
+      toast.error(err.message || 'Failed to update status');
     }
   };
 
@@ -126,7 +141,7 @@ function DriverDashboard() {
       socketAcceptBid(bid.bookingId);
       setBid(null);
     } catch (err: any) {
-      alert('Error accepting bid: ' + err.message);
+      toast.error('Error accepting bid: ' + err.message);
     }
   };
 
@@ -135,7 +150,7 @@ function DriverDashboard() {
       socketRejectBid(bid.bookingId);
       setBid(null);
     } catch (err: any) {
-      alert('Error rejecting bid: ' + err.message);
+      toast.error('Error rejecting bid: ' + err.message);
     }
   };
 
@@ -149,7 +164,7 @@ function DriverDashboard() {
       const updated = await fetchPendingBookings();
       setPendingBookings(updated || []);
     } catch (err: any) {
-      alert(err.message || 'Failed to accept shipment');
+      toast.error(err.message || 'Failed to accept shipment');
     }
   };
 
@@ -310,6 +325,37 @@ function DriverDashboard() {
                   <p className="text-xs text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>
                     Total Distance: <span className="font-bold text-[var(--color-text-main)]">{routeData.totalDistanceKm} km</span> | Max Weight: {routeData.vehicleCapacityKg} kg
                   </p>
+
+                  {/* VRP Multi-Stop Optimized Route Map */}
+                  <div className="h-72 overflow-hidden shadow-none mb-6" style={{ border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
+                    <MapContainer 
+                      center={driverCoords || [routeData.route[0].location.lat, routeData.route[0].location.lng]} 
+                      zoom={11} 
+                      style={{ height: '100%', width: '100%', zIndex: 1 }}
+                    >
+                      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                      {driverCoords && (
+                        <Marker position={driverCoords}>
+                          <Popup>Your Location (Driver)</Popup>
+                        </Marker>
+                      )}
+                      {routeData.route.map((stop: any, idx: number) => (
+                        <Marker key={idx} position={[stop.location.lat, stop.location.lng]}>
+                          <Popup>
+                            <strong>Stop {idx + 1}</strong>: {stop.type === 'PICKUP' ? 'Pickup' : 'Dropoff'} ({stop.cargoType})
+                          </Popup>
+                        </Marker>
+                      ))}
+                      <Polyline 
+                        positions={[
+                          ...(driverCoords ? [driverCoords] : []),
+                          ...routeData.route.map((stop: any) => [stop.location.lat, stop.location.lng] as [number, number])
+                        ]} 
+                        color="indigo" 
+                      />
+                    </MapContainer>
+                  </div>
+
                   <div className="relative border-l ml-3 pl-6 space-y-4" style={{ borderColor: 'var(--color-border)' }}>
                     {routeData.route.map((stop: any, index: number) => (
                       <div key={index} className="relative">
