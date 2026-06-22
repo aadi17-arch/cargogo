@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
@@ -10,6 +10,7 @@ import { toast } from 'react-hot-toast';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { LocateFixed } from 'lucide-react';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -50,7 +51,66 @@ function DriverDashboard() {
   const [loadingRoute, setLoadingRoute] = useState(false);
   const [driverCoords, setDriverCoords] = useState<[number, number] | null>(null);
   const [map, setMap] = useState<L.Map | null>(null);
+  const [addressCache, setAddressCache] = useState<{ [key: string]: string }>({});
+  const [driverLocationName, setDriverLocationName] = useState<string>('Detecting...');
+  const lastGeocodedCoords = useRef<[number, number] | null>(null);
   const navigate = useNavigate();
+
+  const resolveDriverAddress = async (lat: number, lng: number) => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&email=cargogo-dev@example.com`);
+      const data = await res.json();
+      if (data && data.address) {
+        const addr = data.address;
+        const name = addr.road || addr.suburb || addr.neighbourhood || addr.city || addr.town || 'Mumbai';
+        setDriverLocationName(name);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const resolveAddresses = async (stops: any[]) => {
+    const newAddresses: { [key: string]: string } = { ...addressCache };
+    let updated = false;
+    for (const stop of stops) {
+      const key = `${stop.location.lat.toFixed(4)},${stop.location.lng.toFixed(4)}`;
+      if (!newAddresses[key]) {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${stop.location.lat}&lon=${stop.location.lng}&email=cargogo-dev@example.com`);
+          const data = await res.json();
+          if (data && data.address) {
+            const addr = data.address;
+            const name = addr.road || addr.suburb || addr.neighbourhood || addr.city || addr.town || 'Unknown Location';
+            newAddresses[key] = name;
+            updated = true;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+    if (updated) {
+      setAddressCache(newAddresses);
+    }
+  };
+
+  useEffect(() => {
+    if (!driverCoords) return;
+    const [lat, lng] = driverCoords;
+    if (!lastGeocodedCoords.current || 
+        Math.abs(lastGeocodedCoords.current[0] - lat) > 0.001 || 
+        Math.abs(lastGeocodedCoords.current[1] - lng) > 0.001) {
+      lastGeocodedCoords.current = [lat, lng];
+      resolveDriverAddress(lat, lng);
+    }
+  }, [driverCoords]);
+
+  useEffect(() => {
+    if (routeData && routeData.route) {
+      resolveAddresses(routeData.route);
+    }
+  }, [routeData]);
 
   const loadData = async () => {
     await fetchMyBookings();
@@ -212,7 +272,8 @@ function DriverDashboard() {
       <div className="p-4 sm:p-6 shadow-none flex justify-between items-center" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
         <div>
           <p className="text-base sm:text-lg font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}>Status: <span className="font-bold" style={{ color: isOnline ? 'var(--color-status-completed)' : 'var(--color-status-cancelled)' }}>{isOnline ? 'Online' : 'Offline'}</span></p>
-          <p className="text-xs sm:text-sm font-medium mt-1" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>Earnings: <span className="font-semibold" style={{ color: 'var(--color-status-completed)' }}>₹{earnings}</span></p>
+          <p className="text-xs sm:text-sm font-medium mt-1" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>Location: <span className="font-semibold text-[var(--color-text-main)]">{driverLocationName}</span></p>
+          <p className="text-xs sm:text-sm font-medium mt-0.5" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>Earnings: <span className="font-semibold" style={{ color: 'var(--color-status-completed)' }}>₹{earnings}</span></p>
         </div>
         <button 
           onClick={toggleOnline} 
@@ -353,7 +414,7 @@ function DriverDashboard() {
                                   {stop.type === 'PICKUP' ? 'Pick' : 'Drop'}
                                 </span>
                                 <span className="text-xs font-bold text-[var(--color-text-main)] truncate" style={{ fontFamily: 'var(--font-heading)' }}>
-                                  {stop.cargoType}
+                                  {stop.cargoType} {addressCache[`${stop.location.lat.toFixed(4)},${stop.location.lng.toFixed(4)}`] ? `(${addressCache[`${stop.location.lat.toFixed(4)},${stop.location.lng.toFixed(4)}`]})` : ''}
                                 </span>
                               </div>
 
@@ -482,11 +543,11 @@ function DriverDashboard() {
                       onClick={() => {
                         map.setView(driverCoords, map.getZoom(), { animate: true });
                       }}
-                      className="absolute top-3 right-3 z-[1000] flex items-center justify-center bg-white hover:bg-slate-50 border shadow-md rounded-md p-1.5 transition"
+                      className="absolute top-3 right-3 z-[1000] flex items-center justify-center bg-white hover:bg-slate-50 border shadow-md rounded-md p-2 transition"
                       title="Focus current location"
                       style={{ width: '34px', height: '34px', borderColor: 'rgba(0,0,0,0.2)', cursor: 'pointer' }}
                     >
-                      <span style={{ fontSize: '18px' }}>🎯</span>
+                      <LocateFixed size={16} className="text-slate-700" />
                     </button>
                   )}
                 </div>
