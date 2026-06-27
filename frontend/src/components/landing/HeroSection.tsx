@@ -19,10 +19,10 @@ export default function HeroSection() {
             Get instant pricing, live tracking, and secure deliveries. No phone calls required—just fast, direct cargo booking for your business.
           </p>
           <div className="flex flex-wrap gap-4 pt-2">
-            <button onClick={() => navigate(dest)} className="bg-white text-[var(--color-primary)] hover:bg-slate-100 px-8 py-3.5 rounded-[var(--radius-button)] font-bold transition-all shadow-lg hover:scale-[1.02] active:scale-[0.98]" style={{ fontFamily: 'var(--font-heading)', fontSize: '15px' }}>
+            <button onClick={() => navigate(dest)} className="demo-btn-primary-light">
               {isAuthenticated ? 'Go to Dashboard' : 'Start Shipping'}
             </button>
-            <a href="#calculator" className="px-8 py-3.5 rounded-[var(--radius-button)] font-bold transition-all border border-white text-white bg-transparent hover:bg-white/10 text-center" style={{ fontFamily: 'var(--font-heading)', fontSize: '15px' }}>
+            <a href="#calculator" className="demo-btn-secondary">
               Calculate Quote
             </a>
           </div>

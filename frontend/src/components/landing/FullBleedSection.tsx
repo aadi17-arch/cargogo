@@ -32,7 +32,7 @@ function FullBleedSection({ align, tag, tagColor, title, description, cta, bgIma
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-white" style={{ fontFamily: 'var(--font-heading)' }}>{title}</h2>
           <p className="text-base sm:text-lg leading-relaxed text-slate-300">{description}</p>
           <div className="pt-2">
-            <button onClick={() => navigate(dest)} className="bg-white text-[var(--color-primary)] px-8 py-3.5 rounded-[var(--radius-button)] font-bold transition-all hover:bg-slate-100 shadow-lg inline-block text-sm" style={{ fontFamily: 'var(--font-heading)' }}>
+            <button onClick={() => navigate(dest)} className="demo-btn-primary-light">
               {isAuthenticated ? 'Go to Dashboard' : cta}
             </button>
           </div>

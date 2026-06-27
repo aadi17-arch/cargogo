@@ -18,7 +18,7 @@ export default function TrackSection() {
             className="w-full md:w-auto flex flex-col sm:flex-row gap-3 flex-1 max-w-lg"
           >
             <input type="text" placeholder="Enter Booking ID (e.g. 550e8400...)" value={trackingId} onChange={(e) => setTrackingId(e.target.value)} className="input-field flex-1 px-4 py-3 bg-[var(--color-background)]" required />
-            <button type="submit" className="text-white px-8 py-3 rounded-[var(--radius-button)] font-bold transition-all hover:bg-[var(--color-primary-hover)] shrink-0" style={{ backgroundColor: 'var(--color-primary)', fontFamily: 'var(--font-heading)', fontSize: '14px' }}>
+            <button type="submit" className="demo-btn-primary shrink-0">
               Track Shipment
             </button>
           </form>

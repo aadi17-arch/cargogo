@@ -81,7 +81,7 @@ export default function PricingSection() {
                 </select>
               </div>
             </div>
-            <button type="submit" className="w-full text-white py-3.5 rounded-[var(--radius-button)] font-bold transition-all hover:bg-[var(--color-primary-hover)] text-sm shadow-md mt-6" style={{ backgroundColor: 'var(--color-primary)', fontFamily: 'var(--font-heading)' }}>
+            <button type="submit" className="demo-btn-primary w-full py-3.5 mt-6">
               Calculate Estimate Price
             </button>
           </form>
@@ -122,7 +122,7 @@ export default function PricingSection() {
                       <span className="text-sm font-bold text-[var(--color-text-main)]">Estimated Total:</span>
                       <span className="text-3xl font-extrabold text-[var(--color-text-main)]">₹{quote.estimated}</span>
                     </div>
-                    <button type="button" onClick={() => navigate(dest)} className="w-full text-white py-3.5 rounded-[var(--radius-button)] font-bold transition-all hover:bg-[var(--color-primary-hover)] text-sm shadow-md" style={{ backgroundColor: 'var(--color-primary)', fontFamily: 'var(--font-heading)' }}>
+                    <button type="button" onClick={() => navigate(dest)} className="demo-btn-primary w-full py-3.5">
                       {isAuthenticated ? (user?.role === 'DRIVER' ? 'Go to Dashboard' : 'Proceed to Book Delivery') : 'Proceed to Book Delivery'}
                     </button>
                   </div>
