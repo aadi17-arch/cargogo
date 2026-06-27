@@ -224,15 +224,16 @@ export default function Navbar({
   };
 
   const logoutButtonStyle = (isHovered: boolean): React.CSSProperties => ({
-    fontFamily: 'var(--font-heading)',
+    fontFamily: 'var(--font-body)',
     fontSize: '12px',
-    fontWeight: 'bold',
-    color: isHovered ? 'var(--color-primary)' : '#FFFFFF',
-    backgroundColor: isHovered ? '#FFFFFF' : 'transparent',
-    border: `var(--border-width) solid #FFFFFF`,
-    borderRadius: 'var(--radius-card)',
-    padding: '6px 14px',
+    fontWeight: 600,
+    color: isHovered ? '#1D0A14' : '#FFFFFF',
+    backgroundColor: isHovered ? '#FAF8F6' : 'transparent',
+    border: '1.5px solid #FFFFFF',
+    borderRadius: '999px',
+    padding: '6px 16px',
     cursor: 'pointer',
+    transform: isHovered ? 'translateY(-1px)' : 'none',
     transition: 'all 0.15s ease-in-out',
   });
 
@@ -378,9 +379,9 @@ export default function Navbar({
                 <button
                   onClick={() => navigate('/login')}
                   style={{
-                    fontFamily: 'var(--font-heading)',
+                    fontFamily: 'var(--font-body)',
                     fontSize: '13px',
-                    fontWeight: 'bold',
+                    fontWeight: 600,
                     color: '#FFFFFF',
                     backgroundColor: 'transparent',
                     border: 'none',
@@ -395,24 +396,24 @@ export default function Navbar({
                 <button
                   onClick={() => navigate('/register')}
                   style={{
-                    fontFamily: 'var(--font-heading)',
+                    fontFamily: 'var(--font-body)',
                     fontSize: '13px',
-                    fontWeight: 'bold',
-                    color: 'var(--color-primary)',
-                    backgroundColor: '#FFFFFF',
-                    border: '1px solid #FFFFFF',
-                    borderRadius: 'var(--radius-card)',
-                    padding: '6px 14px',
+                    fontWeight: 600,
+                    color: '#1D0A14',
+                    backgroundColor: '#FAF8F6',
+                    border: '1px solid transparent',
+                    borderRadius: '999px',
+                    padding: '8px 18px',
                     cursor: 'pointer',
                     transition: 'all 0.15s ease-in-out',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = '#FFFFFF';
+                    e.currentTarget.style.backgroundColor = '#ffffff';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#FFFFFF';
-                    e.currentTarget.style.color = 'var(--color-primary)';
+                    e.currentTarget.style.backgroundColor = '#FAF8F6';
+                    e.currentTarget.style.transform = 'none';
                   }}
                 >
                   Register
@@ -510,13 +511,13 @@ export default function Navbar({
                 <button
                   onClick={handleLogout}
                   style={{
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: "var(--font-body)",
                     fontSize: '12px',
-                    fontWeight: 'bold',
-                    color: COLORS.espresso,
-                    backgroundColor: COLORS.amber,
+                    fontWeight: 600,
+                    color: '#1D0A14',
+                    backgroundColor: '#FAF8F6',
                     border: 'none',
-                    borderRadius: '6px',
+                    borderRadius: '999px',
                     padding: '8px 16px',
                     cursor: 'pointer',
                   }}
@@ -535,11 +536,11 @@ export default function Navbar({
                     flex: 1,
                     fontFamily: 'var(--font-body)',
                     fontSize: '12px',
-                    fontWeight: 'bold',
+                    fontWeight: 600,
                     color: '#FFFFFF',
                     backgroundColor: 'transparent',
                     border: '1px solid rgba(255,255,255,0.3)',
-                    borderRadius: '6px',
+                    borderRadius: '999px',
                     padding: '8px 16px',
                     cursor: 'pointer',
                     textAlign: 'center',
@@ -556,11 +557,11 @@ export default function Navbar({
                     flex: 1,
                     fontFamily: 'var(--font-body)',
                     fontSize: '12px',
-                    fontWeight: 'bold',
-                    color: 'var(--color-primary)',
-                    backgroundColor: '#FFFFFF',
+                    fontWeight: 600,
+                    color: '#1D0A14',
+                    backgroundColor: '#FAF8F6',
                     border: 'none',
-                    borderRadius: '6px',
+                    borderRadius: '999px',
                     padding: '8px 16px',
                     cursor: 'pointer',
                     textAlign: 'center',
