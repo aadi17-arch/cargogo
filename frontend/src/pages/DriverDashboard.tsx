@@ -212,7 +212,7 @@ function DriverDashboard() {
             <div className="flex items-center gap-2">
               <div className={`w-2.5 h-2.5 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
               <span className={`text-sm font-black uppercase ${isOnline ? 'text-emerald-600' : 'text-rose-600'}`}>
-                {isOnline ? 'Online' : 'Offline'}
+                {isOnline ? 'ONLINE' : 'OFFLINE'}
               </span>
             </div>
           </div>
@@ -315,7 +315,7 @@ function DriverDashboard() {
           <EmptyState
             icon={Clock}
             title="No active jobs"
-            description="Set your status to Available to see and accept new delivery requests."
+            description="Set your status to Online to see and accept new delivery requests."
             action={
               <button 
                 onClick={() => { setActiveTab('jobs_board'); loadData(); }} 
