@@ -3,13 +3,20 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotification } from '@/hooks/useNotification';
 import AuthFormField from '@/components/ui/AuthFormField';
+import BaseModal from '@/components/ui/BaseModal';
+import PrimaryButton from '@/components/ui/PrimaryButton';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const { login, clearError, isAuthenticated, user } = useAuth();
+  
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+
   const navigate = useNavigate();
   const notify = useNotification();
 
@@ -17,16 +24,39 @@ function LoginPage() {
     if (isAuthenticated && user) navigate(user.role === 'SHIPPER' ? '/shipper' : '/driver');
   }, [isAuthenticated, user, navigate]);
 
+  // Real-time inline email validator
+  const handleEmailChange = (val: string) => {
+    setEmail(val);
+    if (!val) {
+      setErrors(prev => ({ ...prev, email: 'Email is required' }));
+    } else if (!/\S+@\S+\.\S+/.test(val)) {
+      setErrors(prev => ({ ...prev, email: 'Please enter a valid email address' }));
+    } else {
+      setErrors(prev => ({ ...prev, email: undefined }));
+    }
+  };
+
+  const handlePasswordChange = (val: string) => {
+    setPassword(val);
+    if (!val) {
+      setErrors(prev => ({ ...prev, password: 'Password is required' }));
+    } else {
+      setErrors(prev => ({ ...prev, password: undefined }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors({});
     clearError();
 
-    const tempErrors: typeof errors = {};
-    if (!email) tempErrors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(email)) tempErrors.email = 'Please enter a valid email address';
-    if (!password) tempErrors.password = 'Password is required';
-    if (Object.keys(tempErrors).length > 0) { setErrors(tempErrors); return; }
+    // Final checks
+    const emailErr = !email ? 'Email is required' : (!/\S+@\S+\.\S+/.test(email) ? 'Please enter a valid email address' : undefined);
+    const passErr = !password ? 'Password is required' : undefined;
+
+    if (emailErr || passErr) {
+      setErrors({ email: emailErr, password: passErr });
+      return;
+    }
 
     const loadToast = notify.loading('Logging in...');
     try {
@@ -38,39 +68,125 @@ function LoginPage() {
     }
   };
 
+  const handleResetPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail || !/\S+@\S+\.\S+/.test(resetEmail)) {
+      notify.error('Please enter a valid email address');
+      return;
+    }
+    setResetLoading(true);
+    // Simulate reset request
+    setTimeout(() => {
+      setResetLoading(false);
+      setShowResetModal(false);
+      notify.success('Password reset link sent to your email!');
+      setResetEmail('');
+    }, 1200);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--color-background)]" style={{ fontFamily: 'var(--font-body)' }}>
-      <form onSubmit={handleSubmit} className="bg-[var(--color-card)] p-8 w-full max-w-sm card">
-        <h2 className="text-2xl font-bold mb-6 text-center" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>
-          Login
-        </h2>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-100 px-4 py-8 font-body">
+      {/* Brand Logo Header */}
+      <div className="flex items-center gap-2 mb-4 cursor-pointer select-none font-tech-space">
+        <span className="font-black text-sm text-white bg-slate-900 px-3 py-1 rounded-[var(--radius-card)] tracking-tight shadow-sm">
+          Cargo
+        </span>
+        <span className="font-bold text-2xl text-slate-800 tracking-tight">
+          Go
+        </span>
+      </div>
+
+      {/* Main Login Card */}
+      <form onSubmit={handleSubmit} className="bg-white p-8 w-full max-w-sm card shadow-sm space-y-5 rounded-[var(--radius-card)]">
+        <div className="text-center space-y-1">
+          <h2 className="text-2xl font-black text-slate-800 tracking-tight font-heading">
+            Welcome Back
+          </h2>
+          <p className="text-xs text-slate-400 font-medium leading-none">
+            Sign in to manage your shipments
+          </p>
+        </div>
 
         <AuthFormField
-          label="Email" type="email" placeholder="Email"
+          label="Email" type="email" placeholder="Email address"
           value={email} error={errors.email}
-          onChange={(v) => { setEmail(v); if (errors.email) setErrors({ ...errors, email: undefined }); }}
+          onChange={handleEmailChange}
         />
 
-        <AuthFormField
-          label="Password" placeholder="Password"
-          value={password} error={errors.password}
-          showToggle showPassword={showPassword}
-          onTogglePassword={() => setShowPassword(!showPassword)}
-          onChange={(v) => { setPassword(v); if (errors.password) setErrors({ ...errors, password: undefined }); }}
-        />
+        <div className="space-y-1">
+          <div className="flex justify-between items-center">
+            <label className="block text-xs font-bold text-slate-500 font-heading">Password</label>
+            <button
+              type="button"
+              onClick={() => setShowResetModal(true)}
+              className="text-[11px] font-bold text-indigo-600 hover:underline bg-transparent border-none outline-none cursor-pointer"
+            >
+              Forgot Password?
+            </button>
+          </div>
+          <AuthFormField
+            label="Password"
+            placeholder="Password"
+            value={password} error={errors.password}
+            showToggle showPassword={showPassword}
+            onTogglePassword={() => setShowPassword(!showPassword)}
+            onChange={handlePasswordChange}
+          />
+        </div>
 
-        <button
+        <PrimaryButton
           type="submit"
-          className="w-full text-white p-3 font-bold transition-all hover:opacity-90"
-          style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)', fontSize: '14px' }}
+          fullWidth
+          className="py-3 text-sm"
         >
-          Login
-        </button>
-        <p className="mt-5 text-center text-sm text-[var(--color-text-muted)]">
+          Sign In
+        </PrimaryButton>
+
+        <p className="text-center text-xs text-slate-400 font-medium">
           Don't have an account?{' '}
-          <Link to="/register" className="font-semibold hover:underline" style={{ color: 'var(--color-primary)' }}>Register here</Link>
+          <Link to="/register" className="font-bold text-slate-800 hover:underline">Register here</Link>
         </p>
       </form>
+
+      {/* Password Reset Modal */}
+      <BaseModal 
+        isOpen={showResetModal} 
+        onClose={() => setShowResetModal(false)} 
+        title="Reset Password"
+        maxWidth="max-w-md"
+      >
+        <form onSubmit={handleResetPasswordSubmit} className="space-y-4">
+          <p className="text-xs text-slate-500 leading-relaxed">
+            Enter your registered email address below, and we'll send you instructions to reset your account password.
+          </p>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold text-slate-500">Email Address</label>
+            <input
+              type="email"
+              placeholder="e.g. user@example.com"
+              value={resetEmail}
+              onChange={(e) => setResetEmail(e.target.value)}
+              className="w-full p-3 bg-white text-slate-800 rounded-lg border border-slate-200 focus:outline-none focus:border-indigo-500 text-sm transition-all"
+              required
+            />
+          </div>
+          <div className="flex gap-2 justify-end pt-2">
+            <PrimaryButton 
+              type="button" 
+              variant="outline" 
+              onClick={() => setShowResetModal(false)}
+            >
+              Cancel
+            </PrimaryButton>
+            <PrimaryButton 
+              type="submit" 
+              isLoading={resetLoading}
+            >
+              Send Reset Link
+            </PrimaryButton>
+          </div>
+        </form>
+      </BaseModal>
     </div>
   );
 }
