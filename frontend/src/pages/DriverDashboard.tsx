@@ -205,14 +205,14 @@ function DriverDashboard() {
 
       {/* Horizontal 3-Column Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-body">
-        {/* Card 1: Service Mode / Status */}
+        {/* Card 1: Status */}
         <div className="p-5 bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col justify-between min-h-[120px]">
           <div className="space-y-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Service Mode</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</span>
             <div className="flex items-center gap-2">
               <div className={`w-2.5 h-2.5 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
               <span className={`text-sm font-black uppercase ${isOnline ? 'text-emerald-600' : 'text-rose-600'}`}>
-                {isOnline ? 'Available' : 'Unavailable'}
+                {isOnline ? 'Online' : 'Offline'}
               </span>
             </div>
           </div>
