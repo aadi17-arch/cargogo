@@ -2,42 +2,23 @@ import prisma from '@/config/database';
 import { findScheduledCandidates } from '@/services/matching.service';
 import { SocketIOServer } from '@/sockets/socket.server';
 
-/**
- * NEW SERVICE: scheduled-jobs.service.ts
- *
- * Manages the "scheduled pool" — the set of SCHEDULED+PENDING bookings
- * that are approaching their pickup window and need driver matching.
- *
- * Called periodically (via a BullMQ repeatable job or cron) and also
- * manually via the /driver/trigger-scheduled-match endpoint.
- *
- * Architecture decision: We intentionally do NOT auto-assign drivers here.
- * Instead we notify candidates and let drivers self-select via the Browse Jobs board.
- * This respects driver autonomy and gives shippers a committed driver, not a coerced one.
- */
-
-// How far in advance to start notifying drivers (24 hours)
+// Match scheduled jobs that start in the next 24 hours
 const MATCHING_WINDOW_HOURS = 24;
 
-/**
- * Core engine: finds SCHEDULED+PENDING bookings within the matching window
- * and emits socket notifications to candidate drivers.
- */
+// Scans the database for upcoming scheduled jobs and alerts suitable drivers
 export const processScheduledPool = async (io: SocketIOServer): Promise<void> => {
     const now = new Date();
     const windowEnd = new Date(now.getTime() + MATCHING_WINDOW_HOURS * 60 * 60 * 1000);
 
-    // Find SCHEDULED bookings that:
-    // 1. Are still unassigned (PENDING, no driverId)
-    // 2. Have a pickup time within the next 24 hours
+    // Fetch unassigned scheduled bookings within the window
     const readyBookings = await prisma.booking.findMany({
         where: {
             bookingType: 'SCHEDULED',
             status: 'PENDING',
             driverId: null,
             scheduledAt: {
-                gte: now,        // not already past
-                lte: windowEnd,  // within notification window
+                gte: now,
+                lte: windowEnd,
             },
         },
         orderBy: { scheduledAt: 'asc' },
@@ -75,10 +56,7 @@ export const processScheduledPool = async (io: SocketIOServer): Promise<void> =>
     }
 };
 
-/**
- * Emits 'scheduled_job_available' to each candidate driver's socket room.
- * Uses the same room naming convention as the instant flow: driver:<id>
- */
+// Notifies suitable drivers through socket channels
 const notifyCandidateDrivers = async (
     booking: any,
     candidates: any[],
