@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
 import { useSocketListener } from '@/hooks/useSocket';
@@ -10,8 +9,8 @@ import { toast } from 'react-hot-toast';
 import { formatDate, formatPrice } from '@/utils/formatters';
 import StatusBadge from '@/components/ui/StatusBadge';
 import OtpVerifyInput from '@/components/tracking/OtpVerifyInput';
-import 'leaflet/dist/leaflet.css';
-
+import MapView, { MapMarker } from '@/components/map/MapView';
+import BaseModal from '@/components/ui/BaseModal';
 
 function TrackingPage() {
   const { bookingId } = useParams();
@@ -129,116 +128,151 @@ function TrackingPage() {
     }
   }, [booking?.status]);
 
-  if (!booking) return <div>Loading...</div>;
+  const mapCenter: [number, number] = useMemo(() => {
+    if (!booking) return [19.0760, 72.8777];
+    return [booking.pickupLat, booking.pickupLng];
+  }, [booking]);
 
-  const pickup: [number, number] = [booking.pickupLat, booking.pickupLng];
-  const dropoff: [number, number] = [booking.dropoffLat, booking.dropoffLng];
+  const mapMarkers = useMemo(() => {
+    if (!booking) return [];
+    const list: MapMarker[] = [
+      { lat: booking.pickupLat, lng: booking.pickupLng, popupText: 'Pickup' },
+      { lat: booking.dropoffLat, lng: booking.dropoffLng, popupText: 'Dropoff' }
+    ];
+    if (driverLocation) {
+      list.push({ lat: driverLocation[0], lng: driverLocation[1], popupText: 'Driver', isDriver: true });
+    }
+    return list;
+  }, [booking, driverLocation]);
+
+  const routePolyline = useMemo(() => {
+    if (!booking) return [];
+    const positions: [number, number][] = [
+      [booking.pickupLat, booking.pickupLng],
+      [booking.dropoffLat, booking.dropoffLng]
+    ];
+    return positions;
+  }, [booking]);
+
+  const driverPolyline = useMemo(() => {
+    if (!booking || !driverLocation) return [];
+    const positions: [number, number][] = [
+      [booking.pickupLat, booking.pickupLng],
+      driverLocation
+    ];
+    return positions;
+  }, [booking, driverLocation]);
+
+  if (!booking) {
+    return (
+      <div className="min-h-[50vh] flex flex-col items-center justify-center font-heading">
+        <div className="w-8 h-8 border-4 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+        <p className="mt-4 text-xs font-bold text-slate-500">Retrieving cargo parameters...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <h2
-        className="text-[24px] font-bold tracking-tight"
-        style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}
-      >
+      <h2 className="text-2xl font-bold tracking-tight text-slate-800 font-heading">
         Track Delivery
       </h2>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Map */}
-        <div className="space-y-6">
-          <div className="h-96 lg:h-[600px] overflow-hidden shadow-none card">
-            <MapContainer center={pickup} zoom={13} style={{ height: '100%', width: '100%' }}>
-              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              <Marker position={pickup}><Popup>Pickup</Popup></Marker>
-              <Marker position={dropoff}><Popup>Dropoff</Popup></Marker>
-              {driverLocation && <Marker position={driverLocation}><Popup>Driver</Popup></Marker>}
-              <Polyline positions={[pickup, dropoff]} color="blue" />
-              {driverLocation && <Polyline positions={[pickup, driverLocation]} color="green" />}
-            </MapContainer>
-          </div>
+        <div className="lg:col-span-7 h-96 lg:h-[500px] overflow-hidden border border-slate-200 rounded-xl shadow-sm">
+          <MapView 
+            center={mapCenter} 
+            zoom={13} 
+            markers={mapMarkers} 
+            routePositions={routePolyline} 
+            polylineColor="blue"
+          >
+            {driverLocation && <MapView routePositions={driverPolyline} polylineColor="green" center={mapCenter} />}
+          </MapView>
         </div>
 
-        {/* Right Column: Details & Actions */}
-        <div className="space-y-6">
+        {/* Right Column: Status & Handshakes */}
+        <div className="lg:col-span-5 space-y-6">
           {/* Booking info card */}
-          <div className="p-6 shadow-none space-y-2 card" style={{ fontFamily: 'var(--font-body)' }}>
-            <p className="text-sm flex items-center gap-2" style={{ color: 'var(--color-text-main)' }}>
-              Status: <StatusBadge status={booking.status} />
-            </p>
-            <p className="text-sm" style={{ color: 'var(--color-text-main)' }}>
-              Cargo: <span className="font-semibold">{booking.cargoType}</span>
-            </p>
-            <p className="text-sm" style={{ color: 'var(--color-text-main)' }}>
-              Price: <span className="font-bold" style={{ color: 'var(--color-primary)' }}>{formatPrice(booking.price)}</span>
-            </p>
-            {booking.createdAt && (
-              <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                Booked: {formatDate(booking.createdAt)}
-              </p>
-            )}
+          <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-3 font-body text-xs text-slate-600">
+            <h3 className="text-sm font-bold text-slate-800 font-heading">Delivery Parameters</h3>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span>Status:</span>
+                <StatusBadge status={booking.status} />
+              </div>
+              <div className="flex justify-between">
+                <span>Cargo Type:</span>
+                <span className="font-bold text-slate-800">{booking.cargoType}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Price:</span>
+                <span className="font-bold text-indigo-600 font-mono">{formatPrice(booking.price)}</span>
+              </div>
+              {booking.createdAt && (
+                <div className="flex justify-between">
+                  <span>Booked:</span>
+                  <span className="font-semibold text-slate-500">{formatDate(booking.createdAt)}</span>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* OTP Verify — ACCEPTED */}
+          {/* OTP Handshake — ACCEPTED */}
           {booking.status === 'ACCEPTED' && (
-            <div className="p-6 shadow-none card" style={{ fontFamily: 'var(--font-body)' }}>
+            <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm font-body text-xs text-slate-600 space-y-3">
+              <h3 className="text-sm font-bold text-slate-800 font-heading">Pickup Verification</h3>
               {user?.role === 'DRIVER' ? (
                 <OtpVerifyInput type="pickup" otp={otp} setOtp={setOtp} onVerify={() => verifyOTP('pickup')} />
               ) : (
-                <p className="font-semibold text-sm" style={{ color: 'var(--color-text-main)' }}>
-                  Share this OTP with the driver to start the delivery:{' '}
-                  <span
-                    className="border px-3 py-1 font-mono text-xl ml-2 font-bold"
-                    style={{
-                      backgroundColor: 'var(--color-background)',
-                      borderColor: 'var(--color-border)',
-                      borderRadius: 'var(--radius-card)',
-                      color: 'var(--color-primary)',
-                    }}
-                  >
-                    {booking.pickupOTP}
-                  </span>
-                </p>
+                <div className="space-y-2">
+                  <p className="leading-relaxed text-slate-500">
+                    Share this security OTP with the driver partner at the pickup point to authorize the departure:
+                  </p>
+                  <div className="p-4 bg-slate-50 border border-slate-200/60 rounded-xl text-center">
+                    <span className="font-mono text-2xl font-black text-indigo-600 tracking-wider">
+                      {booking.pickupOTP}
+                    </span>
+                  </div>
+                </div>
               )}
             </div>
           )}
 
-          {/* OTP Verify — IN_TRANSIT */}
+          {/* OTP Handshake — IN_TRANSIT */}
           {booking.status === 'IN_TRANSIT' && (
-            <div className="p-6 shadow-none card" style={{ fontFamily: 'var(--font-body)' }}>
+            <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm font-body text-xs text-slate-600 space-y-3">
+              <h3 className="text-sm font-bold text-slate-800 font-heading">Dropoff Verification</h3>
               {user?.role === 'DRIVER' ? (
                 <OtpVerifyInput type="dropoff" otp={otp} setOtp={setOtp} onVerify={() => verifyOTP('dropoff')} />
               ) : (
-                <p className="font-semibold text-sm" style={{ color: 'var(--color-text-main)' }}>
-                  Share this OTP with the driver to complete the delivery:{' '}
-                  <span
-                    className="border px-3 py-1 font-mono text-xl ml-2 font-bold"
-                    style={{
-                      backgroundColor: 'var(--color-background)',
-                      borderColor: 'var(--color-border)',
-                      borderRadius: 'var(--radius-card)',
-                      color: 'var(--color-primary)',
-                    }}
-                  >
-                    {booking.dropoffOTP}
-                  </span>
-                </p>
+                <div className="space-y-2">
+                  <p className="leading-relaxed text-slate-500">
+                    Share this security OTP with the driver partner at the delivery point to confirm completion:
+                  </p>
+                  <div className="p-4 bg-slate-50 border border-slate-200/60 rounded-xl text-center">
+                    <span className="font-mono text-2xl font-black text-indigo-600 tracking-wider">
+                      {booking.dropoffOTP}
+                    </span>
+                  </div>
+                </div>
               )}
             </div>
           )}
 
           {/* DELIVERED — payment prompt */}
           {booking.status === 'DELIVERED' && (
-            <div className="p-6 shadow-none text-center space-y-4 card" style={{ fontFamily: 'var(--font-body)' }}>
-              <p className="text-xl font-bold" style={{ color: 'var(--color-status-delivered)' }}>Package Delivered!</p>
+            <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm text-center space-y-4 font-body text-xs text-slate-600">
+              <p className="text-lg font-black text-emerald-600 font-heading">Package Delivered!</p>
               {user?.role === 'SHIPPER' && (
-                <div className="flex flex-col items-center">
-                  <p className="text-sm mb-4" style={{ color: 'var(--color-text-muted)' }}>
-                    Please review the invoice details below and complete the payment.
+                <div className="space-y-3 flex flex-col items-center">
+                  <p className="leading-relaxed text-slate-500 max-w-sm">
+                    Please review the invoice breakdown and finalize your digital dispatch payment.
                   </p>
                   <button
                     onClick={handlePayment}
-                    className="text-white font-bold px-6 py-2.5 text-sm transition hover:opacity-90"
-                    style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
+                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 text-xs rounded-xl transition-colors shadow-sm"
                   >
                     Pay & Complete Delivery ({formatPrice(booking.price)})
                   </button>
@@ -249,55 +283,62 @@ function TrackingPage() {
 
           {/* COMPLETED */}
           {booking.status === 'COMPLETED' && (
-            <div className="p-6 shadow-none text-center card" style={{ fontFamily: 'var(--font-body)' }}>
-              <p className="text-2xl font-bold" style={{ color: 'var(--color-status-completed)' }}>Delivery Completed & Paid!</p>
+            <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm text-center font-body">
+              <p className="text-lg font-black text-emerald-600 font-heading">Delivery Completed & Paid!</p>
             </div>
           )}
 
           {/* DISPUTED */}
           {booking.status === 'DISPUTED' && (
-            <div className="p-6 shadow-none text-center card-danger" style={{ fontFamily: 'var(--font-body)' }}>
-              <p className="text-2xl font-bold" style={{ color: 'var(--color-status-cancelled)' }}>Delivery Under Dispute</p>
-              <p className="mt-2" style={{ color: 'var(--color-text-muted)' }}>
-                Our support team is currently reviewing your claim. We will contact you shortly.
+            <div className="p-6 bg-red-50/50 border border-red-200 rounded-xl shadow-sm text-center font-body space-y-2">
+              <p className="text-lg font-black text-red-600 font-heading">Delivery Under Dispute</p>
+              <p className="text-xs text-slate-500 leading-normal max-w-sm mx-auto">
+                Our support team is reviewing your claim parameters. We will contact you shortly.
               </p>
             </div>
           )}
 
-          {/* Invoice */}
+          {/* Invoice details */}
           {invoice && (
-            <div className="p-6 shadow-none space-y-4 card" style={{ fontFamily: 'var(--font-body)' }}>
-              <h3 className="text-xl font-semibold pb-2 border-b" style={{ color: 'var(--color-text-main)', borderColor: 'var(--color-border)', fontFamily: 'var(--font-heading)' }}>
+            <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-4 font-body text-xs text-slate-600">
+              <h3 className="text-sm font-bold text-slate-800 font-heading pb-2 border-b border-slate-100">
                 Invoice Details
               </h3>
-              <div className="grid grid-cols-2 gap-y-2 text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                <span>Base Fare:</span>
-                <span className="font-semibold text-right" style={{ color: 'var(--color-text-main)' }}>{formatPrice(invoice.basePrice)}</span>
-                <span>Distance Charge:</span>
-                <span className="font-semibold text-right" style={{ color: 'var(--color-text-main)' }}>{formatPrice(invoice.distanceCost)}</span>
-                <span>Weight Surcharge:</span>
-                <span className="font-semibold text-right" style={{ color: 'var(--color-text-main)' }}>{formatPrice(invoice.weightCost)}</span>
-                <div className="col-span-2 border-t my-2" style={{ borderColor: 'var(--color-border)' }}></div>
-                <span className="text-sm font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Total Price:</span>
-                <span className="text-lg font-bold text-right" style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-heading)' }}>{formatPrice(invoice.totalPrice)}</span>
+              <div className="space-y-2.5">
+                <div className="flex justify-between">
+                  <span>Base Fare:</span>
+                  <span className="font-bold text-slate-800 font-mono">{formatPrice(invoice.basePrice)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Distance Charge:</span>
+                  <span className="font-bold text-slate-800 font-mono">{formatPrice(invoice.distanceCost)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Weight Surcharge:</span>
+                  <span className="font-bold text-slate-800 font-mono">{formatPrice(invoice.weightCost)}</span>
+                </div>
+                <div className="border-t border-slate-100 pt-3 flex justify-between items-center">
+                  <span className="text-xs font-bold text-slate-800 font-heading">Total Charge:</span>
+                  <span className="text-lg font-black text-indigo-600 font-heading font-mono">{formatPrice(invoice.totalPrice)}</span>
+                </div>
               </div>
             </div>
           )}
 
           {/* Existing review display */}
           {booking.review && (
-            <div className="p-6 shadow-none space-y-3 card" style={{ fontFamily: 'var(--font-body)' }}>
-              <h3 className="text-xl font-semibold pb-2 border-b" style={{ color: 'var(--color-text-main)', borderColor: 'var(--color-border)', fontFamily: 'var(--font-heading)' }}>
+            <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-3 font-body text-xs text-slate-600">
+              <h3 className="text-sm font-bold text-slate-800 font-heading pb-2 border-b border-slate-100">
                 Customer Feedback
               </h3>
               <div className="flex items-center gap-2">
-                <span className="text-amber-400 text-xl font-bold">
+                <span className="text-amber-400 text-lg font-bold">
                   {'★'.repeat(booking.review.rating)}{'☆'.repeat(5 - booking.review.rating)}
                 </span>
-                <span className="text-sm font-semibold" style={{ color: 'var(--color-text-main)' }}>({booking.review.rating} / 5 stars)</span>
+                <span className="font-bold text-slate-700">({booking.review.rating} / 5)</span>
               </div>
               {booking.review.comment && (
-                <p className="text-sm italic p-4 border mt-2" style={{ backgroundColor: 'var(--color-background)', borderColor: 'var(--color-border)', borderRadius: 'var(--radius-card)', color: 'var(--color-text-main)' }}>
+                <p className="italic p-3 rounded-lg bg-slate-50 border border-slate-200/60 leading-normal text-slate-500">
                   "{booking.review.comment}"
                 </p>
               )}
@@ -306,29 +347,38 @@ function TrackingPage() {
 
           {/* Review form */}
           {booking.status === 'COMPLETED' && user?.role === 'SHIPPER' && !booking.review && !reviewSubmitted && (
-            <form onSubmit={handleReviewSubmit} className="p-6 shadow-none space-y-4 card" style={{ fontFamily: 'var(--font-body)' }}>
-              <h3 className="text-md font-bold pb-2 border-b" style={{ color: 'var(--color-text-main)', borderColor: 'var(--color-border)', fontFamily: 'var(--font-heading)' }}>
-                Rate Driver Experience
+            <form onSubmit={handleReviewSubmit} className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-4 font-body text-xs text-slate-600">
+              <h3 className="text-sm font-bold text-slate-800 font-heading pb-2 border-b border-slate-100">
+                Rate Driver Partner
               </h3>
-              <div>
-                <label className="block text-[10px] font-bold tracking-[0.08em] mb-1" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>Rating</label>
+              <div className="space-y-1">
+                <label className="block text-[10px] font-bold text-slate-400 uppercase">Rating</label>
                 <div className="flex space-x-1">
                   {[1, 2, 3, 4, 5].map((star) => (
-                    <button type="button" key={star} onClick={() => setRating(star)} className={`text-2xl ${rating >= star ? 'text-amber-400' : 'text-slate-200'} transition`}>★</button>
+                    <button 
+                      type="button" 
+                      key={star} 
+                      onClick={() => setRating(star)} 
+                      className={`text-2xl ${rating >= star ? 'text-amber-400' : 'text-slate-200'} transition-colors cursor-pointer`}
+                    >
+                      ★
+                    </button>
                   ))}
                 </div>
               </div>
-              <div>
-                <label className="block text-[10px] font-bold tracking-[0.08em] mb-1" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>Comment</label>
+              <div className="space-y-1">
+                <label className="block text-[10px] font-bold text-slate-400 uppercase">Comment</label>
                 <textarea
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  placeholder="Tell us about your experience..."
-                  className="input-field h-24"
-                  style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}
+                  placeholder="Share details about your shipment experience..."
+                  className="input-field h-20"
                 />
               </div>
-              <button type="submit" className="w-full text-white font-bold py-2.5 text-sm transition" style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>
+              <button 
+                type="submit" 
+                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 text-xs rounded-lg transition-colors shadow-sm"
+              >
                 Submit Rating
               </button>
             </form>
@@ -336,41 +386,50 @@ function TrackingPage() {
 
           {/* Dispute section */}
           {['DELIVERED', 'COMPLETED'].includes(booking.status) && user?.role === 'SHIPPER' && (
-            <div className="pt-4 text-center font-sans">
+            <div className="text-center">
               {!showDisputeForm ? (
-                <button onClick={() => setShowDisputeForm(true)} className="text-[#DC2626] hover:opacity-85 text-xs font-bold underline tracking-wider">
-                  Have an issue? File a Dispute
+                <button 
+                  onClick={() => setShowDisputeForm(true)} 
+                  className="text-rose-600 hover:text-rose-700 text-xs font-bold underline"
+                >
+                  File a Dispute / Support Claim
                 </button>
               ) : (
-                <form onSubmit={handleDisputeSubmit} className="p-6 text-left space-y-4 mt-2 card-danger" style={{ fontFamily: 'var(--font-body)' }}>
-                  <h3 className="text-sm font-bold uppercase tracking-wide" style={{ color: 'var(--color-status-cancelled)', fontFamily: 'var(--font-heading)' }}>File a Dispute</h3>
-                  <p className="text-xs" style={{ color: 'var(--color-status-cancelled)' }}>
-                    Please describe the problem you encountered with your delivery (e.g., damaged items, delay, driver behavior).
-                  </p>
-                  <div>
-                    <textarea
-                      value={disputeReason}
-                      onChange={(e) => setDisputeReason(e.target.value)}
-                      placeholder="Describe your issue in detail..."
-                      required
-                      className="input-field h-24 bg-white"
-                      style={{ color: 'var(--color-text-main)' }}
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <button type="submit" className="text-white px-4 py-2 text-sm font-bold transition" style={{ backgroundColor: 'var(--color-status-cancelled)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>
-                      Submit Dispute
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowDisputeForm(false)}
-                      className="px-4 py-2 text-sm font-bold transition hover:bg-[var(--color-background)]"
-                      style={{ backgroundColor: 'var(--color-card)', color: 'var(--color-text-muted)', border: 'var(--border-width) solid var(--color-input-border)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
+                <BaseModal 
+                  isOpen={showDisputeForm} 
+                  onClose={() => setShowDisputeForm(false)} 
+                  title="File a Dispute"
+                >
+                  <form onSubmit={handleDisputeSubmit} className="space-y-4 text-xs font-body text-slate-600">
+                    <p className="text-rose-600 font-medium">
+                      Please describe the issue you encountered (e.g., damaged items, delays, driver partner behavior).
+                    </p>
+                    <div className="space-y-1">
+                      <textarea
+                        value={disputeReason}
+                        onChange={(e) => setDisputeReason(e.target.value)}
+                        placeholder="Provide details about your support claim..."
+                        required
+                        className="input-field h-24"
+                      />
+                    </div>
+                    <div className="flex gap-2 justify-end pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowDisputeForm(false)}
+                        className="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold rounded-lg transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        type="submit" 
+                        className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-lg transition-colors shadow-sm"
+                      >
+                        Submit Dispute
+                      </button>
+                    </div>
+                  </form>
+                </BaseModal>
               )}
             </div>
           )}
