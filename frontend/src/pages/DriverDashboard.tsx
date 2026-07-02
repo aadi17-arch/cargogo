@@ -1,29 +1,18 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
-import { useSocket,useSocketListener } from '@/hooks/useSocket';
+import { useSocket, useSocketListener } from '@/hooks/useSocket';
 import { driverService } from '@/services/driver.service';
 import { geocodingService } from '@/services/geocoding.service';
 import { VrpRouteResponse } from '@/types/driver.types';
 import { toast } from 'react-hot-toast';
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-import { LocateFixed } from 'lucide-react';
+import { LocateFixed, Navigation, Clock, FileText } from 'lucide-react';
 import StatusBadge from '@/components/ui/StatusBadge';
-import { MapInstanceTracker } from '@/components/map/MapViewHelper';
+import MapView, { MapMarker } from '@/components/map/MapView';
 import { formatPrice, formatDate } from '@/utils/formatters';
-
-const driverIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
+import L from 'leaflet';
 
 function DriverDashboard() {
   const { token } = useAuth();
@@ -171,279 +160,348 @@ function DriverDashboard() {
   const activeBookings = bookings.filter((b: any) => !['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status));
   const pastBookings   = bookings.filter((b: any) => ['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status));
 
-  return (
-    <div className="space-y-4 sm:space-y-6">
-      <h2 className="text-xl sm:text-[24px] font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Driver Dashboard</h2>
+  // Build standard Map markers listing
+  const mapCenter: [number, number] = driverCoords 
+    ? driverCoords 
+    : (routeData?.route && routeData.route.length > 0)
+      ? [routeData.route[0].location.lat, routeData.route[0].location.lng]
+      : [19.0760, 72.8777];
 
-      {/* Status bar */}
-      <div className="p-4 sm:p-6 shadow-none flex justify-between items-center card">
-        <div>
-          <p className="text-base sm:text-lg font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}>
-            Status: <span className="font-bold" style={{ color: isOnline ? 'var(--color-status-completed)' : 'var(--color-status-cancelled)' }}>{isOnline ? 'Online' : 'Offline'}</span>
+  const mapMarkers = useMemo(() => {
+    const list: MapMarker[] = [];
+    if (driverCoords) {
+      list.push({ lat: driverCoords[0], lng: driverCoords[1], popupText: 'Your Location (Driver)', isDriver: true });
+    }
+    if (routeData?.route) {
+      routeData.route.forEach((stop: any, idx: number) => {
+        list.push({
+          lat: stop.location.lat,
+          lng: stop.location.lng,
+          popupText: `Stop ${idx + 1}: ${stop.type === 'PICKUP' ? 'Pickup' : 'Dropoff'} (${stop.cargoType})`
+        });
+      });
+    }
+    return list;
+  }, [driverCoords, routeData]);
+
+  const routePolyline = useMemo(() => {
+    const positions: [number, number][] = [];
+    if (driverCoords) positions.push(driverCoords);
+    if (routeData?.route) {
+      routeData.route.forEach((stop: any) => {
+        positions.push([stop.location.lat, stop.location.lng]);
+      });
+    }
+    return positions;
+  }, [driverCoords, routeData]);
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold tracking-tight text-slate-800 font-heading">
+        Driver Dashboard
+      </h2>
+
+      {/* Online status switch card */}
+      <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="space-y-1 font-body">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-slate-500">Service Mode:</span>
+            <span className={`text-sm font-black uppercase ${isOnline ? 'text-emerald-600' : 'text-rose-600'}`}>
+              {isOnline ? 'ONLINE' : 'OFFLINE'}
+            </span>
+          </div>
+          <p className="text-xs text-slate-400">
+            Location: <span className="font-semibold text-slate-700">{driverLocationName}</span>
           </p>
-          <p className="text-xs sm:text-sm font-medium mt-1" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>
-            Location: <span className="font-semibold text-[var(--color-text-main)]">{driverLocationName}</span>
-          </p>
-          <p className="text-xs sm:text-sm font-medium mt-0.5" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>
-            Earnings: <span className="font-semibold" style={{ color: 'var(--color-status-completed)' }}>{formatPrice(earnings)}</span>
+          <p className="text-xs text-slate-400">
+            Earnings: <span className="font-bold text-emerald-600 font-mono">{formatPrice(earnings)}</span>
           </p>
         </div>
         <button
           onClick={toggleOnline}
-          className="px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-bold text-white transition-all animate-none"
-          style={{ borderRadius: 'var(--radius-button)', backgroundColor: isOnline ? 'var(--color-status-cancelled)' : 'var(--color-primary)', fontFamily: 'var(--font-heading)' }}
-          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.9'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+          className={`w-full md:w-auto px-6 py-2.5 text-xs font-bold text-white rounded-xl transition-all shadow-sm ${
+            isOnline 
+              ? 'bg-rose-600 hover:bg-rose-500' 
+              : 'bg-slate-900 hover:bg-slate-800'
+          }`}
         >
           {isOnline ? 'Go Offline' : 'Go Online'}
         </button>
       </div>
 
-      {/* Incoming bid */}
+      {/* Incoming bid Alert */}
       {bid && (
-        <div className="p-4 sm:p-6 shadow-none" style={{ backgroundColor: 'var(--color-card)', border: 'var(--border-width) solid var(--color-primary)', borderRadius: 'var(--radius-card)' }}>
-          <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-heading)' }}>New Delivery Request!</h3>
-          <p style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}>Cargo: {bid.cargoType}</p>
-          <p style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}>Payout: {formatPrice(bid.price)}</p>
-          <p style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}>Distance: {bid.distanceKm} km</p>
-          <p className="text-xl sm:text-2xl font-bold mt-2" style={{ color: 'var(--color-status-cancelled)', fontFamily: 'var(--font-heading)' }}>Time left: {countdown}s</p>
-          <div className="flex gap-4 mt-4">
-            <button onClick={handleAcceptBid} className="flex-1 text-white py-2.5 sm:py-3 font-bold transition-all text-sm" style={{ backgroundColor: 'var(--color-status-completed)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>Accept</button>
-            <button onClick={handleRejectBid} className="flex-1 text-white py-2.5 sm:py-3 font-bold transition-all text-sm" style={{ backgroundColor: 'var(--color-status-cancelled)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>Decline</button>
+        <div className="p-6 bg-indigo-50/50 border border-indigo-600 rounded-xl shadow-md space-y-4 animate-pulse">
+          <div className="flex items-center justify-between border-b border-indigo-100 pb-2">
+            <h3 className="text-lg font-black text-indigo-700 tracking-tight font-heading">
+              New Delivery Request!
+            </h3>
+            <span className="text-xs font-mono font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded border border-rose-100">
+              {countdown}s remaining
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-4 text-xs font-body text-indigo-900">
+            <div>
+              <span className="block text-[10px] font-bold text-indigo-400 uppercase">Cargo</span>
+              <span className="font-bold">{bid.cargoType}</span>
+            </div>
+            <div>
+              <span className="block text-[10px] font-bold text-indigo-400 uppercase">Payout</span>
+              <span className="font-bold font-mono">{formatPrice(bid.price)}</span>
+            </div>
+            <div>
+              <span className="block text-[10px] font-bold text-indigo-400 uppercase">Distance</span>
+              <span className="font-bold">{bid.distanceKm} km</span>
+            </div>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button 
+              onClick={handleAcceptBid} 
+              className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 text-xs font-bold rounded-xl transition-colors shadow-sm"
+            >
+              Accept Order
+            </button>
+            <button 
+              onClick={handleRejectBid} 
+              className="flex-1 bg-transparent hover:bg-indigo-100/50 text-indigo-600 border border-indigo-200 py-2.5 text-xs font-bold rounded-xl transition-colors"
+            >
+              Decline
+            </button>
           </div>
         </div>
       )}
 
-      {/* Tabs */}
-      <div className="flex border-b border-[var(--color-border)]">
+      {/* Navigation Tabs */}
+      <div className="flex border-b border-slate-200">
         {([
           { key: 'my_jobs',    label: `My Deliveries (${activeBookings.length})` },
-          { key: 'jobs_board', label: `Available Deliveries (${pendingBookings.length})` },
-          { key: 'past_jobs',  label: `Past Deliveries (${pastBookings.length})` },
+          { key: 'jobs_board', label: `Available Board (${pendingBookings.length})` },
+          { key: 'past_jobs',  label: `History (${pastBookings.length})` },
         ] as const).map(({ key, label }) => (
           <button
             key={key}
             onClick={() => { setActiveTab(key); if (key === 'jobs_board') loadData(); }}
-            className="py-2.5 px-4 sm:py-3 sm:px-6 text-sm sm:text-base font-bold border-b-2 transition-all hover:text-[var(--color-text-main)]"
-            style={{ borderColor: activeTab === key ? 'var(--color-primary)' : 'transparent', color: activeTab === key ? 'var(--color-primary)' : 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}
+            className={`py-3 px-6 text-xs font-bold border-b-2 transition-all ${
+              activeTab === key 
+                ? 'border-indigo-600 text-slate-800' 
+                : 'border-transparent text-slate-400 hover:text-slate-600'
+            }`}
           >
             {label}
           </button>
         ))}
       </div>
 
-      {/* My Deliveries Tab */}
-      {activeTab === 'my_jobs' && activeBookings.length === 0 && (
-        <div className="p-6 text-center font-medium card" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>
-          No active shipments. Go online to receive orders!
-        </div>
-      )}
-
-      {activeTab === 'my_jobs' && activeBookings.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
-          {/* Left Column: Delivery Timeline */}
-          <div className="lg:col-span-5 space-y-6 w-full order-2 lg:order-1">
-            <div className="p-4 sm:p-6 shadow-none space-y-4 relative animate-none card">
-              {loadingRoute && (
-                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-[2px] transition-all" style={{ borderRadius: 'var(--radius-card)' }}>
-                  <div className="w-8 h-8 border-3 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--color-primary)' }}></div>
-                  <p className="mt-3 text-xs font-extrabold text-[var(--color-text-main)]" style={{ fontFamily: 'var(--font-heading)' }}>Wait, re-routing...</p>
-                  <p className="text-[9px] font-bold text-[var(--color-text-muted)] mt-0.5" style={{ fontFamily: 'var(--font-body)' }}>Optimizing stop-by-stop route sequence</p>
-                </div>
-              )}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-                <div>
-                  <h3 className="text-lg sm:text-xl font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Delivery Timeline</h3>
-                  <p className="text-xs text-[var(--color-text-muted)] mt-0.5" style={{ fontFamily: 'var(--font-body)' }}>Optimized stop-by-stop route sequence</p>
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={loadData} className="px-2.5 py-1.5 text-xs font-bold transition-all hover:bg-[var(--color-background)]" style={{ backgroundColor: 'var(--color-card)', color: 'var(--color-text-muted)', border: 'var(--border-width) solid var(--color-input-border)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>Refresh</button>
-                  <button onClick={fetchRoute} disabled={loadingRoute} className="bg-[var(--color-card)] px-3 py-1.5 text-xs font-bold hover:bg-[var(--color-background)] transition disabled:opacity-50" style={{ color: 'var(--color-text-muted)', border: 'var(--border-width) solid var(--color-input-border)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>
-                    {loadingRoute ? 'Planning...' : 'Re-plan'}
-                  </button>
-                </div>
-              </div>
-
-              {routeData && routeData.route.length > 0 ? (
-                <div className="space-y-4">
-                  <div className="relative border-l ml-3 pl-6 space-y-5" style={{ borderColor: 'var(--color-border)' }}>
-                    {routeData.route.map((stop: any, index: number) => {
-                      const booking = bookings.find((b: any) => b.id === stop.bookingId);
-                      const status = booking?.status || 'PENDING';
-                      return (
-                        <div key={index} className="relative">
-                          <span className="absolute -left-[35px] top-3.5 w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-bold bg-[var(--color-card)] shadow-none" style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>
-                            {index + 1}
-                          </span>
-                          <div className="p-3 flex flex-col gap-2" style={{ backgroundColor: 'var(--color-background)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="flex items-center gap-1.5 min-w-0">
-                                <span className="text-[8px] font-extrabold tracking-wide uppercase px-1.5 py-0.5 rounded-[4px] border bg-transparent shrink-0" style={{ fontFamily: 'var(--font-mono)', borderColor: stop.type === 'PICKUP' ? 'var(--color-status-completed)' : 'var(--color-status-transit)', color: stop.type === 'PICKUP' ? 'var(--color-status-completed)' : 'var(--color-status-transit)' }}>
-                                  {stop.type === 'PICKUP' ? 'Pick' : 'Drop'}
-                                </span>
-                                <span className="text-xs font-bold text-[var(--color-text-main)] truncate" style={{ fontFamily: 'var(--font-heading)' }}>
-                                  {stop.cargoType} {addressCache[`${stop.location.lat.toFixed(4)},${stop.location.lng.toFixed(4)}`] ? `(${addressCache[`${stop.location.lat.toFixed(4)},${stop.location.lng.toFixed(4)}`]})` : ''}
-                                </span>
-                              </div>
-                              {booking && <StatusBadge status={status} className="text-[8px]" />}
-                            </div>
-                            <div className="flex items-center justify-between gap-4 pt-1.5 border-t border-[var(--color-border)] border-dashed">
-                              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>
-                                <span>Payout: <span className="font-semibold text-[var(--color-primary)]">{formatPrice((booking as any)?.price || booking?.totalPrice || 0)}</span></span>
-                                <span className="text-[var(--color-border)]">|</span>
-                                <span>Wt: <span className="font-medium text-[var(--color-text-main)]">{stop.weightKg}kg</span></span>
-                                <span className="text-[var(--color-border)]">|</span>
-                                <span>Load: <span className="font-medium text-[var(--color-text-main)]">{stop.expectedAccumulatedWeight}kg</span></span>
-                              </div>
-                              {booking && status !== 'CANCELLED' && (
-                                <button onClick={() => navigate(`/track/${booking.id}`)} className="text-white px-2.5 py-1 text-[10px] font-bold hover:opacity-90 transition rounded-[4px] shrink-0" style={{ backgroundColor: 'var(--color-primary)', fontFamily: 'var(--font-heading)' }}>
-                                  {['DELIVERED', 'COMPLETED'].includes(status) ? 'Details' : 'Track'}
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
+      {/* My Deliveries Tab layout */}
+      {activeTab === 'my_jobs' && (
+        activeBookings.length === 0 ? (
+          <div className="p-12 text-center bg-white border border-slate-200 rounded-xl shadow-sm text-slate-400">
+            <Clock size={40} className="mx-auto text-slate-300 mb-3" />
+            <p className="text-sm font-medium">No active deliveries assigned.</p>
+            <button onClick={() => setActiveTab('jobs_board')} className="mt-2 text-xs font-bold text-indigo-600 hover:underline">
+              Accept jobs from available board
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
+            {/* Left Column: Timeline details */}
+            <div className="lg:col-span-5 space-y-6 w-full order-2 lg:order-1">
+              <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-4 relative overflow-hidden">
+                {loadingRoute && (
+                  <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/90 backdrop-blur-[2px]">
+                    <div className="w-8 h-8 border-3 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="mt-3 text-xs font-extrabold text-slate-800 font-heading">Optimizing route...</p>
+                  </div>
+                )}
+                <div className="flex items-center justify-between gap-4 mb-4">
+                  <div className="space-y-0.5">
+                    <h3 className="text-base font-bold text-slate-800 font-heading">Route Timeline</h3>
+                    <p className="text-[10px] text-slate-400">Optimized stop sequence</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={loadData} className="px-2.5 py-1.5 text-[10px] font-bold bg-white border border-slate-200 hover:bg-slate-50 text-slate-500 rounded-lg shadow-sm">Refresh</button>
+                    <button onClick={fetchRoute} disabled={loadingRoute} className="px-2.5 py-1.5 text-[10px] font-bold bg-white border border-slate-200 hover:bg-slate-50 text-slate-500 rounded-lg shadow-sm disabled:opacity-50">
+                      Re-plan
+                    </button>
                   </div>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  <p className="text-xs text-center py-4" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>No active route stops. Showing raw accepted bookings:</p>
-                  <div className="divide-y divide-[var(--color-border)]">
+
+                {routeData && routeData.route.length > 0 ? (
+                  <div className="space-y-4">
+                    <div className="relative border-l border-slate-100 ml-3 pl-6 space-y-5">
+                      {routeData.route.map((stop: any, index: number) => {
+                        const booking = bookings.find((b: any) => b.id === stop.bookingId);
+                        const status = booking?.status || 'PENDING';
+                        return (
+                          <div key={index} className="relative">
+                            <span className="absolute -left-[35px] top-3.5 w-5 h-5 rounded-full border border-slate-200 flex items-center justify-center text-[10px] font-bold bg-white text-slate-500">
+                              {index + 1}
+                            </span>
+                            <div className="p-3 bg-slate-50 border border-slate-200/60 rounded-xl flex flex-col gap-2">
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  <span className={`text-[8px] font-extrabold tracking-wide uppercase px-1.5 py-0.5 rounded border bg-transparent shrink-0 ${
+                                    stop.type === 'PICKUP' 
+                                      ? 'border-emerald-600/30 text-emerald-600' 
+                                      : 'border-orange-600/30 text-orange-600'
+                                  }`}>
+                                    {stop.type === 'PICKUP' ? 'Pick' : 'Drop'}
+                                  </span>
+                                  <span className="text-xs font-bold text-slate-800 truncate font-heading">
+                                    {stop.cargoType} {addressCache[`${stop.location.lat.toFixed(4)},${stop.location.lng.toFixed(4)}`] ? `(${addressCache[`${stop.location.lat.toFixed(4)},${stop.location.lng.toFixed(4)}`]})` : ''}
+                                  </span>
+                                </div>
+                                {booking && <StatusBadge status={status} className="text-[8px]" />}
+                              </div>
+                              <div className="flex items-center justify-between gap-4 pt-1.5 border-t border-slate-200/50 border-dashed">
+                                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-slate-400">
+                                  <span>Payout: <span className="font-bold text-slate-700 font-mono">{formatPrice((booking as any)?.price || booking?.totalPrice || 0)}</span></span>
+                                  <span>|</span>
+                                  <span>Wt: <span className="font-semibold text-slate-700">{stop.weightKg}kg</span></span>
+                                </div>
+                                {booking && status !== 'CANCELLED' && (
+                                  <button onClick={() => navigate(`/track/${booking.id}`)} className="bg-slate-900 hover:bg-slate-800 text-white px-2.5 py-1 text-[9px] font-bold rounded shadow-sm shrink-0">
+                                    {['DELIVERED', 'COMPLETED'].includes(status) ? 'Details' : 'Track'}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-slate-100">
                     {activeBookings.map((b: any) => (
-                      <div key={b.id} className="py-3 flex justify-between items-center">
+                      <div key={b.id} className="py-3 flex justify-between items-center text-xs font-body">
                         <div>
-                          <p className="text-sm font-semibold text-[var(--color-text-main)]">{b.cargoType}</p>
-                          <p className="text-xs text-[var(--color-text-muted)]">Payout: {formatPrice(b.price)} | Status: {b.status}</p>
+                          <p className="font-bold text-slate-800">{b.cargoType}</p>
+                          <p className="text-slate-400">Payout: {formatPrice(b.price)} | Status: {b.status}</p>
                         </div>
-                        <button onClick={() => navigate(`/track/${b.id}`)} className="text-white px-3 py-1 text-xs font-bold hover:opacity-90 transition" style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)' }}>
-                          {['DELIVERED', 'COMPLETED'].includes(b.status) ? 'Details' : 'Track'}
+                        <button onClick={() => navigate(`/track/${b.id}`)} className="bg-slate-900 hover:bg-slate-800 text-white px-3 py-1 font-bold rounded-lg shadow-sm">
+                          Track
                         </button>
                       </div>
                     ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right Column: Route Map */}
+            <div className="lg:col-span-7 lg:sticky lg:top-20 w-full order-1 lg:order-2 space-y-4">
+              {routeData && routeData.route.length > 0 && (
+                <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-sm space-y-4">
+                  <div className="flex flex-col gap-1">
+                    <h3 className="text-base font-bold text-slate-800 font-heading">Optimized Navigation Route</h3>
+                    <p className="text-[10px] text-slate-400">
+                      Distance: <span className="font-bold text-slate-700">{routeData.totalDistanceKm} km</span> | Max Payload: {routeData.vehicleCapacityKg} kg
+                    </p>
+                  </div>
+                  <div className="h-80 sm:h-[400px] w-full overflow-hidden border border-slate-200 rounded-xl shadow-sm relative">
+                    <MapView 
+                      center={mapCenter} 
+                      zoom={11} 
+                      markers={mapMarkers} 
+                      routePositions={routePolyline} 
+                      polylineColor="indigo"
+                      setMap={setMap}
+                    />
+                    {driverCoords && map && (
+                      <button
+                        onClick={() => map.setView(driverCoords, map.getZoom(), { animate: true })}
+                        className="absolute top-3 right-3 z-[1000] flex items-center justify-center bg-white hover:bg-slate-50 border border-slate-200 shadow-md rounded-lg p-2 transition cursor-pointer"
+                        title="Focus current location"
+                        style={{ width: '34px', height: '34px' }}
+                      >
+                        <LocateFixed size={16} className="text-slate-700" />
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
             </div>
           </div>
-
-          {/* Right Column: Route Map */}
-          <div className="lg:col-span-7 lg:sticky lg:top-[88px] w-full order-1 lg:order-2">
-            {routeData && routeData.route.length > 0 && (
-              <div className="p-4 sm:p-6 shadow-none space-y-4 card">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-base sm:text-lg font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Active Route Map</h3>
-                    <p className="text-[10px] sm:text-xs text-[var(--color-text-muted)] mt-1" style={{ fontFamily: 'var(--font-body)' }}>
-                      Total Distance: <span className="font-bold text-[var(--color-text-main)]">{routeData.totalDistanceKm} km</span> | Max Capacity: {routeData.vehicleCapacityKg} kg
-                    </p>
-                  </div>
-                </div>
-                <div className="h-[300px] sm:h-[400px] lg:h-[480px] overflow-hidden shadow-none relative card">
-                  <MapContainer center={driverCoords || [routeData.route[0].location.lat, routeData.route[0].location.lng]} zoom={11} style={{ height: '100%', width: '100%', zIndex: 1 }}>
-                    <MapInstanceTracker setMap={setMap} />
-                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                    {driverCoords && <Marker position={driverCoords} icon={driverIcon}><Popup>Your Location (Driver)</Popup></Marker>}
-                    {routeData.route.map((stop: any, idx: number) => (
-                      <Marker key={idx} position={[stop.location.lat, stop.location.lng]}>
-                        <Popup><strong>Stop {idx + 1}</strong>: {stop.type === 'PICKUP' ? 'Pickup' : 'Dropoff'} ({stop.cargoType})</Popup>
-                      </Marker>
-                    ))}
-                    <Polyline
-                      positions={[
-                        ...(driverCoords ? [driverCoords] : []),
-                        ...routeData.route.map((stop: any) => [stop.location.lat, stop.location.lng] as [number, number])
-                      ]}
-                      color="indigo"
-                    />
-                  </MapContainer>
-                  {driverCoords && map && (
-                    <button
-                      onClick={() => map.setView(driverCoords, map.getZoom(), { animate: true })}
-                      className="absolute top-3 right-3 z-[1000] flex items-center justify-center bg-white hover:bg-slate-50 border shadow-md rounded-md p-2 transition"
-                      title="Focus current location"
-                      style={{ width: '34px', height: '34px', borderColor: 'rgba(0,0,0,0.2)', cursor: 'pointer' }}
-                    >
-                      <LocateFixed size={16} className="text-slate-700" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        )
       )}
 
-      {/* Available Deliveries Tab */}
+      {/* Available Deliveries Board */}
       {activeTab === 'jobs_board' && (
-        <div className="p-6 shadow-none space-y-4 card">
-          <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Available Deliveries</h3>
-            <button onClick={loadData} className="px-4 py-1.5 text-sm font-bold transition-all hover:bg-[var(--color-background)]" style={{ backgroundColor: 'var(--color-card)', color: 'var(--color-text-muted)', border: 'var(--border-width) solid var(--color-input-border)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 space-y-4">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <h3 className="text-lg font-bold text-slate-800 font-heading">Available Board</h3>
+            <button onClick={loadData} className="px-3.5 py-1.5 text-xs font-bold bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-500 transition-colors shadow-sm">
               Refresh
             </button>
           </div>
           {pendingBookings.length > 0 ? (
-            <div className="divide-y divide-[var(--color-border)]">
+            <div className="divide-y divide-slate-100 text-xs">
               {pendingBookings.map((b: any) => (
-                <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 font-body">
                   <div className="space-y-1">
-                    <p className="font-semibold text-[var(--color-text-main)]" style={{ fontFamily: 'var(--font-heading)' }}>{b.cargoType}</p>
-                    <p className="text-xs font-medium text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>
-                      Payout: <span className="text-[var(--color-primary)] font-semibold">{formatPrice(b.price)}</span> | Distance: <span className="font-semibold text-[var(--color-text-main)]">{b.distanceKm} km</span>
+                    <p className="font-bold text-slate-800 text-sm font-heading">{b.cargoType}</p>
+                    <p className="text-slate-400">
+                      Payout: <span className="font-bold text-indigo-600 font-mono">{formatPrice(b.price)}</span> | Distance: <span className="font-semibold text-slate-700">{b.distanceKm} km</span>
                     </p>
-                    <p className="text-[10px] text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-mono)' }}>Received: {formatDate(b.createdAt)}</p>
+                    <p className="text-[10px] text-slate-400 font-mono">Received: {formatDate(b.createdAt)}</p>
                   </div>
-                  <button onClick={() => handleAcceptPending(b.id)} className="text-white px-4 py-2 text-xs font-bold hover:opacity-90 transition shrink-0" style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>
-                    Accept
+                  <button 
+                    onClick={() => handleAcceptPending(b.id)} 
+                    className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 font-bold rounded-lg shadow-sm shrink-0"
+                  >
+                    Accept Cargo
                   </button>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-center py-4" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>No shipments found. Check back soon!</p>
+            <div className="text-center py-12 text-slate-400">
+              <Navigation size={40} className="mx-auto text-slate-300 mb-3" />
+              <p className="text-sm font-medium">No shipments matching vehicle specs currently pending.</p>
+            </div>
           )}
         </div>
       )}
 
-      {/* Past Deliveries Tab */}
+      {/* Past Deliveries history */}
       {activeTab === 'past_jobs' && (
-        <div className="p-6 shadow-none space-y-4 card">
-          <h3 className="text-xl font-semibold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Past Deliveries</h3>
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 space-y-4">
+          <h3 className="text-lg font-bold text-slate-800 font-heading">Past Manifests</h3>
           {pastBookings.length > 0 ? (
-            <div className="divide-y divide-[var(--color-border)]">
+            <div className="divide-y divide-slate-100 text-xs">
               {pastBookings.map((b: any) => (
-                <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                  <div className="space-y-1">
-                    <p className="font-semibold text-[var(--color-text-main)]" style={{ fontFamily: 'var(--font-heading)' }}>{b.cargoType}</p>
+                <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 font-body">
+                  <div className="space-y-1.5 flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-body)' }}>Payout: <span className="text-[var(--color-primary)] font-semibold">{formatPrice(b.price)}</span></span>
+                      <span className="font-bold text-slate-800 text-sm font-heading">{b.cargoType}</span>
                       <StatusBadge status={b.status} />
                     </div>
+                    <p className="text-slate-400">
+                      Payout: <span className="font-bold text-emerald-600 font-mono">{formatPrice(b.price)}</span>
+                    </p>
                     {b.pickupAddress && b.dropoffAddress && (
-                      <p className="text-[11px] text-[var(--color-text-muted)] mt-1" style={{ fontFamily: 'var(--font-body)' }}>
+                      <p className="text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-lg border border-slate-100 leading-normal max-w-xl">
                         <strong>Route:</strong> {b.pickupAddress} → {b.dropoffAddress}
                       </p>
                     )}
-                    <p className="text-[10px] text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-mono)' }}>Date: {formatDate(b.createdAt)}</p>
+                    <p className="text-[10px] text-slate-400 font-mono">{formatDate(b.createdAt)}</p>
                   </div>
-                  <button onClick={() => navigate(`/track/${b.id}`)} className="text-white px-4 py-2 text-xs font-bold hover:opacity-90 transition shrink-0" style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>
+                  <button 
+                    onClick={() => navigate(`/track/${b.id}`)} 
+                    className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 font-bold rounded-lg shadow-sm shrink-0"
+                  >
                     Details
                   </button>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-center py-4" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>No past deliveries found.</p>
+            <div className="text-center py-12 text-slate-400">
+              <FileText size={40} className="mx-auto text-slate-300 mb-3" />
+              <p className="text-sm font-medium">No past shipments found</p>
+            </div>
           )}
-        </div>
-      )}
-
-      {/* Waiting banner */}
-      {!bid && isOnline && activeTab === 'my_jobs' && activeBookings.length === 0 && (
-        <div className="p-6 text-center font-medium card" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-body)' }}>
-          Waiting for deliveries...
         </div>
       )}
     </div>
