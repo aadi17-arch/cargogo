@@ -87,6 +87,11 @@ class SocketService {
   updateLocation(lat: number, lng: number) {
     this.emit('driver:location', { lat, lng });
   }
+
+  // NEW: Driver commits to a scheduled job via socket
+  commitScheduledJob(bookingId: string) {
+    this.emit('commit-scheduled-job', { bookingId });
+  }
 }
 
 export const socketService = new SocketService();
