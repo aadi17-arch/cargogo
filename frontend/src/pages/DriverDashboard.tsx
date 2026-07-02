@@ -11,6 +11,8 @@ import { toast } from 'react-hot-toast';
 import { LocateFixed, Navigation, Clock, FileText } from 'lucide-react';
 import StatusBadge from '@/components/ui/StatusBadge';
 import MapView, { MapMarker } from '@/components/map/MapView';
+import TabNavigation from '@/components/ui/TabNavigation';
+import EmptyState from '@/components/ui/EmptyState';
 import { formatPrice, formatDate } from '@/utils/formatters';
 import L from 'leaflet';
 
@@ -272,36 +274,33 @@ function DriverDashboard() {
       )}
 
       {/* Navigation Tabs */}
-      <div className="flex border-b border-slate-200">
-        {([
-          { key: 'my_jobs',    label: `My Deliveries (${activeBookings.length})` },
-          { key: 'jobs_board', label: `Available Board (${pendingBookings.length})` },
-          { key: 'past_jobs',  label: `History (${pastBookings.length})` },
-        ] as const).map(({ key, label }) => (
-          <button
-            key={key}
-            onClick={() => { setActiveTab(key); if (key === 'jobs_board') loadData(); }}
-            className={`py-3 px-6 text-xs font-bold border-b-2 transition-all ${
-              activeTab === key 
-                ? 'border-indigo-600 text-slate-800' 
-                : 'border-transparent text-slate-400 hover:text-slate-600'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <TabNavigation
+        tabs={[
+          { id: 'my_jobs', label: `My Deliveries (${activeBookings.length})` },
+          { id: 'jobs_board', label: `Available Board (${pendingBookings.length})` },
+          { id: 'past_jobs', label: `History (${pastBookings.length})` }
+        ]}
+        activeTab={activeTab}
+        onChange={(id) => { setActiveTab(id); if (id === 'jobs_board') loadData(); }}
+        className="border-b-0"
+      />
 
       {/* My Deliveries Tab layout */}
       {activeTab === 'my_jobs' && (
         activeBookings.length === 0 ? (
-          <div className="p-12 text-center bg-white border border-slate-200 rounded-xl shadow-sm text-slate-400">
-            <Clock size={40} className="mx-auto text-slate-300 mb-3" />
-            <p className="text-sm font-medium">No active deliveries assigned.</p>
-            <button onClick={() => setActiveTab('jobs_board')} className="mt-2 text-xs font-bold text-indigo-600 hover:underline">
-              Accept jobs from available board
-            </button>
-          </div>
+          <EmptyState
+            icon={Clock}
+            title="No active deliveries assigned"
+            description="Go online to receive new delivery bids or accept jobs from the available board."
+            action={
+              <button 
+                onClick={() => setActiveTab('jobs_board')} 
+                className="text-xs font-bold text-indigo-600 hover:underline bg-transparent border-none outline-none cursor-pointer"
+              >
+                Accept jobs from available board
+              </button>
+            }
+          />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
             {/* Left Column: Timeline details */}
@@ -456,10 +455,19 @@ function DriverDashboard() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-slate-400">
-              <Navigation size={40} className="mx-auto text-slate-300 mb-3" />
-              <p className="text-sm font-medium">No shipments matching vehicle specs currently pending.</p>
-            </div>
+            <EmptyState
+              icon={Navigation}
+              title="No shipments matching vehicle specs currently pending"
+              description="New delivery requests will appear on the board automatically. Keep refreshing to get updates."
+              action={
+                <button 
+                  onClick={loadData} 
+                  className="text-xs font-bold text-indigo-600 hover:underline bg-transparent border-none outline-none cursor-pointer"
+                >
+                  Refresh Available Board
+                </button>
+              }
+            />
           )}
         </div>
       )}
@@ -497,10 +505,11 @@ function DriverDashboard() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-slate-400">
-              <FileText size={40} className="mx-auto text-slate-300 mb-3" />
-              <p className="text-sm font-medium">No past shipments found</p>
-            </div>
+            <EmptyState
+              icon={FileText}
+              title="No past shipments found"
+              description="Your completed or cancelled cargo deliveries will be listed here in your history."
+            />
           )}
         </div>
       )}
