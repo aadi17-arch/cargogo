@@ -10,9 +10,11 @@ import {
     cancelBooking,
     completeBooking,
     getInvoice,
+    commitToScheduledJob,
 } from '@/services/booking.service';
 import { acceptBooking } from '@/services/matching.service';
 import { startGpsSimulation } from '@/services/gps-simulator.service';
+import { getUpcomingScheduledJobs, getAvailableScheduledJobs } from '@/services/driver.service';
 import { catchAsync } from '@/utils/catchAsync';
 
 /** Asserts the current user can access a booking (owner / assigned driver / admin).
@@ -106,4 +108,34 @@ export const cancel = catchAsync(async (req: Request, res: Response) => {
         });
     }
     res.json({ success: true, data: booking });
+});
+
+/**
+ * NEW: Driver commits to a SCHEDULED booking.
+ * Uses a Prisma transaction under the hood to prevent race conditions
+ * (two drivers trying to commit to the same job simultaneously).
+ */
+export const commitScheduled = catchAsync(async (req: Request, res: Response) => {
+    const booking = await commitToScheduledJob(req.params.id, req.user.id);
+    // Notify the shipper that their scheduled job now has a committed driver
+    const io = req.app.get('io');
+    io.to(`shipper:${booking.shipperId}`).emit('scheduled-job-committed', {
+        bookingId: booking.id,
+        driverId: req.user.id,
+        driverName: (req.user as any).name,
+        committedAt: booking.committedAt,
+    });
+    res.json({ success: true, data: booking });
+});
+
+/** NEW: Returns all SCHEDULED+ACCEPTED bookings for the current driver (their upcoming schedule). */
+export const getScheduledJobs = catchAsync(async (req: Request, res: Response) => {
+    const data = await getUpcomingScheduledJobs(req.user.id);
+    res.json({ success: true, data });
+});
+
+/** NEW: Returns SCHEDULED+PENDING jobs matching the driver's vehicle type (browse board). */
+export const getAvailableJobs = catchAsync(async (req: Request, res: Response) => {
+    const data = await getAvailableScheduledJobs(req.user.id);
+    res.json({ success: true, data });
 });
