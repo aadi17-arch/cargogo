@@ -302,7 +302,7 @@ function DriverDashboard() {
         tabs={[
           { id: 'my_jobs', label: `Your Jobs (${activeBookings.length})` },
           { id: 'jobs_board', label: `Available Jobs (${pendingBookings.length})` },
-          { id: 'past_jobs', label: `Job History (${pastBookings.length})` }
+          { id: 'past_jobs', label: `History (${pastBookings.length})` }
         ]}
         activeTab={activeTab}
         onChange={(id) => { setActiveTab(id); if (id === 'jobs_board') loadData(); }}
@@ -499,7 +499,7 @@ function DriverDashboard() {
       {/* Past Deliveries history */}
       {activeTab === 'past_jobs' && (
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 space-y-4">
-          <h3 className="text-lg font-bold text-slate-800 font-heading">Past Manifests</h3>
+          <h3 className="text-lg font-bold text-slate-800 font-heading">Job History</h3>
           {pastBookings.length > 0 ? (
             <div className="divide-y divide-slate-100 text-xs">
               {pastBookings.map((b: any) => (
