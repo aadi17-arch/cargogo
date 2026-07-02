@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { create, getBookingsById, getMyBookings, confirmPickup, confirmDropOff, getPending, accept, complete, getInvoiceDetail,cancel } from '@/controllers/booking.controller';
+import { create, getBookingsById, getMyBookings, confirmPickup, confirmDropOff, getPending, accept, complete, getInvoiceDetail, cancel, commitScheduled, getScheduledJobs, getAvailableJobs } from '@/controllers/booking.controller';
 import { authenticate } from '@/middleware/auth.middleware';
 import { requiredRole } from '@/middleware/role.middleware';
 import { validateRequest } from '@/middleware/validate.middleware';
@@ -19,9 +19,11 @@ r.post('/:id/dropoff', authenticate, requiredRole('DRIVER'), confirmDropOff);
 
 r.post('/:id/complete', authenticate, requiredRole('DRIVER'), complete);
 r.get('/:id/invoice', authenticate, getInvoiceDetail);
-
 r.post('/:id/cancel', authenticate, requiredRole('SHIPPER'), cancel);
 
-
+// NEW: Scheduled booking routes
+r.get('/scheduled/upcoming', authenticate, requiredRole('DRIVER'), getScheduledJobs);
+r.get('/scheduled/available', authenticate, requiredRole('DRIVER'), getAvailableJobs);
+r.post('/:id/commit', authenticate, requiredRole('DRIVER'), commitScheduled);
 
 export default r;
