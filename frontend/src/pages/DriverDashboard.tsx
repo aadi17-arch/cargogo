@@ -591,7 +591,7 @@ function DriverDashboard() {
         </div>
       )}
 
-      {/* NEW: My Schedule Tab — committed scheduled jobs + browse available board */}
+      {/* My Schedule Tab — committed scheduled jobs + browse available board */}
       {(activeTab as string) === 'schedule' && (
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 space-y-5">
           {/* Tab header with sub-view toggle */}
@@ -631,8 +631,9 @@ function DriverDashboard() {
                   <div key={job.id} className="p-4 border border-slate-200 rounded-xl space-y-2 hover:border-indigo-200 transition-colors">
                     <div className="flex items-center justify-between flex-wrap gap-2">
                       <span className="font-bold text-slate-800 text-sm font-heading">{job.cargoType}</span>
-                      <span className="text-[10px] font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full border border-indigo-200">
-                        📅 {formatDate(job.scheduledAt)}
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full border border-indigo-200">
+                        <CalendarClock size={10} />
+                        {formatDate(job.scheduledAt)}
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100">
@@ -642,7 +643,7 @@ function DriverDashboard() {
                       <span>{job.weightKg} kg · {job.distanceKm} km</span>
                       <span className="font-bold font-mono text-emerald-600">{formatPrice(job.price)}</span>
                     </div>
-                    {/* VRP route optimization button — reuses existing fetchRoute flow */}
+                    {/* VRP route optimization button */}
                     <button
                       onClick={fetchRoute}
                       className="w-full mt-1 px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition-colors"
@@ -673,8 +674,9 @@ function DriverDashboard() {
                   <div key={job.id} className="p-4 border border-slate-200 rounded-xl space-y-2 hover:border-indigo-300 transition-colors">
                     <div className="flex items-center justify-between flex-wrap gap-2">
                       <span className="font-bold text-slate-800 text-sm font-heading">{job.cargoType}</span>
-                      <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded-full border border-amber-200">
-                        📅 {formatDate(job.scheduledAt)}
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded-full border border-amber-200">
+                        <CalendarClock size={10} />
+                        {formatDate(job.scheduledAt)}
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100">
@@ -684,13 +686,14 @@ function DriverDashboard() {
                       <span>{job.weightKg} kg · {job.distanceKm} km · {job.vehicleType.replace(/_/g, ' ')}</span>
                       <span className="font-bold font-mono text-emerald-600">{formatPrice(job.price)}</span>
                     </div>
-                    {/* Commit button — fires socket event, triggers transaction on backend */}
+                    {/* Commit button */}
                     <button
                       onClick={() => handleCommitScheduledJob(job.id)}
                       disabled={committingJobId === job.id}
-                      className="w-full mt-1 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-xs font-bold rounded-lg transition-colors shadow-sm"
+                      className="w-full mt-1 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-xs font-bold rounded-lg transition-colors shadow-sm flex items-center justify-center gap-1"
                     >
-                      {committingJobId === job.id ? 'Committing...' : '✅ Commit to This Job'}
+                      <LocateFixed size={12} />
+                      {committingJobId === job.id ? 'Committing...' : 'Commit to This Job'}
                     </button>
                   </div>
                 ))}
