@@ -7,6 +7,8 @@ import PaymentModal from '@/components/dashboard/PaymentModal';
 import StatusBadge from '@/components/ui/StatusBadge';
 import AddressSearchInput from '@/components/booking/AddressSearchInput';
 import MapView, { MapMarker } from '@/components/map/MapView';
+import TabNavigation from '@/components/ui/TabNavigation';
+import EmptyState from '@/components/ui/EmptyState';
 import { calculateQuote, QuoteResult } from '@/utils/pricing';
 import { formatPrice, formatDate } from '@/utils/formatters';
 import { toast } from 'react-hot-toast';
@@ -203,30 +205,14 @@ function ShipperDashboard() {
           Shipper Dashboard
         </h2>
         {/* Navigation Tabs */}
-        <div className="flex bg-slate-100 p-1 rounded-xl w-fit">
-          <button
-            onClick={() => setActiveTab('book')}
-            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${
-              activeTab === 'book'
-                ? 'bg-white text-slate-800 shadow-sm'
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <LayoutGrid size={14} />
-            Book Delivery
-          </button>
-          <button
-            onClick={() => setActiveTab('list')}
-            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${
-              activeTab === 'list'
-                ? 'bg-white text-slate-800 shadow-sm'
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <ClipboardList size={14} />
-            My Bookings ({bookings.length})
-          </button>
-        </div>
+        <TabNavigation
+          tabs={[
+            { id: 'book', label: 'Book Delivery', icon: LayoutGrid },
+            { id: 'list', label: `My Bookings (${bookings.length})`, icon: ClipboardList }
+          ]}
+          activeTab={activeTab}
+          onChange={setActiveTab}
+        />
       </div>
 
       {activeTab === 'book' ? (
@@ -468,16 +454,19 @@ function ShipperDashboard() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-slate-400">
-              <ClipboardList size={40} className="mx-auto text-slate-300 mb-3" />
-              <p className="text-sm font-medium">No bookings found</p>
-              <button 
-                onClick={() => setActiveTab('book')}
-                className="mt-3 text-xs font-bold text-indigo-600 hover:underline"
-              >
-                Create your first delivery booking
-              </button>
-            </div>
+            <EmptyState
+              icon={ClipboardList}
+              title="No bookings found"
+              description="You have not created any freight bookings yet."
+              action={
+                <button 
+                  onClick={() => setActiveTab('book')}
+                  className="text-xs font-bold text-indigo-600 hover:underline bg-transparent border-none outline-none cursor-pointer"
+                >
+                  Create your first delivery booking
+                </button>
+              }
+            />
           )}
         </div>
       )}
