@@ -81,5 +81,35 @@ export const registerMatchingHandlers = (
                 socket.emit('error', { message: e.message });
             }
         });
+
+        /**
+         * NEW: Driver commits to a SCHEDULED booking via socket.
+         * Unlike the instant 'accept-bid' which uses a BullMQ queue,
+         * scheduled commits are direct DB transactions — no queue needed
+         * because the driver is self-selecting, not being timed out.
+         */
+        socket.on('commit-scheduled-job', async ({ bookingId }) => {
+            try {
+                const { commitScheduledJob } = await import('@/services/matching.service');
+                const booking = await commitScheduledJob(bookingId, user.id);
+
+                // Notify the shipper their scheduled job now has a committed driver
+                io.to(`shipper:${booking.shipperId}`).emit('scheduled-job-committed', {
+                    bookingId: booking.id,
+                    driverId: user.id,
+                    driverName: user.name,
+                    committedAt: booking.committedAt,
+                });
+
+                // Confirm back to the committing driver
+                socket.emit('commit-confirmed', {
+                    bookingId: booking.id,
+                    scheduledAt: booking.scheduledAt,
+                    message: 'You have successfully committed to this scheduled job.',
+                });
+            } catch (e: any) {
+                socket.emit('error', { message: e.message });
+            }
+        });
     });
 };
