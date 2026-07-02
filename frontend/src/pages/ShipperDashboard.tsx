@@ -6,14 +6,12 @@ import { useSocket, useSocketListener } from '@/hooks/useSocket';
 import PaymentModal from '@/components/dashboard/PaymentModal';
 import StatusBadge from '@/components/ui/StatusBadge';
 import AddressSearchInput from '@/components/booking/AddressSearchInput';
-import { ChangeMapView } from '@/components/map/MapViewHelper';
+import MapView, { MapMarker } from '@/components/map/MapView';
 import { calculateQuote, QuoteResult } from '@/utils/pricing';
 import { formatPrice, formatDate } from '@/utils/formatters';
 import { toast } from 'react-hot-toast';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
 import { geocodingService } from '@/services/geocoding.service';
-
+import { LayoutGrid, ClipboardList, MapPin } from 'lucide-react';
 
 function ShipperDashboard() {
   const { token } = useAuth();
@@ -23,6 +21,9 @@ function ShipperDashboard() {
 
   const [selectedBookingForPayment, setSelectedBookingForPayment] = useState<any | null>(null);
   const [bookingLoading, setBookingLoading] = useState(false);
+
+  // Tabs state: 'book' | 'list'
+  const [activeTab, setActiveTab] = useState<'book' | 'list'>('book');
 
   const [form, setForm] = useState({
     pickupLat: null as number | null,
@@ -40,7 +41,6 @@ function ShipperDashboard() {
   });
   const [quote, setQuote] = useState<QuoteResult | null>(null);
 
-  // Address search state
   const [pickupSearch, setPickupSearch] = useState('');
   const [dropoffSearch, setDropoffSearch] = useState('');
   const [pickupResults, setPickupResults] = useState<any[]>([]);
@@ -93,30 +93,6 @@ function ShipperDashboard() {
     }
   };
 
-  const pickupHandlers = useMemo(() => ({
-    dragend() {
-      const marker = pickupMarkerRef.current;
-      if (marker != null) {
-        const { lat, lng } = marker.getLatLng();
-        const nLat = Number(lat.toFixed(6)), nLng = Number(lng.toFixed(6));
-        setForm(prev => ({ ...prev, pickupLat: nLat, pickupLng: nLng }));
-        reverseGeocode(nLat, nLng, 'pickup');
-      }
-    },
-  }), []);
-
-  const dropoffHandlers = useMemo(() => ({
-    dragend() {
-      const marker = dropoffMarkerRef.current;
-      if (marker != null) {
-        const { lat, lng } = marker.getLatLng();
-        const nLat = Number(lat.toFixed(6)), nLng = Number(lng.toFixed(6));
-        setForm(prev => ({ ...prev, dropoffLat: nLat, dropoffLng: nLng }));
-        reverseGeocode(nLat, nLng, 'dropoff');
-      }
-    },
-  }), []);
-
   const locateMe = () => {
     if (!navigator.geolocation) { toast.error('Geolocation is not supported by your browser'); return; }
     navigator.geolocation.getCurrentPosition(
@@ -168,6 +144,7 @@ function ShipperDashboard() {
       toast.success('Booking created! ID: ' + booking.id);
       bookCargo(booking.id);
       fetchMyBookings();
+      setActiveTab('list'); // Switch to booking list automatically
     } catch (err: any) {
       toast.error(err?.response?.data?.message || 'Failed to create booking');
     } finally { setBookingLoading(false); }
@@ -188,186 +165,322 @@ function ShipperDashboard() {
     ? [form.pickupLat, form.pickupLng]
     : [19.0760, 72.8777];
 
+  const mapMarkers = useMemo(() => {
+    const markersList: MapMarker[] = [];
+    if (form.pickupLat !== null && form.pickupLng !== null) {
+      markersList.push({
+        lat: form.pickupLat,
+        lng: form.pickupLng,
+        popupText: 'Pickup (Drag me)',
+        draggable: true,
+        onDragEnd: (lat, lng) => {
+          setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng }));
+          reverseGeocode(lat, lng, 'pickup');
+        },
+        markerRef: pickupMarkerRef
+      });
+    }
+    if (form.dropoffLat !== null && form.dropoffLng !== null) {
+      markersList.push({
+        lat: form.dropoffLat,
+        lng: form.dropoffLng,
+        popupText: 'Drop-off (Drag me)',
+        draggable: true,
+        onDragEnd: (lat, lng) => {
+          setForm(prev => ({ ...prev, dropoffLat: lat, dropoffLng: lng }));
+          reverseGeocode(lat, lng, 'dropoff');
+        },
+        markerRef: dropoffMarkerRef
+      });
+    }
+    return markersList;
+  }, [form.pickupLat, form.pickupLng, form.dropoffLat, form.dropoffLng]);
+
   return (
     <div className="space-y-6">
-      <h2 className="text-[24px] font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Shipper Dashboard</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h2 className="text-2xl font-bold tracking-tight text-slate-800 font-heading">
+          Shipper Dashboard
+        </h2>
+        {/* Navigation Tabs */}
+        <div className="flex bg-slate-100 p-1 rounded-xl w-fit">
+          <button
+            onClick={() => setActiveTab('book')}
+            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+              activeTab === 'book'
+                ? 'bg-white text-slate-800 shadow-sm'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <LayoutGrid size={14} />
+            Book Delivery
+          </button>
+          <button
+            onClick={() => setActiveTab('list')}
+            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+              activeTab === 'list'
+                ? 'bg-white text-slate-800 shadow-sm'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <ClipboardList size={14} />
+            My Bookings ({bookings.length})
+          </button>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
-        {/* Left Column: Form & Map */}
-        <div className="xl:col-span-2 p-6 shadow-none card">
-          <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Book a Delivery</h3>
+      {activeTab === 'book' ? (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Top Full Width Map on Desktop/Tablet inside form view */}
+          <div className="lg:col-span-12 space-y-2">
+            <div className="flex items-center justify-between text-xs text-slate-500">
+              <span className="flex items-center gap-1 font-medium font-body">
+                <MapPin size={14} className="text-indigo-500" />
+                Select cargo endpoints by searching addresses or dragging pins
+              </span>
+              <button 
+                type="button" 
+                onClick={locateMe} 
+                className="px-3 py-1.5 text-xs font-bold bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors shadow-sm"
+              >
+                My Location
+              </button>
+            </div>
+            
+            <div className="h-64 sm:h-80 w-full overflow-hidden border border-slate-200 rounded-xl shadow-sm">
+              <MapView center={mapCenter} zoom={12} markers={mapMarkers} />
+            </div>
+          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Form Fields */}
-            <div className="space-y-4">
+          {/* Bottom Columns: Form & Info */}
+          <div className="lg:col-span-8 p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-6">
+            <h3 className="text-lg font-bold text-slate-800 font-heading">
+              Shipment Specifications
+            </h3>
 
-              {/* Pickup address */}
-              <AddressSearchInput
-                label="Pickup Location"
-                placeholder="Type pickup address..."
-                value={pickupSearch}
-                results={pickupResults}
-                searching={searchingPickup}
-                onChange={setPickupSearch}
-                onSearch={() => searchAddress(pickupSearch, 'pickup')}
-                onSelect={(r) => handleSelectResult(r, 'pickup')}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left Form Inputs */}
+              <div className="space-y-4">
+                <AddressSearchInput
+                  label="Pickup Location"
+                  placeholder="Type pickup address..."
+                  value={pickupSearch}
+                  results={pickupResults}
+                  searching={searchingPickup}
+                  onChange={setPickupSearch}
+                  onSearch={() => searchAddress(pickupSearch, 'pickup')}
+                  onSelect={(r) => handleSelectResult(r, 'pickup')}
+                />
 
-              <div className="flex justify-end">
-                <button type="button" onClick={locateMe} className="px-3 py-1.5 text-xs font-bold flex items-center gap-1 transition-all hover:bg-[var(--color-background)]" style={{ backgroundColor: 'var(--color-card)', color: 'var(--color-text-muted)', border: 'var(--border-width) solid var(--color-input-border)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>
-                  My Location
-                </button>
+                <AddressSearchInput
+                  label="Delivery Location"
+                  placeholder="Type drop-off address..."
+                  value={dropoffSearch}
+                  results={dropoffResults}
+                  searching={searchingDropoff}
+                  onChange={setDropoffSearch}
+                  onSearch={() => searchAddress(dropoffSearch, 'dropoff')}
+                  onSelect={(r) => handleSelectResult(r, 'dropoff')}
+                />
               </div>
 
-              {/* Dropoff address */}
-              <AddressSearchInput
-                label="Delivery Location"
-                placeholder="Type drop-off address..."
-                value={dropoffSearch}
-                results={dropoffResults}
-                searching={searchingDropoff}
-                onChange={setDropoffSearch}
-                onSearch={() => searchAddress(dropoffSearch, 'dropoff')}
-                onSelect={(r) => handleSelectResult(r, 'dropoff')}
-              />
-
-              <hr className="my-2" style={{ borderColor: 'var(--color-border)' }} />
-
-              {/* Cargo details */}
-              <div className="p-4 space-y-4 tracking-tight" style={{ backgroundColor: 'var(--color-background)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', fontFamily: 'var(--font-body)' }}>
-                <h4 className="text-xs font-extrabold tracking-tight uppercase" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Cargo Details</h4>
+              {/* Right Form Cargo Details */}
+              <div className="p-4 space-y-4 rounded-xl bg-slate-50 border border-slate-200/60 text-xs">
+                <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                  Cargo Parameters
+                </h4>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[10px] font-extrabold mb-1 tracking-tight" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>Cargo Type</label>
-                    <input placeholder="e.g. Electronics" value={form.cargoType} onChange={(e) => setForm({ ...form, cargoType: e.target.value })} className="input-field tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }} />
+                    <label className="block text-[10px] font-bold text-slate-500 mb-1">Cargo Type</label>
+                    <input 
+                      placeholder="e.g. Electronics" 
+                      value={form.cargoType} 
+                      onChange={(e) => setForm({ ...form, cargoType: e.target.value })} 
+                      className="input-field" 
+                    />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-extrabold mb-1 tracking-tight" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>Weight</label>
+                    <label className="block text-[10px] font-bold text-slate-500 mb-1">Weight</label>
                     <div className="relative flex items-center">
-                      <input placeholder="Weight" type="number" value={form.weightKg} onChange={(e) => setForm({ ...form, weightKg: +e.target.value })} className="input-field pr-10 tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }} />
-                      <span className="absolute right-3 text-xs font-extrabold pointer-events-none select-none" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>kg</span>
+                      <input 
+                        type="number" 
+                        value={form.weightKg} 
+                        onChange={(e) => setForm({ ...form, weightKg: +e.target.value })} 
+                        className="input-field pr-10" 
+                      />
+                      <span className="absolute right-3 text-xs font-bold text-slate-400 select-none">kg</span>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-extrabold mb-1 tracking-tight" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>Dimensions</label>
+                  <label className="block text-[10px] font-bold text-slate-500 mb-1">Dimensions</label>
                   <div className="grid grid-cols-3 gap-2">
                     {([
-                      { key: 'lengthCm', label: 'L (cm)', placeholder: 'Length' },
-                      { key: 'widthCm',  label: 'W (cm)', placeholder: 'Width'  },
-                      { key: 'heightCm', label: 'H (cm)', placeholder: 'Height' },
+                      { key: 'lengthCm', label: 'L', placeholder: 'Length' },
+                      { key: 'widthCm',  label: 'W', placeholder: 'Width'  },
+                      { key: 'heightCm', label: 'H', placeholder: 'Height' },
                     ] as const).map(({ key, label, placeholder }) => (
                       <div key={key} className="relative flex items-center">
-                        <input placeholder={placeholder} type="number" value={form[key]} onChange={(e) => setForm({ ...form, [key]: +e.target.value })} className="input-field pr-12 tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }} />
-                        <span className="absolute right-3 text-[10px] font-extrabold pointer-events-none select-none" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>{label}</span>
+                        <input 
+                          type="number" 
+                          value={form[key]} 
+                          onChange={(e) => setForm({ ...form, [key]: +e.target.value })} 
+                          className="input-field pr-8" 
+                          placeholder={placeholder}
+                        />
+                        <span className="absolute right-2.5 text-[9px] font-bold text-slate-400 select-none">{label}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-extrabold mb-1 tracking-tight" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>Vehicle Selection</label>
-                  <select value={form.vehicleType} onChange={(e) => setForm({ ...form, vehicleType: e.target.value as any })} className="input-field tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-body)' }}>
+                  <label className="block text-[10px] font-bold text-slate-500 mb-1">Vehicle Selection</label>
+                  <select 
+                    value={form.vehicleType} 
+                    onChange={(e) => setForm({ ...form, vehicleType: e.target.value as any })} 
+                    className="input-field"
+                  >
                     <option value="MINI_TEMPO">Mini Tempo</option>
                     <option value="PICKUP_TRUCK">Pickup Truck</option>
                     <option value="CONTAINER_3TON">3-Ton Container</option>
                   </select>
                 </div>
               </div>
-
-              <div className="pt-2 flex gap-2">
-                <button onClick={getQuote} className="flex-1 bg-transparent px-4 py-3 font-bold transition text-sm hover:bg-[var(--color-background)]" style={{ color: 'var(--color-primary)', border: 'var(--border-width) solid var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>
-                  Get Price
-                </button>
-                <button onClick={handleBooking} disabled={bookingLoading} className="flex-1 text-white px-4 py-3 font-bold transition text-sm hover:opacity-90 disabled:opacity-50" style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>
-                  {bookingLoading ? 'Booking...' : 'Book Now'}
-                </button>
-              </div>
-
-              {quote && (
-                <div className="space-y-2 text-xs" style={{ backgroundColor: 'var(--color-background)', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)', padding: '16px', fontFamily: 'var(--font-body)' }}>
-                  <p className="tracking-[0.08em] text-[10px]" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>Pricing Breakdown Scheme</p>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1" style={{ color: 'var(--color-text-main)' }}>
-                    <p>Distance: <span className="font-bold">{quote.distanceKm} km</span></p>
-                    <p>Billed Weight: <span className="font-bold">{quote.chargeable} kg</span></p>
-                    <p>Base Fare: <span className="font-bold">{formatPrice(quote.basePrice)}</span></p>
-                    <p>Distance Rate: <span className="font-bold">₹{quote.pricePerKm}/km</span></p>
-                    <p>Weight Rate: <span className="font-bold">₹{quote.costPerUnit}/kg</span></p>
-                  </div>
-                  <div className="border-t pt-2 flex justify-between items-center" style={{ borderColor: 'var(--color-border)' }}>
-                    <span className="text-sm font-bold" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Total Price Estimate:</span>
-                    <span className="text-2xl font-bold" style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-heading)' }}>{formatPrice(quote.estimated)}</span>
-                  </div>
-                </div>
-              )}
             </div>
 
-            {/* Map column */}
-            <div className="flex flex-col space-y-2">
-              <label className="block text-[10px] font-bold tracking-[0.08em]" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>Drag map pins to select locations</label>
-              <div className="h-80 lg:h-full overflow-hidden shadow-none relative min-h-[300px]" style={{ isolation: 'isolate', border: 'var(--border-width) solid var(--color-border)', borderRadius: 'var(--radius-card)' }}>
-                <MapContainer center={mapCenter} zoom={12} style={{ height: '100%', width: '100%' }}>
-                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                  <ChangeMapView center={mapCenter} />
-                  {form.pickupLat !== null && form.pickupLng !== null && (
-                    <Marker position={[form.pickupLat, form.pickupLng]} draggable eventHandlers={pickupHandlers} ref={pickupMarkerRef}>
-                      <Popup>Pickup (Drag me)</Popup>
-                    </Marker>
-                  )}
-                  {form.dropoffLat !== null && form.dropoffLng !== null && (
-                    <Marker position={[form.dropoffLat, form.dropoffLng]} draggable eventHandlers={dropoffHandlers} ref={dropoffMarkerRef}>
-                      <Popup>Drop-off (Drag me)</Popup>
-                    </Marker>
-                  )}
-                </MapContainer>
-              </div>
+            <div className="flex gap-3 pt-2">
+              <button 
+                onClick={getQuote} 
+                className="flex-1 bg-transparent hover:bg-slate-50 text-indigo-600 border border-indigo-600/30 rounded-xl py-3 font-bold text-xs transition-colors shadow-sm"
+              >
+                Get Price Quote
+              </button>
+              <button 
+                onClick={handleBooking} 
+                disabled={bookingLoading} 
+                className="flex-1 bg-slate-900 hover:bg-slate-800 text-white rounded-xl py-3 font-bold text-xs transition-all disabled:opacity-50 shadow-sm"
+              >
+                {bookingLoading ? 'Booking...' : 'Book Now'}
+              </button>
             </div>
           </div>
-        </div>
 
-        {/* Right Column: My Bookings */}
-        <div className="p-6 shadow-none card">
-          <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>My Bookings</h3>
-          <button onClick={fetchMyBookings} className="mb-4 px-4 py-2 text-sm font-semibold transition-all hover:bg-[var(--color-background)]" style={{ backgroundColor: 'var(--color-card)', color: 'var(--color-text-muted)', border: 'var(--border-width) solid var(--color-input-border)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>
-            Refresh
-          </button>
-          <div className="divide-y divide-[var(--color-border)]">
-            {bookings.map((b: any) => (
-              <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 transition">
-                <div className="space-y-1.5 flex-1 w-full" style={{ fontFamily: 'var(--font-body)' }}>
-                  <div className="flex items-center justify-between gap-2 mb-1 w-full">
-                    <span className="font-semibold text-[var(--color-text-main)]">{b.cargoType}</span>
-                    <StatusBadge status={b.status} />
+          {/* Pricing Quote Column */}
+          <div className="lg:col-span-4 space-y-4">
+            {quote ? (
+              <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-4 text-xs font-body text-slate-600">
+                <p className="font-mono text-[9px] font-bold tracking-wider uppercase text-slate-400">
+                  Fare Pricing Summary
+                </p>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>Distance:</span>
+                    <span className="font-bold text-slate-800">{quote.distanceKm} km</span>
                   </div>
-                  <p className="text-xs font-medium text-[var(--color-text-muted)] leading-relaxed">
-                    Price: <span className="font-semibold text-[var(--color-primary)]">{formatPrice(b.price)}</span>
-                    {b.status === 'ACCEPTED'   && ` | Pickup OTP: ${b.pickupOTP}`}
-                    {b.status === 'IN_TRANSIT' && ` | Dropoff OTP: ${b.dropoffOTP}`}
-                  </p>
-                  <p className="text-[10px] text-[var(--color-text-muted)]" style={{ fontFamily: 'var(--font-mono)' }}>{formatDate(b.createdAt)}</p>
+                  <div className="flex justify-between">
+                    <span>Chargeable weight:</span>
+                    <span className="font-bold text-slate-800">{quote.chargeable} kg</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Base Fare:</span>
+                    <span className="font-bold text-slate-800">{formatPrice(quote.basePrice)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Per Km Rate:</span>
+                    <span className="font-bold text-slate-800">₹{quote.pricePerKm}/km</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Per Kg Rate:</span>
+                    <span className="font-bold text-slate-800">₹{quote.costPerUnit}/kg</span>
+                  </div>
                 </div>
-                <div className="flex gap-2 w-full sm:w-auto justify-end shrink-0">
-                  {['PENDING', 'ACCEPTED'].includes(b.status) && (
-                    <button onClick={() => handleCancelBooking(b.id)} className="bg-transparent text-[var(--color-status-cancelled)] px-3.5 py-2 text-xs font-bold hover:bg-[#FEF2F2] transition-all" style={{ border: 'var(--border-width) solid var(--color-status-cancelled)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>
-                      Cancel
-                    </button>
-                  )}
-                  {b.status === 'DELIVERED' && (
-                    <button onClick={() => setSelectedBookingForPayment(b)} className="text-white px-3.5 py-2 text-xs font-bold hover:opacity-90 transition" style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>
-                      Pay
-                    </button>
-                  )}
-                  <button onClick={() => navigate(`/track/${b.id}`)} className="text-white px-3.5 py-2 text-xs font-bold hover:opacity-90 transition" style={{ backgroundColor: 'var(--color-primary)', borderRadius: 'var(--radius-button)', fontFamily: 'var(--font-heading)' }}>
-                    {['DELIVERED', 'COMPLETED'].includes(b.status) ? 'Details' : 'Track'}
-                  </button>
+                <div className="border-t border-slate-100 pt-4 flex justify-between items-center">
+                  <span className="text-sm font-bold text-slate-800 font-heading">Total Estimate:</span>
+                  <span className="text-2xl font-black text-indigo-600 font-heading">{formatPrice(quote.estimated)}</span>
                 </div>
               </div>
-            ))}
+            ) : (
+              <div className="p-6 bg-slate-50 border border-slate-200 border-dashed rounded-xl flex flex-col items-center justify-center text-center h-48 text-slate-400">
+                <p className="text-xs font-medium">Input cargo details and click "Get Price Quote" to review fare details</p>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      ) : (
+        /* My Bookings Tab */
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+            <h3 className="text-lg font-bold text-slate-800 font-heading">
+              Shipment Manifest
+            </h3>
+            <button 
+              onClick={fetchMyBookings} 
+              className="px-3.5 py-1.5 text-xs font-bold bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-500 transition-colors shadow-sm"
+            >
+              Refresh
+            </button>
+          </div>
+
+          {bookings.length > 0 ? (
+            <div className="divide-y divide-slate-100">
+              {bookings.map((b: any) => (
+                <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 transition">
+                  <div className="space-y-1.5 flex-1 min-w-0 font-body">
+                    <div className="flex items-center gap-3">
+                      <span className="font-bold text-slate-800 truncate text-sm">{b.cargoType}</span>
+                      <StatusBadge status={b.status} />
+                    </div>
+                    <p className="text-xs font-medium text-slate-500">
+                      Price: <span className="font-bold text-indigo-600 font-mono">{formatPrice(b.price)}</span>
+                      {b.status === 'ACCEPTED'   && ` | Pickup OTP: ${b.pickupOTP}`}
+                      {b.status === 'IN_TRANSIT' && ` | Dropoff OTP: ${b.dropoffOTP}`}
+                    </p>
+                    <p className="text-[10px] text-slate-400 font-mono">{formatDate(b.createdAt)}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {['PENDING', 'ACCEPTED'].includes(b.status) && (
+                      <button 
+                        onClick={() => handleCancelBooking(b.id)} 
+                        className="px-3.5 py-2 border border-red-200 hover:bg-red-50 text-red-600 text-xs font-bold rounded-lg transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                    {b.status === 'DELIVERED' && (
+                      <button 
+                        onClick={() => setSelectedBookingForPayment(b)} 
+                        className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors shadow-sm"
+                      >
+                        Pay
+                      </button>
+                    )}
+                    <button 
+                      onClick={() => navigate(`/track/${b.id}`)} 
+                      className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition-colors shadow-sm"
+                    >
+                      {['DELIVERED', 'COMPLETED'].includes(b.status) ? 'Details' : 'Track'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-slate-400">
+              <ClipboardList size={40} className="mx-auto text-slate-300 mb-3" />
+              <p className="text-sm font-medium">No bookings found</p>
+              <button 
+                onClick={() => setActiveTab('book')}
+                className="mt-3 text-xs font-bold text-indigo-600 hover:underline"
+              >
+                Create your first delivery booking
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {selectedBookingForPayment && (
         <PaymentModal
