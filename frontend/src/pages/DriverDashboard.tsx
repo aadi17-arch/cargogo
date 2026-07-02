@@ -200,35 +200,59 @@ function DriverDashboard() {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold tracking-tight text-slate-800 font-heading">
-        Driver Dashboard
+        Driver Hub
       </h2>
 
-      {/* Online status switch card */}
-      <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="space-y-1 font-body">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-slate-500">Service Mode:</span>
-            <span className={`text-sm font-black uppercase ${isOnline ? 'text-emerald-600' : 'text-rose-600'}`}>
-              {isOnline ? 'AVAILABLE' : 'UNAVAILABLE'}
+      {/* Horizontal 3-Column Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-body">
+        {/* Card 1: Service Mode / Status */}
+        <div className="p-5 bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col justify-between min-h-[120px]">
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Service Mode</span>
+            <div className="flex items-center gap-2">
+              <div className={`w-2.5 h-2.5 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+              <span className={`text-sm font-black uppercase ${isOnline ? 'text-emerald-600' : 'text-rose-600'}`}>
+                {isOnline ? 'Available' : 'Unavailable'}
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={toggleOnline}
+            className={`w-full mt-3 px-4 py-2 text-xs font-bold text-white rounded-lg transition-all shadow-sm border-none outline-none cursor-pointer ${
+              isOnline 
+                ? 'bg-rose-600 hover:bg-rose-500' 
+                : 'bg-slate-900 hover:bg-slate-800'
+            }`}
+          >
+            {isOnline ? 'Go Offline' : 'Go Online'}
+          </button>
+        </div>
+
+        {/* Card 2: Current Location */}
+        <div className="p-5 bg-white border border-slate-200 rounded-xl shadow-sm flex items-center gap-4 min-h-[120px]">
+          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-lg shrink-0">
+            <LocateFixed size={20} />
+          </div>
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Current Location</span>
+            <span className="text-sm font-bold text-slate-700 leading-normal block truncate max-w-[160px]" title={driverLocationName}>
+              {driverLocationName}
             </span>
           </div>
-          <p className="text-xs text-slate-400">
-            Location: <span className="font-semibold text-slate-700">{driverLocationName}</span>
-          </p>
-          <p className="text-xs text-slate-400">
-            Earnings: <span className="font-bold text-emerald-600 font-mono">{formatPrice(earnings)}</span>
-          </p>
         </div>
-        <button
-          onClick={toggleOnline}
-          className={`w-full md:w-auto px-6 py-2.5 text-xs font-bold text-white rounded-xl transition-all shadow-sm ${
-            isOnline 
-              ? 'bg-rose-600 hover:bg-rose-500' 
-              : 'bg-slate-900 hover:bg-slate-800'
-          }`}
-        >
-          {isOnline ? 'Go Unavailable' : 'Go Available'}
-        </button>
+
+        {/* Card 3: Total Earnings */}
+        <div className="p-5 bg-white border border-slate-200 rounded-xl shadow-sm flex items-center gap-4 min-h-[120px]">
+          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-lg shrink-0">
+            <span className="text-lg font-black font-mono">₹</span>
+          </div>
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Earnings</span>
+            <span className="text-2xl font-black text-emerald-600 font-mono tracking-tight block">
+              {formatPrice(earnings)}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Incoming bid Alert */}
@@ -278,7 +302,7 @@ function DriverDashboard() {
         tabs={[
           { id: 'my_jobs', label: `Your Jobs (${activeBookings.length})` },
           { id: 'jobs_board', label: `Available Jobs (${pendingBookings.length})` },
-          { id: 'past_jobs', label: `Past Jobs (${pastBookings.length})` }
+          { id: 'past_jobs', label: `Job History (${pastBookings.length})` }
         ]}
         activeTab={activeTab}
         onChange={(id) => { setActiveTab(id); if (id === 'jobs_board') loadData(); }}
@@ -290,14 +314,14 @@ function DriverDashboard() {
         activeBookings.length === 0 ? (
           <EmptyState
             icon={Clock}
-            title="No active deliveries assigned"
-            description="Go available to receive new delivery bids or accept jobs from the available board."
+            title="No active jobs"
+            description="Set your status to Available to see and accept new delivery requests."
             action={
               <button 
-                onClick={() => setActiveTab('jobs_board')} 
+                onClick={() => { setActiveTab('jobs_board'); loadData(); }} 
                 className="text-xs font-bold text-indigo-600 hover:underline bg-transparent border-none outline-none cursor-pointer"
               >
-                Accept jobs from available board
+                Browse Available Jobs
               </button>
             }
           />
