@@ -1,14 +1,16 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
 import { useSocket, useSocketListener } from '@/hooks/useSocket';
 import { driverService } from '@/services/driver.service';
+import { bookingService } from '@/services/booking.service';
 import { geocodingService } from '@/services/geocoding.service';
 import { VrpRouteResponse } from '@/types/driver.types';
+import { ScheduledJob } from '@/types/booking.types';
 import { toast } from 'react-hot-toast';
-import { LocateFixed, Navigation, Clock, FileText } from 'lucide-react';
+import { LocateFixed, Navigation, Clock, FileText, CalendarClock, Briefcase } from 'lucide-react';
 import StatusBadge from '@/components/ui/StatusBadge';
 import MapView, { MapMarker } from '@/components/map/MapView';
 import TabNavigation from '@/components/ui/TabNavigation';
@@ -26,7 +28,7 @@ function DriverDashboard() {
   const [countdown, setCountdown] = useState(30);
   const [earnings, setEarnings] = useState(0);
   const [pendingBookings, setPendingBookings] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'my_jobs' | 'jobs_board' | 'past_jobs'>('my_jobs');
+  const [activeTab, setActiveTab] = useState<'my_jobs' | 'jobs_board' | 'schedule' | 'past_jobs'>('my_jobs');
   const [routeData, setRouteData] = useState<VrpRouteResponse | null>(null);
   const [loadingRoute, setLoadingRoute] = useState(false);
   const [driverCoords, setDriverCoords] = useState<[number, number] | null>(null);
@@ -35,6 +37,14 @@ function DriverDashboard() {
   const [driverLocationName, setDriverLocationName] = useState<string>('Detecting...');
   const lastGeocodedCoords = useRef<[number, number] | null>(null);
   const navigate = useNavigate();
+  const { commitScheduledJob: socketCommitScheduledJob } = useSocket(token);
+
+  // NEW: Scheduled booking state
+  const [scheduledJobs, setScheduledJobs] = useState<ScheduledJob[]>([]);
+  const [availableScheduledJobs, setAvailableScheduledJobs] = useState<ScheduledJob[]>([]);
+  const [showScheduledBoard, setShowScheduledBoard] = useState(false);
+  const [committingJobId, setCommittingJobId] = useState<string | null>(null);
+  const [loadingScheduled, setLoadingScheduled] = useState(false);
 
   const resolveDriverAddress = async (lat: number, lng: number) => {
     try {
@@ -82,6 +92,32 @@ function DriverDashboard() {
     fetchRoute();
   };
 
+  // NEW: Load scheduled jobs for the driver
+  const loadScheduledJobs = useCallback(async () => {
+    setLoadingScheduled(true);
+    try {
+      const [upcoming, available] = await Promise.all([
+        bookingService.getScheduledJobs(),
+        bookingService.getAvailableScheduledJobs(),
+      ]);
+      setScheduledJobs(upcoming as ScheduledJob[]);
+      setAvailableScheduledJobs(available as ScheduledJob[]);
+    } catch (err) {
+      console.error('Failed to load scheduled jobs:', err);
+    } finally { setLoadingScheduled(false); }
+  }, []);
+
+  // NEW: Commit to a scheduled job via socket
+  const handleCommitScheduledJob = async (bookingId: string) => {
+    setCommittingJobId(bookingId);
+    try {
+      socketCommitScheduledJob(bookingId);
+      // Optimistically remove from available list; socket 'commit-confirmed' will confirm
+    } catch (err: any) {
+      toast.error('Failed to commit to job: ' + err.message);
+    } finally { setCommittingJobId(null); }
+  };
+
   const fetchRoute = async () => {
     let lat: number | undefined;
     let lng: number | undefined;
@@ -115,6 +151,17 @@ function DriverDashboard() {
   useSocketListener('driver:arrived', () => loadData());
   useSocketListener('trip:completed', () => loadData());
   useSocketListener('booking-cancelled', () => loadData());
+  // NEW: Listen for scheduled job notifications from the matching engine
+  useSocketListener('scheduled_job_available', (data: any) => {
+    toast.success(`📅 New scheduled job: ${data.cargoType} on ${formatDate(data.scheduledAt)}`, { duration: 6000 });
+    loadScheduledJobs(); // Refresh the available board
+  });
+  // NEW: Listen for commit confirmation
+  useSocketListener('commit-confirmed', (data: any) => {
+    toast.success(`✅ Committed! Job scheduled for ${formatDate(data.scheduledAt)}`);
+    setCommittingJobId(null);
+    loadScheduledJobs();
+  });
 
   useEffect(() => {
     const total = bookings
@@ -301,11 +348,17 @@ function DriverDashboard() {
       <TabNavigation
         tabs={[
           { id: 'my_jobs', label: `Your Jobs (${activeBookings.length})` },
-          { id: 'jobs_board', label: `Available Jobs (${pendingBookings.length})` },
+          { id: 'jobs_board', label: `Available (${pendingBookings.length})` },
+          // NEW: Schedule tab — loads scheduled data on activation
+          { id: 'schedule', label: `My Schedule (${scheduledJobs.length})` },
           { id: 'past_jobs', label: `History (${pastBookings.length})` }
         ]}
         activeTab={activeTab}
-        onChange={(id) => { setActiveTab(id); if (id === 'jobs_board') loadData(); }}
+        onChange={(id) => {
+          setActiveTab(id as any);
+          if (id === 'jobs_board') loadData();
+          if (id === 'schedule') loadScheduledJobs();
+        }}
         className="border-b-0"
       />
 
@@ -534,6 +587,121 @@ function DriverDashboard() {
               title="No past shipments found"
               description="Your completed or cancelled cargo deliveries will be listed here in your history."
             />
+          )}
+        </div>
+      )}
+
+      {/* NEW: My Schedule Tab — committed scheduled jobs + browse available board */}
+      {(activeTab as string) === 'schedule' && (
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 space-y-5">
+          {/* Tab header with sub-view toggle */}
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-bold text-slate-800 font-heading flex items-center gap-2">
+              <CalendarClock size={18} className="text-indigo-500" />
+              {showScheduledBoard ? 'Browse Available Jobs' : 'My Committed Schedule'}
+            </h3>
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setShowScheduledBoard(false); }}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all ${
+                  !showScheduledBoard ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'
+                }`}
+              >
+                My Schedule
+              </button>
+              <button
+                onClick={() => { setShowScheduledBoard(true); loadScheduledJobs(); }}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all ${
+                  showScheduledBoard ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-500 border-slate-200 hover:border-indigo-300'
+                }`}
+              >
+                <Briefcase size={10} className="inline mr-1" />
+                Find Jobs
+              </button>
+            </div>
+          </div>
+
+          {loadingScheduled ? (
+            <div className="py-12 text-center text-slate-400 text-xs font-medium animate-pulse">Loading scheduled jobs...</div>
+          ) : !showScheduledBoard ? (
+            /* Sub-view 1: My committed schedule */
+            scheduledJobs.length > 0 ? (
+              <div className="space-y-3">
+                {scheduledJobs.map((job: ScheduledJob) => (
+                  <div key={job.id} className="p-4 border border-slate-200 rounded-xl space-y-2 hover:border-indigo-200 transition-colors">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <span className="font-bold text-slate-800 text-sm font-heading">{job.cargoType}</span>
+                      <span className="text-[10px] font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full border border-indigo-200">
+                        📅 {formatDate(job.scheduledAt)}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                      <strong>Route:</strong> {job.pickupAddress} → {job.dropoffAddress}
+                    </p>
+                    <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
+                      <span>{job.weightKg} kg · {job.distanceKm} km</span>
+                      <span className="font-bold font-mono text-emerald-600">{formatPrice(job.price)}</span>
+                    </div>
+                    {/* VRP route optimization button — reuses existing fetchRoute flow */}
+                    <button
+                      onClick={fetchRoute}
+                      className="w-full mt-1 px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition-colors"
+                    >
+                      <Navigation size={10} className="inline mr-1" />
+                      Optimize My Full Route
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                icon={CalendarClock}
+                title="No committed scheduled jobs"
+                description="Browse available jobs below and commit to ones that fit your schedule."
+                action={
+                  <button onClick={() => setShowScheduledBoard(true)} className="text-xs font-bold text-indigo-600 hover:underline bg-transparent border-none cursor-pointer">
+                    Browse Available Jobs
+                  </button>
+                }
+              />
+            )
+          ) : (
+            /* Sub-view 2: Browse available scheduled jobs matching this driver's vehicle */
+            availableScheduledJobs.length > 0 ? (
+              <div className="space-y-3">
+                {availableScheduledJobs.map((job: ScheduledJob) => (
+                  <div key={job.id} className="p-4 border border-slate-200 rounded-xl space-y-2 hover:border-indigo-300 transition-colors">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <span className="font-bold text-slate-800 text-sm font-heading">{job.cargoType}</span>
+                      <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded-full border border-amber-200">
+                        📅 {formatDate(job.scheduledAt)}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                      <strong>Route:</strong> {job.pickupAddress} → {job.dropoffAddress}
+                    </p>
+                    <div className="flex items-center justify-between text-xs text-slate-500">
+                      <span>{job.weightKg} kg · {job.distanceKm} km · {job.vehicleType.replace(/_/g, ' ')}</span>
+                      <span className="font-bold font-mono text-emerald-600">{formatPrice(job.price)}</span>
+                    </div>
+                    {/* Commit button — fires socket event, triggers transaction on backend */}
+                    <button
+                      onClick={() => handleCommitScheduledJob(job.id)}
+                      disabled={committingJobId === job.id}
+                      className="w-full mt-1 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-xs font-bold rounded-lg transition-colors shadow-sm"
+                    >
+                      {committingJobId === job.id ? 'Committing...' : '✅ Commit to This Job'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                icon={Briefcase}
+                title="No available scheduled jobs"
+                description="No unassigned scheduled jobs match your vehicle type right now. Check back later."
+              />
+            )
           )}
         </div>
       )}
