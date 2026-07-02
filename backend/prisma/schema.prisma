@@ -60,6 +60,7 @@ model DriverProfile {
   updatedAt DateTime  @updatedAt
 
   @@map("driver_profiles")
+  @@index([isOnline])
 }
 
 model Vehicle {
@@ -114,6 +115,7 @@ model Booking {
   @@index([shipperId])
   @@index([driverId])
   @@index([status])
+  @@index([createdAt])
 
   review         Review?
   dispute        Dispute?
@@ -147,6 +149,8 @@ model Session {
   refreshToken String   @unique
   expiresAt    DateTime
   createdAt    DateTime @default(now())
+
+  @@index([userId])
 }
 
 model Payment {

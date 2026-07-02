@@ -31,7 +31,7 @@ export const addDispatchJob = async (
   );
 };
 export const startDispatchWorker = (io: any) => {
-  new Worker(
+  const worker = new Worker(
     'dispatch',
     async (job) => {
       const { bookingId, pickupLat, pickupLng, driverIndex } = job.data;
@@ -77,4 +77,5 @@ export const startDispatchWorker = (io: any) => {
      }
   );
   console.log('dispatcher worker started');
+  return worker;
 };

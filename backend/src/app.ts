@@ -66,9 +66,51 @@ app.get('/api/bookings', (req, res) => {
 const io = createSocketServer(httpServer);
 registerMatchingHandlers(io);
 registerTrackingHandlers(io);
-startDispatchWorker(io);
+const dispatchWorker = startDispatchWorker(io);
 app.set('io', io);
 
 httpServer.listen(PORT, () => {
     console.log(`Server is running on PORT ${PORT}`);
 });
+
+// Import connections for graceful shutdown
+import prisma from '@/config/database';
+import { redis } from '@/config/redis';
+import { dispatchQueue } from '@/queues/dispatch.queue';
+
+const gracefulShutdown = async (signal: string) => {
+  console.log(`\nReceived ${signal}. Starting graceful shutdown...`);
+  
+  httpServer.close(async () => {
+    console.log('HTTP server closed.');
+    
+    try {
+      // Disconnect Prisma
+      await prisma.$disconnect();
+      console.log('Database client disconnected.');
+      
+      // Disconnect Redis
+      await redis.quit();
+      console.log('Redis client disconnected.');
+      
+      // Close BullMQ Queue
+      await dispatchQueue.close();
+      console.log('BullMQ dispatch queue closed.');
+
+      // Close BullMQ Worker
+      if (dispatchWorker) {
+        await dispatchWorker.close();
+        console.log('BullMQ dispatch worker closed.');
+      }
+      
+      console.log('Graceful shutdown completed successfully.');
+      process.exit(0);
+    } catch (error) {
+      console.error('Error during graceful shutdown:', error);
+      process.exit(1);
+    }
+  });
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
