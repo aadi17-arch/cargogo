@@ -218,29 +218,8 @@ function ShipperDashboard() {
 
       {activeTab === 'book' ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Top Full Width Map on Desktop/Tablet inside form view */}
-          <div className="lg:col-span-12 space-y-2">
-            <div className="flex items-center justify-between text-xs text-slate-500">
-              <span className="flex items-center gap-1 font-medium font-body">
-                <MapPin size={14} className="text-indigo-500" />
-                Select cargo endpoints by searching addresses or dragging pins
-              </span>
-              <button 
-                type="button" 
-                onClick={locateMe} 
-                className="px-3 py-1.5 text-xs font-bold bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors shadow-sm"
-              >
-                My Location
-              </button>
-            </div>
-            
-            <div className="h-64 sm:h-80 w-full overflow-hidden border border-slate-200 rounded-xl shadow-sm">
-              <MapView center={mapCenter} zoom={12} markers={mapMarkers} />
-            </div>
-          </div>
-
-          {/* Bottom Columns: Form & Info */}
-          <div className="lg:col-span-8 p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-6">
+          {/* Left Column: Form Specs */}
+          <div className="lg:col-span-7 p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-6">
             <h3 className="text-lg font-bold text-slate-800 font-heading">
               Shipment Specifications
             </h3>
@@ -342,7 +321,7 @@ function ShipperDashboard() {
               </div>
             </div>
 
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3 pt-4 border-t border-slate-100">
               <PrimaryButton 
                 onClick={getQuote} 
                 variant="outline"
@@ -360,8 +339,28 @@ function ShipperDashboard() {
             </div>
           </div>
 
-          {/* Pricing Quote Column */}
-          <div className="lg:col-span-4 space-y-4">
+          {/* Right Column: Map & Price Quote Info */}
+          <div className="lg:col-span-5 space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs text-slate-500">
+                <span className="flex items-center gap-1 font-medium font-body">
+                  <MapPin size={14} className="text-indigo-500" />
+                  Endpoints (search above or drag pins)
+                </span>
+                <button 
+                  type="button" 
+                  onClick={locateMe} 
+                  className="px-3 py-1.5 text-xs font-bold bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors shadow-sm"
+                >
+                  My Location
+                </button>
+              </div>
+              
+              <div className="h-64 sm:h-80 w-full overflow-hidden border border-slate-200 rounded-xl shadow-sm">
+                <MapView center={mapCenter} zoom={12} markers={mapMarkers} />
+              </div>
+            </div>
+
             {quote ? (
               <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-4 text-xs font-body text-slate-600">
                 <p className="font-mono text-[9px] font-bold tracking-wider uppercase text-slate-400">
