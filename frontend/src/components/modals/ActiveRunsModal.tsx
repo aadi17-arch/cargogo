@@ -11,10 +11,10 @@ export default function ActiveRunsModal({ isOpen, onClose, activeShipperRuns }: 
   const navigate = useNavigate();
 
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} title="Active Deliveries" maxWidth="max-w-xl">
+    <BaseModal isOpen={isOpen} onClose={onClose} title="Active Shipments" maxWidth="max-w-xl">
       {activeShipperRuns.length === 0 ? (
         <div className="text-center py-6 text-slate-400">
-          <p className="text-sm font-medium">No active deliveries at this time.</p>
+          <p className="text-sm font-medium">No active shipments at this time.</p>
         </div>
       ) : (
         <div className="space-y-3">

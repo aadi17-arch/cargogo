@@ -13,7 +13,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
   ];
 
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} title="Pricing Schemes">
+    <BaseModal isOpen={isOpen} onClose={onClose} title="Pricing Plans">
       <div className="space-y-4">
         <p className="text-xs text-slate-500 leading-normal mb-2">
           CargoGo computes transparent dynamic rates based on base fare, total travel distance, and total cargo chargeable weight:

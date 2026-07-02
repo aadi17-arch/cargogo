@@ -189,7 +189,7 @@ function RegisterPage() {
 
         <p className="text-center text-xs text-slate-400 font-medium pt-2">
           Already have an account?{' '}
-          <Link to="/login" className="font-bold text-slate-800 hover:underline">Login here</Link>
+          <Link to="/login" className="font-bold text-slate-800 hover:underline">Back to Log In</Link>
         </p>
       </form>
     </div>

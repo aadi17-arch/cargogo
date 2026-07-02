@@ -7,7 +7,7 @@ interface SupportModalProps {
 
 export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} title="Customer Support">
+    <BaseModal isOpen={isOpen} onClose={onClose} title="Help Center">
       <div className="space-y-4">
         <p className="text-xs text-slate-500 leading-normal">
           If you encounter any issues during shipment, cargo tracking, driver verification, or payment completion, please reach out to us:

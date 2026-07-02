@@ -16,7 +16,7 @@ export default function DriverStatsModal({
   activeCount
 }: DriverStatsModalProps) {
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} title="My Performance" maxWidth="max-w-md">
+    <BaseModal isOpen={isOpen} onClose={onClose} title="Your Performance" maxWidth="max-w-md">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-slate-50 p-4 rounded-lg text-center border border-slate-100">
@@ -31,7 +31,7 @@ export default function DriverStatsModal({
 
         <div className="divide-y divide-slate-100 border-t border-slate-100 pt-3 space-y-2.5 text-xs">
           <div className="flex justify-between items-center py-1">
-            <span className="text-slate-500">Active Deliveries:</span>
+            <span className="text-slate-500">Active Jobs:</span>
             <span className="font-bold text-slate-800">{activeCount}</span>
           </div>
           <div className="flex justify-between items-center py-1">

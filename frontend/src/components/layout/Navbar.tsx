@@ -28,7 +28,7 @@ export default function Navbar({
   const name = authUser?.name || propUserName;
   const role = authUser?.role || propUserRole;
 
-  const [activeLink, setActiveLink] = useState('Book Delivery');
+  const [activeLink, setActiveLink] = useState('New Shipment');
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const [logoutHovered, setLogoutHovered] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -82,12 +82,12 @@ export default function Navbar({
 
   const getNavLinks = () => {
     if (!token) {
-      return ['Pricing', 'Track Shipment', 'For Shippers', 'For Drivers', 'Services', 'FAQ', 'Support'];
+      return ['Pricing Plans', 'Track Shipment', 'For Shippers', 'For Drivers', 'Services', 'Help & FAQs', 'Help Center'];
     }
     if (role === 'DRIVER') {
-      return ['Dashboard', 'Performance', 'FAQ', 'Support'];
+      return ['Overview', 'Performance', 'Help & FAQs', 'Help Center'];
     }
-    return ['Book Delivery', 'Active Deliveries', 'Pricing', 'Services', 'FAQ', 'Support'];
+    return ['New Shipment', 'Active Shipments', 'Pricing Plans', 'Services', 'Help & FAQs', 'Help Center'];
   };
 
   const navLinks = getNavLinks();
@@ -95,15 +95,15 @@ export default function Navbar({
   const handleLinkClick = (linkName: string) => {
     setActiveLink(linkName);
     setMenuOpen(false);
-    if (linkName === 'Book Delivery') {
+    if (linkName === 'New Shipment') {
       navigate('/shipper');
       return;
     }
-    if (linkName === 'Dashboard') {
+    if (linkName === 'Overview') {
       navigate('/driver');
       return;
     }
-    if (linkName === 'Active Deliveries') {
+    if (linkName === 'Active Shipments') {
       setShowActiveRuns(true);
       return;
     }
@@ -113,15 +113,15 @@ export default function Navbar({
     }
 
     if (token) {
-      if (linkName === 'FAQ') {
+      if (linkName === 'Help & FAQs') {
         setShowFAQ(true);
         return;
       }
-      if (linkName === 'Support') {
+      if (linkName === 'Help Center') {
         setShowSupport(true);
         return;
       }
-      if (linkName === 'Pricing') {
+      if (linkName === 'Pricing Plans') {
         setShowRates(true);
         return;
       }
@@ -146,10 +146,10 @@ export default function Navbar({
     }
 
     const sectionIds: Record<string, string> = {
-      'Pricing': 'pricing',
+      'Pricing Plans': 'pricing',
       'Services': 'services',
-      'FAQ': 'faq',
-      'Support': 'support'
+      'Help & FAQs': 'faq',
+      'Help Center': 'support'
     };
 
     const targetId = sectionIds[linkName];
@@ -340,7 +340,7 @@ export default function Navbar({
               onClick={() => setShowTrackModal(false)}
               className="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold rounded-lg transition-colors"
             >
-              Cancel
+              Go Back
             </button>
             <button 
               type="submit"
@@ -368,7 +368,7 @@ export default function Navbar({
               onClick={() => setShowShippersModal(false)}
               className="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold rounded-lg transition-colors"
             >
-              Close
+              Go Back
             </button>
             <button 
               onClick={() => {
@@ -399,7 +399,7 @@ export default function Navbar({
               onClick={() => setShowDriversModal(false)}
               className="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold rounded-lg transition-colors"
             >
-              Close
+              Go Back
             </button>
             <button 
               onClick={() => {

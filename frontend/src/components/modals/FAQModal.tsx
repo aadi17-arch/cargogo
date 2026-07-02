@@ -26,7 +26,7 @@ export default function FAQModal({ isOpen, onClose }: FAQModalProps) {
   ];
 
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} title="Frequently Asked Questions">
+    <BaseModal isOpen={isOpen} onClose={onClose} title="Help & FAQs">
       <div className="space-y-4">
         {faqs.map((faq, idx) => (
           <div key={idx} className="p-4 rounded-lg bg-slate-50 border border-slate-100">

@@ -121,7 +121,7 @@ function LoginPage() {
               onClick={() => setShowResetModal(true)}
               className="text-[11px] font-bold text-indigo-600 hover:underline bg-transparent border-none outline-none cursor-pointer"
             >
-              Forgot Password?
+              Reset password?
             </button>
           </div>
           <AuthFormField
@@ -139,12 +139,12 @@ function LoginPage() {
           fullWidth
           className="py-3 text-sm"
         >
-          Sign In
+          Log In
         </PrimaryButton>
 
         <p className="text-center text-xs text-slate-400 font-medium">
-          Don't have an account?{' '}
-          <Link to="/register" className="font-bold text-slate-800 hover:underline">Register here</Link>
+          New here?{' '}
+          <Link to="/register" className="font-bold text-slate-800 hover:underline">Create an account</Link>
         </p>
       </form>
 

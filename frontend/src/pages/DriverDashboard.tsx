@@ -209,7 +209,7 @@ function DriverDashboard() {
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-slate-500">Service Mode:</span>
             <span className={`text-sm font-black uppercase ${isOnline ? 'text-emerald-600' : 'text-rose-600'}`}>
-              {isOnline ? 'ONLINE' : 'OFFLINE'}
+              {isOnline ? 'AVAILABLE' : 'UNAVAILABLE'}
             </span>
           </div>
           <p className="text-xs text-slate-400">
@@ -227,7 +227,7 @@ function DriverDashboard() {
               : 'bg-slate-900 hover:bg-slate-800'
           }`}
         >
-          {isOnline ? 'Go Offline' : 'Go Online'}
+          {isOnline ? 'Go Unavailable' : 'Go Available'}
         </button>
       </div>
 
@@ -261,7 +261,7 @@ function DriverDashboard() {
               onClick={handleAcceptBid} 
               className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 text-xs font-bold rounded-xl transition-colors shadow-sm"
             >
-              Accept Order
+              Accept Job
             </button>
             <button 
               onClick={handleRejectBid} 
@@ -276,9 +276,9 @@ function DriverDashboard() {
       {/* Navigation Tabs */}
       <TabNavigation
         tabs={[
-          { id: 'my_jobs', label: `My Deliveries (${activeBookings.length})` },
-          { id: 'jobs_board', label: `Available Board (${pendingBookings.length})` },
-          { id: 'past_jobs', label: `History (${pastBookings.length})` }
+          { id: 'my_jobs', label: `Your Jobs (${activeBookings.length})` },
+          { id: 'jobs_board', label: `Available Jobs (${pendingBookings.length})` },
+          { id: 'past_jobs', label: `Past Jobs (${pastBookings.length})` }
         ]}
         activeTab={activeTab}
         onChange={(id) => { setActiveTab(id); if (id === 'jobs_board') loadData(); }}
@@ -291,7 +291,7 @@ function DriverDashboard() {
           <EmptyState
             icon={Clock}
             title="No active deliveries assigned"
-            description="Go online to receive new delivery bids or accept jobs from the available board."
+            description="Go available to receive new delivery bids or accept jobs from the available board."
             action={
               <button 
                 onClick={() => setActiveTab('jobs_board')} 
@@ -449,7 +449,7 @@ function DriverDashboard() {
                     onClick={() => handleAcceptPending(b.id)} 
                     className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 font-bold rounded-lg shadow-sm shrink-0"
                   >
-                    Accept Cargo
+                    Accept Job
                   </button>
                 </div>
               ))}

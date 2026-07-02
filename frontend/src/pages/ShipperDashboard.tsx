@@ -207,8 +207,8 @@ function ShipperDashboard() {
         {/* Navigation Tabs */}
         <TabNavigation
           tabs={[
-            { id: 'book', label: 'Book Delivery', icon: LayoutGrid },
-            { id: 'list', label: `My Bookings (${bookings.length})`, icon: ClipboardList }
+            { id: 'book', label: '+ New Shipment', icon: LayoutGrid },
+            { id: 'list', label: `Your Shipments (${bookings.length})`, icon: ClipboardList }
           ]}
           activeTab={activeTab}
           onChange={setActiveTab}
@@ -349,7 +349,7 @@ function ShipperDashboard() {
                 disabled={bookingLoading} 
                 className="flex-1 bg-slate-900 hover:bg-slate-800 text-white rounded-xl py-3 font-bold text-xs transition-all disabled:opacity-50 shadow-sm"
               >
-                {bookingLoading ? 'Booking...' : 'Book Now'}
+                {bookingLoading ? 'Creating...' : 'Create Shipment'}
               </button>
             </div>
           </div>
@@ -456,14 +456,14 @@ function ShipperDashboard() {
           ) : (
             <EmptyState
               icon={ClipboardList}
-              title="No bookings found"
-              description="You have not created any freight bookings yet."
+              title="No shipments found"
+              description="You have not created any freight shipments yet."
               action={
                 <button 
                   onClick={() => setActiveTab('book')}
                   className="text-xs font-bold text-indigo-600 hover:underline bg-transparent border-none outline-none cursor-pointer"
                 >
-                  Create your first delivery booking
+                  Start your first shipment
                 </button>
               }
             />

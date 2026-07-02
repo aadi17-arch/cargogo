@@ -47,13 +47,13 @@ export default function PaymentModal({ booking, onClose, onSuccess }: PaymentMod
   };
 
   return (
-    <BaseModal isOpen={true} onClose={onClose} title="Secure Checkout" maxWidth="max-w-2xl">
+    <BaseModal isOpen={true} onClose={onClose} title="Billing Information" maxWidth="max-w-2xl">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start font-body text-slate-600 relative pb-16 md:pb-0">
         {/* Left Column: Form Fields (Payment Options) */}
         <div className="md:col-span-7 space-y-4">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
             <CreditCard size={14} className="text-indigo-500" />
-            Billing & Payment Selection
+            Billing Information
           </div>
 
           <div className="space-y-3.5">
@@ -86,7 +86,7 @@ export default function PaymentModal({ booking, onClose, onSuccess }: PaymentMod
               onClick={onClose} 
               disabled={processingPayment}
             >
-              Cancel
+              Go Back
             </PrimaryButton>
           </div>
         </div>
@@ -94,7 +94,7 @@ export default function PaymentModal({ booking, onClose, onSuccess }: PaymentMod
         {/* Right Column: Sticky Summary Box */}
         <div className="md:col-span-5 bg-slate-50 p-5 rounded-xl border border-slate-200/60 space-y-4">
           <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">
-            Transaction Summary
+            Cost Summary
           </h4>
 
           <div className="space-y-2 text-xs">
@@ -128,7 +128,7 @@ export default function PaymentModal({ booking, onClose, onSuccess }: PaymentMod
               fullWidth
               className="py-3 text-xs"
             >
-              Confirm & Pay ₹{booking.price}
+              Confirm Payment
             </PrimaryButton>
           </div>
         </div>
@@ -142,7 +142,7 @@ export default function PaymentModal({ booking, onClose, onSuccess }: PaymentMod
             disabled={processingPayment}
             className="flex-1 py-3 text-xs"
           >
-            Cancel
+            Go Back
           </PrimaryButton>
           <PrimaryButton
             type="button"
@@ -151,7 +151,7 @@ export default function PaymentModal({ booking, onClose, onSuccess }: PaymentMod
             fullWidth
             className="flex-1 py-3 text-xs"
           >
-            Pay ₹{booking.price}
+            Confirm Payment
           </PrimaryButton>
         </div>
       </div>
