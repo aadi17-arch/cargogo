@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 interface BaseModalProps {
   isOpen: boolean;
@@ -16,6 +17,11 @@ export default function BaseModal({
   children,
   maxWidth = 'max-w-lg'
 }: BaseModalProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Trap tab key focus within modal bounds
+  useFocusTrap(containerRef, isOpen);
+
   // Handle ESC key press
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -42,7 +48,8 @@ export default function BaseModal({
       onClick={onClose}
     >
       <div
-        className={`w-full ${maxWidth} bg-white rounded-xl shadow-xl border border-slate-100 flex flex-col max-h-[90vh] overflow-hidden transform transition-all`}
+        ref={containerRef}
+        className={`w-full ${maxWidth} bg-white rounded-[var(--radius-card)] shadow-xl border border-slate-100 flex flex-col max-h-[90vh] overflow-hidden transform transition-all`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
