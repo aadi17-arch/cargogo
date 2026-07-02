@@ -218,7 +218,7 @@ function DriverDashboard() {
           </div>
           <button
             onClick={toggleOnline}
-            className={`w-full mt-3 px-4 py-2 text-xs font-bold text-white rounded-lg transition-all shadow-sm border-none outline-none cursor-pointer ${
+            className={`w-full mt-3 px-4 py-3 text-xs font-bold text-white rounded-lg transition-all shadow-sm border-none outline-none cursor-pointer ${
               isOnline 
                 ? 'bg-rose-600 hover:bg-rose-500' 
                 : 'bg-slate-900 hover:bg-slate-800'
@@ -434,11 +434,11 @@ function DriverDashboard() {
                     {driverCoords && map && (
                       <button
                         onClick={() => map.setView(driverCoords, map.getZoom(), { animate: true })}
-                        className="absolute top-3 right-3 z-[1000] flex items-center justify-center bg-white hover:bg-slate-50 border border-slate-200 shadow-md rounded-lg p-2 transition cursor-pointer"
+                        className="absolute top-3 right-3 z-[1000] flex items-center justify-center bg-white hover:bg-slate-50 border border-slate-200 shadow-md rounded-lg p-2.5 transition cursor-pointer"
                         title="Focus current location"
-                        style={{ width: '34px', height: '34px' }}
+                        style={{ width: '44px', height: '44px' }}
                       >
-                        <LocateFixed size={16} className="text-slate-700" />
+                        <LocateFixed size={18} className="text-slate-700" />
                       </button>
                     )}
                   </div>

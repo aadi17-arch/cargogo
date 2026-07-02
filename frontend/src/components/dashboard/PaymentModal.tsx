@@ -48,7 +48,7 @@ export default function PaymentModal({ booking, onClose, onSuccess }: PaymentMod
 
   return (
     <BaseModal isOpen={true} onClose={onClose} title="Billing Information" maxWidth="max-w-2xl">
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start font-body text-slate-600 relative pb-16 md:pb-0">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start font-body text-slate-600 relative pb-20 md:pb-0">
         {/* Left Column: Form Fields (Payment Options) */}
         <div className="md:col-span-7 space-y-4">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">

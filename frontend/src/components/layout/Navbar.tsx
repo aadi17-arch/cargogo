@@ -246,7 +246,8 @@ export default function Navbar({
           {isMobile && (
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="p-1 rounded-md text-white/90 hover:text-white bg-transparent hover:bg-white/5 border border-white/10 cursor-pointer"
+              className="w-11 h-11 flex items-center justify-center rounded-lg text-white/90 hover:text-white bg-transparent hover:bg-white/5 border border-white/10 cursor-pointer"
+              aria-label="Toggle navigation menu"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {menuOpen ? (
@@ -267,7 +268,7 @@ export default function Navbar({
             <button
               key={link}
               onClick={() => handleLinkClick(link)}
-              className={`w-full text-left py-2.5 px-4 text-sm font-semibold rounded-lg transition-colors ${
+              className={`w-full text-left py-3 px-4 text-sm font-semibold rounded-lg transition-colors ${
                 activeLink === link ? 'bg-white/10 text-white' : 'text-white/80 hover:bg-white/5 hover:text-white'
               }`}
             >

@@ -44,22 +44,22 @@ export default function BaseModal({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity"
       onClick={onClose}
     >
       <div
         ref={containerRef}
-        className={`w-full ${maxWidth} bg-white rounded-[var(--radius-card)] shadow-xl border border-slate-100 flex flex-col max-h-[90vh] overflow-hidden transform transition-all`}
+        className={`w-full h-full sm:h-auto ${maxWidth} bg-white rounded-none sm:rounded-[var(--radius-card)] shadow-xl border border-slate-100 flex flex-col sm:max-h-[90vh] overflow-hidden transform transition-all`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
           <h3 className="text-lg font-bold text-slate-800 tracking-tight font-heading">
             {title}
           </h3>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors"
+            className="w-11 h-11 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors"
             aria-label="Close modal"
           >
             <X size={18} />

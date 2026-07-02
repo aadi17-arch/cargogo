@@ -209,7 +209,7 @@ function ShipperDashboard() {
         <TabNavigation
           tabs={[
             { id: 'book', label: '+ New Shipment', icon: LayoutGrid },
-            { id: 'list', label: `Your Shipments (${bookings.length})`, icon: ClipboardList }
+            { id: 'list', label: `History (${bookings.length})`, icon: ClipboardList }
           ]}
           activeTab={activeTab}
           onChange={setActiveTab}
@@ -326,18 +326,18 @@ function ShipperDashboard() {
               </div>
             </div>
 
-            <div className="flex gap-3 pt-4 border-t border-slate-100">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-3 pt-4 border-t border-slate-100">
               <PrimaryButton 
                 onClick={getQuote} 
                 variant="outline"
-                className="flex-1 py-3 text-xs"
+                className="w-full md:flex-1 py-3 text-xs"
               >
                 Get Price Quote
               </PrimaryButton>
               <PrimaryButton 
                 onClick={handleBooking} 
                 isLoading={bookingLoading} 
-                className="flex-1 py-3 text-xs"
+                className="w-full md:flex-1 py-3 text-xs"
               >
                 Create Shipment
               </PrimaryButton>
@@ -356,9 +356,9 @@ function ShipperDashboard() {
                   type="button" 
                   onClick={locateMe} 
                   title="Find my location"
-                  className="p-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors shadow-sm flex items-center justify-center"
+                  className="w-11 h-11 flex items-center justify-center bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors shadow-sm cursor-pointer"
                 >
-                  <LocateFixed size={14} />
+                  <LocateFixed size={16} />
                 </button>
               </div>
               
