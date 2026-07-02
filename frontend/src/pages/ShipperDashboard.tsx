@@ -219,7 +219,7 @@ function ShipperDashboard() {
       {activeTab === 'book' ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Form Specs */}
-          <div className="lg:col-span-7 p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-6">
+          <div className="lg:col-span-7 p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-6 order-2 lg:order-1">
             <h3 className="text-lg font-bold text-slate-800 font-heading">
               Shipment Specifications
             </h3>
@@ -345,7 +345,7 @@ function ShipperDashboard() {
           </div>
 
           {/* Right Column: Map & Price Quote Info */}
-          <div className="lg:col-span-5 space-y-4">
+          <div className="lg:col-span-5 space-y-4 order-1 lg:order-2">
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs text-slate-500">
                 <span className="flex items-center gap-1 font-medium font-body">
