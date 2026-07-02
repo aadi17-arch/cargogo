@@ -14,7 +14,8 @@ import { calculateQuote, QuoteResult } from '@/utils/pricing';
 import { formatPrice, formatDate } from '@/utils/formatters';
 import { toast } from 'react-hot-toast';
 import { geocodingService } from '@/services/geocoding.service';
-import { LayoutGrid, ClipboardList, MapPin, LocateFixed } from 'lucide-react';
+import { BookingType } from '@/types/booking.types';
+import { LayoutGrid, ClipboardList, MapPin, LocateFixed, Zap, CalendarClock } from 'lucide-react';
 
 function ShipperDashboard() {
   const { token } = useAuth();
@@ -27,6 +28,12 @@ function ShipperDashboard() {
 
   // Tabs state: 'book' | 'list'
   const [activeTab, setActiveTab] = useState<'book' | 'list'>('book');
+
+  // NEW: Scheduled booking state
+  const [bookingType, setBookingType] = useState<BookingType>('INSTANT');
+  const [scheduledAt, setScheduledAt] = useState<string>('');
+  // Filter for the manifest/history tab
+  const [manifestFilter, setManifestFilter] = useState<'all' | 'INSTANT' | 'SCHEDULED'>('all');
 
   const [form, setForm] = useState({
     pickupLat: null as number | null,
@@ -141,11 +148,30 @@ function ShipperDashboard() {
     if (!form.pickupAddress || !form.dropoffAddress) {
       toast.error('Please select valid addresses from the search dropdown.'); return;
     }
+
+    // NEW: For SCHEDULED bookings, validate the scheduled date
+    if (bookingType === 'SCHEDULED') {
+      if (!scheduledAt) { toast.error('Please select a pickup date/time for your scheduled shipment.'); return; }
+      const minTime = new Date(Date.now() + 2 * 60 * 60 * 1000);
+      if (new Date(scheduledAt) < minTime) { toast.error('Scheduled time must be at least 2 hours in the future.'); return; }
+    }
+
     setBookingLoading(true);
     try {
-      const booking = await apiCreateBooking(form as any);
-      toast.success('Booking created! ID: ' + booking.id);
-      bookCargo(booking.id);
+      const payload: any = {
+        ...form,
+        bookingType,
+        ...(bookingType === 'SCHEDULED' && scheduledAt ? { scheduledAt } : {}),
+      };
+      const booking = await apiCreateBooking(payload);
+      if (bookingType === 'INSTANT') {
+        // INSTANT: existing socket dispatch flow — broadcast to nearby drivers
+        toast.success('Booking created! Searching for available drivers...');
+        bookCargo(booking.id);
+      } else {
+        // SCHEDULED: no socket dispatch — job sits in the pool until a driver commits
+        toast.success(`Scheduled booking created! Drivers will be notified before ${formatDate(scheduledAt)}.`);
+      }
       fetchMyBookings();
       setActiveTab('list'); // Switch to booking list automatically
     } catch (err: any) {
@@ -223,6 +249,62 @@ function ShipperDashboard() {
             <h3 className="text-lg font-bold text-slate-800 font-heading">
               Shipment Specifications
             </h3>
+
+            {/* NEW: Booking type toggle — Instant vs. Scheduled */}
+            <div className="space-y-2">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider font-heading">
+                Dispatch Mode
+              </label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setBookingType('INSTANT')}
+                  className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg border transition-all ${
+                    bookingType === 'INSTANT'
+                      ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                      : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'
+                  }`}
+                >
+                  <Zap size={12} />
+                  Instant
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBookingType('SCHEDULED')}
+                  className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg border transition-all ${
+                    bookingType === 'SCHEDULED'
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                      : 'bg-white text-slate-500 border-slate-200 hover:border-indigo-300'
+                  }`}
+                >
+                  <CalendarClock size={12} />
+                  Schedule for Later
+                </button>
+              </div>
+              {/* Contextual hint for each mode */}
+              <p className="text-[10px] text-slate-400 leading-relaxed">
+                {bookingType === 'INSTANT'
+                  ? '⚡ Broadcasts to nearby online drivers immediately. Best for small/urgent cargo.'
+                  : '📅 Holds job in the scheduling pool. Drivers commit in advance. Best for heavy/planned cargo.'}
+              </p>
+            </div>
+
+            {/* NEW: Scheduled datetime picker — only shown when SCHEDULED is selected */}
+            {bookingType === 'SCHEDULED' && (
+              <div className="space-y-1.5 p-4 bg-indigo-50/50 border border-indigo-200/60 rounded-xl">
+                <label className="block text-[10px] font-bold text-indigo-600 uppercase tracking-wider font-heading">
+                  Pickup Date & Time Window
+                </label>
+                <input
+                  type="datetime-local"
+                  value={scheduledAt}
+                  onChange={(e) => setScheduledAt(e.target.value)}
+                  min={new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString().slice(0, 16)}
+                  className="w-full p-2.5 bg-white text-slate-800 text-xs font-medium rounded-lg border border-indigo-200 focus:outline-none focus:border-indigo-500 transition-all"
+                />
+                <p className="text-[9px] text-slate-400">Must be at least 2 hours in the future.</p>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Left Form Inputs */}
@@ -422,14 +504,36 @@ function ShipperDashboard() {
             </button>
           </div>
 
-          {bookings.length > 0 ? (
+          {/* NEW: Manifest filter pills */}
+          <div className="flex gap-2 mb-4">
+            {(['all', 'INSTANT', 'SCHEDULED'] as const).map(f => (
+              <button
+                key={f}
+                onClick={() => setManifestFilter(f)}
+                className={`px-3 py-1 text-[10px] font-bold rounded-full border transition-all ${
+                  manifestFilter === f
+                    ? 'bg-slate-900 text-white border-slate-900'
+                    : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'
+                }`}
+              >
+                {f === 'all' ? 'All' : f === 'INSTANT' ? '⚡ Instant' : '📅 Scheduled'}
+              </button>
+            ))}
+          </div>
+          {bookings.filter((b: any) => manifestFilter === 'all' || (b.bookingType ?? 'INSTANT') === manifestFilter).length > 0 ? (
             <div className="divide-y divide-slate-100">
-              {bookings.map((b: any) => (
+              {bookings.filter((b: any) => manifestFilter === 'all' || (b.bookingType ?? 'INSTANT') === manifestFilter).map((b: any) => (
                 <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 transition">
                   <div className="space-y-1.5 flex-1 min-w-0 font-body">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-wrap">
                       <span className="font-bold text-slate-800 truncate text-sm">{b.cargoType}</span>
                       <StatusBadge status={b.status} />
+                      {/* NEW: Show SCHEDULED badge + scheduled time for scheduled bookings */}
+                      {b.bookingType === 'SCHEDULED' && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[9px] font-bold rounded-full border border-indigo-200">
+                          📅 {b.scheduledAt ? formatDate(b.scheduledAt) : 'Scheduled'}
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs font-medium text-slate-500">
                       Price: <span className="font-bold text-indigo-600 font-mono">{formatPrice(b.price)}</span>
