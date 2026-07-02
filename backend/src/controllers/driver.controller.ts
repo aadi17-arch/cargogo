@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { toggleOnline, updateLocation } from "@/services/driver.service";
 import { OptimizedRoute } from "@/services/vrp.service";
+import { processScheduledPool } from "@/services/scheduled-jobs.service";
 import { catchAsync } from "@/utils/catchAsync";
 
 export const setOnline = catchAsync(async (req: Request, res: Response) => {
@@ -21,4 +22,15 @@ export const getRoute = catchAsync(async (req: Request, res: Response) => {
 
   const result = await OptimizedRoute(req.user.id, lat, lng);
   res.json({ success: true, data: result });
+});
+
+/**
+ * NEW: Manually trigger the scheduled pool matching engine.
+ * Useful for admin testing and also called by a BullMQ repeatable job in production.
+ * Gets the Socket.io server from Express app context to emit notifications.
+ */
+export const triggerScheduledMatch = catchAsync(async (req: Request, res: Response) => {
+  const io = req.app.get('io');
+  await processScheduledPool(io);
+  res.json({ success: true, message: 'Scheduled pool processed successfully' });
 });
