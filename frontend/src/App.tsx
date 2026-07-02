@@ -1,5 +1,5 @@
 import { useEffect, useRef, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
@@ -14,6 +14,7 @@ import LandingPage from '@/pages/LandingPage';
 const ShipperDashboard = lazy(() => import('@/pages/ShipperDashboard'));
 const DriverDashboard = lazy(() => import('@/pages/DriverDashboard'));
 const TrackingPage = lazy(() => import('@/pages/TrackingPage'));
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 
 function SessionInitializer({ children }: { children: React.ReactNode }) {
   const { token, user, getProfile } = useAuth();
@@ -82,7 +83,7 @@ function App() {
                 </Route>
               </Route>
 
-              <Route path="*" element={<Navigate to="/login" replace />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>
         </SessionInitializer>
