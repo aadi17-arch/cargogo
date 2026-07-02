@@ -177,20 +177,6 @@ export default function Navbar({
             </span>
           </div>
 
-          {/* Vertical Separator */}
-          {token && (
-            <>
-              <div className="w-[1px] h-5 bg-white/20" />
-              <div className="flex flex-col justify-center">
-                <span className="text-[10px] font-bold text-white/50 tracking-wider uppercase leading-none mb-0.5">
-                  Logged In As
-                </span>
-                <span className="text-xs font-bold leading-none truncate max-w-[120px]">
-                  {name}
-                </span>
-              </div>
-            </>
-          )}
         </div>
 
         {/* Center links - Desktop */}
@@ -222,18 +208,23 @@ export default function Navbar({
         {/* Right logout / sign in buttons */}
         <div className="flex items-center gap-4 h-full">
           {token ? (
-            <button
-              onClick={handleLogout}
-              onMouseEnter={() => setLogoutHovered(true)}
-              onMouseLeave={() => setLogoutHovered(false)}
-              className={`px-4 py-2 text-xs font-bold rounded-[var(--radius-button)] transition-all flex items-center gap-1.5 ${
-                logoutHovered 
-                  ? 'bg-red-600 text-white shadow-sm' 
-                  : 'bg-white/10 text-white border border-white/20'
-              }`}
-            >
-              Log Out
-            </button>
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-bold text-white/80 font-heading tracking-wide hidden sm:inline">
+                {name}
+              </span>
+              <button
+                onClick={handleLogout}
+                onMouseEnter={() => setLogoutHovered(true)}
+                onMouseLeave={() => setLogoutHovered(false)}
+                className={`px-4 py-2 text-xs font-bold rounded-[var(--radius-button)] transition-all flex items-center gap-1.5 ${
+                  logoutHovered 
+                    ? 'bg-red-600 text-white shadow-sm' 
+                    : 'bg-white/10 text-white border border-white/20'
+                }`}
+              >
+                Log Out
+              </button>
+            </div>
           ) : (
             <div className="flex items-center gap-2">
               <button
