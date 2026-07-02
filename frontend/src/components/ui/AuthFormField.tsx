@@ -7,9 +7,10 @@ interface AuthFormFieldProps {
   value: string;
   error?: string;
   onChange: (value: string) => void;
-showToggle?: boolean;
+  showToggle?: boolean;
   showPassword?: boolean;
   onTogglePassword?: () => void;
+  hideLabel?: boolean;
 }
 
 export default function AuthFormField({
@@ -22,8 +23,9 @@ export default function AuthFormField({
   showToggle = false,
   showPassword,
   onTogglePassword,
+  hideLabel = false
 }: AuthFormFieldProps) {
-  const inputClass = `w-full p-3 bg-white text-[var(--color-text-main)] placeholder-[#94A3B8] font-medium rounded-[var(--radius-card)] border-[var(--border-width)] focus:outline-none transition-all text-sm ${
+  const inputClass = `w-full p-3 bg-white text-[var(--color-text-main)] placeholder-[#94A3B8] font-medium rounded-[var(--radius-card)] border border-solid border-[var(--border-width)] focus:outline-none transition-all text-sm ${
     showToggle ? 'pr-10' : ''
   } ${
     error
@@ -32,13 +34,15 @@ export default function AuthFormField({
   }`;
 
   return (
-    <div className="mb-4">
-      <label
-        className="block text-xs font-bold mb-1.5"
-        style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}
-      >
-        {label}
-      </label>
+    <div className="mb-4 text-left">
+      {!hideLabel && label && (
+        <label
+          className="block text-xs font-bold mb-1.5"
+          style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}
+        >
+          {label}
+        </label>
+      )}
       <div className="relative">
         <input
           type={showToggle ? (showPassword ? 'text' : 'password') : type}

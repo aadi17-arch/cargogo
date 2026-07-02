@@ -131,6 +131,7 @@ function LoginPage() {
             showToggle showPassword={showPassword}
             onTogglePassword={() => setShowPassword(!showPassword)}
             onChange={handlePasswordChange}
+            hideLabel
           />
         </div>
 
