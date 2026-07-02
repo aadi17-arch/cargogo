@@ -24,11 +24,7 @@ export const getRoute = catchAsync(async (req: Request, res: Response) => {
   res.json({ success: true, data: result });
 });
 
-/**
- * NEW: Manually trigger the scheduled pool matching engine.
- * Useful for admin testing and also called by a BullMQ repeatable job in production.
- * Gets the Socket.io server from Express app context to emit notifications.
- */
+// Manual trigger to process the scheduled pool (admin and testing tool)
 export const triggerScheduledMatch = catchAsync(async (req: Request, res: Response) => {
   const io = req.app.get('io');
   await processScheduledPool(io);

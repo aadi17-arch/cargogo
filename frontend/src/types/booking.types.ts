@@ -44,11 +44,11 @@ export interface Booking {
   dropoffOTP?: string | null;
   createdAt: string;
   updatedAt: string;
-  // NEW: Scheduled booking fields — all optional/nullable so existing code is unaffected
+  // Scheduled delivery fields
   bookingType: BookingType;
-  scheduledAt?: string | null;       // ISO date string from API
+  scheduledAt?: string | null;
   scheduledUntil?: string | null;
-  committedAt?: string | null;       // When the driver committed
+  committedAt?: string | null;
 }
 
 export interface CargoDetails {
@@ -72,9 +72,9 @@ export interface CreateBookingRequest {
   widthCm: number;
   heightCm: number;
   vehicleType: VehicleType;
-  // NEW: Optional scheduled booking fields
+  // Scheduled option parameters
   bookingType?: BookingType;
-  scheduledAt?: string;    // ISO 8601 datetime string
+  scheduledAt?: string;
   scheduledUntil?: string;
 }
 
@@ -86,10 +86,7 @@ export interface PriceBreakdown {
   distanceKm: number;
 }
 
-/**
- * NEW: Represents a scheduled job as seen by the driver's Browse Jobs board.
- * This is a summary view — lighter than the full Booking object.
- */
+// Represents a scheduled job on the driver board
 export interface ScheduledJob {
   id: string;
   cargoType: string;

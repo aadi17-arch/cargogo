@@ -51,11 +51,10 @@ export const createBooking = async (input: createBookingInput) => {
 
     const bookingType = input.bookingType ?? 'INSTANT';
 
-    // SCHEDULED validation: pickup time must be at least 2 hours in the future.
-    // This prevents drivers from being bombarded with "urgent scheduled" jobs.
+    // Validate that scheduled booking is at least 2 hours in the future
     if (bookingType === 'SCHEDULED') {
         if (!input.scheduledAt) throw new AppError('scheduledAt is required for SCHEDULED bookings', 400);
-        const minLeadTime = new Date(Date.now() + 2 * 60 * 60 * 1000); // 2 hours from now
+        const minLeadTime = new Date(Date.now() + 2 * 60 * 60 * 1000); 
         if (new Date(input.scheduledAt) < minLeadTime) {
             throw new AppError('scheduledAt must be at least 2 hours in the future', 400);
         }
@@ -82,9 +81,7 @@ export const createBooking = async (input: createBookingInput) => {
             bookingType,
             scheduledAt: input.scheduledAt ? new Date(input.scheduledAt) : null,
             scheduledUntil: input.scheduledUntil ? new Date(input.scheduledUntil) : null,
-            // INSTANT: OTPs generated immediately (driver needs them on pickup day).
-            // SCHEDULED: OTPs deferred to commitToScheduledJob() — no point creating
-            // them days in advance when there's no driver assigned yet.
+            // Generate OTPs immediately for instant trips, but defer for scheduled ones
             ...(bookingType === 'INSTANT' ? {
                 pickupOTP: generateOTP(),
                 dropoffOTP: generateOTP(),
@@ -94,11 +91,7 @@ export const createBooking = async (input: createBookingInput) => {
     return { booking, pricing };
 }
 
-/**
- * NEW: Called when a driver explicitly commits to a SCHEDULED booking.
- * Runs inside a Prisma transaction to prevent double-commits (race condition safety).
- * Generates OTPs only at this point — security codes are only relevant once a driver is locked in.
- */
+// Commits a driver to a scheduled booking in a transaction to prevent double assignment
 export const commitToScheduledJob = async (bookingId: string, driverId: string) => {
     return prisma.$transaction(async (tx) => {
         const booking = await tx.booking.findUnique({ where: { id: bookingId } });

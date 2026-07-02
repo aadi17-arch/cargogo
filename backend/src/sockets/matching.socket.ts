@@ -82,12 +82,7 @@ export const registerMatchingHandlers = (
             }
         });
 
-        /**
-         * NEW: Driver commits to a SCHEDULED booking via socket.
-         * Unlike the instant 'accept-bid' which uses a BullMQ queue,
-         * scheduled commits are direct DB transactions — no queue needed
-         * because the driver is self-selecting, not being timed out.
-         */
+        // Handle driver commitment to a scheduled cargo job
         socket.on('commit-scheduled-job', async ({ bookingId }) => {
             try {
                 const { commitScheduledJob } = await import('@/services/matching.service');

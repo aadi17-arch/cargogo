@@ -88,7 +88,7 @@ class SocketService {
     this.emit('driver:location', { lat, lng });
   }
 
-  // NEW: Driver commits to a scheduled job via socket
+  // Driver commits to a scheduled job
   commitScheduledJob(bookingId: string) {
     this.emit('commit-scheduled-job', { bookingId });
   }

@@ -38,7 +38,7 @@ export const useSocket = (token?: string | null) => {
     socketService.updateLocation(lat, lng);
   }, []);
 
-  // NEW: Driver commits to a scheduled job
+  // Driver commits to a scheduled job
   const commitScheduledJob = useCallback((bookingId: string) => {
     socketService.commitScheduledJob(bookingId);
   }, []);

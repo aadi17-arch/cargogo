@@ -22,9 +22,7 @@ enum BookingStatus {
   DISPUTED
 }
 
-// NEW: Differentiates the two booking archetypes.
-// INSTANT = existing 30-sec bid broadcast flow (unchanged).
-// SCHEDULED = shipper selects future pickup window; driver commits in advance.
+// Distinguishes instant matching from scheduled bookings
 enum BookingType {
   INSTANT
   SCHEDULED
@@ -116,12 +114,11 @@ model Booking {
   pickupVerified  Boolean       @default(false)
   dropoffVerified Boolean       @default(false)
 
-  // NEW: Hybrid booking fields — all nullable/defaulted so existing rows are never broken.
-  // bookingType defaults to INSTANT so every existing booking row is unaffected post-migration.
+  // Fields for scheduled delivery options
   bookingType     BookingType   @default(INSTANT)
-  scheduledAt     DateTime?     // Pickup window start (null for instant bookings)
-  scheduledUntil  DateTime?     // Pickup window end (optional upper bound)
-  committedAt     DateTime?     // Timestamp when a driver committed to this scheduled job
+  scheduledAt     DateTime?     
+  scheduledUntil  DateTime?     
+  committedAt     DateTime?     
 
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt

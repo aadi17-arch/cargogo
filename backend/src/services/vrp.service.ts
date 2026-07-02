@@ -99,8 +99,7 @@ export const OptimizedRoute = async (
       cargoType: booking.cargoType,
       weightKg: booking.weightKg,
       expectedAccumulatedWeight: currentWeight,
-      // NEW: Include scheduling metadata so the frontend can label stops differently.
-      // Scheduled stops show their pickup window; instant stops show nothing extra.
+      // Add scheduling details to route metadata
       bookingType: (booking as any).bookingType ?? 'INSTANT',
       scheduledAt: (booking as any).scheduledAt ?? null,
     });

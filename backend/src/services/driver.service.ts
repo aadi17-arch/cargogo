@@ -79,10 +79,7 @@ export const getOnlineDrivers = async () => {
     });
 };
 
-/**
- * NEW: Returns all SCHEDULED+ACCEPTED bookings committed to this driver,
- * sorted by scheduledAt ascending (their chronological work schedule for the day).
- */
+// Returns all committed upcoming scheduled bookings for a driver
 export const getUpcomingScheduledJobs = async (driverId: string) => {
     return prisma.booking.findMany({
         where: {
@@ -94,13 +91,8 @@ export const getUpcomingScheduledJobs = async (driverId: string) => {
     });
 };
 
-/**
- * NEW: Returns SCHEDULED+PENDING jobs that match the driver's vehicle type and capacity.
- * This powers the driver's "Browse Available Scheduled Jobs" board.
- * Does not include jobs this driver is already committed to.
- */
+// Returns available scheduled jobs matching driver's vehicle specifications
 export const getAvailableScheduledJobs = async (driverId: string) => {
-    // First fetch this driver's vehicle info so we can filter by type+capacity
     const driver = await prisma.user.findUnique({
         where: { id: driverId },
         include: { vehicle: true },
@@ -111,10 +103,10 @@ export const getAvailableScheduledJobs = async (driverId: string) => {
         where: {
             bookingType: 'SCHEDULED',
             status: 'PENDING',
-            driverId: null,                                  // unassigned
-            vehicleType: driver.vehicle.type,               // must match vehicle class
-            weightKg: { lte: driver.vehicle.capacityKg },  // within vehicle capacity
-            scheduledAt: { gte: new Date() },              // only future jobs
+            driverId: null,
+            vehicleType: driver.vehicle.type,
+            weightKg: { lte: driver.vehicle.capacityKg },
+            scheduledAt: { gte: new Date() },
         },
         orderBy: { scheduledAt: 'asc' },
     });
