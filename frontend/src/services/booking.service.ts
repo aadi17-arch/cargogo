@@ -60,4 +60,22 @@ export const bookingService = {
   async fileDispute(bookingId: string, reason: string): Promise<void> {
     await api.post('/disputes/fileDispute', { bookingId, reason });
   },
+
+  // NEW: Fetch the driver's committed scheduled jobs (their upcoming schedule)
+  async getScheduledJobs(): Promise<any[]> {
+    const response = await api.get<ApiResponse<any[]>>('/bookings/scheduled/upcoming');
+    return response.data.data!;
+  },
+
+  // NEW: Fetch available scheduled jobs matching this driver's vehicle type
+  async getAvailableScheduledJobs(): Promise<any[]> {
+    const response = await api.get<ApiResponse<any[]>>('/bookings/scheduled/available');
+    return response.data.data!;
+  },
+
+  // NEW: Commit to a scheduled job via REST (alternative to socket-based commit)
+  async commitScheduledJob(bookingId: string): Promise<any> {
+    const response = await api.post<ApiResponse<any>>(`/bookings/${bookingId}/commit`);
+    return response.data.data!;
+  },
 };
