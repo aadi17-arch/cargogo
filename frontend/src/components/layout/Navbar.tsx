@@ -82,12 +82,12 @@ export default function Navbar({
 
   const getNavLinks = () => {
     if (!token) {
-      return ['Pricing Plans', 'Track Shipment', 'For Shippers', 'For Drivers', 'Services', 'Help & FAQs', 'Help Center'];
+      return ['Pricing Plans', 'Track Shipment', 'For Shippers', 'For Drivers', 'Service Areas', 'Help Center'];
     }
     if (role === 'DRIVER') {
-      return ['Overview', 'Performance', 'Help & FAQs', 'Help Center'];
+      return ['Overview', 'Performance', 'Help Center'];
     }
-    return ['New Shipment', 'Active Shipments', 'Pricing Plans', 'Services', 'Help & FAQs', 'Help Center'];
+    return ['New Shipment', 'Active Shipments', 'Pricing Plans', 'Service Areas', 'Help Center'];
   };
 
   const navLinks = getNavLinks();
@@ -113,10 +113,6 @@ export default function Navbar({
     }
 
     if (token) {
-      if (linkName === 'Help & FAQs') {
-        setShowFAQ(true);
-        return;
-      }
       if (linkName === 'Help Center') {
         setShowSupport(true);
         return;
@@ -125,7 +121,7 @@ export default function Navbar({
         setShowRates(true);
         return;
       }
-      if (linkName === 'Services') {
+      if (linkName === 'Service Areas') {
         setShowServices(true);
         return;
       }
@@ -147,8 +143,7 @@ export default function Navbar({
 
     const sectionIds: Record<string, string> = {
       'Pricing Plans': 'pricing',
-      'Services': 'services',
-      'Help & FAQs': 'faq',
+      'Service Areas': 'services',
       'Help Center': 'support'
     };
 
@@ -237,7 +232,7 @@ export default function Navbar({
                   : 'bg-white/10 text-white border border-white/20'
               }`}
             >
-              Logout
+              Log Out
             </button>
           ) : (
             <div className="flex items-center gap-2">

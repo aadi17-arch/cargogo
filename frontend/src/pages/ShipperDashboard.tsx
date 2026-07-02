@@ -9,6 +9,7 @@ import AddressSearchInput from '@/components/booking/AddressSearchInput';
 import MapView, { MapMarker } from '@/components/map/MapView';
 import TabNavigation from '@/components/ui/TabNavigation';
 import EmptyState from '@/components/ui/EmptyState';
+import PrimaryButton from '@/components/ui/PrimaryButton';
 import { calculateQuote, QuoteResult } from '@/utils/pricing';
 import { formatPrice, formatDate } from '@/utils/formatters';
 import { toast } from 'react-hot-toast';
@@ -202,7 +203,7 @@ function ShipperDashboard() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h2 className="text-2xl font-bold tracking-tight text-slate-800 font-heading">
-          Shipper Dashboard
+          Shipment Hub
         </h2>
         {/* Navigation Tabs */}
         <TabNavigation
@@ -249,7 +250,7 @@ function ShipperDashboard() {
               <div className="space-y-4">
                 <AddressSearchInput
                   label="Pickup Location"
-                  placeholder="Type pickup address..."
+                  placeholder="Enter pickup location"
                   value={pickupSearch}
                   results={pickupResults}
                   searching={searchingPickup}
@@ -260,7 +261,7 @@ function ShipperDashboard() {
 
                 <AddressSearchInput
                   label="Delivery Location"
-                  placeholder="Type drop-off address..."
+                  placeholder="Enter drop-off location"
                   value={dropoffSearch}
                   results={dropoffResults}
                   searching={searchingDropoff}
@@ -272,11 +273,12 @@ function ShipperDashboard() {
 
               {/* Right Form Cargo Details */}
               <div className="p-4 space-y-4 rounded-xl bg-slate-50 border border-slate-200/60 text-xs">
-                <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-500">
-                  Cargo Parameters
+                <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-500 font-heading">
+                  Cargo Details
                 </h4>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Row 1, Col 1: Cargo Type */}
                   <div>
                     <label className="block text-[10px] font-bold text-slate-500 mb-1">Cargo Type</label>
                     <input 
@@ -286,6 +288,7 @@ function ShipperDashboard() {
                       className="input-field" 
                     />
                   </div>
+                  {/* Row 1, Col 2: Weight */}
                   <div>
                     <label className="block text-[10px] font-bold text-slate-500 mb-1">Weight</label>
                     <div className="relative flex items-center">
@@ -298,59 +301,62 @@ function ShipperDashboard() {
                       <span className="absolute right-3 text-xs font-bold text-slate-400 select-none">kg</span>
                     </div>
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-500 mb-1">Dimensions</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {([
-                      { key: 'lengthCm', label: 'L', placeholder: 'Length' },
-                      { key: 'widthCm',  label: 'W', placeholder: 'Width'  },
-                      { key: 'heightCm', label: 'H', placeholder: 'Height' },
-                    ] as const).map(({ key, label, placeholder }) => (
-                      <div key={key} className="relative flex items-center">
-                        <input 
-                          type="number" 
-                          value={form[key]} 
-                          onChange={(e) => setForm({ ...form, [key]: +e.target.value })} 
-                          className="input-field pr-8" 
-                          placeholder={placeholder}
-                        />
-                        <span className="absolute right-2.5 text-[9px] font-bold text-slate-400 select-none">{label}</span>
-                      </div>
-                    ))}
+                  {/* Row 2, Col 1: Dimensions inline */}
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 mb-1">Dimensions</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {([
+                        { key: 'lengthCm', label: 'L', placeholder: 'L' },
+                        { key: 'widthCm',  label: 'W', placeholder: 'W'  },
+                        { key: 'heightCm', label: 'H', placeholder: 'H' },
+                      ] as const).map(({ key, label, placeholder }) => (
+                        <div key={key} className="relative flex items-center">
+                          <input 
+                            type="number" 
+                            value={form[key]} 
+                            onChange={(e) => setForm({ ...form, [key]: +e.target.value })} 
+                            className="input-field pr-6 text-xs p-2.5" 
+                            placeholder={placeholder}
+                          />
+                          <span className="absolute right-2 text-[9px] font-bold text-slate-400 select-none">{label}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-500 mb-1">Vehicle Selection</label>
-                  <select 
-                    value={form.vehicleType} 
-                    onChange={(e) => setForm({ ...form, vehicleType: e.target.value as any })} 
-                    className="input-field"
-                  >
-                    <option value="MINI_TEMPO">Mini Tempo</option>
-                    <option value="PICKUP_TRUCK">Pickup Truck</option>
-                    <option value="CONTAINER_3TON">3-Ton Container</option>
-                  </select>
+                  {/* Row 2, Col 2: Vehicle Selection */}
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 mb-1">Select Vehicle</label>
+                    <select 
+                      value={form.vehicleType} 
+                      onChange={(e) => setForm({ ...form, vehicleType: e.target.value as any })} 
+                      className="input-field"
+                    >
+                      <option value="MINI_TEMPO">Mini Tempo</option>
+                      <option value="PICKUP_TRUCK">Pickup Truck</option>
+                      <option value="CONTAINER_3TON">3-Ton Container</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className="flex gap-3 pt-2">
-              <button 
+              <PrimaryButton 
                 onClick={getQuote} 
-                className="flex-1 bg-transparent hover:bg-slate-50 text-indigo-600 border border-indigo-600/30 rounded-xl py-3 font-bold text-xs transition-colors shadow-sm"
+                variant="outline"
+                className="flex-1 py-3 text-xs"
               >
                 Get Price Quote
-              </button>
-              <button 
+              </PrimaryButton>
+              <PrimaryButton 
                 onClick={handleBooking} 
-                disabled={bookingLoading} 
-                className="flex-1 bg-slate-900 hover:bg-slate-800 text-white rounded-xl py-3 font-bold text-xs transition-all disabled:opacity-50 shadow-sm"
+                isLoading={bookingLoading} 
+                className="flex-1 py-3 text-xs"
               >
-                {bookingLoading ? 'Creating...' : 'Create Shipment'}
-              </button>
+                Create Shipment
+              </PrimaryButton>
             </div>
           </div>
 
