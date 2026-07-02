@@ -1,15 +1,19 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from '@/pages/LoginPage';
-import RegisterPage from '@/pages/RegisterPage';
-import LandingPage from '@/pages/LandingPage';
-import ShipperDashboard from '@/pages/ShipperDashboard';
-import DriverDashboard from '@/pages/DriverDashboard';
-import TrackingPage from '@/pages/TrackingPage';
 import Layout from '@/components/layout/Layout';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
+
+// Eager load authentications and landing (main entry pages)
+import LoginPage from '@/pages/LoginPage';
+import RegisterPage from '@/pages/RegisterPage';
+import LandingPage from '@/pages/LandingPage';
+
+// Lazy load dashboards & tracking pages to optimize initial bundle sizes
+const ShipperDashboard = lazy(() => import('@/pages/ShipperDashboard'));
+const DriverDashboard = lazy(() => import('@/pages/DriverDashboard'));
+const TrackingPage = lazy(() => import('@/pages/TrackingPage'));
 
 function SessionInitializer({ children }: { children: React.ReactNode }) {
   const { token, user, getProfile } = useAuth();
@@ -23,6 +27,16 @@ function SessionInitializer({ children }: { children: React.ReactNode }) {
   }, [token, user, getProfile]);
 
   return <>{children}</>;
+}
+
+// Simple fallback loading indicator
+function SuspenseLoader() {
+  return (
+    <div className="min-h-[50vh] flex flex-col items-center justify-center">
+      <div className="w-8 h-8 border-4 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+      <p className="mt-4 text-xs font-bold text-slate-500 font-heading">Loading portal components...</p>
+    </div>
+  );
 }
 
 function App() {
@@ -45,30 +59,32 @@ function App() {
       />
       <BrowserRouter>
         <SessionInitializer>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+          <Suspense fallback={<SuspenseLoader />}>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
 
-            <Route element={<Layout />}>
-              {/* Shipper Dashboard Guard */}
-              <Route element={<ProtectedRoute allowedRoles={['SHIPPER']} />}>
-                <Route path="/shipper" element={<ShipperDashboard />} />
+              <Route element={<Layout />}>
+                {/* Shipper Dashboard Guard */}
+                <Route element={<ProtectedRoute allowedRoles={['SHIPPER']} />}>
+                  <Route path="/shipper" element={<ShipperDashboard />} />
+                </Route>
+
+                {/* Driver Dashboard Guard */}
+                <Route element={<ProtectedRoute allowedRoles={['DRIVER']} />}>
+                  <Route path="/driver" element={<DriverDashboard />} />
+                </Route>
+
+                {/* General Protected Routes (Any logged-in role can track) */}
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/track/:bookingId" element={<TrackingPage />} />
+                </Route>
               </Route>
 
-              {/* Driver Dashboard Guard */}
-              <Route element={<ProtectedRoute allowedRoles={['DRIVER']} />}>
-                <Route path="/driver" element={<DriverDashboard />} />
-              </Route>
-
-              {/* General Protected Routes (Any logged-in role can track) */}
-              <Route element={<ProtectedRoute />}>
-                <Route path="/track/:bookingId" element={<TrackingPage />} />
-              </Route>
-            </Route>
-
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </Routes>
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
+          </Suspense>
         </SessionInitializer>
       </BrowserRouter>
     </>
