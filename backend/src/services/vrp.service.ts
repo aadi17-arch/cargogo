@@ -98,7 +98,11 @@ export const OptimizedRoute = async (
       location: { lat: currentLat, lng: currentLng },
       cargoType: booking.cargoType,
       weightKg: booking.weightKg,
-      expectedAccumulatedWeight: currentWeight
+      expectedAccumulatedWeight: currentWeight,
+      // NEW: Include scheduling metadata so the frontend can label stops differently.
+      // Scheduled stops show their pickup window; instant stops show nothing extra.
+      bookingType: (booking as any).bookingType ?? 'INSTANT',
+      scheduledAt: (booking as any).scheduledAt ?? null,
     });
   }
 
