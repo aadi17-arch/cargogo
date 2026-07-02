@@ -299,7 +299,8 @@ function ShipperDashboard() {
                               type="number" 
                               value={form[key]} 
                               onChange={(e) => setForm({ ...form, [key]: +e.target.value })} 
-                              className="w-full p-2 bg-white text-[var(--color-text-main)] placeholder-[#94A3B8] font-medium rounded-lg border border-solid border-[var(--border-width)] border-[var(--color-input-border)] focus:outline-none focus:border-[var(--color-primary)] transition-all text-[11px] text-center pr-5" 
+                              className="w-full p-2 bg-white text-[var(--color-text-main)] placeholder-[#94A3B8] font-medium rounded-lg border border-solid border-[var(--border-width)] focus:outline-none focus:border-[var(--color-primary)] transition-all text-[11px] text-center pr-5" 
+                              style={{ borderColor: 'var(--color-input-border)' }}
                               placeholder="0"
                             />
                             <span className="absolute right-1.5 text-[8px] font-bold text-slate-400 select-none">{suffix}</span>
