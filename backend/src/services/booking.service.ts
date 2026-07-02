@@ -18,6 +18,10 @@ interface createBookingInput {
     widthCm: number,
     heightCm: number,
     vehicleType: 'TWO_WHEELER' | 'THREE_WHEELER' | 'MINI_TEMPO' | 'PICKUP_TRUCK' | 'CONTAINER_3TON' | 'HEAVY_DUTY_TRUCK';
+    // NEW: Optional scheduled booking fields. When omitted, booking behaves as INSTANT.
+    bookingType?: 'INSTANT' | 'SCHEDULED';
+    scheduledAt?: Date;
+    scheduledUntil?: Date;
 }
 
 export async function getBookingOrThrow(bookingId: string) {
@@ -44,6 +48,19 @@ export const createBooking = async (input: createBookingInput) => {
         heightCm: input.heightCm,
         vehicleType: input.vehicleType,
     });
+
+    const bookingType = input.bookingType ?? 'INSTANT';
+
+    // SCHEDULED validation: pickup time must be at least 2 hours in the future.
+    // This prevents drivers from being bombarded with "urgent scheduled" jobs.
+    if (bookingType === 'SCHEDULED') {
+        if (!input.scheduledAt) throw new AppError('scheduledAt is required for SCHEDULED bookings', 400);
+        const minLeadTime = new Date(Date.now() + 2 * 60 * 60 * 1000); // 2 hours from now
+        if (new Date(input.scheduledAt) < minLeadTime) {
+            throw new AppError('scheduledAt must be at least 2 hours in the future', 400);
+        }
+    }
+
     const booking = await prisma.booking.create({
         data: {
             shipperId: input.shipperId,
@@ -62,12 +79,55 @@ export const createBooking = async (input: createBookingInput) => {
             vehicleType: input.vehicleType,
             distanceKm: pricing.distanceKm,
             price: pricing.totalPrice,
-            pickupOTP: generateOTP(),
-            dropoffOTP: generateOTP(),
+            bookingType,
+            scheduledAt: input.scheduledAt ? new Date(input.scheduledAt) : null,
+            scheduledUntil: input.scheduledUntil ? new Date(input.scheduledUntil) : null,
+            // INSTANT: OTPs generated immediately (driver needs them on pickup day).
+            // SCHEDULED: OTPs deferred to commitToScheduledJob() — no point creating
+            // them days in advance when there's no driver assigned yet.
+            ...(bookingType === 'INSTANT' ? {
+                pickupOTP: generateOTP(),
+                dropoffOTP: generateOTP(),
+            } : {}),
         }
     });
     return { booking, pricing };
 }
+
+/**
+ * NEW: Called when a driver explicitly commits to a SCHEDULED booking.
+ * Runs inside a Prisma transaction to prevent double-commits (race condition safety).
+ * Generates OTPs only at this point — security codes are only relevant once a driver is locked in.
+ */
+export const commitToScheduledJob = async (bookingId: string, driverId: string) => {
+    return prisma.$transaction(async (tx) => {
+        const booking = await tx.booking.findUnique({ where: { id: bookingId } });
+        if (!booking) throw new AppError('Booking not found', 404);
+
+        // Guard: only PENDING SCHEDULED jobs can be committed to
+        if (booking.bookingType !== 'SCHEDULED') {
+            throw new AppError('This booking is not a scheduled job', 400);
+        }
+        if (booking.status !== 'PENDING') {
+            throw new AppError('This job has already been taken or is no longer available', 409);
+        }
+        if (booking.driverId) {
+            throw new AppError('This job has already been claimed by another driver', 409);
+        }
+
+        return tx.booking.update({
+            where: { id: bookingId },
+            data: {
+                driverId,
+                status: 'ACCEPTED',
+                committedAt: new Date(),
+                // Generate OTPs now that we have an assigned driver
+                pickupOTP: generateOTP(),
+                dropoffOTP: generateOTP(),
+            },
+        });
+    });
+};
 
 export const getBookingById = async (bookingId: string) => {
     return prisma.booking.findUnique({
