@@ -38,6 +38,11 @@ export const useSocket = (token?: string | null) => {
     socketService.updateLocation(lat, lng);
   }, []);
 
+  // NEW: Driver commits to a scheduled job
+  const commitScheduledJob = useCallback((bookingId: string) => {
+    socketService.commitScheduledJob(bookingId);
+  }, []);
+
   return {
     connect,
     disconnect,
@@ -48,6 +53,7 @@ export const useSocket = (token?: string | null) => {
     acceptBid,
     rejectBid,
     updateLocation,
+    commitScheduledJob,
   }
 };
 export const useSocketListener = (
