@@ -14,7 +14,7 @@ import { calculateQuote, QuoteResult } from '@/utils/pricing';
 import { formatPrice, formatDate } from '@/utils/formatters';
 import { toast } from 'react-hot-toast';
 import { geocodingService } from '@/services/geocoding.service';
-import { LayoutGrid, ClipboardList, MapPin } from 'lucide-react';
+import { LayoutGrid, ClipboardList, MapPin, LocateFixed } from 'lucide-react';
 
 function ShipperDashboard() {
   const { token } = useAuth();
@@ -283,22 +283,27 @@ function ShipperDashboard() {
 
                   {/* Row 2, Col 1: Dimensions inline */}
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-500 mb-1">Dimensions</label>
+                    <label className="block text-[10px] font-bold text-slate-500 mb-1">Dimensions (cm)</label>
                     <div className="grid grid-cols-3 gap-2">
                       {([
-                        { key: 'lengthCm', label: 'L', placeholder: 'L' },
-                        { key: 'widthCm',  label: 'W', placeholder: 'W'  },
-                        { key: 'heightCm', label: 'H', placeholder: 'H' },
-                      ] as const).map(({ key, label, placeholder }) => (
-                        <div key={key} className="relative flex items-center">
-                          <input 
-                            type="number" 
-                            value={form[key]} 
-                            onChange={(e) => setForm({ ...form, [key]: +e.target.value })} 
-                            className="input-field pr-6 text-xs p-2.5" 
-                            placeholder={placeholder}
-                          />
-                          <span className="absolute right-2 text-[9px] font-bold text-slate-400 select-none">{label}</span>
+                        { key: 'lengthCm', label: 'Length', suffix: 'L' },
+                        { key: 'widthCm',  label: 'Width', suffix: 'W'  },
+                        { key: 'heightCm', label: 'Height', suffix: 'H' },
+                      ] as const).map(({ key, label, suffix }) => (
+                        <div key={key} className="space-y-0.5">
+                          <span className="block text-[8px] font-bold text-slate-400 uppercase tracking-wide text-center">
+                            {label}
+                          </span>
+                          <div className="relative flex items-center">
+                            <input 
+                              type="number" 
+                              value={form[key]} 
+                              onChange={(e) => setForm({ ...form, [key]: +e.target.value })} 
+                              className="w-full p-2 bg-white text-[var(--color-text-main)] placeholder-[#94A3B8] font-medium rounded-lg border border-solid border-[var(--border-width)] border-[var(--color-input-border)] focus:outline-none focus:border-[var(--color-primary)] transition-all text-[11px] text-center pr-5" 
+                              placeholder="0"
+                            />
+                            <span className="absolute right-1.5 text-[8px] font-bold text-slate-400 select-none">{suffix}</span>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -350,9 +355,10 @@ function ShipperDashboard() {
                 <button 
                   type="button" 
                   onClick={locateMe} 
-                  className="px-3 py-1.5 text-xs font-bold bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors shadow-sm"
+                  title="Find my location"
+                  className="p-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors shadow-sm flex items-center justify-center"
                 >
-                  My Location
+                  <LocateFixed size={14} />
                 </button>
               </div>
               
