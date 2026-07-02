@@ -250,7 +250,7 @@ function ShipperDashboard() {
               Shipment Specifications
             </h3>
 
-            {/* NEW: Booking type toggle — Instant vs. Scheduled */}
+            {/* Dispatch Mode Toggle (Instant vs Scheduled) */}
             <div className="space-y-2">
               <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider font-heading">
                 Dispatch Mode
@@ -281,19 +281,19 @@ function ShipperDashboard() {
                   Schedule for Later
                 </button>
               </div>
-              {/* Contextual hint for each mode */}
-              <p className="text-[10px] text-slate-400 leading-relaxed">
+              <p className="text-[10px] text-slate-400 leading-relaxed flex items-center gap-1">
                 {bookingType === 'INSTANT'
-                  ? '⚡ Broadcasts to nearby online drivers immediately. Best for small/urgent cargo.'
-                  : '📅 Holds job in the scheduling pool. Drivers commit in advance. Best for heavy/planned cargo.'}
+                  ? 'Broadcasts to nearby online drivers immediately. Recommended for urgent deliveries.'
+                  : 'Saves job to scheduling pool. Drivers browse and commit in advance. Recommended for planned freight.'}
               </p>
             </div>
 
-            {/* NEW: Scheduled datetime picker — only shown when SCHEDULED is selected */}
+            {/* Scheduled Date/Time Picker */}
             {bookingType === 'SCHEDULED' && (
               <div className="space-y-1.5 p-4 bg-indigo-50/50 border border-indigo-200/60 rounded-xl">
-                <label className="block text-[10px] font-bold text-indigo-600 uppercase tracking-wider font-heading">
-                  Pickup Date & Time Window
+                <label className="block text-[10px] font-bold text-indigo-600 uppercase tracking-wider font-heading flex items-center gap-1">
+                  <CalendarClock size={12} />
+                  Pickup Window Start Time
                 </label>
                 <input
                   type="datetime-local"
@@ -302,7 +302,7 @@ function ShipperDashboard() {
                   min={new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString().slice(0, 16)}
                   className="w-full p-2.5 bg-white text-slate-800 text-xs font-medium rounded-lg border border-indigo-200 focus:outline-none focus:border-indigo-500 transition-all"
                 />
-                <p className="text-[9px] text-slate-400">Must be at least 2 hours in the future.</p>
+                <p className="text-[9px] text-slate-400">Must be scheduled at least 2 hours in advance.</p>
               </div>
             )}
 
@@ -504,19 +504,31 @@ function ShipperDashboard() {
             </button>
           </div>
 
-          {/* NEW: Manifest filter pills */}
+          {/* Manifest filter pills */}
           <div className="flex gap-2 mb-4">
             {(['all', 'INSTANT', 'SCHEDULED'] as const).map(f => (
               <button
                 key={f}
                 onClick={() => setManifestFilter(f)}
-                className={`px-3 py-1 text-[10px] font-bold rounded-full border transition-all ${
+                className={`flex items-center gap-1 px-3 py-1 text-[10px] font-bold rounded-full border transition-all ${
                   manifestFilter === f
                     ? 'bg-slate-900 text-white border-slate-900'
                     : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'
                 }`}
               >
-                {f === 'all' ? 'All' : f === 'INSTANT' ? '⚡ Instant' : '📅 Scheduled'}
+                {f === 'all' && 'All'}
+                {f === 'INSTANT' && (
+                  <>
+                    <Zap size={10} />
+                    Instant
+                  </>
+                )}
+                {f === 'SCHEDULED' && (
+                  <>
+                    <CalendarClock size={10} />
+                    Scheduled
+                  </>
+                )}
               </button>
             ))}
           </div>
@@ -528,10 +540,11 @@ function ShipperDashboard() {
                     <div className="flex items-center gap-3 flex-wrap">
                       <span className="font-bold text-slate-800 truncate text-sm">{b.cargoType}</span>
                       <StatusBadge status={b.status} />
-                      {/* NEW: Show SCHEDULED badge + scheduled time for scheduled bookings */}
+                      {/* Show SCHEDULED badge + scheduled time for scheduled bookings */}
                       {b.bookingType === 'SCHEDULED' && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[9px] font-bold rounded-full border border-indigo-200">
-                          📅 {b.scheduledAt ? formatDate(b.scheduledAt) : 'Scheduled'}
+                          <CalendarClock size={10} />
+                          {b.scheduledAt ? formatDate(b.scheduledAt) : 'Scheduled'}
                         </span>
                       )}
                     </div>
