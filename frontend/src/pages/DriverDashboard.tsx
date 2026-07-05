@@ -89,6 +89,7 @@ function DriverDashboard() {
       const pending = await fetchPendingBookings();
       setPendingBookings(pending || []);
     } catch (err) { console.error(err); }
+    loadScheduledJobs();
     fetchRoute();
   };
 

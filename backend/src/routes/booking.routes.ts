@@ -11,6 +11,10 @@ r.post('/createBooking', authenticate, requiredRole('SHIPPER'),idempotency,valid
 r.get('/my', authenticate, getMyBookings);
 r.get('/pending', authenticate, requiredRole('DRIVER'), getPending);
 
+// Scheduled booking routes (defined before wildcard id)
+r.get('/scheduled/upcoming', authenticate, requiredRole('DRIVER'), getScheduledJobs);
+r.get('/scheduled/available', authenticate, requiredRole('DRIVER'), getAvailableJobs);
+
 r.get('/:id', authenticate, getBookingsById);
 r.post('/:id/accept', authenticate, requiredRole('DRIVER'), accept);
 
@@ -20,10 +24,6 @@ r.post('/:id/dropoff', authenticate, requiredRole('DRIVER'), confirmDropOff);
 r.post('/:id/complete', authenticate, requiredRole('DRIVER'), complete);
 r.get('/:id/invoice', authenticate, getInvoiceDetail);
 r.post('/:id/cancel', authenticate, requiredRole('SHIPPER'), cancel);
-
-// NEW: Scheduled booking routes
-r.get('/scheduled/upcoming', authenticate, requiredRole('DRIVER'), getScheduledJobs);
-r.get('/scheduled/available', authenticate, requiredRole('DRIVER'), getAvailableJobs);
 r.post('/:id/commit', authenticate, requiredRole('DRIVER'), commitScheduled);
 
 export default r;
