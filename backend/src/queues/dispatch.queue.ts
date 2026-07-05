@@ -48,21 +48,17 @@ export const startDispatchWorker = (io: any) => {
       const searchRadius = process.env.NODE_ENV === 'production' ? 5 : 100;
       const nearby = await findNearbyDrivers(pickupLat, pickupLng, searchRadius);
 
-      // Filter nearby drivers to only those matching booking's requested vehicleType
-      const { redis } = await import('@/config/redis');
       const filteredNearby: typeof nearby = [];
       for (const n of nearby) {
-        const meta = await redis.hGetAll(`driver:meta:${n.driverId}`);
-        let vehicleType: string | undefined = meta?.vehicleType;
-        if (!vehicleType) {
-          const profile = await prisma.driverProfile.findUnique({
-            where: { userId: n.driverId },
-            include: { user: { include: { vehicle: true } } }
-          });
-          vehicleType = profile?.user?.vehicle?.type;
-        }
-        if (vehicleType === booking.vehicleType) {
-          filteredNearby.push(n);
+        const profile = await prisma.driverProfile.findUnique({
+          where: { userId: n.driverId },
+          include: { user: { include: { vehicle: true } } }
+        });
+        if (profile?.user?.vehicle) {
+          const vehicle = profile.user.vehicle;
+          if (vehicle.type === booking.vehicleType && vehicle.capacityKg >= booking.weightKg) {
+            filteredNearby.push(n);
+          }
         }
       }
 
