@@ -1,7 +1,20 @@
 import toast, { ToastOptions } from 'react-hot-toast';
 
+const toastHistory = new Map<string, number>();
+const shouldIgnore = (key: string): boolean => {
+  const now = Date.now();
+  const lastTime = toastHistory.get(key);
+  if (lastTime && now - lastTime < 3000) {
+    return true;
+  }
+  toastHistory.set(key, now);
+  return false;
+};
+
 export const useNotification = () => {
   const success = (message: string, options?: ToastOptions) => {
+    const key = `success-${message}`;
+    if (shouldIgnore(key)) return '';
     if (!options?.id) {
       toast.dismiss();
     }
@@ -12,6 +25,8 @@ export const useNotification = () => {
   };
 
   const error = (message: string, options?: ToastOptions) => {
+    const key = `error-${message}`;
+    if (shouldIgnore(key)) return '';
     if (!options?.id) {
       toast.dismiss();
     }
