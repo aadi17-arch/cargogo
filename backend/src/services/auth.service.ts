@@ -14,16 +14,17 @@ export const registerUser = async (data: {
         capacityKg: number;
     };
 }) => {
+    const cleanEmail = data.email.trim().toLowerCase();
     const existing = await prisma.user.findUnique({
         where: {
-            email: data.email
+            email: cleanEmail
         }
     });
     if (existing) throw new AppError('Email already registered', 400);
     const hashedPassword = await bcrypt.hash(data.password, 12);
     const user = await prisma.user.create({
         data: {
-            email: data.email,
+            email: cleanEmail,
             password: hashedPassword,
             name: data.name,
             role: data.role,
@@ -68,8 +69,9 @@ export const loginUser = async (
     email: string,
     password: string
 ) => {
+    const cleanEmail = email.trim().toLowerCase();
     const user = await prisma.user.findUnique({
-        where: { email },
+        where: { email: cleanEmail },
         include: { vehicle: true, driverProfile: true }
     });
     if (!user) throw new AppError('Invalid credentials', 401);
