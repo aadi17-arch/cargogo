@@ -47,9 +47,20 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/review', reviewRoutes);
 app.use('/api/disputes', disputeRoutes);
+import path from 'path';
+app.use(express.static(path.join(__dirname, '../../frontend/dist')));
+
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/payment', strictLimiter, paymentRoutes);
 app.use('/api/geocoding', geocodingRoutes);
+
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  res.sendFile(path.join(__dirname, '../../frontend/dist/index.html'));
+});
+
 app.use(errorHandler);
 
 
