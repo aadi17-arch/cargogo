@@ -86,9 +86,9 @@ model Vehicle {
 model Booking {
   id              String        @id @default(uuid())
   shipperId       String
-  shipper         User          @relation("ShipperBookings", fields: [shipperId], references: [id])
+  shipper         User          @relation("ShipperBookings", fields: [shipperId], references: [id], onDelete: Cascade)
   driverId        String?
-  driver          User?         @relation("DriverBookings", fields: [driverId], references: [id])
+  driver          User?         @relation("DriverBookings", fields: [driverId], references: [id], onDelete: SetNull)
   status          BookingStatus @default(PENDING)
 
   pickupLat       Float
@@ -129,6 +129,8 @@ model Booking {
   @@index([driverId])
   @@index([status])
   @@index([createdAt])
+  @@index([scheduledAt])
+  @@index([bookingType])
 
   review         Review?
   dispute        Dispute?
