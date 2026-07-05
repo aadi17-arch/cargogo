@@ -25,7 +25,10 @@ router.get('/search', catchAsync(async (req: Request, res: Response) => {
 
   try {
     const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q as string)}&limit=5`;
-    const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'CargoGo/1.0' },
+      signal: AbortSignal.timeout(5000)
+    });
     if (response.ok) {
       const result = await response.json() as any;
       const features = result.features || [];
@@ -67,7 +70,10 @@ router.get('/reverse', catchAsync(async (req: Request, res: Response) => {
 
   try {
     const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
-    const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'CargoGo/1.0' },
+      signal: AbortSignal.timeout(5000)
+    });
     if (response.ok) {
       const data = await response.json() as any;
       const parts = [
