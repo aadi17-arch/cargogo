@@ -64,7 +64,7 @@ function ShipperDashboard() {
   const reverseGeocode = async (lat: number, lng: number, type: 'pickup' | 'dropoff') => {
     try {
       const data = await geocodingService.reverse(lat, lng);
-      const displayName = data?.display_name || 'Unknown Location';
+      const displayName = data?.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
       if (type === 'pickup') {
         setPickupSearch(displayName);
         setForm(prev => ({ ...prev, pickupAddress: displayName }));
@@ -74,7 +74,8 @@ function ShipperDashboard() {
       }
     } catch (e) {
       console.error(e);
-      const fallback = 'Unknown Location';
+      toast.error('Reverse geocoding failed. Reverting to coordinates.');
+      const fallback = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
       if (type === 'pickup') {
         setPickupSearch(fallback);
         setForm(prev => ({ ...prev, pickupAddress: fallback }));
@@ -186,6 +187,27 @@ function ShipperDashboard() {
         // SCHEDULED: no socket dispatch — job sits in the pool until a driver commits
         toast.success(`Scheduled booking created! Drivers will be notified before ${formatDate(scheduledAt)}.`);
       }
+      // Reset form fields
+      setForm({
+        pickupLat: null,
+        pickupLng: null,
+        pickupAddress: '',
+        dropoffLat: null,
+        dropoffLng: null,
+        dropoffAddress: '',
+        cargoType: 'Electronics',
+        weightKg: 50,
+        lengthCm: 100,
+        widthCm: 60,
+        heightCm: 40,
+        vehicleType: 'MINI_TEMPO'
+      });
+      setPickupSearch('');
+      setDropoffSearch('');
+      setScheduledAt('');
+      setBookingType('INSTANT');
+      setQuote(null);
+
       fetchMyBookings();
       setActiveTab('list'); // Switch to booking list automatically
     } catch (err: any) {
