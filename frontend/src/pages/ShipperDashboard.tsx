@@ -327,7 +327,7 @@ function ShipperDashboard() {
             {/* Scheduled Date/Time Picker */}
             {bookingType === 'SCHEDULED' && (
               <div className="space-y-1.5 p-4 bg-indigo-50/50 border border-indigo-200/60 rounded-xl">
-                <label className="block text-[10px] font-bold text-indigo-600 uppercase tracking-wider font-heading flex items-center gap-1">
+                <label className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider font-heading flex items-center gap-1">
                   <CalendarClock size={12} />
                   Pickup Window Start Time
                 </label>
