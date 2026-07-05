@@ -17,20 +17,20 @@ import { startGpsSimulation } from '@/services/gps-simulator.service';
 import { getUpcomingScheduledJobs, getAvailableScheduledJobs } from '@/services/driver.service';
 import { catchAsync } from '@/utils/catchAsync';
 
-/** Asserts the current user can access a booking (owner / assigned driver / admin).
- *  Returns 403 response if denied — returns `true` if access is allowed. */
+// make sure shipper/driver owns the booking before letting them see or edit it
+
 function assertBookingAccess(
     req: Request,
     res: Response,
     booking: { shipperId: string; driverId: string | null; status: string }
 ): boolean {
     const { id, role } = req.user;
-    const isShipperOwner    = id === booking.shipperId;
-    const isDriverAssigned  = id === booking.driverId;
-    const isPendingForDriver = role === 'DRIVER' && booking.status === 'PENDING';
-    const isAdmin            = role === 'ADMIN';
-    if (!isShipperOwner && !isDriverAssigned && !isPendingForDriver && !isAdmin) {
-        res.status(403).json({ success: false, message: 'Access denied: You are not authorized to view this booking.' });
+    if (role === 'SHIPPER' && booking.shipperId !== id) {
+        res.status(403).json({ success: false, message: 'Access denied' });
+        return false;
+    }
+    if (role === 'DRIVER' && booking.driverId !== id && !(booking.status === 'PENDING')) {
+        res.status(403).json({ success: false, message: 'Access denied' });
         return false;
     }
     return true;
@@ -58,6 +58,10 @@ export const getMyBookings = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const confirmPickup = catchAsync(async (req: Request, res: Response) => {
+    const booking = await getBookingById(req.params.id);
+    if (!booking) return res.status(404).json({ success: false, message: 'Not found' });
+    if (!assertBookingAccess(req, res, booking)) return;
+
     const { otp } = req.body;
     const updated = await verifyPickupOTP(req.params.id, otp, req.user.id);
     const io = req.app.get('io');
@@ -66,6 +70,10 @@ export const confirmPickup = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const confirmDropOff = catchAsync(async (req: Request, res: Response) => {
+    const booking = await getBookingById(req.params.id);
+    if (!booking) return res.status(404).json({ success: false, message: 'Not found' });
+    if (!assertBookingAccess(req, res, booking)) return;
+
     const { otp } = req.body;
     const updated = await verifyDropOffOTP(req.params.id, otp, req.user.id);
     res.status(201).json({ success: true, data: updated });
@@ -82,6 +90,10 @@ export const accept = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const complete = catchAsync(async (req: Request, res: Response) => {
+    const booking = await getBookingById(req.params.id);
+    if (!booking) return res.status(404).json({ success: false, message: 'Not found' });
+    if (!assertBookingAccess(req, res, booking)) return;
+
     await completeBooking(req.params.id, req.user.id);
     res.json({ success: true, message: 'Booking completed successfully' });
 });
@@ -89,7 +101,7 @@ export const complete = catchAsync(async (req: Request, res: Response) => {
 export const getInvoiceDetail = catchAsync(async (req: Request, res: Response) => {
     const booking = await getBookingById(req.params.id);
     if (!booking) return res.status(404).json({ success: false, message: 'Not found' });
-    // Invoice uses a narrower access check (no pending-driver exception)
+    // invoice is more private — pending drivers cannot view it
     const { id, role } = req.user;
     if (id !== booking.shipperId && id !== booking.driverId && role !== 'ADMIN') {
         return res.status(403).json({ success: false, message: 'Access denied: You are not authorized to view this invoice.' });
@@ -99,21 +111,25 @@ export const getInvoiceDetail = catchAsync(async (req: Request, res: Response) =
 });
 
 export const cancel = catchAsync(async (req: Request, res: Response) => {
-    const booking = await cancelBooking(req.params.id, req.user.id);
-    if (booking.driverId) {
+    const booking = await getBookingById(req.params.id);
+    if (!booking) return res.status(404).json({ success: false, message: 'Not found' });
+    if (!assertBookingAccess(req, res, booking)) return;
+
+    const updated = await cancelBooking(req.params.id, req.user.id);
+    if (updated.driverId) {
         const io = req.app.get('io');
-        io.to(`driver:${booking.driverId}`).emit('booking-cancelled', {
-            bookingId: booking.id,
+        io.to(`driver:${updated.driverId}`).emit('booking-cancelled', {
+            bookingId: updated.id,
             message: 'Shipper has cancelled this booking.',
         });
     }
-    res.json({ success: true, data: booking });
+    res.json({ success: true, data: updated });
 });
 
-// Handles driver committing to a scheduled trip
+// driver claims a scheduled delivery
 export const commitScheduled = catchAsync(async (req: Request, res: Response) => {
     const booking = await commitToScheduledJob(req.params.id, req.user.id);
-    // Send confirmation to shipper socket channel
+    // ping the shipper so their UI updates live
     const io = req.app.get('io');
     io.to(`shipper:${booking.shipperId}`).emit('scheduled-job-committed', {
         bookingId: booking.id,

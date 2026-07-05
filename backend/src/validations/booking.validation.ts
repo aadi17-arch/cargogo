@@ -35,5 +35,8 @@ export const createBookingSchema = z.object({
     bookingType: z.enum(['INSTANT', 'SCHEDULED']).optional(),
     scheduledAt: z.string().datetime({ offset: true }).optional(),  // ISO 8601 string from frontend
     scheduledUntil: z.string().datetime({ offset: true }).optional(),
+  }).refine(data => data.pickupLat !== data.dropoffLat || data.pickupLng !== data.dropoffLng, {
+    message: 'Pickup and dropoff coordinates cannot be identical',
+    path: ['dropoffLat']
   }),
 });
