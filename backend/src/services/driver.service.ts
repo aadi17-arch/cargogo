@@ -1,10 +1,23 @@
 import prisma from '@/config/database';
 import { addDriverLocation, removeDriverLocation } from '@/services/grid-index.service';
 import { redis } from '@/config/redis';
+import { AppError } from '@/utils/AppError';
 export const toggleOnline = async (
     driverId: string, isOnline: boolean,
     lat?: number, lng?: number
 ) => {
+    if (!isOnline) {
+        const activeTrip = await prisma.booking.findFirst({
+            where: {
+                driverId: driverId,
+                status: 'IN_TRANSIT'
+            }
+        });
+        if (activeTrip) {
+            throw new AppError('Cannot go offline while on an active trip.', 400);
+        }
+    }
+
     if (isOnline && lat !== undefined && lng !== undefined) {
         const driver = await prisma.user.findUnique({
             where: { id: driverId },
@@ -50,6 +63,12 @@ export const updateLocation = async (
     lat: number,
     lng: number
 ) => {
+    const profile = await prisma.driverProfile.findUnique({
+        where: { userId: driverId }
+    });
+    if (!profile || !profile.isOnline) {
+        throw new AppError('Cannot update location while offline.', 400);
+    }
     await addDriverLocation(driverId, lat, lng);
     return prisma.driverProfile.update({
         where: { userId: driverId },
