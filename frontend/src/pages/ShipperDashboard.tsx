@@ -64,11 +64,25 @@ function ShipperDashboard() {
   const reverseGeocode = async (lat: number, lng: number, type: 'pickup' | 'dropoff') => {
     try {
       const data = await geocodingService.reverse(lat, lng);
-      if (data?.display_name) {
-        if (type === 'pickup') { setPickupSearch(data.display_name); setForm(prev => ({ ...prev, pickupAddress: data.display_name })); }
-        else                   { setDropoffSearch(data.display_name); setForm(prev => ({ ...prev, dropoffAddress: data.display_name })); }
+      const displayName = data?.display_name || 'Unknown Location';
+      if (type === 'pickup') {
+        setPickupSearch(displayName);
+        setForm(prev => ({ ...prev, pickupAddress: displayName }));
+      } else {
+        setDropoffSearch(displayName);
+        setForm(prev => ({ ...prev, dropoffAddress: displayName }));
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      const fallback = 'Unknown Location';
+      if (type === 'pickup') {
+        setPickupSearch(fallback);
+        setForm(prev => ({ ...prev, pickupAddress: fallback }));
+      } else {
+        setDropoffSearch(fallback);
+        setForm(prev => ({ ...prev, dropoffAddress: fallback }));
+      }
+    }
   };
 
   const searchAddress = async (query: string, type: 'pickup' | 'dropoff') => {

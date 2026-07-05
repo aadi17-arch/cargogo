@@ -1,3 +1,4 @@
+import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -44,7 +45,7 @@ export interface MapViewProps {
   children?: React.ReactNode;
 }
 
-export default function MapView({
+export const MapView = React.memo(function MapView({
   center,
   zoom = 12,
   markers = [],
@@ -99,4 +100,6 @@ export default function MapView({
       {children}
     </MapContainer>
   );
-}
+});
+
+export default MapView;
