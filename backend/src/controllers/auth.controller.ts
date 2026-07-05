@@ -10,19 +10,26 @@ const COOKIE_OPTIONS = {
     sameSite: process.env.NODE_ENV === 'production' ? ('strict' as const) : ('lax' as const),
     maxAge: 7 * 24 * 60 * 60 * 1000
 }
-export const register = catchAsync(async (req: Request, res: Response) => {
+export const tokenBlacklist = new Set<string>();
 
+function sanitizeUser(user: any) {
+    if (!user) return user;
+    const sanitized = { ...user };
+    delete sanitized.password;
+    return sanitized;
+}
+
+export const register = catchAsync(async (req: Request, res: Response) => {
     const result = await registerUser(req.body);
     res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
 
     res.status(201).json({
         success: true,
         data: {
-            user: result.user,
-            token:result.accessToken
+            user: sanitizeUser(result.user),
+            token: result.accessToken
         }
     });
-
 });
 
 export const login = catchAsync(async (req: Request, res: Response) => {
@@ -34,7 +41,7 @@ export const login = catchAsync(async (req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     data: {
-      user: result.user,
+      user: sanitizeUser(result.user),
       token: result.accessToken
     }
   });
@@ -73,13 +80,19 @@ export const logout = catchAsync(async (req: Request, res: Response) => {
     const { refreshToken } = req.cookies;
     if (refreshToken) await prisma.session.deleteMany({ where: { refreshToken } });
 
+    // Blacklist the current access token on logout
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (token) {
+        tokenBlacklist.add(token);
+    }
+
     res.clearCookie('refreshToken', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict'
     });
-    res.status(200).json({ success: true, data: req.user });
+    res.status(200).json({ success: true, data: sanitizeUser(req.user) });
 });
 export const getMe = async (req: Request, res: Response) => {
-    res.status(200).json({ success: true, data: (req as any).user });
+    res.status(200).json({ success: true, data: sanitizeUser((req as any).user) });
 }
