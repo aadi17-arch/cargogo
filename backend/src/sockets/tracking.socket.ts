@@ -60,5 +60,20 @@ export const registerTrackingHandlers = (io: SocketIOServer) => {
         }
       }, 3000);
     });
+    socket.on('join-booking-tracking', async ({ bookingId }) => {
+      const userId = user.id;
+      const booking = await prisma.booking.findUnique({
+        where: { id: bookingId }
+      });
+      if (!booking) {
+        socket.emit('error', { message: 'Booking not found' });
+        return;
+      }
+      if (userId !== booking.shipperId && userId !== booking.driverId) {
+        socket.emit('error', { message: 'Unauthorized' });
+        return;
+      }
+      socket.join(`booking:${bookingId}`);
+    });
   });
 };
