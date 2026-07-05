@@ -20,7 +20,16 @@ export default function OtpVerifyInput({ type, otp, setOtp, onVerify }: OtpVerif
       <div className="flex gap-2">
         <input
           value={otp}
-          onChange={(e) => setOtp(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value.replace(/\D/g, '');
+            setOtp(val);
+          }}
+          onPaste={(e) => {
+            const pasteData = e.clipboardData.getData('text');
+            const sanitized = pasteData.replace(/\D/g, '').slice(0, 6);
+            setOtp(sanitized);
+            e.preventDefault();
+          }}
           maxLength={6}
           className="input-field max-w-[120px] text-center text-lg tracking-widest"
           placeholder="000000"

@@ -266,7 +266,8 @@ function DriverDashboard() {
           </div>
           <button
             onClick={toggleOnline}
-            className={`w-full mt-3 px-4 py-3 text-xs font-bold text-white rounded-lg transition-all shadow-sm border-none outline-none cursor-pointer ${
+            disabled={isOnline && activeBookings.length > 0}
+            className={`w-full mt-3 px-4 py-3 text-xs font-bold text-white rounded-lg transition-all shadow-sm border-none outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
               isOnline 
                 ? 'bg-rose-600 hover:bg-rose-500' 
                 : 'bg-slate-900 hover:bg-slate-800'

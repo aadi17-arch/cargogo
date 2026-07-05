@@ -27,6 +27,7 @@ function TrackingPage() {
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [disputeReason, setDisputeReason] = useState('');
   const [showDisputeForm, setShowDisputeForm] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const fetchBooking = async () => {
     try {
@@ -89,12 +90,15 @@ function TrackingPage() {
   };
 
   const handlePayment = async () => {
+    setIsProcessingPayment(true);
     try {
       await paymentService.processCheckout(bookingId!, 'CARD', booking.price);
       toast.success('Payment Successful! Booking status updated to COMPLETED.');
       fetchBooking();
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Payment failed');
+    } finally {
+      setIsProcessingPayment(false);
     }
   };
 
@@ -272,9 +276,10 @@ function TrackingPage() {
                   </p>
                   <button
                     onClick={handlePayment}
-                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 text-xs rounded-xl transition-colors shadow-sm"
+                    disabled={isProcessingPayment}
+                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 text-xs rounded-xl transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Pay & Complete Delivery ({formatPrice(booking.price)})
+                    {isProcessingPayment ? 'Processing Payment...' : `Pay & Complete Delivery (${formatPrice(booking.price)})`}
                   </button>
                 </div>
               )}
