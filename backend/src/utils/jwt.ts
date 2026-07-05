@@ -20,8 +20,8 @@ export const generateRefreshToken = (payload: TokenPayload): string => {
     });
 };
 export const verifyAccessToken = (token: string): TokenPayload => {
-    return jwt.verify(token, JWT_SECRET) as TokenPayload;
+    return jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] }) as TokenPayload;
 };
 export const verifyRefreshToken = (token: string): TokenPayload => {
-    return jwt.verify(token, JWT_REFRESH_SECRET) as TokenPayload;
+    return jwt.verify(token, JWT_REFRESH_SECRET, { algorithms: ['HS256'] }) as TokenPayload;
 };

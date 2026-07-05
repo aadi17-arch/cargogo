@@ -10,7 +10,7 @@ const COOKIE_OPTIONS = {
     sameSite: process.env.NODE_ENV === 'production' ? ('strict' as const) : ('lax' as const),
     maxAge: 7 * 24 * 60 * 60 * 1000
 }
-export const tokenBlacklist = new Set<string>();
+import { addToBlacklist } from "@/services/token-blacklist.service";
 
 function sanitizeUser(user: any) {
     if (!user) return user;
@@ -20,6 +20,9 @@ function sanitizeUser(user: any) {
 }
 
 export const register = catchAsync(async (req: Request, res: Response) => {
+    if (!req.body.role || !['SHIPPER', 'DRIVER'].includes(req.body.role)) {
+        req.body.role = 'SHIPPER';
+    }
     const result = await registerUser(req.body);
     res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
 
@@ -83,7 +86,7 @@ export const logout = catchAsync(async (req: Request, res: Response) => {
     // Blacklist the current access token on logout
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (token) {
-        tokenBlacklist.add(token);
+        addToBlacklist(token);
     }
 
     res.clearCookie('refreshToken', {
