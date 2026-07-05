@@ -88,7 +88,13 @@ function RegisterPage() {
 
     const loadToast = notify.loading('Creating account...');
     try {
-      const payload = form.role === 'DRIVER' ? form : { ...form, vehicle: undefined };
+      const payload = {
+        email: form.email,
+        password: form.password,
+        name: form.name,
+        role: form.role,
+        ...(form.role === 'DRIVER' ? { vehicle: form.vehicle } : {})
+      };
       await register(payload);
       notify.success('Account created successfully!', { id: loadToast });
       navigate(form.role === 'SHIPPER' ? '/shipper' : '/driver');
