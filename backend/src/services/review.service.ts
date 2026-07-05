@@ -22,7 +22,10 @@ export const fileDispute = async (
   shipperId: string,
 ) => {
   const booking = await getBookingOrThrow(bookingId);
-  if (booking.status !== 'DELIVERED') throw new AppError("Booking hasn't been delivered yet", 400);
+  const allowedStatuses = ['DELIVERED', 'COMPLETED', 'DISPUTED'];
+  if (!allowedStatuses.includes(booking.status)) {
+    throw new AppError('Cannot open a dispute on a booking that is not delivered or completed.', 400);
+  }
   if (booking.shipperId !== shipperId) throw new AppError('Unauthorized', 403);
   return prisma.$transaction(async (tx) => {
     await tx.booking.update({ where: { id: bookingId }, data: { status: 'DISPUTED' } });
