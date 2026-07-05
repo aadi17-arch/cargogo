@@ -32,12 +32,7 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-    origin: env.NODE_ENV === 'production' 
-      ? 'https://cargogo-frontend.vercel.app' 
-      : (origin, callback) => {
-          // Allow any origin in development to facilitate testing on local network (e.g. mobile phones)
-          callback(null, true);
-      },
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     credentials: true,
 }));
 app.use(helmet());
@@ -47,14 +42,13 @@ app.use(requestLogger);
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });
 });
-// app.use(globalRateLimiter);
-app.use('/api/auth', /*strictLimiter,*/ authRoutes);
+app.use('/api/auth', strictLimiter, authRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/review', reviewRoutes);
 app.use('/api/disputes', disputeRoutes);
 app.use('/api/vehicles', vehicleRoutes);
-app.use('/api/payment', /*strictLimiter,*/ paymentRoutes);
+app.use('/api/payment', strictLimiter, paymentRoutes);
 app.use('/api/geocoding', geocodingRoutes);
 app.use(errorHandler);
 
