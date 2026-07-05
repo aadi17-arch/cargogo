@@ -1,7 +1,7 @@
 import prisma from "@/config/database";
 import { verifyAccessToken } from "@/utils/jwt";
 import { NextFunction, Request, Response } from "express";
-import { tokenBlacklist } from "@/controllers/auth.controller";
+import { isBlacklisted } from "@/services/token-blacklist.service";
 
 declare global {
     namespace Express {
@@ -14,7 +14,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     try {
         const token = req.headers.authorization?.replace('Bearer ', '');
         if (!token) throw new Error('No token provided');
-        if (tokenBlacklist.has(token)) throw new Error('Token has been invalidated');
+        if (isBlacklisted(token)) throw new Error('Token has been invalidated');
         const decoded = verifyAccessToken(token);
         const user = await prisma.user.findUnique({
             where: { id: decoded.userId },
