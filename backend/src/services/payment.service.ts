@@ -11,6 +11,15 @@ export const processMockPayemnt = async (
       where: { id: bookingId }
     });
     if (!booking) throw new AppError('Booking not found', 404);
+    
+    const existingPayment = await tx.payment.findFirst({
+      where: {
+        bookingId,
+        status: 'SUCCESS'
+      }
+    });
+    if (existingPayment) return existingPayment;
+
     if (booking.status !== 'DELIVERED') throw new AppError('Booking is not delivered yet', 400);
 
     await tx.booking.update({
