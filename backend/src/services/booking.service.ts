@@ -3,6 +3,17 @@ import { calculatePrice } from "@/services/pricing.service";
 import { generateOTP } from "@/services/otp.service";
 import { VEHICLE_RATES } from "@/services/pricing.service";
 import { AppError } from "@/utils/AppError";
+import { haversineDistance } from "@/utils/haversine";
+
+export const VALID_STATUS_TRANSITIONS: Record<string, string[]> = {
+    PENDING: ['ACCEPTED', 'CANCELLED'],
+    ACCEPTED: ['IN_TRANSIT', 'CANCELLED'],
+    IN_TRANSIT: ['DELIVERED'],
+    DELIVERED: ['COMPLETED', 'DISPUTED'],
+    COMPLETED: [],
+    CANCELLED: [],
+    DISPUTED: ['COMPLETED']
+};
 
 interface createBookingInput {
     shipperId: string,
@@ -37,6 +48,12 @@ function assertDriverOwnership(booking: { driverId: string | null }, driverId: s
 }
 
 export const createBooking = async (input: createBookingInput) => {
+    // Validate distance is not zero or extremely close
+    const distance = haversineDistance(input.pickupLat, input.pickupLng, input.dropoffLat, input.dropoffLng);
+    if (distance < 0.1) {
+        throw new AppError("Pickup and dropoff locations cannot be the same.", 400);
+    }
+
     const pricing = calculatePrice({
         pickupLat: input.pickupLat,
         pickupLng: input.pickupLng,
@@ -141,10 +158,19 @@ export const verifyPickupOTP = async (bookingId: string, otp: string, driverId: 
     const booking = await getBookingOrThrow(bookingId);
     assertDriverOwnership(booking, driverId);
     if (booking.status !== 'ACCEPTED') throw new AppError('Booking has not been accepted by a driver yet.', 400);
-    if (booking.pickupOTP !== otp) throw new AppError('Wrong OTP', 400);
+    if (booking.otpAttempts >= 3) {
+        throw new AppError('Too many failed OTP verification attempts. This booking is locked.', 400);
+    }
+    if (booking.pickupOTP !== otp) {
+        await prisma.booking.update({
+            where: { id: bookingId },
+            data: { otpAttempts: { increment: 1 } }
+        });
+        throw new AppError('Wrong OTP', 400);
+    }
     return prisma.booking.update({
         where: { id: bookingId },
-        data: { status: 'IN_TRANSIT', pickupVerified: true }
+        data: { status: 'IN_TRANSIT', pickupVerified: true, otpAttempts: 0 }
     });
 };
 
@@ -152,10 +178,19 @@ export const verifyDropOffOTP = async (bookingId: string, otp: string, driverId:
     const booking = await getBookingOrThrow(bookingId);
     assertDriverOwnership(booking, driverId);
     if (booking.status !== 'IN_TRANSIT') throw new AppError('Booking not in transit', 400);
-    if (booking.dropoffOTP !== otp) throw new AppError('Wrong OTP', 400);
+    if (booking.otpAttempts >= 3) {
+        throw new AppError('Too many failed OTP verification attempts. This booking is locked.', 400);
+    }
+    if (booking.dropoffOTP !== otp) {
+        await prisma.booking.update({
+            where: { id: bookingId },
+            data: { otpAttempts: { increment: 1 } }
+        });
+        throw new AppError('Wrong OTP', 400);
+    }
     return prisma.booking.update({
         where: { id: bookingId },
-        data: { status: 'DELIVERED', dropoffVerified: true }
+        data: { status: 'DELIVERED', dropoffVerified: true, otpAttempts: 0 }
     });
 };
 
@@ -170,7 +205,9 @@ export const getPendingBookings = async () => {
 export const completeBooking = async (bookingId: string, driverId: string) => {
     const booking = await getBookingOrThrow(bookingId);
     assertDriverOwnership(booking, driverId);
-    if (booking.status === 'DISPUTED') throw new AppError('Cannot complete a disputed booking', 400);
+    if (!VALID_STATUS_TRANSITIONS[booking.status]?.includes('COMPLETED')) {
+        throw new AppError(`Invalid transition from ${booking.status} to COMPLETED`, 400);
+    }
     await prisma.booking.update({ where: { id: bookingId }, data: { status: 'COMPLETED' } });
 };
 
@@ -199,8 +236,7 @@ export const getInvoice = async (bookingId: string) => {
 export const cancelBooking = async (bookingId: string, userId: string) => {
     const booking = await getBookingOrThrow(bookingId);
     if (booking.shipperId !== userId) throw new AppError('Unauthorized', 403);
-    const allowedStatuses = ['PENDING', 'ACCEPTED'];
-    if (!allowedStatuses.includes(booking.status)) {
+    if (!VALID_STATUS_TRANSITIONS[booking.status]?.includes('CANCELLED')) {
         throw new AppError('Cannot cancel booking once it is in transit or completed', 400);
     }
     return prisma.booking.update({ where: { id: bookingId }, data: { status: 'CANCELLED' } });
