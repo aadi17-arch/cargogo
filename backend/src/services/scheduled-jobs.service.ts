@@ -8,6 +8,21 @@ const MATCHING_WINDOW_HOURS = 24;
 // Scans the database for upcoming scheduled jobs and alerts suitable drivers
 export const processScheduledPool = async (io: SocketIOServer): Promise<void> => {
     const now = new Date();
+
+    // Auto-cancel expired scheduled bookings that were never claimed
+    await prisma.booking.updateMany({
+        where: {
+            bookingType: 'SCHEDULED',
+            status: 'PENDING',
+            scheduledAt: {
+                lt: now
+            }
+        },
+        data: {
+            status: 'CANCELLED'
+        }
+    });
+
     const windowEnd = new Date(now.getTime() + MATCHING_WINDOW_HOURS * 60 * 60 * 1000);
 
     // Fetch unassigned scheduled bookings within the window

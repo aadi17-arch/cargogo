@@ -25,12 +25,6 @@ const PORT = env.PORT;
 const app = express();
 const httpServer = http.createServer(app);
 
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://192.168.1.9:3000',
-  'http://localhost:5173',
-];
-
 app.use(cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     credentials: true,
@@ -58,6 +52,7 @@ app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api')) {
     return next();
   }
+  // DON'T REMOVE THIS — fixes the 404 refresh bug in React router
   res.sendFile(path.join(__dirname, '../../frontend/dist/index.html'));
 });
 
@@ -78,7 +73,7 @@ httpServer.listen(PORT, () => {
     console.log(`Server is running on PORT ${PORT}`);
 });
 
-// Import connections for graceful shutdown
+// close connections cleanly when stopping the process
 import prisma from '@/config/database';
 import { redis } from '@/config/redis';
 import { dispatchQueue } from '@/queues/dispatch.queue';
@@ -90,19 +85,15 @@ const gracefulShutdown = async (signal: string) => {
     console.log('HTTP server closed.');
     
     try {
-      // Disconnect Prisma
       await prisma.$disconnect();
       console.log('Database client disconnected.');
       
-      // Disconnect Redis
       await redis.quit();
       console.log('Redis client disconnected.');
       
-      // Close BullMQ Queue
       await dispatchQueue.close();
       console.log('BullMQ dispatch queue closed.');
-
-      // Close BullMQ Worker
+ 
       if (dispatchWorker) {
         await dispatchWorker.close();
         console.log('BullMQ dispatch worker closed.');
