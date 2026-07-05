@@ -10,7 +10,8 @@ export const errorHandler = (
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
       success: false,
-      message: err.message
+      message: err.message,
+      ...(process.env.NODE_ENV === 'development' ? { stack: err.stack } : {})
     });
   }
   logger.error(err.message, {
@@ -19,6 +20,7 @@ export const errorHandler = (
   });
   return res.status(500).json({
     success: false,
-    message:'Something went wrong on the server.'
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal Server Error',
+    ...(process.env.NODE_ENV === 'development' ? { stack: err.stack } : {})
   });
 }
