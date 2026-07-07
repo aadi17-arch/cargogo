@@ -89,6 +89,9 @@ export const loginUser = async (
     });
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
+    await prisma.session.deleteMany({
+        where: { userId: user.id }
+    });
     await prisma.session.create({
         data: {
             userId: user.id,

@@ -19,8 +19,8 @@ export const VEHICLE_RATES: Record<string, { basePrice: number; pricePerKm: numb
     CONTAINER_3TON: { basePrice: 150, pricePerKm: 20, costPerUnit: 7 },
     HEAVY_DUTY_TRUCK: { basePrice: 300, pricePerKm: 45, costPerUnit: 12 },
 };
-export const calculatePrice = (input: PricingInput) => {
-    const distanceKm = haversineDistance(
+export const calculatePrice = (input: PricingInput & { distanceKm?: number }) => {
+    const distanceKm = input.distanceKm !== undefined ? input.distanceKm : haversineDistance(
         input.pickupLat,
         input.pickupLng,
         input.dropoffLat,
@@ -30,7 +30,13 @@ export const calculatePrice = (input: PricingInput) => {
     const chargeableWeight = Math.max(input.weightKg, volumetricWeight);
     const rate = VEHICLE_RATES[input.vehicleType];
 
-    const price = rate.basePrice + (rate.pricePerKm * distanceKm) + (rate.costPerUnit * chargeableWeight);
+    const subtotal = rate.basePrice + (rate.pricePerKm * distanceKm) + (rate.costPerUnit * chargeableWeight);
+    
+    // Peak hours: 8:00 - 10:00 AM (8, 9) & 5:00 - 8:00 PM (17, 18, 19)
+    const currentHour = new Date().getHours();
+    const isPeakHour = (currentHour >= 8 && currentHour < 10) || (currentHour >= 17 && currentHour < 20);
+    const surgeMultiplier = isPeakHour ? 1.25 : 1.0;
+    const price = subtotal * surgeMultiplier;
 
     return {
         distanceKm,
@@ -39,7 +45,7 @@ export const calculatePrice = (input: PricingInput) => {
         basePrice: rate.basePrice,
         pricePerKm: rate.pricePerKm,
         costPerUnit: rate.costPerUnit,
+        surgeMultiplier,
         totalPrice: Math.round(price * 100) / 100
-
     };
 };

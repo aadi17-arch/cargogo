@@ -47,12 +47,38 @@ function assertDriverOwnership(booking: { driverId: string | null }, driverId: s
     }
 }
 
+export const fetchRouteDistanceOSRM = async (
+    startLat: number,
+    startLng: number,
+    endLat: number,
+    endLng: number
+): Promise<number> => {
+    const url = `http://router.project-osrm.org/route/v1/driving/${startLng},${startLat};${endLng},${endLat}?overview=false`;
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('OSRM request failed');
+        const data = (await response.json()) as any;
+        if (!data.routes || data.routes.length === 0) throw new Error('No routes found');
+        return data.routes[0].distance / 1000; // meters to km
+    } catch (err) {
+        const straightLine = haversineDistance(startLat, startLng, endLat, endLng);
+        return straightLine * 1.3;
+    }
+};
+
 export const createBooking = async (input: createBookingInput) => {
     // Validate distance is not zero or extremely close
-    const distance = haversineDistance(input.pickupLat, input.pickupLng, input.dropoffLat, input.dropoffLng);
-    if (distance < 0.1) {
+    const straightLine = haversineDistance(input.pickupLat, input.pickupLng, input.dropoffLat, input.dropoffLng);
+    if (straightLine < 0.1) {
         throw new AppError("Pickup and dropoff locations cannot be the same.", 400);
     }
+
+    const distanceKm = await fetchRouteDistanceOSRM(
+        input.pickupLat,
+        input.pickupLng,
+        input.dropoffLat,
+        input.dropoffLng
+    );
 
     const pricing = calculatePrice({
         pickupLat: input.pickupLat,
@@ -64,6 +90,7 @@ export const createBooking = async (input: createBookingInput) => {
         widthCm: input.widthCm,
         heightCm: input.heightCm,
         vehicleType: input.vehicleType,
+        distanceKm,
     });
 
     const bookingType = input.bookingType ?? 'INSTANT';
@@ -102,6 +129,7 @@ export const createBooking = async (input: createBookingInput) => {
             ...(bookingType === 'INSTANT' ? {
                 pickupOTP: generateOTP(),
                 dropoffOTP: generateOTP(),
+                otpGeneratedAt: new Date(),
             } : {}),
         }
     });
@@ -134,6 +162,7 @@ export const commitToScheduledJob = async (bookingId: string, driverId: string) 
                 // Generate OTPs now that we have an assigned driver
                 pickupOTP: generateOTP(),
                 dropoffOTP: generateOTP(),
+                otpGeneratedAt: new Date(),
             },
         });
     });
@@ -161,6 +190,9 @@ export const verifyPickupOTP = async (bookingId: string, otp: string, driverId: 
     if (booking.otpAttempts >= 3) {
         throw new AppError('Too many failed OTP verification attempts. This booking is locked.', 400);
     }
+    if (booking.otpGeneratedAt && Date.now() - new Date(booking.otpGeneratedAt).getTime() > 15 * 60 * 1000) {
+        throw new AppError('OTP has expired (validity is 15 minutes).', 400);
+    }
     if (booking.pickupOTP !== otp) {
         await prisma.booking.update({
             where: { id: bookingId },
@@ -180,6 +212,9 @@ export const verifyDropOffOTP = async (bookingId: string, otp: string, driverId:
     if (booking.status !== 'IN_TRANSIT') throw new AppError('Booking not in transit', 400);
     if (booking.otpAttempts >= 3) {
         throw new AppError('Too many failed OTP verification attempts. This booking is locked.', 400);
+    }
+    if (booking.otpGeneratedAt && Date.now() - new Date(booking.otpGeneratedAt).getTime() > 15 * 60 * 1000) {
+        throw new AppError('OTP has expired (validity is 15 minutes).', 400);
     }
     if (booking.dropoffOTP !== otp) {
         await prisma.booking.update({
