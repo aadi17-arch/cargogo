@@ -113,6 +113,7 @@ model Booking {
   dropoffOTP      String?
   pickupVerified  Boolean       @default(false)
   dropoffVerified Boolean       @default(false)
+  otpGeneratedAt  DateTime?
 
   // Fields for scheduled delivery options
   bookingType     BookingType   @default(INSTANT)
