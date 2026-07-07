@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import HeroSection from '@/components/landing/HeroSection';
-import TrackSection from '@/components/landing/TrackSection';
 import PricingSection from '@/components/landing/PricingSection';
 import { ShipperSection, DriverSection } from '@/components/landing/FullBleedSection';
 import { ServicesSection, CapacitySection } from '@/components/landing/FeatureSections';
@@ -22,7 +21,6 @@ function LandingPage() {
     <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ fontFamily: 'var(--font-body)', backgroundColor: 'var(--color-background)' }}>
       <Navbar />
       <HeroSection />
-      <TrackSection />
       <PricingSection />
       <ShipperSection />
       <DriverSection />
