@@ -11,7 +11,7 @@ import StatusBadge from '@/components/ui/StatusBadge';
 import OtpVerifyInput from '@/components/tracking/OtpVerifyInput';
 import MapView, { MapMarker } from '@/components/map/MapView';
 import BaseModal from '@/components/ui/BaseModal';
-import { Download } from 'lucide-react';
+import { Download, Copy, ChevronLeft } from 'lucide-react';
 
 function TrackingPage() {
   const { bookingId } = useParams();
@@ -284,9 +284,18 @@ function TrackingPage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold tracking-tight text-slate-800 font-heading">
-        Track Delivery
-      </h2>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => navigate(user?.role === 'DRIVER' ? '/driver' : '/shipper')}
+          className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm"
+        >
+          <ChevronLeft size={14} />
+          Back
+        </button>
+        <h2 className="text-2xl font-bold tracking-tight text-slate-800 font-heading">
+          Track Delivery
+        </h2>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Map */}
@@ -340,10 +349,19 @@ function TrackingPage() {
                   <p className="leading-relaxed text-slate-500">
                     Share this security OTP with the driver partner at the pickup point to authorize the departure:
                   </p>
-                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-center">
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-center space-y-2">
                     <span className="font-mono text-2xl font-black text-indigo-600 tracking-wider">
                       {booking.pickupOTP}
                     </span>
+                    <div>
+                      <button
+                        onClick={() => { navigator.clipboard.writeText(booking.pickupOTP); toast.success('OTP copied!'); }}
+                        className="inline-flex items-center gap-1 px-3 py-1 text-[10px] font-bold text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition-colors mt-1"
+                      >
+                        <Copy size={10} />
+                        Copy OTP
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -361,10 +379,19 @@ function TrackingPage() {
                   <p className="leading-relaxed text-slate-500">
                     Share this security OTP with the driver partner at the delivery point to confirm completion:
                   </p>
-                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-center">
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-center space-y-2">
                     <span className="font-mono text-2xl font-black text-indigo-600 tracking-wider">
                       {booking.dropoffOTP}
                     </span>
+                    <div>
+                      <button
+                        onClick={() => { navigator.clipboard.writeText(booking.dropoffOTP); toast.success('OTP copied!'); }}
+                        className="inline-flex items-center gap-1 px-3 py-1 text-[10px] font-bold text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition-colors mt-1"
+                      >
+                        <Copy size={10} />
+                        Copy OTP
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}

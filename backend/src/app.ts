@@ -60,10 +60,6 @@ app.get('*', (req, res, next) => {
 app.use(errorHandler);
 
 
-app.get('/api/bookings', (req, res) => {
-    res.json({ status: 'auth working' });
-});
-
 const io = createSocketServer(httpServer);
 registerMatchingHandlers(io);
 registerTrackingHandlers(io);

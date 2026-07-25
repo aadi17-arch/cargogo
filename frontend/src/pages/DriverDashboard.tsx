@@ -266,7 +266,7 @@ function DriverDashboard() {
       {/* Horizontal 3-Column Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-body">
         {/* Card 1: Status */}
-        <div className="p-5 bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col justify-between min-h-[120px]">
+        <div className="p-5 bg-white border border-slate-200 rounded-lg shadow-sm flex flex-col justify-between min-h-[120px]">
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</span>
             <div className="flex items-center gap-2">
@@ -290,8 +290,8 @@ function DriverDashboard() {
         </div>
 
         {/* Card 2: Current Location */}
-        <div className="p-5 bg-white border border-slate-200 rounded-xl shadow-sm flex items-center gap-4 min-h-[120px]">
-          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-lg shrink-0">
+        <div className="p-5 bg-white border border-slate-200 rounded-lg shadow-sm flex items-center gap-4 min-h-[120px]">
+          <div className="p-3 bg-slate-100 text-slate-700 rounded-lg shrink-0">
             <LocateFixed size={20} />
           </div>
           <div className="space-y-1">
@@ -303,8 +303,8 @@ function DriverDashboard() {
         </div>
 
         {/* Card 3: Total Earnings */}
-        <div className="p-5 bg-white border border-slate-200 rounded-xl shadow-sm flex items-center gap-4 min-h-[120px]">
-          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-lg shrink-0">
+        <div className="p-5 bg-white border border-slate-200 rounded-lg shadow-sm flex items-center gap-4 min-h-[120px]">
+          <div className="p-3 bg-slate-100 text-slate-700 rounded-lg shrink-0">
             <span className="text-lg font-black font-mono">₹</span>
           </div>
           <div className="space-y-1">
@@ -318,39 +318,39 @@ function DriverDashboard() {
 
       {/* Incoming bid Alert */}
       {bid && (
-        <div className="p-6 bg-indigo-50/50 border border-indigo-600 rounded-xl shadow-md space-y-4 animate-pulse">
-          <div className="flex items-center justify-between border-b border-indigo-100 pb-2">
-            <h3 className="text-lg font-black text-indigo-700 tracking-tight font-heading">
+        <div className="p-6 bg-white border-2 border-slate-900 rounded-lg shadow-sm space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+            <h3 className="text-lg font-black text-slate-900 tracking-tight font-heading">
               New Delivery Request!
             </h3>
-            <span className="text-xs font-mono font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded border border-rose-100">
+            <span className="text-xs font-mono font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
               {countdown}s remaining
             </span>
           </div>
-          <div className="grid grid-cols-3 gap-4 text-xs font-body text-indigo-900">
+          <div className="grid grid-cols-3 gap-4 text-xs font-body text-slate-700">
             <div>
-              <span className="block text-[10px] font-bold text-indigo-400 uppercase">Cargo</span>
+              <span className="block text-[10px] font-bold text-slate-400 uppercase">Cargo</span>
               <span className="font-bold">{bid.cargoType}</span>
             </div>
             <div>
-              <span className="block text-[10px] font-bold text-indigo-400 uppercase">Payout</span>
+              <span className="block text-[10px] font-bold text-slate-400 uppercase">Payout</span>
               <span className="font-bold font-mono">{formatPrice(bid.price)}</span>
             </div>
             <div>
-              <span className="block text-[10px] font-bold text-indigo-400 uppercase">Distance</span>
+              <span className="block text-[10px] font-bold text-slate-400 uppercase">Distance</span>
               <span className="font-bold">{bid.distanceKm} km</span>
             </div>
           </div>
           <div className="flex gap-3 pt-2">
             <button 
               onClick={handleAcceptBid} 
-              className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 text-xs font-bold rounded-xl transition-colors shadow-sm"
+              className="flex-1 bg-slate-900 hover:bg-slate-800 text-white py-2.5 text-xs font-bold rounded-lg transition-colors shadow-sm"
             >
               Accept Job
             </button>
             <button 
               onClick={handleRejectBid} 
-              className="flex-1 bg-transparent hover:bg-indigo-100/50 text-indigo-600 border border-indigo-200 py-2.5 text-xs font-bold rounded-xl transition-colors"
+              className="flex-1 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 py-2.5 text-xs font-bold rounded-lg transition-colors"
             >
               Decline
             </button>
@@ -396,10 +396,10 @@ function DriverDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
             {/* Left Column: Timeline details */}
             <div className="lg:col-span-5 space-y-6 w-full order-2 lg:order-1">
-              <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-4 relative overflow-hidden">
+              <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm space-y-4 relative overflow-hidden">
                 {loadingRoute && (
-                  <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/90 backdrop-blur-[2px]">
-                    <div className="w-8 h-8 border-3 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white">
+                    <div className="w-8 h-8 border-[3px] border-slate-900 border-t-transparent rounded-full animate-spin"></div>
                     <p className="mt-3 text-xs font-extrabold text-slate-800 font-heading">Optimizing route...</p>
                   </div>
                 )}
@@ -427,7 +427,7 @@ function DriverDashboard() {
                             <span className="absolute -left-[35px] top-3.5 w-5 h-5 rounded-full border border-slate-200 flex items-center justify-center text-[10px] font-bold bg-white text-slate-500">
                               {index + 1}
                             </span>
-                            <div className="p-3 bg-slate-50 border border-slate-200/60 rounded-xl flex flex-col gap-2">
+                            <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex flex-col gap-2">
                               <div className="flex items-center justify-between gap-2">
                                 <div className="flex items-center gap-1.5 min-w-0">
                                   <span className={`text-[8px] font-extrabold tracking-wide uppercase px-1.5 py-0.5 rounded border bg-transparent shrink-0 ${
@@ -443,7 +443,7 @@ function DriverDashboard() {
                                 </div>
                                 {booking && <StatusBadge status={status} className="text-[8px]" />}
                               </div>
-                              <div className="flex items-center justify-between gap-4 pt-1.5 border-t border-slate-200/50 border-dashed">
+                              <div className="flex items-center justify-between gap-4 pt-1.5 border-t border-slate-200 border-dashed">
                                 <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-slate-400">
                                   <span>Payout: <span className="font-bold text-slate-700 font-mono">{formatPrice((booking as any)?.price || booking?.totalPrice || 0)}</span></span>
                                   <span>|</span>
@@ -482,14 +482,14 @@ function DriverDashboard() {
             {/* Right Column: Route Map */}
             <div className="lg:col-span-7 lg:sticky lg:top-20 w-full order-1 lg:order-2 space-y-4">
               {routeData && routeData.route.length > 0 && (
-                <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-sm space-y-4">
+                <div className="p-4 bg-white border border-slate-200 rounded-lg shadow-sm space-y-4">
                   <div className="flex flex-col gap-1">
                     <h3 className="text-base font-bold text-slate-800 font-heading">Optimized Navigation Route</h3>
                     <p className="text-[10px] text-slate-400">
                       Distance: <span className="font-bold text-slate-700">{routeData.totalDistanceKm} km</span> | Max Payload: {routeData.vehicleCapacityKg} kg
                     </p>
                   </div>
-                  <div className="h-80 sm:h-[400px] w-full overflow-hidden border border-slate-200 rounded-xl shadow-sm relative">
+                  <div className="h-80 sm:h-[400px] w-full overflow-hidden border border-slate-200 rounded-lg shadow-sm relative">
                     <MapView 
                       center={mapCenter} 
                       zoom={11} 
@@ -518,7 +518,7 @@ function DriverDashboard() {
 
       {/* Available Deliveries Board */}
       {activeTab === 'jobs_board' && (
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 space-y-4">
+        <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-4">
           <div className="flex items-center justify-between pb-4 border-b border-slate-100">
             <h3 className="text-lg font-bold text-slate-800 font-heading">Available Board</h3>
             <button onClick={loadData} className="px-3.5 py-1.5 text-xs font-bold bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-500 transition-colors shadow-sm">
@@ -565,7 +565,7 @@ function DriverDashboard() {
 
       {/* Past Deliveries history */}
       {activeTab === 'past_jobs' && (
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 space-y-4">
+        <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-4">
           <h3 className="text-lg font-bold text-slate-800 font-heading">Job History</h3>
           {pastBookings.length > 0 ? (
             <div className="divide-y divide-slate-100 text-xs">
@@ -580,7 +580,7 @@ function DriverDashboard() {
                       Payout: <span className="font-bold text-emerald-600 font-mono">{formatPrice(b.price)}</span>
                     </p>
                     {b.pickupAddress && b.dropoffAddress && (
-                      <p className="text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-lg border border-slate-100 leading-normal max-w-xl">
+                      <p className="text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-lg border border-slate-200 leading-normal max-w-xl">
                         <strong>Route:</strong> {b.pickupAddress} → {b.dropoffAddress}
                       </p>
                     )}
@@ -607,7 +607,7 @@ function DriverDashboard() {
 
       {/* My Schedule Tab — committed scheduled jobs + browse available board */}
       {(activeTab as string) === 'schedule' && (
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6 space-y-5">
+        <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-5">
           {/* Tab header with sub-view toggle */}
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-bold text-slate-800 font-heading flex items-center gap-2">
@@ -626,7 +626,7 @@ function DriverDashboard() {
               <button
                 onClick={() => { setShowScheduledBoard(true); loadScheduledJobs(); }}
                 className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all ${
-                  showScheduledBoard ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-500 border-slate-200 hover:border-indigo-300'
+                  showScheduledBoard ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'
                 }`}
               >
                 <Briefcase size={10} className="inline mr-1" />
@@ -636,21 +636,21 @@ function DriverDashboard() {
           </div>
 
           {loadingScheduled ? (
-            <div className="py-12 text-center text-slate-400 text-xs font-medium animate-pulse">Loading scheduled jobs...</div>
+            <div className="py-12 text-center text-slate-400 text-xs font-medium">Loading scheduled jobs...</div>
           ) : !showScheduledBoard ? (
             /* Sub-view 1: My committed schedule */
             scheduledJobs.length > 0 ? (
               <div className="space-y-3">
                 {scheduledJobs.map((job: ScheduledJob) => (
-                  <div key={job.id} className="p-4 border border-slate-200 rounded-xl space-y-2 hover:border-indigo-200 transition-colors">
+                  <div key={job.id} className="p-4 border border-slate-200 rounded-lg space-y-2 hover:border-slate-400 transition-colors">
                     <div className="flex items-center justify-between flex-wrap gap-2">
                       <span className="font-bold text-slate-800 text-sm font-heading">{job.cargoType}</span>
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full border border-indigo-200">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded-md">
                         <CalendarClock size={10} />
                         {formatDate(job.scheduledAt)}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                    <p className="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-200">
                       <strong>Route:</strong> {job.pickupAddress} → {job.dropoffAddress}
                     </p>
                     <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
@@ -685,15 +685,15 @@ function DriverDashboard() {
             availableScheduledJobs.length > 0 ? (
               <div className="space-y-3">
                 {availableScheduledJobs.map((job: ScheduledJob) => (
-                  <div key={job.id} className="p-4 border border-slate-200 rounded-xl space-y-2 hover:border-indigo-300 transition-colors">
+                  <div key={job.id} className="p-4 border border-slate-200 rounded-lg space-y-2 hover:border-slate-400 transition-colors">
                     <div className="flex items-center justify-between flex-wrap gap-2">
                       <span className="font-bold text-slate-800 text-sm font-heading">{job.cargoType}</span>
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded-full border border-amber-200">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded-md">
                         <CalendarClock size={10} />
                         {formatDate(job.scheduledAt)}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                    <p className="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-200">
                       <strong>Route:</strong> {job.pickupAddress} → {job.dropoffAddress}
                     </p>
                     <div className="flex items-center justify-between text-xs text-slate-500">
@@ -704,7 +704,7 @@ function DriverDashboard() {
                     <button
                       onClick={() => handleCommitScheduledJob(job.id)}
                       disabled={committingJobId === job.id}
-                      className="w-full mt-1 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-xs font-bold rounded-lg transition-colors shadow-sm flex items-center justify-center gap-1"
+                      className="w-full mt-1 px-3 py-2 bg-slate-900 hover:bg-slate-800 disabled:opacity-60 text-white text-xs font-bold rounded-lg transition-colors shadow-sm flex items-center justify-center gap-1"
                     >
                       <LocateFixed size={12} />
                       {committingJobId === job.id ? 'Committing...' : 'Commit to This Job'}
