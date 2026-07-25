@@ -67,9 +67,11 @@ function ShipperDashboard() {
       const displayName = data?.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
       if (type === 'pickup') {
         setPickupSearch(displayName);
+        setPickupResults([]); // Clear search dropdown list immediately
         setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng, pickupAddress: displayName }));
       } else {
         setDropoffSearch(displayName);
+        setDropoffResults([]); // Clear search dropdown list immediately
         setForm(prev => ({ ...prev, dropoffLat: lat, dropoffLng: lng, dropoffAddress: displayName }));
       }
     } catch (e) {
@@ -77,9 +79,11 @@ function ShipperDashboard() {
       const fallback = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
       if (type === 'pickup') {
         setPickupSearch(fallback);
+        setPickupResults([]);
         setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng, pickupAddress: fallback }));
       } else {
         setDropoffSearch(fallback);
+        setDropoffResults([]);
         setForm(prev => ({ ...prev, dropoffLat: lat, dropoffLng: lng, dropoffAddress: fallback }));
       }
     }
@@ -103,9 +107,12 @@ function ShipperDashboard() {
     }
   };
 
-  // Debounce pickup search on input change
+  // Debounce pickup search on manual input change (skip if set via live location)
   useEffect(() => {
-    if (!pickupSearch || pickupSearch.length < 3 || pickupSearch.startsWith('Location (')) return;
+    if (!pickupSearch || pickupSearch.length < 3 || pickupSearch.startsWith('Locating') || pickupSearch.startsWith('Location (') || pickupSearch === form.pickupAddress) {
+      setPickupResults([]);
+      return;
+    }
     const timer = setTimeout(() => {
       searchAddress(pickupSearch, 'pickup');
     }, 450);
