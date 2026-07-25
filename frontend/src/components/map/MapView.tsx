@@ -17,7 +17,7 @@ const DefaultIcon = L.icon({
 L.Marker.prototype.options.icon = DefaultIcon;
 
 // Custom Animated Uber/Ola Style Driver Car Icon using L.divIcon
-const driverCarDivIcon = (vehicleType = 'Mini Tempo') => L.divIcon({
+const driverCarDivIcon = () => L.divIcon({
   className: 'custom-driver-car-marker',
   html: `<div style="position: relative; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px;">
     <div style="position: absolute; width: 36px; height: 36px; border-radius: 50%; background: rgba(239, 68, 68, 0.25); animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
