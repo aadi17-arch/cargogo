@@ -29,6 +29,7 @@ export default function AddressSearchInput({
       </label>
       <div className="flex items-center gap-2">
         <input
+          autoComplete="off"
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
