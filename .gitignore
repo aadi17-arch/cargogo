@@ -44,3 +44,12 @@ lerna-debug.log*
 
 UPGRADES_README.md
 *.html
+
+# Interview Prep & Test Scripts
+*interview*.md
+epam_*.md
+*.tex
+*_test.js
+*simulate_*.mjs
+*_k6.js
+git_commands_cheatsheet.md
