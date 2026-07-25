@@ -121,6 +121,7 @@ function ShipperDashboard() {
 
   const locateMe = () => {
     if (!navigator.geolocation) { toast.error('Geolocation is not supported by your browser'); return; }
+    setPickupSearch('Locating current address...');
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const lat = Number(position.coords.latitude.toFixed(6));
@@ -143,6 +144,7 @@ function ShipperDashboard() {
           const lng = Number(position.coords.longitude.toFixed(6));
           setUserLocation([lat, lng]);
           setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng }));
+          setPickupSearch('Locating current address...');
           reverseGeocode(lat, lng, 'pickup');
         },
         () => {} // Silent fallback if user blocks permission
