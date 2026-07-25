@@ -24,6 +24,12 @@ export const getRoute = catchAsync(async (req: Request, res: Response) => {
   res.json({ success: true, data: result });
 });
 
+export const getOnlineDriversController = catchAsync(async (req: Request, res: Response) => {
+  const { getOnlineDrivers } = await import("@/services/driver.service");
+  const drivers = await getOnlineDrivers();
+  res.json({ success: true, data: drivers });
+});
+
 // Manual trigger to process the scheduled pool (admin and testing tool)
 export const triggerScheduledMatch = catchAsync(async (req: Request, res: Response) => {
   const io = req.app.get('io');
