@@ -15,7 +15,7 @@ export const registerMatchingHandlers = (
         } else if (user.role === 'SHIPPER') {
             socket.join(`shipper:${user.id}`);
         }
-        // booking cargoo
+        // booking cargo
         socket.on('book-cargo', async (bookingData) => {
             try {
                 const bookingId = bookingData.bookingId;
@@ -26,6 +26,26 @@ export const registerMatchingHandlers = (
                 await addDispatchJob(bookingId, booking.pickupLat, booking.pickupLng, 0, 0);
 
                 socket.emit('dispatch-queued', { bookingId });
+
+                // Auto-Accept Bot: Assign driver automatically after 3 seconds for single-user testing
+                setTimeout(async () => {
+                    try {
+                        const currentBooking = await prisma.booking.findUnique({ where: { id: bookingId } });
+                        if (currentBooking && currentBooking.status === 'PENDING' && !currentBooking.driverId) {
+                            const driver = await prisma.user.findFirst({ where: { role: 'DRIVER' } });
+                            if (driver) {
+                                await acceptBooking(bookingId, driver.id);
+                                io.to(`shipper:${currentBooking.shipperId}`).emit('booking-accepted', {
+                                    bookingId,
+                                    driverId: driver.id,
+                                    driverName: driver.name,
+                                });
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Auto-accept bot error:', err);
+                    }
+                }, 3000);
 
             }
             catch (e: any) {
