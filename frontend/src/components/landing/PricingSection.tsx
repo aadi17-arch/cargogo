@@ -42,7 +42,7 @@ export default function PricingSection() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           {/* Calculator Form */}
-          <form onSubmit={calculateQuote} className="lg:col-span-7 p-8 rounded-[var(--radius-card)] border bg-[var(--color-card)] space-y-6 shadow-sm flex flex-col justify-between" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
+          <form onSubmit={calculateQuote} className="lg:col-span-7 p-8 rounded-lg border border-slate-200 bg-white space-y-6 shadow-sm flex flex-col justify-between">
             <div className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-left">
                 {[
@@ -51,7 +51,7 @@ export default function PricingSection() {
                 ].map(({ key, label, min }) => (
                   <div key={key}>
                     <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>{label}</label>
-                    <input type="number" value={(form as any)[key]} onChange={(e) => setForm({ ...form, [key]: Math.max(min, +e.target.value) })} className="input-field px-4 py-3 bg-[var(--color-background)] w-full border rounded-[var(--radius-card)]" style={{ borderColor: 'var(--color-border)' }} required min={min} />
+                    <input type="number" value={(form as any)[key]} onChange={(e) => setForm({ ...form, [key]: Math.max(min, +e.target.value) })} className="input-field px-4 py-3 bg-slate-50 w-full border border-slate-200 rounded-lg" required min={min} />
                   </div>
                 ))}
               </div>
@@ -65,7 +65,7 @@ export default function PricingSection() {
                     { key: 'heightCm', label: 'H' },
                   ].map(({ key, label }) => (
                     <div key={key} className="relative flex items-center">
-                      <input type="number" placeholder={label} value={(form as any)[key]} onChange={(e) => setForm({ ...form, [key]: Math.max(1, +e.target.value) })} className="input-field pr-8 px-3.5 py-3 bg-[var(--color-background)] text-center w-full border rounded-[var(--radius-card)]" style={{ borderColor: 'var(--color-border)' }} required min={1} />
+                      <input type="number" placeholder={label} value={(form as any)[key]} onChange={(e) => setForm({ ...form, [key]: Math.max(1, +e.target.value) })} className="input-field pr-8 px-3.5 py-3 bg-slate-50 text-center w-full border border-slate-200 rounded-lg" required min={1} />
                       <span className="absolute right-2.5 text-[10px] font-bold text-slate-400">cm</span>
                     </div>
                   ))}
@@ -74,7 +74,7 @@ export default function PricingSection() {
 
               <div className="text-left space-y-2">
                 <label className="block text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}>Vehicle Type</label>
-                <select value={form.vehicleType} onChange={(e) => setForm({ ...form, vehicleType: e.target.value as any })} className="input-field px-4 py-3 bg-[var(--color-background)] w-full border rounded-[var(--radius-card)] focus:outline-none" style={{ borderColor: 'var(--color-border)' }}>
+                <select value={form.vehicleType} onChange={(e) => setForm({ ...form, vehicleType: e.target.value as any })} className="input-field px-4 py-3 bg-slate-50 w-full border border-slate-200 rounded-lg focus:outline-none">
                   <option value="MINI_TEMPO">Mini Tempo (Up to 500 kg)</option>
                   <option value="PICKUP_TRUCK">Pickup Truck (Up to 1.5 Tons)</option>
                   <option value="CONTAINER_3TON">3-Ton Container (Up to 3.0 Tons)</option>
@@ -88,7 +88,7 @@ export default function PricingSection() {
 
           {/* Result Panel */}
           <div className="lg:col-span-5 h-full">
-            <div className="p-8 rounded-[var(--radius-card)] border bg-[var(--color-card)] space-y-6 shadow-sm h-full flex flex-col justify-between" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
+            <div className="p-8 rounded-lg border border-slate-200 bg-white space-y-6 shadow-sm h-full flex flex-col justify-between">
               {!quote ? (
                 <div className="flex flex-col items-center justify-center text-center py-16 space-y-4 my-auto h-full">
                   <div className="p-4 rounded-full bg-slate-100 text-slate-400"><Receipt size={32} /></div>

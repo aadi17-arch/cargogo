@@ -22,7 +22,7 @@ export default function HeroSection() {
             <button onClick={() => navigate(dest)} className="demo-btn-primary-light">
               {isAuthenticated ? 'Go to Dashboard' : 'Start Shipping'}
             </button>
-            <a href="#calculator" className="demo-btn-secondary">
+            <a href="#pricing" className="demo-btn-secondary">
               Calculate Quote
             </a>
           </div>

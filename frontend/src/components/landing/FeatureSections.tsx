@@ -20,8 +20,8 @@ const CAPACITY = [
 
 function FeatureCard({ img, alt, title, description }: { img: string; alt: string; title: string; description: string }) {
   return (
-    <div className="group rounded-[var(--radius-card)] border bg-[var(--color-card)] overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
-      <div className="h-44 w-full overflow-hidden border-b border-[var(--color-border)] relative">
+    <div className="group rounded-lg border border-slate-200 bg-white overflow-hidden shadow-sm flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-slate-400">
+      <div className="h-44 w-full overflow-hidden border-b border-slate-200 relative">
         <img src={img} alt={alt} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
       </div>
       <div className="p-6 space-y-3 flex-1">
@@ -76,7 +76,7 @@ export function FleetSection() {
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {FLEET.map((f) => (
-          <div key={f.title} className="p-6 rounded-[var(--radius-card)] border bg-[var(--color-card)] flex flex-col justify-between space-y-4" style={{ borderColor: 'var(--color-border)', borderWidth: 'var(--border-width)' }}>
+          <div key={f.title} className="p-6 rounded-lg border border-slate-200 bg-white flex flex-col justify-between space-y-4">
             <div className="space-y-2">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 rounded bg-slate-100 text-slate-700"><Truck size={22} /></div>
@@ -87,7 +87,7 @@ export function FleetSection() {
               </div>
               <p className="text-xs leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>{f.description}</p>
             </div>
-            <div className="pt-3 border-t border-[var(--color-border)] flex justify-between items-center">
+            <div className="pt-3 border-t border-slate-200 flex justify-between items-center">
               <div>
                 <span className="block text-[10px] uppercase font-bold text-slate-400">Base Price</span>
                 <span className="text-base font-extrabold" style={{ color: 'var(--color-text-main)' }}>{f.basePrice}</span>

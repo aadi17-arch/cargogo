@@ -28,9 +28,9 @@ export default function FooterSection() {
 
   return (
     <>
-      <footer className="mt-auto py-16 px-6 border-t border-slate-800 text-sm" style={{ background: 'linear-gradient(to right, #050b14, #101c2c)', color: '#94A3B8' }}>
+      <footer className="mt-auto py-16 px-6 border-t border-slate-700 text-sm" style={{ backgroundColor: '#09121F', color: '#94A3B8' }}>
         <div className="max-w-[1750px] mx-auto px-4 sm:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 pb-12 border-b border-slate-800 text-left">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 pb-12 border-b border-slate-700 text-left">
 
             {/* Brand */}
             <div className="space-y-5">
@@ -77,12 +77,12 @@ export default function FooterSection() {
               <h4 className="font-bold text-xs uppercase tracking-wider text-white">Insights Newsletter</h4>
               <p className="text-xs leading-relaxed text-slate-300">Get quarterly updates on transit metrics, fuel rates, and direct APIs.</p>
               {subscribed ? (
-                <div className="flex items-center gap-2 p-3 bg-slate-900/80 border border-green-800 text-green-400 text-xs rounded font-medium">
+                <div className="flex items-center gap-2 p-3 bg-slate-850 border border-green-600 text-green-400 text-xs rounded-lg font-medium">
                   <Check size={16} /> Subscribed to insights!
                 </div>
               ) : (
                 <form className="space-y-2" onSubmit={handleNewsletter}>
-                  <input type="email" placeholder="corp@address.com" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-3 py-2 text-xs border rounded bg-slate-900/50 border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500" required />
+                  <input type="email" placeholder="corp@address.com" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-3 py-2 text-xs border rounded-lg bg-slate-850 border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500" required />
                   <button type="submit" disabled={submitting} className="w-full px-4 py-2 text-xs font-bold text-[#09121F] bg-white hover:bg-slate-100 rounded transition-colors shadow-sm disabled:opacity-50">
                     {submitting ? 'Subscribing...' : 'Join Insights List'}
                   </button>
