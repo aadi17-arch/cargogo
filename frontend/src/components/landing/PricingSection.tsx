@@ -32,6 +32,10 @@ export default function PricingSection() {
     });
   };
 
+  useState(() => {
+    calculateQuote();
+  });
+
   return (
     <section id="pricing" className="py-20 px-6 border-b border-[var(--color-border)]" style={{ backgroundColor: 'var(--color-background)' }}>
       <div className="max-w-[1750px] mx-auto px-4 sm:px-8">
