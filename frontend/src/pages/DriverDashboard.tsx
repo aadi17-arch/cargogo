@@ -144,7 +144,19 @@ function DriverDashboard() {
     finally { setLoadingRoute(false); }
   };
 
-  useEffect(() => { if (token) loadData(); }, [token]);
+  useEffect(() => { 
+    if (token) {
+      loadData(); 
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            setDriverCoords([pos.coords.latitude, pos.coords.longitude]);
+          },
+          () => {}
+        );
+      }
+    }
+  }, [token]);
 
   useSocketListener('incoming-bid', (data: any) => { setBid(data); setCountdown(30); });
   useSocketListener('bid-accepted', () => { toast.success('Bid accepted! Go to pickup.'); setBid(null); loadData(); });

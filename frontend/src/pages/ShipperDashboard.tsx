@@ -131,7 +131,21 @@ function ShipperDashboard() {
     );
   };
 
-  useEffect(() => { fetchMyBookings(); }, []);
+  useEffect(() => { 
+    fetchMyBookings(); 
+    // Auto-detect current user location on page load
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = Number(position.coords.latitude.toFixed(6));
+          const lng = Number(position.coords.longitude.toFixed(6));
+          setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng }));
+          reverseGeocode(lat, lng, 'pickup');
+        },
+        () => {} // Silent fallback if user blocks permission
+      );
+    }
+  }, []);
 
   useSocketListener('booking-accepted', (data: any) => {
     toast.success(`Driver ${data.driverName} has accepted your booking!`);
