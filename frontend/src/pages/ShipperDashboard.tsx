@@ -226,12 +226,42 @@ function ShipperDashboard() {
     }
   };
 
+  const [onlineDrivers, setOnlineDrivers] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchDrivers = async () => {
+      try {
+        const { driverService } = await import('@/services/driver.service');
+        const data = await driverService.getOnlineDrivers();
+        setOnlineDrivers(data);
+      } catch (err) {
+        console.warn('Failed to fetch online drivers', err);
+      }
+    };
+    fetchDrivers();
+    const interval = setInterval(fetchDrivers, 10000); // refresh every 10 seconds
+    return () => clearInterval(interval);
+  }, []);
+
   const mapCenter: [number, number] = (form.pickupLat !== null && form.pickupLng !== null)
     ? [form.pickupLat, form.pickupLng]
     : [19.0760, 72.8777];
 
   const mapMarkers = useMemo(() => {
     const markersList: MapMarker[] = [];
+    
+    // Render all online drivers as red driver icons
+    onlineDrivers.forEach((d: any) => {
+      if (d.latitude && d.longitude) {
+        markersList.push({
+          lat: d.latitude,
+          lng: d.longitude,
+          isDriver: true,
+          popupText: `🚚 ${d.user?.name || 'Driver'} (${d.user?.vehicle?.type || 'Available'})`
+        });
+      }
+    });
+
     if (form.pickupLat !== null && form.pickupLng !== null) {
       markersList.push({
         lat: form.pickupLat,
@@ -259,7 +289,7 @@ function ShipperDashboard() {
       });
     }
     return markersList;
-  }, [form.pickupLat, form.pickupLng, form.dropoffLat, form.dropoffLng]);
+  }, [form.pickupLat, form.pickupLng, form.dropoffLat, form.dropoffLng, onlineDrivers]);
 
   return (
     <div className="space-y-6">
@@ -467,10 +497,16 @@ function ShipperDashboard() {
           <div className="lg:col-span-5 space-y-4 order-1 lg:order-2">
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs text-slate-500">
-                <span className="flex items-center gap-1 font-medium font-body">
-                  <MapPin size={14} className="text-indigo-500" />
-                  Endpoints (search above or drag pins)
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="flex items-center gap-1 font-medium font-body">
+                    <MapPin size={14} className="text-indigo-500" />
+                    Endpoints
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-full border border-emerald-200 shadow-2xs">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    {onlineDrivers.length} {onlineDrivers.length === 1 ? 'Driver' : 'Drivers'} Online
+                  </span>
+                </div>
                 <button 
                   type="button" 
                   onClick={locateMe} 

@@ -37,4 +37,9 @@ export const driverService = {
 
     return response.data.data!;
   },
+
+  async getOnlineDrivers(): Promise<any[]> {
+    const response = await api.get<ApiResponse<any[]>>('/drivers/online-drivers');
+    return response.data.data || [];
+  },
 };
