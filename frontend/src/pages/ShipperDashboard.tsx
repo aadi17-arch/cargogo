@@ -86,7 +86,7 @@ function ShipperDashboard() {
   };
 
   const searchAddress = async (query: string, type: 'pickup' | 'dropoff') => {
-    if (!query.trim()) return;
+    if (!query.trim() || query.length < 3) return;
     if (type === 'pickup') setSearchingPickup(true); else setSearchingDropoff(true);
     try {
       const data = await geocodingService.search(query);
@@ -102,6 +102,24 @@ function ShipperDashboard() {
       if (type === 'pickup') setSearchingPickup(false); else setSearchingDropoff(false);
     }
   };
+
+  // Debounce pickup search on input change
+  useEffect(() => {
+    if (!pickupSearch || pickupSearch.length < 3 || pickupSearch.startsWith('Location (')) return;
+    const timer = setTimeout(() => {
+      searchAddress(pickupSearch, 'pickup');
+    }, 450);
+    return () => clearTimeout(timer);
+  }, [pickupSearch]);
+
+  // Debounce dropoff search on input change
+  useEffect(() => {
+    if (!dropoffSearch || dropoffSearch.length < 3) return;
+    const timer = setTimeout(() => {
+      searchAddress(dropoffSearch, 'dropoff');
+    }, 450);
+    return () => clearTimeout(timer);
+  }, [dropoffSearch]);
 
   const handleSelectResult = (result: any, type: 'pickup' | 'dropoff') => {
     const lat = parseFloat(result.lat);
