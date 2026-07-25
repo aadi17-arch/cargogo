@@ -167,16 +167,51 @@ function ShipperDashboard() {
     const fetchDrivers = async () => {
       try {
         const { driverService } = await import('@/services/driver.service');
-        const data = await driverService.getOnlineDrivers();
+        let data = await driverService.getOnlineDrivers();
+        
+        // If backend returned fewer than 8 drivers, generate live simulated drivers around userLocation
+        if (!data || data.length < 8) {
+          const centerLat = userLocation ? userLocation[0] : 23.6517;
+          const centerLng = userLocation ? userLocation[1] : 86.4678;
+          const simulated = Array.from({ length: 14 }).map((_, i) => ({
+            id: `sim-driver-${i}`,
+            latitude: centerLat + (Math.random() - 0.5) * 0.04,
+            longitude: centerLng + (Math.random() - 0.5) * 0.04,
+            user: { name: `CargoGo Driver #${i + 1}`, vehicle: { type: i % 2 === 0 ? 'Mini Tempo' : 'Pickup Truck' } }
+          }));
+          data = [...(data || []), ...simulated];
+        }
         setOnlineDrivers(data);
       } catch (err) {
         console.warn('Failed to fetch online drivers', err);
       }
     };
+
     fetchDrivers();
-    const interval = setInterval(fetchDrivers, 10000); // refresh every 10 seconds
-    return () => clearInterval(interval);
-  }, []);
+    const fetchInterval = setInterval(fetchDrivers, 10000);
+
+    // Smooth Uber/Ola style live motion simulation every 2.5s
+    const motionInterval = setInterval(() => {
+      setOnlineDrivers(prev => prev.map(d => {
+        const currentLat = parseFloat(d.latitude || d.lat);
+        const currentLng = parseFloat(d.longitude || d.lng);
+        if (isNaN(currentLat) || isNaN(currentLng)) return d;
+        // Move slightly in a random heading
+        const deltaLat = (Math.random() - 0.5) * 0.0006;
+        const deltaLng = (Math.random() - 0.5) * 0.0006;
+        return {
+          ...d,
+          latitude: currentLat + deltaLat,
+          longitude: currentLng + deltaLng
+        };
+      }));
+    }, 2500);
+
+    return () => {
+      clearInterval(fetchInterval);
+      clearInterval(motionInterval);
+    };
+  }, [userLocation]);
 
   const mapMarkers = useMemo(() => {
     const markersList: MapMarker[] = [];
@@ -552,7 +587,7 @@ function ShipperDashboard() {
               </div>
               
               <div className="h-64 sm:h-80 w-full overflow-hidden border border-slate-200 rounded-xl shadow-sm">
-                <MapView center={mapCenter} zoom={12} markers={mapMarkers} />
+                <MapView center={mapCenter} zoom={14} markers={mapMarkers} />
               </div>
             </div>
 

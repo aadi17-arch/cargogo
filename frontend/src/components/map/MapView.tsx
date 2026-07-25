@@ -16,14 +16,22 @@ const DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// Custom SVG Driver Truck Icon (Red/Emerald)
-const driverTruckSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="%23EF4444" stroke="%23ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5" fill="%231E293B"/><circle cx="18.5" cy="18.5" r="2.5" fill="%231E293B"/></svg>`;
-
-const driverIcon = L.icon({
-  iconUrl: driverTruckSvg,
-  iconSize: [36, 36],
-  iconAnchor: [18, 36],
-  popupAnchor: [0, -34],
+// Custom Animated Uber/Ola Style Driver Car Icon using L.divIcon
+const driverCarDivIcon = (vehicleType = 'Mini Tempo') => L.divIcon({
+  className: 'custom-driver-car-marker',
+  html: `<div style="position: relative; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px;">
+    <div style="position: absolute; width: 36px; height: 36px; border-radius: 50%; background: rgba(239, 68, 68, 0.25); animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+    <div style="position: relative; width: 32px; height: 32px; background: #0F172A; border: 2px solid #EF4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F8FAFC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2.1 11.2 2 11.6 2 12v4c0 .6.4 1 1 1h2"/>
+        <circle cx="7" cy="17" r="2"/>
+        <circle cx="17" cy="17" r="2"/>
+      </svg>
+    </div>
+  </div>`,
+  iconSize: [40, 40],
+  iconAnchor: [20, 20],
+  popupAnchor: [0, -20],
 });
 
 // Helper component to pan map smoothly whenever center updates
@@ -77,7 +85,7 @@ export const MapView = React.memo(function MapView({
       {setMap && <MapInstanceTracker setMap={setMap} />}
 
       {markers.map((marker, idx) => {
-        const icon = marker.isDriver ? driverIcon : DefaultIcon;
+        const icon = marker.isDriver ? driverCarDivIcon() : DefaultIcon;
         const position: [number, number] = [marker.lat, marker.lng];
 
         const handlers = marker.draggable && marker.onDragEnd ? {
