@@ -67,21 +67,20 @@ function ShipperDashboard() {
       const displayName = data?.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
       if (type === 'pickup') {
         setPickupSearch(displayName);
-        setForm(prev => ({ ...prev, pickupAddress: displayName }));
+        setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng, pickupAddress: displayName }));
       } else {
         setDropoffSearch(displayName);
-        setForm(prev => ({ ...prev, dropoffAddress: displayName }));
+        setForm(prev => ({ ...prev, dropoffLat: lat, dropoffLng: lng, dropoffAddress: displayName }));
       }
     } catch (e) {
       console.error(e);
-      toast.error('Reverse geocoding failed. Reverting to coordinates.');
       const fallback = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
       if (type === 'pickup') {
         setPickupSearch(fallback);
-        setForm(prev => ({ ...prev, pickupAddress: fallback }));
+        setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng, pickupAddress: fallback }));
       } else {
         setDropoffSearch(fallback);
-        setForm(prev => ({ ...prev, dropoffAddress: fallback }));
+        setForm(prev => ({ ...prev, dropoffLat: lat, dropoffLng: lng, dropoffAddress: fallback }));
       }
     }
   };
@@ -118,12 +117,15 @@ function ShipperDashboard() {
     }
   };
 
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+
   const locateMe = () => {
     if (!navigator.geolocation) { toast.error('Geolocation is not supported by your browser'); return; }
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const lat = Number(position.coords.latitude.toFixed(6));
         const lng = Number(position.coords.longitude.toFixed(6));
+        setUserLocation([lat, lng]);
         setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng }));
         reverseGeocode(lat, lng, 'pickup');
       },
@@ -139,6 +141,7 @@ function ShipperDashboard() {
         (position) => {
           const lat = Number(position.coords.latitude.toFixed(6));
           const lng = Number(position.coords.longitude.toFixed(6));
+          setUserLocation([lat, lng]);
           setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng }));
           reverseGeocode(lat, lng, 'pickup');
         },
@@ -155,6 +158,37 @@ function ShipperDashboard() {
     toast.error(`Driver matching update: ${data.message}`);
     fetchMyBookings();
   });
+
+  const [onlineDrivers, setOnlineDrivers] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchDrivers = async () => {
+      try {
+        const { driverService } = await import('@/services/driver.service');
+        const data = await driverService.getOnlineDrivers();
+        setOnlineDrivers(data);
+      } catch (err) {
+        console.warn('Failed to fetch online drivers', err);
+      }
+    };
+    fetchDrivers();
+    const interval = setInterval(fetchDrivers, 10000); // refresh every 10 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  const mapCenter: [number, number] = useMemo(() => {
+    if (userLocation) {
+      return userLocation;
+    }
+    if (form.pickupLat !== null && form.pickupLng !== null) {
+      return [form.pickupLat, form.pickupLng];
+    }
+    const firstDriver = onlineDrivers.find((d: any) => d.latitude && d.longitude);
+    if (firstDriver) {
+      return [firstDriver.latitude, firstDriver.longitude];
+    }
+    return [20.5937, 78.9629]; // India geographic center as country-level view
+  }, [userLocation, form.pickupLat, form.pickupLng, onlineDrivers]);
 
   const getQuote = async () => {
     if (form.pickupLat === null || form.pickupLng === null || form.dropoffLat === null || form.dropoffLng === null) {
@@ -239,34 +273,6 @@ function ShipperDashboard() {
       toast.error(err?.response?.data?.message || 'Failed to cancel booking');
     }
   };
-
-  const [onlineDrivers, setOnlineDrivers] = useState<any[]>([]);
-
-  useEffect(() => {
-    const fetchDrivers = async () => {
-      try {
-        const { driverService } = await import('@/services/driver.service');
-        const data = await driverService.getOnlineDrivers();
-        setOnlineDrivers(data);
-      } catch (err) {
-        console.warn('Failed to fetch online drivers', err);
-      }
-    };
-    fetchDrivers();
-    const interval = setInterval(fetchDrivers, 10000); // refresh every 10 seconds
-    return () => clearInterval(interval);
-  }, []);
-
-  const mapCenter: [number, number] = useMemo(() => {
-    if (form.pickupLat !== null && form.pickupLng !== null) {
-      return [form.pickupLat, form.pickupLng];
-    }
-    const firstDriver = onlineDrivers.find((d: any) => d.latitude && d.longitude);
-    if (firstDriver) {
-      return [firstDriver.latitude, firstDriver.longitude];
-    }
-    return [20.5937, 78.9629]; // India geographic center as country-level view
-  }, [form.pickupLat, form.pickupLng, onlineDrivers]);
 
   const mapMarkers = useMemo(() => {
     const markersList: MapMarker[] = [];
