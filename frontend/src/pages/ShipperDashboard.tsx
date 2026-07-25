@@ -257,9 +257,16 @@ function ShipperDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  const mapCenter: [number, number] = (form.pickupLat !== null && form.pickupLng !== null)
-    ? [form.pickupLat, form.pickupLng]
-    : [19.0760, 72.8777];
+  const mapCenter: [number, number] = useMemo(() => {
+    if (form.pickupLat !== null && form.pickupLng !== null) {
+      return [form.pickupLat, form.pickupLng];
+    }
+    const firstDriver = onlineDrivers.find((d: any) => d.latitude && d.longitude);
+    if (firstDriver) {
+      return [firstDriver.latitude, firstDriver.longitude];
+    }
+    return [20.5937, 78.9629]; // India geographic center as country-level view
+  }, [form.pickupLat, form.pickupLng, onlineDrivers]);
 
   const mapMarkers = useMemo(() => {
     const markersList: MapMarker[] = [];

@@ -134,7 +134,7 @@ function DriverDashboard() {
       } catch (e) { console.warn('Geolocation failed:', e); }
     }
     if (!lat || !lng) {
-      lat = 19.0760; lng = 72.8777;
+      lat = 20.5937; lng = 78.9629; // India country-level center fallback
       setDriverCoords([lat, lng]);
     }
     try {
