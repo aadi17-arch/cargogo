@@ -109,35 +109,40 @@ router.get('/reverse', catchAsync(async (req: Request, res: Response) => {
   const latitude = parseFloat(lat as string);
   const longitude = parseFloat(lon as string);
   
-  // Custom logic for Ranchi area simulation (latitude ~23.3x)
-  let roadName = 'Main Road';
-  let cityName = 'Mumbai';
-  let stateName = 'Maharashtra';
+  let roadName = 'Station Road';
+  let cityName = 'Dhanbad';
+  let stateName = 'Jharkhand';
   
-  if (latitude >= 23.0 && latitude <= 24.0 && longitude >= 85.0 && longitude <= 86.0) {
+  // Dhanbad / Sindri area check (lat ~23.6x, lon ~86.4x)
+  if (latitude >= 23.5 && latitude <= 24.0 && longitude >= 86.0 && longitude <= 87.0) {
+    cityName = 'Dhanbad';
+    stateName = 'Jharkhand';
+    roadName = 'Sindri Town';
+  } else if (latitude >= 23.0 && latitude <= 24.0 && longitude >= 85.0 && longitude <= 86.0) {
     cityName = 'Ranchi';
     stateName = 'Jharkhand';
-    
-    // Ranchi sub-location simulations
-    if (Math.abs(latitude - 23.3708) < 0.01) {
-      roadName = 'Kanke';
-    } else if (Math.abs(latitude - 23.3673) < 0.01 || Math.abs(latitude - 23.4613) < 0.1) {
-      roadName = 'Argora';
-    } else {
-      roadName = 'Lalpur';
-    }
+    roadName = 'Lalpur';
+  } else if (latitude >= 18.5 && latitude <= 19.5 && longitude >= 72.5 && longitude <= 73.5) {
+    cityName = 'Mumbai';
+    stateName = 'Maharashtra';
+    roadName = 'Andheri';
+  } else {
+    // Dynamic coordinate fallback so no hardcoded Mumbai appears
+    roadName = `Location (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
+    cityName = 'Local Area';
+    stateName = 'India';
   }
 
   res.json({
     success: true,
     data: {
-      display_name: `${roadName}, ${cityName}, ${stateName}, India`,
+      display_name: `${roadName}, ${cityName}, ${stateName}`,
       lat: String(lat),
       lon: String(lon),
       address: {
         road: roadName,
         suburb: cityName,
-        neighbourhood: roadName + ' Sector',
+        neighbourhood: roadName,
         city: cityName,
         state: stateName,
         country: 'India'
