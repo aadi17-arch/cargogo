@@ -439,7 +439,7 @@ function ShipperDashboard() {
       {activeTab === 'book' ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Form Specs */}
-          <div className="lg:col-span-7 p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-6 order-2 lg:order-1">
+          <div className="lg:col-span-7 p-6 bg-white border border-slate-200 rounded-lg shadow-sm space-y-6 order-2 lg:order-1">
             <h3 className="text-lg font-bold text-slate-800 font-heading">
               Shipment Specifications
             </h3>
@@ -467,8 +467,8 @@ function ShipperDashboard() {
                   onClick={() => setBookingType('SCHEDULED')}
                   className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg border transition-all ${
                     bookingType === 'SCHEDULED'
-                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                      : 'bg-white text-slate-500 border-slate-200 hover:border-indigo-300'
+                      ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                      : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'
                   }`}
                 >
                   <CalendarClock size={12} />
@@ -484,8 +484,8 @@ function ShipperDashboard() {
 
             {/* Scheduled Date/Time Picker */}
             {bookingType === 'SCHEDULED' && (
-              <div className="space-y-1.5 p-4 bg-indigo-50/50 border border-indigo-200/60 rounded-xl">
-                <label className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider font-heading flex items-center gap-1">
+              <div className="space-y-1.5 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider font-heading flex items-center gap-1">
                   <CalendarClock size={12} />
                   Pickup Window Start Time
                 </label>
@@ -494,7 +494,7 @@ function ShipperDashboard() {
                   value={scheduledAt}
                   onChange={(e) => setScheduledAt(e.target.value)}
                   min={new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString().slice(0, 16)}
-                  className="w-full p-2.5 bg-white text-slate-800 text-xs font-medium rounded-lg border border-indigo-200 focus:outline-none focus:border-indigo-500 transition-all"
+                  className="w-full p-2.5 bg-white text-slate-800 text-xs font-medium rounded-lg border border-slate-200 focus:outline-none focus:border-slate-900 transition-all"
                 />
                 <p className="text-[9px] text-slate-400">Must be scheduled at least 2 hours in advance.</p>
               </div>
@@ -623,13 +623,13 @@ function ShipperDashboard() {
                     <MapPin size={14} className="text-indigo-500" />
                     Endpoints
                   </span>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-full border border-emerald-200 shadow-2xs">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-md">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                     {onlineDrivers.length} {onlineDrivers.length === 1 ? 'Driver' : 'Drivers'} Online
                   </span>
                   {/* Feature 1: Nearest driver ETA badge */}
                   {nearestDriverInfo && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-700 text-[10px] font-bold rounded-full border border-indigo-200">
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-md">
                       <Truck size={10} />
                       {nearestDriverInfo.distKm} km · ~{nearestDriverInfo.etaMins} min
                     </span>
@@ -645,7 +645,7 @@ function ShipperDashboard() {
                 </button>
               </div>
               
-              <div className="h-64 sm:h-80 w-full overflow-hidden border border-slate-200 rounded-xl shadow-sm">
+              <div className="h-64 sm:h-80 w-full overflow-hidden border border-slate-200 rounded-lg shadow-sm">
                 {/* Feature 2: Pass route polyline to map */}
                 <MapView
                   center={mapCenter}
@@ -658,13 +658,12 @@ function ShipperDashboard() {
             </div>
 
             {quote ? (
-              <div className="p-5 bg-white border border-slate-200 rounded-xl shadow-sm space-y-3 text-xs font-body text-slate-600">
+              <div className="p-5 bg-white border border-slate-200 rounded-lg shadow-sm space-y-3 text-xs font-body text-slate-600">
                 <div className="flex items-center justify-between">
                   <p className="font-mono text-[9px] font-bold tracking-wider uppercase text-slate-400">
                     Live Fare Estimate
                   </p>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[9px] font-bold rounded-full border border-emerald-200">
-                    <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-bold rounded-md">
                     Auto-updated
                   </span>
                 </div>
@@ -712,7 +711,7 @@ function ShipperDashboard() {
                 </div>
               </div>
             ) : (
-              <div className="p-5 bg-slate-50 border border-slate-200 border-dashed rounded-xl flex flex-col items-center justify-center text-center h-36 text-slate-400 space-y-1">
+              <div className="p-5 bg-white border border-slate-200 border-dashed rounded-lg flex flex-col items-center justify-center text-center h-36 text-slate-400 space-y-1">
                 <MapPin size={18} className="text-slate-300" />
                 <p className="text-xs font-medium">Select pickup &amp; delivery to see live fare</p>
               </div>
@@ -721,7 +720,7 @@ function ShipperDashboard() {
         </div>
       ) : (
         /* My Bookings Tab */
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+        <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6">
           <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
             <h3 className="text-lg font-bold text-slate-800 font-heading">
               Shipment Manifest
@@ -740,7 +739,7 @@ function ShipperDashboard() {
               <button
                 key={f}
                 onClick={() => setManifestFilter(f)}
-                className={`flex items-center gap-1 px-3 py-1 text-[10px] font-bold rounded-full border transition-all ${
+                className={`flex items-center gap-1 px-3 py-1 text-[10px] font-bold rounded-md border transition-all ${
                   manifestFilter === f
                     ? 'bg-slate-900 text-white border-slate-900'
                     : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'
@@ -772,7 +771,7 @@ function ShipperDashboard() {
                       <StatusBadge status={b.status} />
                       {/* Show SCHEDULED badge + scheduled time for scheduled bookings */}
                       {b.bookingType === 'SCHEDULED' && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[9px] font-bold rounded-full border border-indigo-200">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 text-[9px] font-bold rounded-md">
                           <CalendarClock size={10} />
                           {b.scheduledAt ? formatDate(b.scheduledAt) : 'Scheduled'}
                         </span>
@@ -797,7 +796,7 @@ function ShipperDashboard() {
                     {b.status === 'DELIVERED' && (
                       <button 
                         onClick={() => setSelectedBookingForPayment(b)} 
-                        className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors shadow-sm"
+                        className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition-colors shadow-sm"
                       >
                         Pay
                       </button>

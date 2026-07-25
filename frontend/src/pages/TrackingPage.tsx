@@ -290,7 +290,7 @@ function TrackingPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Map */}
-        <div className="lg:col-span-7 h-96 lg:h-[500px] overflow-hidden border border-slate-200 rounded-xl shadow-sm">
+        <div className="lg:col-span-7 h-96 lg:h-[500px] overflow-hidden border border-slate-200 rounded-lg shadow-sm">
           <MapView 
             center={mapCenter} 
             zoom={13} 
@@ -331,7 +331,7 @@ function TrackingPage() {
 
           {/* OTP Handshake — ACCEPTED */}
           {booking.status === 'ACCEPTED' && (
-            <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm font-body text-xs text-slate-600 space-y-3">
+            <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm font-body text-xs text-slate-600 space-y-3">
               <h3 className="text-sm font-bold text-slate-800 font-heading">Pickup Verification</h3>
               {user?.role === 'DRIVER' ? (
                 <OtpVerifyInput type="pickup" otp={otp} setOtp={setOtp} onVerify={() => verifyOTP('pickup')} />
@@ -340,7 +340,7 @@ function TrackingPage() {
                   <p className="leading-relaxed text-slate-500">
                     Share this security OTP with the driver partner at the pickup point to authorize the departure:
                   </p>
-                  <div className="p-4 bg-slate-50 border border-slate-200/60 rounded-xl text-center">
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-center">
                     <span className="font-mono text-2xl font-black text-indigo-600 tracking-wider">
                       {booking.pickupOTP}
                     </span>
@@ -352,7 +352,7 @@ function TrackingPage() {
 
           {/* OTP Handshake — IN_TRANSIT */}
           {booking.status === 'IN_TRANSIT' && (
-            <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm font-body text-xs text-slate-600 space-y-3">
+            <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm font-body text-xs text-slate-600 space-y-3">
               <h3 className="text-sm font-bold text-slate-800 font-heading">Dropoff Verification</h3>
               {user?.role === 'DRIVER' ? (
                 <OtpVerifyInput type="dropoff" otp={otp} setOtp={setOtp} onVerify={() => verifyOTP('dropoff')} />
@@ -361,7 +361,7 @@ function TrackingPage() {
                   <p className="leading-relaxed text-slate-500">
                     Share this security OTP with the driver partner at the delivery point to confirm completion:
                   </p>
-                  <div className="p-4 bg-slate-50 border border-slate-200/60 rounded-xl text-center">
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-center">
                     <span className="font-mono text-2xl font-black text-indigo-600 tracking-wider">
                       {booking.dropoffOTP}
                     </span>
@@ -373,7 +373,7 @@ function TrackingPage() {
 
           {/* DELIVERED — payment prompt */}
           {booking.status === 'DELIVERED' && (
-            <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm text-center space-y-4 font-body text-xs text-slate-600">
+            <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm text-center space-y-4 font-body text-xs text-slate-600">
               <p className="text-lg font-black text-emerald-600 font-heading">Package Delivered!</p>
               {user?.role === 'SHIPPER' && (
                 <div className="space-y-3 flex flex-col items-center">
@@ -394,14 +394,14 @@ function TrackingPage() {
 
           {/* COMPLETED */}
           {booking.status === 'COMPLETED' && (
-            <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm text-center font-body">
+            <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm text-center font-body">
               <p className="text-lg font-black text-emerald-600 font-heading">Delivery Completed & Paid!</p>
             </div>
           )}
 
           {/* DISPUTED */}
           {booking.status === 'DISPUTED' && (
-            <div className="p-6 bg-red-50/50 border border-red-200 rounded-xl shadow-sm text-center font-body space-y-2">
+            <div className="p-6 bg-white border border-red-200 rounded-lg shadow-sm text-center font-body space-y-2">
               <p className="text-lg font-black text-red-600 font-heading">Delivery Under Dispute</p>
               <p className="text-xs text-slate-500 leading-normal max-w-sm mx-auto">
                 Our support team is reviewing your claim parameters. We will contact you shortly.
@@ -411,7 +411,7 @@ function TrackingPage() {
 
           {/* Invoice details */}
           {invoice && (
-            <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-4 font-body text-xs text-slate-600">
+            <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm space-y-4 font-body text-xs text-slate-600">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <h3 className="text-sm font-bold text-slate-800 font-heading">
                   Invoice Details
@@ -447,7 +447,7 @@ function TrackingPage() {
 
           {/* Existing review display */}
           {booking.review && (
-            <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-3 font-body text-xs text-slate-600">
+            <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm space-y-3 font-body text-xs text-slate-600">
               <h3 className="text-sm font-bold text-slate-800 font-heading pb-2 border-b border-slate-100">
                 Customer Feedback
               </h3>
@@ -467,7 +467,7 @@ function TrackingPage() {
 
           {/* Review form */}
           {booking.status === 'COMPLETED' && user?.role === 'SHIPPER' && !booking.review && !reviewSubmitted && (
-            <form onSubmit={handleReviewSubmit} className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-4 font-body text-xs text-slate-600">
+            <form onSubmit={handleReviewSubmit} className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm space-y-4 font-body text-xs text-slate-600">
               <h3 className="text-sm font-bold text-slate-800 font-heading pb-2 border-b border-slate-100">
                 Rate Driver Partner
               </h3>
