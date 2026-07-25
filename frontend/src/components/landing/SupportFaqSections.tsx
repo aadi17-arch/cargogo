@@ -22,13 +22,13 @@ export function FaqSection() {
             <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">FAQ</span>
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: 'var(--color-text-main)', fontFamily: 'var(--font-heading)' }}>Frequently Asked Questions</h2>
             <p className="text-base font-medium" style={{ color: 'var(--color-text-muted)' }}>Everything you need to know about booking, volumetric pricing calculation, and OTP safety verification.</p>
-            <div className="h-64 rounded-[var(--radius-card)] overflow-hidden border border-[var(--color-border)] shadow-sm">
-              <img src="https://images.unsplash.com/photo-1521791136368-1a8519007b51?auto=format&fit=crop&w=800&q=80" alt="Customer support" className="w-full h-full object-cover" />
+            <div className="h-64 rounded-lg overflow-hidden border border-slate-200 shadow-sm">
+              <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80" alt="Customer support" className="w-full h-full object-cover" />
             </div>
           </div>
           <div className="lg:col-span-7 space-y-6">
             {FAQS.map(({ q, a }) => (
-              <div key={q} className="p-5 border border-[var(--color-border)] rounded-[var(--radius-card)] bg-[var(--color-background)]">
+              <div key={q} className="p-5 border border-slate-200 rounded-lg bg-white">
                 <h4 className="font-bold text-md mb-2" style={{ color: 'var(--color-text-main)' }}>{q}</h4>
                 <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>{a}</p>
               </div>
@@ -53,7 +53,7 @@ export function SupportSection() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {SUPPORT.map(({ title, sub, description, Icon }) => (
-                <div key={title} className="p-5 border border-[var(--color-border)] rounded-[var(--radius-card)] bg-[var(--color-card)] space-y-3 shadow-sm flex items-start gap-4">
+                <div key={title} className="p-5 border border-slate-200 rounded-lg bg-white space-y-3 shadow-sm flex items-start gap-4">
                   <div className="p-2.5 bg-slate-100 rounded-lg text-slate-600 mt-1"><Icon size={20} /></div>
                   <div className="space-y-1">
                     <h4 className="font-bold text-sm" style={{ color: 'var(--color-text-main)' }}>{title}</h4>
@@ -64,7 +64,7 @@ export function SupportSection() {
               ))}
             </div>
           </div>
-          <div className="hidden lg:block lg:col-span-5 h-[340px] rounded-[var(--radius-card)] overflow-hidden border border-[var(--color-border)] shadow-sm">
+          <div className="hidden lg:block lg:col-span-5 h-[340px] rounded-lg overflow-hidden border border-slate-200 shadow-sm">
             <img src="https://images.unsplash.com/photo-1577563908411-5077b6dc7624?auto=format&fit=crop&w=800&q=80" alt="Support helpline" className="w-full h-full object-cover" />
           </div>
         </div>
