@@ -119,14 +119,17 @@ function ShipperDashboard() {
     return () => clearTimeout(timer);
   }, [pickupSearch]);
 
-  // Debounce dropoff search on input change
+  // Debounce dropoff search on input change (skip if selected from dropdown)
   useEffect(() => {
-    if (!dropoffSearch || dropoffSearch.length < 3) return;
+    if (!dropoffSearch || dropoffSearch.length < 3 || dropoffSearch === form.dropoffAddress) {
+      setDropoffResults([]);
+      return;
+    }
     const timer = setTimeout(() => {
       searchAddress(dropoffSearch, 'dropoff');
     }, 450);
     return () => clearTimeout(timer);
-  }, [dropoffSearch]);
+  }, [dropoffSearch, form.dropoffAddress]);
 
   const handleSelectResult = (result: any, type: 'pickup' | 'dropoff') => {
     const lat = parseFloat(result.lat);
