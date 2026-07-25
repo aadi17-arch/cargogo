@@ -183,10 +183,12 @@ function ShipperDashboard() {
     
     // Render all online drivers as red driver icons
     onlineDrivers.forEach((d: any) => {
-      if (d.latitude && d.longitude) {
+      const lat = parseFloat(d.latitude || d.lat);
+      const lng = parseFloat(d.longitude || d.lng);
+      if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
         markersList.push({
-          lat: d.latitude,
-          lng: d.longitude,
+          lat,
+          lng,
           isDriver: true,
           popupText: `🚚 ${d.user?.name || 'Driver'} (${d.user?.vehicle?.type || 'Available'})`
         });
