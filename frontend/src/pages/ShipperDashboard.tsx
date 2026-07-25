@@ -178,6 +178,50 @@ function ShipperDashboard() {
     return () => clearInterval(interval);
   }, []);
 
+  const mapMarkers = useMemo(() => {
+    const markersList: MapMarker[] = [];
+    
+    // Render all online drivers as red driver icons
+    onlineDrivers.forEach((d: any) => {
+      if (d.latitude && d.longitude) {
+        markersList.push({
+          lat: d.latitude,
+          lng: d.longitude,
+          isDriver: true,
+          popupText: `🚚 ${d.user?.name || 'Driver'} (${d.user?.vehicle?.type || 'Available'})`
+        });
+      }
+    });
+
+    if (form.pickupLat !== null && form.pickupLng !== null) {
+      markersList.push({
+        lat: form.pickupLat,
+        lng: form.pickupLng,
+        popupText: 'Pickup (Drag me)',
+        draggable: true,
+        onDragEnd: (lat, lng) => {
+          setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng }));
+          reverseGeocode(lat, lng, 'pickup');
+        },
+        markerRef: pickupMarkerRef
+      });
+    }
+    if (form.dropoffLat !== null && form.dropoffLng !== null) {
+      markersList.push({
+        lat: form.dropoffLat,
+        lng: form.dropoffLng,
+        popupText: 'Drop-off (Drag me)',
+        draggable: true,
+        onDragEnd: (lat, lng) => {
+          setForm(prev => ({ ...prev, dropoffLat: lat, dropoffLng: lng }));
+          reverseGeocode(lat, lng, 'dropoff');
+        },
+        markerRef: dropoffMarkerRef
+      });
+    }
+    return markersList;
+  }, [form.pickupLat, form.pickupLng, form.dropoffLat, form.dropoffLng, onlineDrivers]);
+
   const mapCenter: [number, number] = useMemo(() => {
     if (userLocation) {
       return userLocation;
@@ -189,8 +233,11 @@ function ShipperDashboard() {
     if (firstDriver) {
       return [firstDriver.latitude, firstDriver.longitude];
     }
-    return [20.5937, 78.9629]; // India geographic center as country-level view
-  }, [userLocation, form.pickupLat, form.pickupLng, onlineDrivers]);
+    if (mapMarkers.length > 0) {
+      return [mapMarkers[0].lat, mapMarkers[0].lng];
+    }
+    return [0, 0];
+  }, [userLocation, form.pickupLat, form.pickupLng, onlineDrivers, mapMarkers]);
 
   const getQuote = async () => {
     if (form.pickupLat === null || form.pickupLng === null || form.dropoffLat === null || form.dropoffLng === null) {
@@ -275,50 +322,6 @@ function ShipperDashboard() {
       toast.error(err?.response?.data?.message || 'Failed to cancel booking');
     }
   };
-
-  const mapMarkers = useMemo(() => {
-    const markersList: MapMarker[] = [];
-    
-    // Render all online drivers as red driver icons
-    onlineDrivers.forEach((d: any) => {
-      if (d.latitude && d.longitude) {
-        markersList.push({
-          lat: d.latitude,
-          lng: d.longitude,
-          isDriver: true,
-          popupText: `🚚 ${d.user?.name || 'Driver'} (${d.user?.vehicle?.type || 'Available'})`
-        });
-      }
-    });
-
-    if (form.pickupLat !== null && form.pickupLng !== null) {
-      markersList.push({
-        lat: form.pickupLat,
-        lng: form.pickupLng,
-        popupText: 'Pickup (Drag me)',
-        draggable: true,
-        onDragEnd: (lat, lng) => {
-          setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng }));
-          reverseGeocode(lat, lng, 'pickup');
-        },
-        markerRef: pickupMarkerRef
-      });
-    }
-    if (form.dropoffLat !== null && form.dropoffLng !== null) {
-      markersList.push({
-        lat: form.dropoffLat,
-        lng: form.dropoffLng,
-        popupText: 'Drop-off (Drag me)',
-        draggable: true,
-        onDragEnd: (lat, lng) => {
-          setForm(prev => ({ ...prev, dropoffLat: lat, dropoffLng: lng }));
-          reverseGeocode(lat, lng, 'dropoff');
-        },
-        markerRef: dropoffMarkerRef
-      });
-    }
-    return markersList;
-  }, [form.pickupLat, form.pickupLng, form.dropoffLat, form.dropoffLng, onlineDrivers]);
 
   return (
     <div className="space-y-6">
