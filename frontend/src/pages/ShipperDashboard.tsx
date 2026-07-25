@@ -12,10 +12,11 @@ import EmptyState from '@/components/ui/EmptyState';
 import PrimaryButton from '@/components/ui/PrimaryButton';
 import { calculateQuote, QuoteResult } from '@/utils/pricing';
 import { formatPrice, formatDate } from '@/utils/formatters';
+import { calculateDistance } from '@/utils/geo';
 import { toast } from 'react-hot-toast';
 import { geocodingService } from '@/services/geocoding.service';
 import { BookingType } from '@/types/booking.types';
-import { LayoutGrid, ClipboardList, MapPin, LocateFixed, Zap, CalendarClock } from 'lucide-react';
+import { LayoutGrid, ClipboardList, MapPin, LocateFixed, Zap, CalendarClock, Truck, Clock } from 'lucide-react';
 
 function ShipperDashboard() {
   const { token } = useAuth();
@@ -304,19 +305,49 @@ function ShipperDashboard() {
     return [0, 0];
   }, [userLocation, form.pickupLat, form.pickupLng, onlineDrivers, mapMarkers]);
 
-  const getQuote = async () => {
-    if (form.pickupLat === null || form.pickupLng === null || form.dropoffLat === null || form.dropoffLng === null) {
-      toast.error('Please select both From and To locations to calculate the price.');
-      return;
+  // Feature 1: Nearest online driver distance + ETA
+  const nearestDriverInfo = useMemo(() => {
+    if (form.pickupLat === null || form.pickupLng === null || onlineDrivers.length === 0) return null;
+    let minDist = Infinity;
+    for (const d of onlineDrivers) {
+      const lat = parseFloat(d.latitude || d.lat);
+      const lng = parseFloat(d.longitude || d.lng);
+      if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) continue;
+      const dist = calculateDistance(form.pickupLat, form.pickupLng, lat, lng);
+      if (dist < minDist) minDist = dist;
     }
-    setQuote(calculateQuote({
-      pickupLat: form.pickupLat!, pickupLng: form.pickupLng!,
-      dropoffLat: form.dropoffLat!, dropoffLng: form.dropoffLng!,
-      weightKg: form.weightKg, lengthCm: form.lengthCm,
-      widthCm: form.widthCm, heightCm: form.heightCm,
-      vehicleType: form.vehicleType,
-    }));
-  };
+    if (minDist === Infinity) return null;
+    // ETA @ avg 30 km/h city speed
+    const etaMins = Math.round((minDist / 30) * 60);
+    return { distKm: minDist.toFixed(1), etaMins: Math.max(1, etaMins) };
+  }, [form.pickupLat, form.pickupLng, onlineDrivers]);
+
+  // Feature 2: Route polyline from pickup → dropoff
+  const routePolyline = useMemo((): [number, number][] => {
+    if (form.pickupLat !== null && form.pickupLng !== null && form.dropoffLat !== null && form.dropoffLng !== null) {
+      return [
+        [form.pickupLat, form.pickupLng],
+        [form.dropoffLat, form.dropoffLng]
+      ];
+    }
+    return [];
+  }, [form.pickupLat, form.pickupLng, form.dropoffLat, form.dropoffLng]);
+
+  // Feature 2: Auto-compute quote whenever both locations (or vehicle/cargo) change
+  useEffect(() => {
+    if (form.pickupLat !== null && form.pickupLng !== null && form.dropoffLat !== null && form.dropoffLng !== null) {
+      setQuote(calculateQuote({
+        pickupLat: form.pickupLat, pickupLng: form.pickupLng,
+        dropoffLat: form.dropoffLat, dropoffLng: form.dropoffLng,
+        weightKg: form.weightKg, lengthCm: form.lengthCm,
+        widthCm: form.widthCm, heightCm: form.heightCm,
+        vehicleType: form.vehicleType,
+      }));
+    } else {
+      setQuote(null);
+    }
+  }, [form.pickupLat, form.pickupLng, form.dropoffLat, form.dropoffLng, form.weightKg, form.lengthCm, form.widthCm, form.heightCm, form.vehicleType]);
+
 
   const handleBooking = async () => {
     if (form.pickupLat === null || form.pickupLng === null || form.dropoffLat === null || form.dropoffLng === null) {
@@ -574,16 +605,9 @@ function ShipperDashboard() {
 
             <div className="flex flex-col md:flex-row gap-4 md:gap-3 pt-4 border-t border-slate-100">
               <PrimaryButton 
-                onClick={getQuote} 
-                variant="outline"
-                className="w-full md:flex-1 py-3 text-xs"
-              >
-                Get Price Quote
-              </PrimaryButton>
-              <PrimaryButton 
                 onClick={handleBooking} 
                 isLoading={bookingLoading} 
-                className="w-full md:flex-1 py-3 text-xs"
+                className="w-full py-3 text-xs"
               >
                 Create Shipment
               </PrimaryButton>
@@ -594,7 +618,7 @@ function ShipperDashboard() {
           <div className="lg:col-span-5 space-y-4 order-1 lg:order-2">
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs text-slate-500">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="flex items-center gap-1 font-medium font-body">
                     <MapPin size={14} className="text-indigo-500" />
                     Endpoints
@@ -603,6 +627,13 @@ function ShipperDashboard() {
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     {onlineDrivers.length} {onlineDrivers.length === 1 ? 'Driver' : 'Drivers'} Online
                   </span>
+                  {/* Feature 1: Nearest driver ETA badge */}
+                  {nearestDriverInfo && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-700 text-[10px] font-bold rounded-full border border-indigo-200">
+                      <Truck size={10} />
+                      {nearestDriverInfo.distKm} km · ~{nearestDriverInfo.etaMins} min
+                    </span>
+                  )}
                 </div>
                 <button 
                   type="button" 
@@ -615,45 +646,75 @@ function ShipperDashboard() {
               </div>
               
               <div className="h-64 sm:h-80 w-full overflow-hidden border border-slate-200 rounded-xl shadow-sm">
-                <MapView center={mapCenter} zoom={14} markers={mapMarkers} />
+                {/* Feature 2: Pass route polyline to map */}
+                <MapView
+                  center={mapCenter}
+                  zoom={14}
+                  markers={mapMarkers}
+                  routePositions={routePolyline}
+                  polylineColor="#4F46E5"
+                />
               </div>
             </div>
 
             {quote ? (
-              <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-4 text-xs font-body text-slate-600">
-                <p className="font-mono text-[9px] font-bold tracking-wider uppercase text-slate-400">
-                  Fare Pricing Summary
-                </p>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Distance:</span>
-                    <span className="font-bold text-slate-800">{quote.distanceKm} km</span>
+              <div className="p-5 bg-white border border-slate-200 rounded-xl shadow-sm space-y-3 text-xs font-body text-slate-600">
+                <div className="flex items-center justify-between">
+                  <p className="font-mono text-[9px] font-bold tracking-wider uppercase text-slate-400">
+                    Live Fare Estimate
+                  </p>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[9px] font-bold rounded-full border border-emerald-200">
+                    <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Auto-updated
+                  </span>
+                </div>
+
+                {/* Route summary strip */}
+                <div className="grid grid-cols-3 gap-2 p-3 bg-slate-50 rounded-lg border border-slate-100">
+                  <div className="text-center">
+                    <p className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5">Distance</p>
+                    <p className="text-sm font-black text-slate-800">{quote.distanceKm}<span className="text-[10px] font-medium text-slate-400 ml-0.5">km</span></p>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Chargeable weight:</span>
-                    <span className="font-bold text-slate-800">{quote.chargeable} kg</span>
+                  <div className="text-center border-x border-slate-200">
+                    <p className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5">Est. Transit</p>
+                    <p className="text-sm font-black text-slate-800">
+                      {Math.max(1, Math.round((quote.distanceKm / 40) * 60))}<span className="text-[10px] font-medium text-slate-400 ml-0.5">min</span>
+                    </p>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Base Fare:</span>
-                    <span className="font-bold text-slate-800">{formatPrice(quote.basePrice)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Per Km Rate:</span>
-                    <span className="font-bold text-slate-800">₹{quote.pricePerKm}/km</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Per Kg Rate:</span>
-                    <span className="font-bold text-slate-800">₹{quote.costPerUnit}/kg</span>
+                  <div className="text-center">
+                    <p className="text-[9px] uppercase tracking-wide text-slate-400 font-bold mb-0.5">Weight</p>
+                    <p className="text-sm font-black text-slate-800">{quote.chargeable}<span className="text-[10px] font-medium text-slate-400 ml-0.5">kg</span></p>
                   </div>
                 </div>
-                <div className="border-t border-slate-100 pt-4 flex justify-between items-center">
-                  <span className="text-sm font-bold text-slate-800 font-heading">Total Estimate:</span>
-                  <span className="text-2xl font-black text-indigo-600 font-heading">{formatPrice(quote.estimated)}</span>
+
+                {/* Fare breakdown */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Base Fare</span>
+                    <span className="font-semibold text-slate-700">{formatPrice(quote.basePrice)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Distance ({quote.distanceKm} km × ₹{quote.pricePerKm})</span>
+                    <span className="font-semibold text-slate-700">{formatPrice(quote.pricePerKm * quote.distanceKm)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Weight ({quote.chargeable} kg × ₹{quote.costPerUnit})</span>
+                    <span className="font-semibold text-slate-700">{formatPrice(quote.costPerUnit * quote.chargeable)}</span>
+                  </div>
+                </div>
+
+                <div className="border-t border-slate-100 pt-3 flex justify-between items-center">
+                  <div className="flex items-center gap-1.5 text-slate-500">
+                    <Clock size={12} />
+                    <span className="text-[10px]">~{Math.max(1, Math.round((quote.distanceKm / 40) * 60))} min transit</span>
+                  </div>
+                  <span className="text-xl font-black text-indigo-600 font-heading">{formatPrice(quote.estimated)}</span>
                 </div>
               </div>
             ) : (
-              <div className="p-6 bg-slate-50 border border-slate-200 border-dashed rounded-xl flex flex-col items-center justify-center text-center h-48 text-slate-400">
-                <p className="text-xs font-medium">Input cargo details and click "Get Price Quote" to review fare details</p>
+              <div className="p-5 bg-slate-50 border border-slate-200 border-dashed rounded-xl flex flex-col items-center justify-center text-center h-36 text-slate-400 space-y-1">
+                <MapPin size={18} className="text-slate-300" />
+                <p className="text-xs font-medium">Select pickup &amp; delivery to see live fare</p>
               </div>
             )}
           </div>
