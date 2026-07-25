@@ -27,7 +27,7 @@ export const registerMatchingHandlers = (
 
                 socket.emit('dispatch-queued', { bookingId });
 
-                // Auto-Accept Bot: Assign driver automatically after 3 seconds for single-user testing
+                // Auto-Accept Bot: Assign driver automatically after 1 second for single-user testing
                 setTimeout(async () => {
                     try {
                         const currentBooking = await prisma.booking.findUnique({ where: { id: bookingId } });
@@ -45,7 +45,7 @@ export const registerMatchingHandlers = (
                     } catch (err) {
                         console.error('Auto-accept bot error:', err);
                     }
-                }, 3000);
+                }, 1000);
 
             }
             catch (e: any) {

@@ -30,12 +30,19 @@ function SessionInitializer({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Simple fallback loading indicator
+// Sleek brand fallback loading indicator for lazy routes
 function SuspenseLoader() {
   return (
-    <div className="min-h-[50vh] flex flex-col items-center justify-center">
-      <div className="w-8 h-8 border-4 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
-      <p className="mt-4 text-xs font-bold text-slate-500 font-heading">Loading portal components...</p>
+    <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4 animate-fade-in">
+      <div className="relative flex items-center justify-center">
+        <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center shadow-lg">
+          <span className="text-sm font-black text-indigo-400 font-heading">CG</span>
+        </div>
+        <div className="absolute -inset-1.5 border-2 border-indigo-500/30 border-t-indigo-500 rounded-xl animate-spin"></div>
+      </div>
+      <p className="text-xs font-bold tracking-wider text-slate-400 uppercase font-heading">
+        Loading module...
+      </p>
     </div>
   );
 }
