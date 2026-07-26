@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
-import { useSocketListener } from '@/hooks/useSocket';
+import { useSocket, useSocketListener } from '@/hooks/useSocket';
 import { bookingService } from '@/services/booking.service';
 import { paymentService } from '@/services/payment.service';
 import { toast } from 'react-hot-toast';
@@ -32,6 +32,9 @@ function TrackingPage() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const token = localStorage.getItem('token');
+  useSocket(token);
 
   useSocketListener('receive-chat-message', (msg: any) => {
     if (!isChatOpen && msg.bookingId === bookingId && msg.senderId !== user?.id) {
