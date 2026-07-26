@@ -87,11 +87,15 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ bookingId, currentUser, onClose
   };
 
   return (
-    /* Floating Rounded Window Widget: matches the IBM Watson design format */
-    <div className="fixed bottom-24 right-4 sm:right-6 z-50 w-[92vw] sm:w-[360px] h-[480px] bg-white rounded-2xl shadow-2xl flex flex-col border border-blue-100 overflow-hidden font-body animate-in slide-in-from-bottom-5 duration-200">
+    <div className="fixed bottom-0 left-0 right-0 sm:bottom-24 sm:right-6 z-50 w-full sm:w-[360px] h-[50vh] sm:h-[480px] bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col border-t sm:border border-slate-200 overflow-hidden font-body animate-in slide-in-from-bottom-5 duration-200">
       
+      {/* Mobile Drawer Pull Indicator */}
+      <div className="flex justify-center py-1.5 sm:hidden shrink-0 bg-slate-900">
+        <div className="w-10 h-1 bg-slate-700 rounded-full" />
+      </div>
+
       {/* Premium Widget Header */}
-      <div className="px-4 py-3 bg-slate-900 text-white flex items-center justify-between shrink-0">
+      <div className="px-4 py-2.5 sm:py-3 bg-slate-900 text-white flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center">
             <MessageSquare className="w-3.5 h-3.5 text-indigo-400" />
