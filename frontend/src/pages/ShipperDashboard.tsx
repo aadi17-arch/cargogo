@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
 import { useSocket, useSocketListener } from '@/hooks/useSocket';
 import PaymentModal from '@/components/dashboard/PaymentModal';
+import BaseModal from '@/components/ui/BaseModal';
 import StatusBadge from '@/components/ui/StatusBadge';
 import AddressSearchInput from '@/components/booking/AddressSearchInput';
 import MapView, { MapMarker } from '@/components/map/MapView';
@@ -34,6 +35,7 @@ function ShipperDashboard() {
   };
 
   const [selectedBookingForPayment, setSelectedBookingForPayment] = useState<any | null>(null);
+  const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
   const [bookingLoading, setBookingLoading] = useState(false);
 
   // Tabs state: 'book' | 'list'
@@ -417,16 +419,7 @@ function ShipperDashboard() {
     } finally { setBookingLoading(false); }
   };
 
-  const handleCancelBooking = async (id: string) => {
-    if (!window.confirm('Are you sure you want to cancel this booking?')) return;
-    try {
-      await cancelBooking(id);
-      toast.success('Booking cancelled successfully.');
-      fetchMyBookings();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Failed to cancel booking');
-    }
-  };
+
 
   return (
     <div className="space-y-6">
@@ -815,7 +808,7 @@ function ShipperDashboard() {
                   <div className="flex items-center gap-2 shrink-0">
                     {['PENDING', 'ACCEPTED'].includes(b.status) && (
                       <button 
-                        onClick={() => handleCancelBooking(b.id)} 
+                        onClick={() => setBookingToCancel(b.id)} 
                         className="px-3.5 py-2 border border-red-200 hover:bg-red-50 text-red-600 text-xs font-bold rounded-lg transition-colors"
                       >
                         Cancel
@@ -863,6 +856,44 @@ function ShipperDashboard() {
           onClose={() => setSelectedBookingForPayment(null)}
           onSuccess={() => { setSelectedBookingForPayment(null); fetchMyBookings(); }}
         />
+      )}
+
+      {bookingToCancel && (
+        <BaseModal
+          isOpen={!!bookingToCancel}
+          onClose={() => setBookingToCancel(null)}
+          title="Cancel Delivery Shipment"
+        >
+          <div className="space-y-4 font-body text-xs text-slate-600 text-left">
+            <p className="leading-relaxed">
+              Are you sure you want to cancel this shipment? Once cancelled, it will be immediately removed from the active driver dispatch network. This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                onClick={() => setBookingToCancel(null)}
+                className="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-500 font-bold rounded-lg transition-colors cursor-pointer"
+              >
+                Go Back
+              </button>
+              <button
+                onClick={async () => {
+                  const id = bookingToCancel;
+                  setBookingToCancel(null);
+                  try {
+                    await cancelBooking(id);
+                    toast.success('Booking cancelled successfully.');
+                    fetchMyBookings();
+                  } catch (err: any) {
+                    toast.error(err?.response?.data?.message || 'Failed to cancel booking');
+                  }
+                }}
+                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg transition-colors shadow-sm cursor-pointer"
+              >
+                Confirm Cancellation
+              </button>
+            </div>
+          </div>
+        </BaseModal>
       )}
     </div>
   );
