@@ -598,7 +598,9 @@ function TrackingPage() {
       {/* Floating Chat Trigger Button */}
       {booking && booking.driverId && (
         <button
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
             setIsChatOpen(true);
             setUnreadCount(0);
           }}
