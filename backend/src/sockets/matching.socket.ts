@@ -126,5 +126,43 @@ export const registerMatchingHandlers = (
                 socket.emit('error', { message: e.message });
             }
         });
+
+        // Handle Chat Sockets
+        socket.on('join-chat', ({ bookingId }) => {
+            socket.join(`chat:${bookingId}`);
+        });
+
+        socket.on('send-chat-message', async ({ bookingId, message }) => {
+            try {
+                if (!message || message.trim() === '') return;
+                
+                const booking = await prisma.booking.findUnique({
+                    where: { id: bookingId },
+                    select: { shipperId: true, driverId: true }
+                });
+
+                if (!booking) throw new Error('Shipment not found');
+                if (booking.shipperId !== user.id && booking.driverId !== user.id) {
+                    throw new Error('Unauthorized chat action');
+                }
+
+                const chatMsg = await prisma.chatMessage.create({
+                    data: {
+                        bookingId,
+                        senderId: user.id,
+                        message: message.trim()
+                    },
+                    include: {
+                        sender: {
+                            select: { id: true, name: true, role: true }
+                        }
+                    }
+                });
+
+                io.to(`chat:${bookingId}`).emit('receive-chat-message', chatMsg);
+            } catch (e: any) {
+                socket.emit('error', { message: e.message });
+            }
+        });
     });
 };

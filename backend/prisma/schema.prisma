@@ -51,6 +51,7 @@ model User {
   driverBookings  Booking[] @relation("DriverBookings")
   driverProfile   DriverProfile?
   vehicle         Vehicle?
+  sentMessages    ChatMessage[]  @relation("SentMessages")
 
   @@map("users")
   sessions        Session[]
@@ -136,6 +137,7 @@ model Booking {
   review         Review?
   dispute        Dispute?
   payment        Payment?
+  chatMessages   ChatMessage[]
 }
 model Review {
   id        String   @id @default(uuid())
@@ -180,4 +182,18 @@ model Payment {
   createdAt     DateTime @default(now())
 
   @@map("payments")
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  bookingId String
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  message   String
+  createdAt DateTime @default(now())
+
+  @@map("chat_messages")
+  @@index([bookingId])
+  @@index([createdAt])
 }

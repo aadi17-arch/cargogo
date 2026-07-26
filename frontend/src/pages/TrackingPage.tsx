@@ -11,7 +11,8 @@ import StatusBadge from '@/components/ui/StatusBadge';
 import OtpVerifyInput from '@/components/tracking/OtpVerifyInput';
 import MapView, { MapMarker } from '@/components/map/MapView';
 import BaseModal from '@/components/ui/BaseModal';
-import { Download, Copy, ChevronLeft } from 'lucide-react';
+import { Download, Copy, ChevronLeft, MessageCircle } from 'lucide-react';
+import ChatDrawer from '@/components/tracking/ChatDrawer';
 
 function TrackingPage() {
   const { bookingId } = useParams();
@@ -29,6 +30,14 @@ function TrackingPage() {
   const [disputeReason, setDisputeReason] = useState('');
   const [showDisputeForm, setShowDisputeForm] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useSocketListener('receive-chat-message', (msg: any) => {
+    if (!isChatOpen && msg.bookingId === bookingId && msg.senderId !== user?.id) {
+      setUnreadCount(prev => prev + 1);
+    }
+  }, [isChatOpen, bookingId, user?.id]);
 
   const fetchBooking = async () => {
     try {
@@ -582,6 +591,36 @@ function TrackingPage() {
           )}
         </div>
       </div>
+
+      {/* Floating Chat Trigger Button */}
+      {booking && booking.driverId && (
+        <button
+          onClick={() => {
+            setIsChatOpen(true);
+            setUnreadCount(0);
+          }}
+          className="fixed bottom-6 right-6 z-40 bg-indigo-600 hover:bg-indigo-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2 group scale-100 hover:scale-105 active:scale-95"
+        >
+          <MessageCircle className="w-6 h-6" />
+          <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 font-display font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+            Chat
+          </span>
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white animate-pulse">
+              {unreadCount}
+            </span>
+          )}
+        </button>
+      )}
+
+      {/* Chat Side Drawer */}
+      {isChatOpen && user && booking && (
+        <ChatDrawer
+          bookingId={bookingId!}
+          currentUser={{ id: user.id, name: user.name, role: user.role }}
+          onClose={() => setIsChatOpen(false)}
+        />
+      )}
     </div>
   );
 }
