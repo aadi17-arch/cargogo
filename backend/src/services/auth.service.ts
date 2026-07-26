@@ -75,7 +75,22 @@ export const loginUser = async (
         include: { vehicle: true, driverProfile: true }
     });
     if (!user) throw new AppError('Invalid credentials', 401);
-    const isMatch = await argon2.verify(user.password, password);
+    
+    let isMatch = false;
+    if (user.password.startsWith('$2a$') || user.password.startsWith('$2b$')) {
+        const bcrypt = require('bcryptjs');
+        isMatch = await bcrypt.compare(password, user.password);
+        if (isMatch) {
+            const newHash = await argon2.hash(password);
+            await prisma.user.update({
+                where: { id: user.id },
+                data: { password: newHash }
+            });
+        }
+    } else {
+        isMatch = await argon2.verify(user.password, password);
+    }
+
     if (!isMatch) throw new AppError('Invalid credentials', 401);
     const accessToken = generateAccessToken({
         userId: user.id,
