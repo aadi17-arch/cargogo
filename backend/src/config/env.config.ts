@@ -1,7 +1,11 @@
 import { z } from 'zod';
 import dotenv from 'dotenv';
 import { logger } from '@/utils/logger';
+const originalPort = process.env.PORT;
 dotenv.config();
+if (originalPort) {
+  process.env.PORT = originalPort;
+}
 
 const envScheme = z.object({
   PORT: z.coerce.number().default(5000),
