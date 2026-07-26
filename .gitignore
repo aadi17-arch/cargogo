@@ -1,55 +1,55 @@
-# Dependencies
-node_modules
-.pnp
-.pnp.js
+# ==========================================
+# INCLUSIVE ALLOWLIST GITIGNORE
+# ==========================================
 
-# Build
-dist
-dist-ssr
-*.local
+# 1. Ignore everything by default
+*
 
-# Env
-.env
-.env.local
-.env.*.local
+# 2. Prevent ignoring directory paths so Git can traverse subfolders
+!*/
+!**/
 
-# IDE
-.vscode/*
-!.vscode/extensions.json
-.idea
+# 3. Explicitly allow configuration files in root
+!.gitignore
+!package.json
+!package-lock.json
+!tsconfig.json
+!README.md
 
-# OS
-.DS_Store
-Thumbs.db
+# 4. Explicitly allow backend files
+!backend/
+!backend/package.json
+!backend/tsconfig.json
+!backend/ecosystem.config.js
+!backend/prisma/
+!backend/prisma/**
+!backend/src/
+!backend/src/**
 
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# 5. Explicitly allow frontend files
+!frontend/
+!frontend/package.json
+!frontend/tsconfig.json
+!frontend/vite.config.ts
+!frontend/index.html
+!frontend/public/
+!frontend/public/**
+!frontend/src/
+!frontend/src/**
+!frontend/postcss.config.js
+!frontend/tailwind.config.js
 
-# Database
-*.db
-*.db-journal
-
-# Misc
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-UPGRADES_README.md
-*.html
-
-# Interview Prep & Test Scripts
-*interview*.md
-epam_*.md
-*.tex
-*_test.js
-*simulate_*.mjs
-*_k6.js
-git_commands_cheatsheet.md
+# ==========================================
+# EXCLUSION FOR ALLOWLIST EXEMPTIONS
+# (Re-ignore build artifacts, secrets & logs)
+# ==========================================
+**/node_modules/
+**/dist/
+**/.env
+**/.env.*
+**/logs/
+**/*.log
+**/.vscode/
+**/.idea/
+**/.DS_Store
+**/Thumbs.db
