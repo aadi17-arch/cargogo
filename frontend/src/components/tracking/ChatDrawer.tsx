@@ -31,7 +31,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ bookingId, currentUser, onClose
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
+
   const token = localStorage.getItem('token');
   const { emit } = useSocket(token);
 
@@ -88,7 +88,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ bookingId, currentUser, onClose
 
   return (
     <div className="fixed bottom-0 left-0 right-0 sm:bottom-24 sm:right-6 z-[2000] w-full sm:w-[360px] h-[50vh] sm:h-[480px] bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col border-t sm:border border-slate-200 overflow-hidden font-body animate-in slide-in-from-bottom-5 duration-200">
-      
+
       {/* Mobile Drawer Pull Indicator */}
       <div className="flex justify-center py-1.5 sm:hidden shrink-0 bg-slate-900">
         <div className="w-10 h-1 bg-slate-700 rounded-full" />
@@ -101,21 +101,21 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ bookingId, currentUser, onClose
             <MessageSquare className="w-3.5 h-3.5 text-indigo-400" />
           </div>
           <div>
-            <h3 className="font-heading font-bold text-xs tracking-tight">Driver Coordination</h3>
-            <p className="text-[9px] text-slate-400 font-medium">Active Shipment Chat</p>
+            <h3 className="font-heading font-bold text-xs tracking-tight">Support</h3>
+            <p className="text-[9px] text-slate-400 font-medium">Talk to Agent</p>
           </div>
         </div>
-        
+
         {/* Header Actions */}
         <div className="flex items-center gap-2">
-          <button 
+          <button
             onClick={fetchChatHistory}
             className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors cursor-pointer"
             title="Reload Chat"
           >
             <RotateCw className="w-3.5 h-3.5" />
           </button>
-          <button 
+          <button
             onClick={onClose}
             className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors cursor-pointer"
           >
