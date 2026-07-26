@@ -289,7 +289,7 @@ function TrackingPage() {
           onClick={() => navigate(user?.role === 'DRIVER' ? '/driver' : '/shipper')}
           className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm"
         >
-          <ChevronLeft size={14} />
+          <ChevronLeft size={16} />
           Back
         </button>
         <h2 className="text-2xl font-bold tracking-tight text-slate-800 font-heading">
@@ -358,7 +358,7 @@ function TrackingPage() {
                         onClick={() => { navigator.clipboard.writeText(booking.pickupOTP); toast.success('OTP copied!'); }}
                         className="inline-flex items-center gap-1 px-3 py-1 text-[10px] font-bold text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition-colors mt-1"
                       >
-                        <Copy size={10} />
+                        <Copy size={12} />
                         Copy OTP
                       </button>
                     </div>
@@ -388,7 +388,7 @@ function TrackingPage() {
                         onClick={() => { navigator.clipboard.writeText(booking.dropoffOTP); toast.success('OTP copied!'); }}
                         className="inline-flex items-center gap-1 px-3 py-1 text-[10px] font-bold text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition-colors mt-1"
                       >
-                        <Copy size={10} />
+                        <Copy size={12} />
                         Copy OTP
                       </button>
                     </div>
@@ -443,13 +443,13 @@ function TrackingPage() {
                 <h3 className="text-sm font-bold text-slate-800 font-heading">
                   Invoice Details
                 </h3>
-                <button
-                  onClick={downloadInvoice}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm"
-                >
-                  <Download size={11} />
-                  Download Invoice
-                </button>
+                  <button
+                    onClick={downloadInvoice}
+                    className="flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-[#09121F] bg-white rounded hover:bg-slate-100 transition-colors shadow-sm cursor-pointer"
+                  >
+                    <Download size={14} />
+                    Download Invoice
+                  </button>
               </div>
               <div className="space-y-2.5">
                 <div className="flex justify-between">

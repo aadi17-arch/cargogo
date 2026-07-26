@@ -468,7 +468,7 @@ function ShipperDashboard() {
                       : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'
                   }`}
                 >
-                  <Zap size={12} />
+                  <Zap size={16} />
                   Instant
                 </button>
                 <button
@@ -480,7 +480,7 @@ function ShipperDashboard() {
                       : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'
                   }`}
                 >
-                  <CalendarClock size={12} />
+                  <CalendarClock size={16} />
                   Schedule for Later
                 </button>
               </div>
@@ -495,7 +495,7 @@ function ShipperDashboard() {
             {bookingType === 'SCHEDULED' && (
               <div className="space-y-1.5 p-4 bg-slate-50 border border-slate-200 rounded-lg">
                 <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider font-heading flex items-center gap-1">
-                  <CalendarClock size={12} />
+                  <CalendarClock size={16} />
                   Pickup Window Start Time
                 </label>
                 <input
@@ -629,7 +629,7 @@ function ShipperDashboard() {
               <div className="flex items-center justify-between text-xs text-slate-500">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="flex items-center gap-1 font-medium font-body">
-                    <MapPin size={14} className="text-indigo-500" />
+                    <MapPin size={16} className="text-indigo-500" />
                     Endpoints
                   </span>
                   <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-md">
@@ -639,7 +639,7 @@ function ShipperDashboard() {
                   {/* Feature 1: Nearest driver ETA badge */}
                   {nearestDriverInfo && (
                     <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-md">
-                      <Truck size={10} />
+                      <Truck size={14} />
                       {nearestDriverInfo.distKm} km · ~{nearestDriverInfo.etaMins} min
                     </span>
                   )}
@@ -713,7 +713,7 @@ function ShipperDashboard() {
 
                 <div className="border-t border-slate-100 pt-3 flex justify-between items-center">
                   <div className="flex items-center gap-1.5 text-slate-500">
-                    <Clock size={12} />
+                    <Clock size={14} />
                     <span className="text-[10px]">~{Math.max(1, Math.round((quote.distanceKm / 40) * 60))} min transit</span>
                   </div>
                   <span className="text-xl font-black text-indigo-600 font-heading">{formatPrice(quote.estimated)}</span>
@@ -757,13 +757,13 @@ function ShipperDashboard() {
                 {f === 'all' && 'All'}
                 {f === 'INSTANT' && (
                   <>
-                    <Zap size={10} />
+                    <Zap size={12} />
                     Instant
                   </>
                 )}
                 {f === 'SCHEDULED' && (
                   <>
-                    <CalendarClock size={10} />
+                    <CalendarClock size={12} />
                     Scheduled
                   </>
                 )}
@@ -785,7 +785,7 @@ function ShipperDashboard() {
                         className="inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-bold text-slate-500 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
                         title="Copy Booking ID"
                       >
-                        <Copy size={9} />
+                        <Copy size={12} />
                         #{b.id.slice(0, 8).toUpperCase()}
                       </button>
                       <StatusBadge status={b.status} />
@@ -793,12 +793,12 @@ function ShipperDashboard() {
                       {b.bookingType === 'SCHEDULED' && (
                         <>
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 text-[9px] font-bold rounded-md">
-                            <CalendarClock size={10} />
+                            <CalendarClock size={12} />
                             {b.scheduledAt ? formatDate(b.scheduledAt) : 'Scheduled'}
                           </span>
                           {b.status === 'PENDING' && b.scheduledAt && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-800 text-[9px] font-bold rounded-md animate-pulse">
-                              <Clock size={10} />
+                              <Clock size={12} />
                               {getScheduledTimeRemaining(b.scheduledAt)}
                             </span>
                           )}

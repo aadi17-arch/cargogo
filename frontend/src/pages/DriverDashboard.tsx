@@ -292,7 +292,7 @@ function DriverDashboard() {
         {/* Card 2: Current Location */}
         <div className="p-5 bg-white border border-slate-200 rounded-lg shadow-sm flex items-center gap-4 min-h-[120px]">
           <div className="p-3 bg-slate-100 text-slate-700 rounded-lg shrink-0">
-            <LocateFixed size={20} />
+            <LocateFixed size={16} />
           </div>
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Current Location</span>
@@ -476,7 +476,7 @@ function DriverDashboard() {
                               className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold text-slate-500 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
                               title="Copy Booking ID"
                             >
-                              <Copy size={8} />
+                              <Copy size={12} />
                               #{b.id.slice(0, 8).toUpperCase()}
                             </button>
                           </div>
@@ -518,7 +518,7 @@ function DriverDashboard() {
                         title="Focus current location"
                         style={{ width: '44px', height: '44px' }}
                       >
-                        <LocateFixed size={18} className="text-slate-700" />
+                        <LocateFixed size={16} className="text-slate-700" />
                       </button>
                     )}
                   </div>
@@ -553,7 +553,7 @@ function DriverDashboard() {
                         className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold text-slate-500 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
                         title="Copy Booking ID"
                       >
-                        <Copy size={8} />
+                        <Copy size={12} />
                         #{b.id.slice(0, 8).toUpperCase()}
                       </button>
                     </div>
@@ -608,7 +608,7 @@ function DriverDashboard() {
                         className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold text-slate-500 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
                         title="Copy Booking ID"
                       >
-                        <Copy size={8} />
+                        <Copy size={12} />
                         #{b.id.slice(0, 8).toUpperCase()}
                       </button>
                       <StatusBadge status={b.status} />
@@ -666,7 +666,7 @@ function DriverDashboard() {
                   showScheduledBoard ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'
                 }`}
               >
-                <Briefcase size={10} className="inline mr-1" />
+                <Briefcase size={14} className="inline mr-1" />
                 Find Jobs
               </button>
             </div>
@@ -691,12 +691,12 @@ function DriverDashboard() {
                           className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold text-slate-500 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
                           title="Copy Booking ID"
                         >
-                          <Copy size={8} />
+                          <Copy size={12} />
                           #{job.id.slice(0, 8).toUpperCase()}
                         </button>
                       </div>
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded-md">
-                        <CalendarClock size={10} />
+                        <CalendarClock size={12} />
                         {formatDate(job.scheduledAt)}
                       </span>
                     </div>
@@ -712,7 +712,7 @@ function DriverDashboard() {
                       onClick={fetchRoute}
                       className="w-full mt-1 px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition-colors"
                     >
-                      <Navigation size={10} className="inline mr-1" />
+                      <Navigation size={14} className="inline mr-1" />
                       Optimize My Full Route
                     </button>
                   </div>
@@ -747,12 +747,12 @@ function DriverDashboard() {
                           className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold text-slate-500 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
                           title="Copy Booking ID"
                         >
-                          <Copy size={8} />
+                          <Copy size={12} />
                           #{job.id.slice(0, 8).toUpperCase()}
                         </button>
                       </div>
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded-md">
-                        <CalendarClock size={10} />
+                        <CalendarClock size={12} />
                         {formatDate(job.scheduledAt)}
                       </span>
                     </div>
@@ -769,7 +769,7 @@ function DriverDashboard() {
                       disabled={committingJobId === job.id}
                       className="w-full mt-1 px-3 py-2 bg-slate-900 hover:bg-slate-800 disabled:opacity-60 text-white text-xs font-bold rounded-lg transition-colors shadow-sm flex items-center justify-center gap-1"
                     >
-                      <LocateFixed size={12} />
+                      <LocateFixed size={14} />
                       {committingJobId === job.id ? 'Committing...' : 'Commit to This Job'}
                     </button>
                   </div>
