@@ -62,29 +62,28 @@ export const startDispatchWorker = (io: any) => {
         }
       }
 
-      if (driverIndex >= filteredNearby.length) {
+      if (filteredNearby.length === 0) {
         io.to(`shipper:${booking.shipperId}`).emit('no-drivers', {
           bookingId,
-          message: 'All drivers declined',
+          message: 'No online matching drivers found nearby',
         });
         return;
       }
 
-      const driver = filteredNearby[driverIndex];
-
-      io.to(`driver:${driver.driverId}`).emit('incoming-bid', {
-        bookingId,
-        pickupLat: booking.pickupLat,
-        pickupLng: booking.pickupLng,
-        dropoffLat: booking.dropoffLat,
-        dropoffLng: booking.dropoffLng,
-        cargoType: booking.cargoType,
-        price: booking.price,
-        distanceKm: driver.distanceKm,
-        expiresAt: Date.now() + 30000,
-      });
-
-      await addDispatchJob(bookingId, pickupLat, pickupLng, driverIndex + 1);
+      // Broadcast matching bid to all nearby drivers simultaneously
+      for (const driver of filteredNearby) {
+        io.to(`driver:${driver.driverId}`).emit('incoming-bid', {
+          bookingId,
+          pickupLat: booking.pickupLat,
+          pickupLng: booking.pickupLng,
+          dropoffLat: booking.dropoffLat,
+          dropoffLng: booking.dropoffLng,
+          cargoType: booking.cargoType,
+          price: booking.price,
+          distanceKm: driver.distanceKm,
+          expiresAt: Date.now() + 60000, // 60s window to match bot auto-accept
+        });
+      }
     },
     {
       connection: connection as any,
