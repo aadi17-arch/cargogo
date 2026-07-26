@@ -10,7 +10,7 @@ import { geocodingService } from '@/services/geocoding.service';
 import { VrpRouteResponse } from '@/types/driver.types';
 import { ScheduledJob } from '@/types/booking.types';
 import { toast } from 'react-hot-toast';
-import { LocateFixed, Navigation, Clock, FileText, CalendarClock, Briefcase } from 'lucide-react';
+import { LocateFixed, Navigation, Clock, FileText, CalendarClock, Briefcase, Copy } from 'lucide-react';
 import StatusBadge from '@/components/ui/StatusBadge';
 import MapView, { MapMarker } from '@/components/map/MapView';
 import TabNavigation from '@/components/ui/TabNavigation';
@@ -466,7 +466,20 @@ function DriverDashboard() {
                     {activeBookings.map((b: any) => (
                       <div key={b.id} className="py-3 flex justify-between items-center text-xs font-body">
                         <div>
-                          <p className="font-bold text-slate-800">{b.cargoType}</p>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-800">{b.cargoType}</span>
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(b.id);
+                                toast.success('Booking ID copied!');
+                              }}
+                              className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold text-slate-500 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
+                              title="Copy Booking ID"
+                            >
+                              <Copy size={8} />
+                              #{b.id.slice(0, 8).toUpperCase()}
+                            </button>
+                          </div>
                           <p className="text-slate-400">Payout: {formatPrice(b.price)} | Status: {b.status}</p>
                         </div>
                         <button onClick={() => navigate(`/track/${b.id}`)} className="bg-slate-900 hover:bg-slate-800 text-white px-3 py-1 font-bold rounded-lg shadow-sm">
@@ -530,7 +543,20 @@ function DriverDashboard() {
               {pendingBookings.map((b: any) => (
                 <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 font-body">
                   <div className="space-y-1">
-                    <p className="font-bold text-slate-800 text-sm font-heading">{b.cargoType}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-slate-800 text-sm font-heading">{b.cargoType}</span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(b.id);
+                          toast.success('Booking ID copied!');
+                        }}
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold text-slate-500 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
+                        title="Copy Booking ID"
+                      >
+                        <Copy size={8} />
+                        #{b.id.slice(0, 8).toUpperCase()}
+                      </button>
+                    </div>
                     <p className="text-slate-400">
                       Payout: <span className="font-bold text-indigo-600 font-mono">{formatPrice(b.price)}</span> | Distance: <span className="font-semibold text-slate-700">{b.distanceKm} km</span>
                     </p>
@@ -572,8 +598,19 @@ function DriverDashboard() {
               {pastBookings.map((b: any) => (
                 <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 font-body">
                   <div className="space-y-1.5 flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-bold text-slate-800 text-sm font-heading">{b.cargoType}</span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(b.id);
+                          toast.success('Booking ID copied!');
+                        }}
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold text-slate-500 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
+                        title="Copy Booking ID"
+                      >
+                        <Copy size={8} />
+                        #{b.id.slice(0, 8).toUpperCase()}
+                      </button>
                       <StatusBadge status={b.status} />
                     </div>
                     <p className="text-slate-400">
@@ -644,7 +681,20 @@ function DriverDashboard() {
                 {scheduledJobs.map((job: ScheduledJob) => (
                   <div key={job.id} className="p-4 border border-slate-200 rounded-lg space-y-2 hover:border-slate-400 transition-colors">
                     <div className="flex items-center justify-between flex-wrap gap-2">
-                      <span className="font-bold text-slate-800 text-sm font-heading">{job.cargoType}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-800 text-sm font-heading">{job.cargoType}</span>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(job.id);
+                            toast.success('Booking ID copied!');
+                          }}
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold text-slate-500 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
+                          title="Copy Booking ID"
+                        >
+                          <Copy size={8} />
+                          #{job.id.slice(0, 8).toUpperCase()}
+                        </button>
+                      </div>
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded-md">
                         <CalendarClock size={10} />
                         {formatDate(job.scheduledAt)}
@@ -687,7 +737,20 @@ function DriverDashboard() {
                 {availableScheduledJobs.map((job: ScheduledJob) => (
                   <div key={job.id} className="p-4 border border-slate-200 rounded-lg space-y-2 hover:border-slate-400 transition-colors">
                     <div className="flex items-center justify-between flex-wrap gap-2">
-                      <span className="font-bold text-slate-800 text-sm font-heading">{job.cargoType}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-800 text-sm font-heading">{job.cargoType}</span>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(job.id);
+                            toast.success('Booking ID copied!');
+                          }}
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold text-slate-500 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
+                          title="Copy Booking ID"
+                        >
+                          <Copy size={8} />
+                          #{job.id.slice(0, 8).toUpperCase()}
+                        </button>
+                      </div>
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded-md">
                         <CalendarClock size={10} />
                         {formatDate(job.scheduledAt)}

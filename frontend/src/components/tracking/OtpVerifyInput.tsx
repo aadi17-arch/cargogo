@@ -34,6 +34,7 @@ export default function OtpVerifyInput({ type, otp, setOtp, onVerify }: OtpVerif
           className="input-field max-w-[120px] text-center text-lg tracking-widest"
           placeholder="000000"
           style={{ fontFamily: 'var(--font-mono)' }}
+          autoFocus
         />
         <button
           onClick={onVerify}

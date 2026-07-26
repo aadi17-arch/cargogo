@@ -16,13 +16,22 @@ import { calculateDistance } from '@/utils/geo';
 import { toast } from 'react-hot-toast';
 import { geocodingService } from '@/services/geocoding.service';
 import { BookingType } from '@/types/booking.types';
-import { LayoutGrid, ClipboardList, MapPin, LocateFixed, Zap, CalendarClock, Truck, Clock } from 'lucide-react';
+import { LayoutGrid, ClipboardList, MapPin, LocateFixed, Zap, CalendarClock, Truck, Clock, Copy } from 'lucide-react';
 
 function ShipperDashboard() {
   const { token } = useAuth();
   const { bookings, fetchMyBookings, createBooking: apiCreateBooking, cancelBooking } = useBooking();
   const { bookCargo } = useSocket(token);
   const navigate = useNavigate();
+
+  const getScheduledTimeRemaining = (scheduledAtStr: string) => {
+    const diff = new Date(scheduledAtStr).getTime() - Date.now();
+    if (diff <= 0) return 'Starts now';
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    if (hours > 0) return `Starts in ${hours}h ${mins}m`;
+    return `Starts in ${mins}m`;
+  };
 
   const [selectedBookingForPayment, setSelectedBookingForPayment] = useState<any | null>(null);
   const [bookingLoading, setBookingLoading] = useState(false);
@@ -768,13 +777,32 @@ function ShipperDashboard() {
                   <div className="space-y-1.5 flex-1 min-w-0 font-body">
                     <div className="flex items-center gap-3 flex-wrap">
                       <span className="font-bold text-slate-800 truncate text-sm">{b.cargoType}</span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(b.id);
+                          toast.success('Booking ID copied!');
+                        }}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-bold text-slate-500 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
+                        title="Copy Booking ID"
+                      >
+                        <Copy size={9} />
+                        #{b.id.slice(0, 8).toUpperCase()}
+                      </button>
                       <StatusBadge status={b.status} />
-                      {/* Show SCHEDULED badge + scheduled time for scheduled bookings */}
+                      {/* Show SCHEDULED badge + scheduled time + countdown for scheduled bookings */}
                       {b.bookingType === 'SCHEDULED' && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 text-[9px] font-bold rounded-md">
-                          <CalendarClock size={10} />
-                          {b.scheduledAt ? formatDate(b.scheduledAt) : 'Scheduled'}
-                        </span>
+                        <>
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 text-[9px] font-bold rounded-md">
+                            <CalendarClock size={10} />
+                            {b.scheduledAt ? formatDate(b.scheduledAt) : 'Scheduled'}
+                          </span>
+                          {b.status === 'PENDING' && b.scheduledAt && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-800 text-[9px] font-bold rounded-md animate-pulse">
+                              <Clock size={10} />
+                              {getScheduledTimeRemaining(b.scheduledAt)}
+                            </span>
+                          )}
+                        </>
                       )}
                     </div>
                     <p className="text-xs font-medium text-slate-500">
