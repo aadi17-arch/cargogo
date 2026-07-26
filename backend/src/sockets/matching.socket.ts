@@ -45,7 +45,7 @@ export const registerMatchingHandlers = (
                     } catch (err) {
                         console.error('Auto-accept bot error:', err);
                     }
-                }, 1000);
+                }, 60000);
 
             }
             catch (e: any) {
