@@ -70,6 +70,16 @@ app.set('io', io);
 
 httpServer.listen(PORT, () => {
     console.log(`Server is running on PORT ${PORT}`);
+
+    // Programmatic DB migration on startup
+    const { exec } = require('child_process');
+    exec('npx prisma migrate deploy', (err: any, stdout: string, stderr: string) => {
+        if (err) {
+            console.error('[Migration] Programmatic deployment failed:', err);
+        } else {
+            console.log('[Migration] Database tables synced successfully:\n', stdout);
+        }
+    });
 });
 
 // close connections cleanly when stopping the process
