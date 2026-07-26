@@ -19,9 +19,18 @@ export const updateVehicle = async (
   userId: string,
   updateInput: updateVehicleInput
 ) => {
-  const updatedVehicle = await prisma.vehicle.update({
+  const updatedVehicle = await prisma.vehicle.upsert({
     where: { userId: userId },
-    data: updateInput
+    create: {
+      userId: userId,
+      type: updateInput.type || 'MINI_TEMPO',
+      plateNumber: updateInput.plateNumber || 'MH-12-TEMP-9999',
+      capacityKg: updateInput.capacityKg || 1000,
+      basePrice: updateInput.basePrice || 50,
+      pricePerKm: updateInput.pricePerKm || 15,
+      costPerUnit: updateInput.costPerUnit || 5,
+    },
+    update: updateInput
   });
   return updatedVehicle;
 }
