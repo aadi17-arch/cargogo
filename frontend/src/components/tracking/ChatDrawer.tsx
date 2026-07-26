@@ -87,7 +87,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ bookingId, currentUser, onClose
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 sm:bottom-24 sm:right-6 z-50 w-full sm:w-[360px] h-[50vh] sm:h-[480px] bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col border-t sm:border border-slate-200 overflow-hidden font-body animate-in slide-in-from-bottom-5 duration-200">
+    <div className="fixed bottom-0 left-0 right-0 sm:bottom-24 sm:right-6 z-[2000] w-full sm:w-[360px] h-[50vh] sm:h-[480px] bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col border-t sm:border border-slate-200 overflow-hidden font-body animate-in slide-in-from-bottom-5 duration-200">
       
       {/* Mobile Drawer Pull Indicator */}
       <div className="flex justify-center py-1.5 sm:hidden shrink-0 bg-slate-900">

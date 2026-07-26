@@ -311,7 +311,7 @@ function TrackingPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Map */}
-        <div className="lg:col-span-7 h-96 lg:h-[500px] overflow-hidden border border-slate-200 rounded-lg shadow-sm">
+        <div className="lg:col-span-7 h-96 lg:h-[500px] overflow-hidden border border-slate-200 rounded-lg shadow-sm relative z-10">
           <MapView 
             center={mapCenter} 
             zoom={13} 
@@ -604,7 +604,7 @@ function TrackingPage() {
             setIsChatOpen(true);
             setUnreadCount(0);
           }}
-          className="fixed bottom-6 right-6 z-40 bg-indigo-600 hover:bg-indigo-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2 group scale-100 hover:scale-105 active:scale-95"
+          className="fixed bottom-6 right-6 z-[1001] bg-indigo-600 hover:bg-indigo-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2 group scale-100 hover:scale-105 active:scale-95"
         >
           <MessageCircle className="w-6 h-6" />
           <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 font-display font-bold text-xs uppercase tracking-wider whitespace-nowrap">
