@@ -47,9 +47,17 @@ export const toggleOnline = async (
         await removeDriverLocation(driverId);
         await redis.del(`driver:meta:${driverId}`);
      }
-    return prisma.driverProfile.update({
+    return prisma.driverProfile.upsert({
         where: { userId: driverId },
-        data: {
+        create: {
+            userId: driverId,
+            isOnline,
+            ...(isOnline && lat != undefined && lng != undefined ? {
+                latitude: lat,
+                longitude: lng
+            } : {}),
+        },
+        update: {
             isOnline,
             ...(isOnline && lat != undefined && lng != undefined ? {
                 latitude: lat,
