@@ -25,9 +25,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
                 phone: true,
                 role: true,
                 createdAt: true,
-                updatedAt: true,
-                vehicle: true,
-                driverProfile: true
+                updatedAt: true
             }
         });
         if (!user) throw new Error('User not found');

@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs';
+import * as argon2 from 'argon2';
 import prisma from '@/config/database';
 import { generateAccessToken,generateRefreshToken } from '@/utils/jwt';
 import { AppError } from '@/utils/AppError';
@@ -21,7 +21,7 @@ export const registerUser = async (data: {
         }
     });
     if (existing) throw new AppError('Email already registered', 400);
-    const hashedPassword = await bcrypt.hash(data.password, 12);
+    const hashedPassword = await argon2.hash(data.password);
     const user = await prisma.user.create({
         data: {
             email: cleanEmail,
@@ -75,7 +75,7 @@ export const loginUser = async (
         include: { vehicle: true, driverProfile: true }
     });
     if (!user) throw new AppError('Invalid credentials', 401);
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await argon2.verify(user.password, password);
     if (!isMatch) throw new AppError('Invalid credentials', 401);
     const accessToken = generateAccessToken({
         userId: user.id,

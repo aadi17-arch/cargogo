@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+import * as argon2 from 'argon2';
 
 const prisma = new PrismaClient();
 
@@ -14,7 +14,7 @@ async function main() {
   await prisma.driverProfile.deleteMany();
   await prisma.user.deleteMany();
 
-  const hashedPassword = await bcrypt.hash('123456', 12);
+  const hashedPassword = await argon2.hash('123456');
 
   console.log('Seeding shippers and drivers...');
 
