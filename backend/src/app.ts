@@ -68,18 +68,6 @@ app.set('io', io);
 
 httpServer.listen(PORT, () => {
     console.log(`Server is running on PORT ${PORT}`);
-
-    // Render Free Tier Keep-Alive Pinger (run every 10 minutes)
-    const API_URL = process.env.BACKEND_URL || 'https://cargogo-api.onrender.com';
-    setInterval(() => {
-        import('https').then((https) => {
-            https.get(`${API_URL}/api/health`, (res) => {
-                console.log(`[Keep-Alive] Ping status: ${res.statusCode}`);
-            }).on('error', (e) => {
-                console.error(`[Keep-Alive] Ping error: ${e.message}`);
-            });
-        }).catch((err) => console.error('Failed to load https module:', err));
-    }, 600000);
 });
 
 // close connections cleanly when stopping the process
