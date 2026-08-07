@@ -3,6 +3,24 @@ import api from "./api";
 // In-memory cache for search & reverse geocoding
 const cache = new Map<string, any>();
 
+// Helper to execute fetch with a strict timeout using AbortController
+async function fetchWithTimeout(resource: string, options: any = {}) {
+  const { timeout = 3000, ...rest } = options;
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(resource, {
+      ...rest,
+      signal: controller.signal
+    });
+    clearTimeout(id);
+    return response;
+  } catch (error) {
+    clearTimeout(id);
+    throw error;
+  }
+}
+
 export const geocodingService = {
   async search(query: string) {
     const q = query.trim().toLowerCase();
@@ -13,7 +31,7 @@ export const geocodingService = {
 
     // Provider 1: Photon (Free, No Rate Limits)
     try {
-      const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5`);
+      const res = await fetchWithTimeout(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5`, { timeout: 3000 });
       if (res.ok) {
         const json = await res.json();
         if (json.features && json.features.length > 0) {
@@ -56,7 +74,7 @@ export const geocodingService = {
 
     // Provider 1: BigDataCloud (Free Client API)
     try {
-      const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`);
+      const res = await fetchWithTimeout(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`, { timeout: 3000 });
       if (res.ok) {
         const data = await res.json();
         const parts = [data.locality, data.city, data.principalSubdivision, data.countryName].filter(Boolean);
@@ -72,7 +90,8 @@ export const geocodingService = {
 
     // Provider 2: OpenStreetMap Nominatim
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`, {
+      const res = await fetchWithTimeout(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`, {
+        timeout: 3000,
         headers: { 'User-Agent': 'CargoGo/1.0' }
       });
       if (res.ok) {
