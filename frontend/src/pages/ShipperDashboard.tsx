@@ -159,9 +159,24 @@ function ShipperDashboard() {
 
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
 
+  const fallbackToDefaultLocation = () => {
+    let lat = 19.0760;
+    let lng = 72.8777;
+    const firstDriver = onlineDrivers.find((d: any) => d.latitude && d.longitude);
+    if (firstDriver) {
+      lat = Number(firstDriver.latitude);
+      lng = Number(firstDriver.longitude);
+    }
+    setUserLocation([lat, lng]);
+    setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng }));
+    reverseGeocode(lat, lng, 'pickup');
+  };
+
   const locateMe = () => {
-    if (!navigator.geolocation) { toast.error('Geolocation is not supported by your browser'); return; }
-    const previousSearch = pickupSearch;
+    if (!navigator.geolocation) {
+      fallbackToDefaultLocation();
+      return;
+    }
     setPickupSearch('Locating current address...');
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -172,11 +187,10 @@ function ShipperDashboard() {
         reverseGeocode(lat, lng, 'pickup');
       },
       (error) => {
-        console.warn('Geolocation error:', error);
-        toast.error('Could not retrieve your location. Please check browser permissions.');
-        setPickupSearch(previousSearch || '');
+        console.warn('Geolocation error, using default fallback:', error);
+        fallbackToDefaultLocation();
       },
-      { timeout: 5000, enableHighAccuracy: false, maximumAge: 15000 }
+      { timeout: 4000, enableHighAccuracy: false, maximumAge: 15000 }
     );
   };
 
