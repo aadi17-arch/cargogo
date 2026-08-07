@@ -172,9 +172,29 @@ function ShipperDashboard() {
     reverseGeocode(lat, lng, 'pickup');
   };
 
+  const locateByIP = async () => {
+    try {
+      const response = await fetch('https://ipapi.co/json/');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.latitude && data.longitude) {
+          const lat = Number(data.latitude.toFixed(6));
+          const lng = Number(data.longitude.toFixed(6));
+          setUserLocation([lat, lng]);
+          setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng }));
+          reverseGeocode(lat, lng, 'pickup');
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('IP-based geolocation failed:', err);
+    }
+    fallbackToDefaultLocation();
+  };
+
   const locateMe = () => {
     if (!navigator.geolocation) {
-      fallbackToDefaultLocation();
+      locateByIP();
       return;
     }
     setPickupSearch('Locating current address...');
@@ -187,8 +207,8 @@ function ShipperDashboard() {
         reverseGeocode(lat, lng, 'pickup');
       },
       (error) => {
-        console.warn('Geolocation error, using default fallback:', error);
-        fallbackToDefaultLocation();
+        console.warn('Geolocation error, trying IP fallback:', error);
+        locateByIP();
       },
       { timeout: 4000, enableHighAccuracy: false, maximumAge: 15000 }
     );
