@@ -161,6 +161,7 @@ function ShipperDashboard() {
 
   const locateMe = () => {
     if (!navigator.geolocation) { toast.error('Geolocation is not supported by your browser'); return; }
+    const previousSearch = pickupSearch;
     setPickupSearch('Locating current address...');
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -170,7 +171,12 @@ function ShipperDashboard() {
         setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng }));
         reverseGeocode(lat, lng, 'pickup');
       },
-      () => toast.error('Could not retrieve your location. Please check browser permissions.')
+      (error) => {
+        console.warn('Geolocation error:', error);
+        toast.error('Could not retrieve your location. Please check browser permissions.');
+        setPickupSearch(previousSearch || '');
+      },
+      { timeout: 5000, enableHighAccuracy: false, maximumAge: 15000 }
     );
   };
 
