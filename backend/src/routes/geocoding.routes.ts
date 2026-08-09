@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import  prisma from '../config/database.js';
+import { resolveAddressChain } from '../services/geocoding/orchestrator';
 
 const router = Router();
 
@@ -9,48 +9,9 @@ router.get('/reverse', async (req: Request, res: Response) => {
 
   const latitude = parseFloat(lat as string);
   const longitude = parseFloat(lng as string);
-  const cacheKey = `rev:${latitude.toFixed(4)},${longitude.toFixed(4)}`; // ek generalized key
 
   try {
-    const cached = await prisma.geocodeCache.findUnique({
-      where: { query: cacheKey }
-    });
-    if (cached) {
-      console.log('Cache Hit:', cacheKey);
-      return res.json({
-        success: true,
-        data: {
-          display_name: cached.displayName,
-          lat: String(latitude),
-          lng: String(longitude)
-        }
-      });
-    }
-    let displayName = '';
-    const bdcUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`;
-
-    const response = await fetch(bdcUrl, {
-      signal: AbortSignal.timeout(3000)
-    });
-    if (response.ok) {
-      const data = await response.json() as any;
-      const parts = [data.locality, data.city, data.principalSubdivision, data.countryName].filter(Boolean);
-      displayName = parts.join(', ');
-    }
-
-    if (displayName) {
-      await prisma.geocodeCache.create({
-        data: {
-          query: cacheKey,
-          displayName,
-          latitude,
-          longitude
-        }
-      }).catch(err => console.warn('Cache write failed', err));
-    } else {
-      displayName = `Location(${latitude.toFixed(4)},${longitude.toFixed(4)})`;
-    }
-
+    const displayName = await resolveAddressChain(latitude, longitude);
     return res.json({
       success: true,
       data: {
