@@ -178,7 +178,7 @@ function ShipperDashboard() {
         toast.error('Could not retrieve precise location. Please search and select your address manually.');
         setPickupSearch('');
       },
-      { timeout: 6000, enableHighAccuracy: true, maximumAge: 10000 }
+      { timeout: 10000, enableHighAccuracy: false, maximumAge: 10000 }
     );
   };
 
