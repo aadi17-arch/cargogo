@@ -9,7 +9,7 @@ router.get('/reverse', async (req: Request, res: Response) => {
 
   const latitude = parseFloat(lat as string);
   const longitude = parseFloat(lng as string);
-  const cacheKey = `rev:${latitude.toFixed(4)},${longitude.toFixed(4)}`;
+  const cacheKey = `rev:${latitude.toFixed(4)},${longitude.toFixed(4)}`; // ek generalized key
 
   try {
     const cached = await prisma.geocodeCache.findUnique({
