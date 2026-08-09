@@ -175,7 +175,7 @@ function ShipperDashboard() {
       },
       (error) => {
         console.warn('Geolocation error:', error);
-        toast.error('Could not retrieve precise location. Please search and select your address manually.');
+        toast.error(`Location Error: ${error.message} (Code ${error.code}). Please search manually.`);
         setPickupSearch('');
       },
       { timeout: 10000, enableHighAccuracy: false, maximumAge: 10000 }
