@@ -184,20 +184,6 @@ function ShipperDashboard() {
 
   useEffect(() => { 
     fetchMyBookings(); 
-    // Auto-detect current user location on page load
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = Number(position.coords.latitude.toFixed(6));
-          const lng = Number(position.coords.longitude.toFixed(6));
-          setUserLocation([lat, lng]);
-          setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng }));
-          setPickupSearch('Locating current address...');
-          reverseGeocode(lat, lng, 'pickup');
-        },
-        () => {} // Silent fallback if user blocks permission
-      );
-    }
   }, []);
 
   useSocketListener('booking-accepted', (data: any) => {
@@ -314,15 +300,9 @@ function ShipperDashboard() {
     if (form.pickupLat !== null && form.pickupLng !== null) {
       return [form.pickupLat, form.pickupLng];
     }
-    const firstDriver = onlineDrivers.find((d: any) => d.latitude && d.longitude);
-    if (firstDriver) {
-      return [firstDriver.latitude, firstDriver.longitude];
-    }
-    if (mapMarkers.length > 0) {
-      return [mapMarkers[0].lat, mapMarkers[0].lng];
-    }
-    return [0, 0];
-  }, [userLocation, form.pickupLat, form.pickupLng, onlineDrivers, mapMarkers]);
+    // Neutral fallback (center of India)
+    return [20.5937, 78.9629];
+  }, [userLocation, form.pickupLat, form.pickupLng]);
 
   // Feature 1: Nearest online driver distance + ETA
   const nearestDriverInfo = useMemo(() => {
@@ -659,7 +639,7 @@ function ShipperDashboard() {
                 {/* Feature 2: Pass route polyline to map */}
                 <MapView
                   center={mapCenter}
-                  zoom={14}
+                  zoom={userLocation || form.pickupLat !== null ? 14 : 5}
                   markers={mapMarkers}
                   routePositions={routePolyline}
                   polylineColor="#4F46E5"
