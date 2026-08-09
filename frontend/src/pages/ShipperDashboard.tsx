@@ -159,42 +159,9 @@ function ShipperDashboard() {
 
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
 
-  const fallbackToDefaultLocation = () => {
-    let lat = 19.0760;
-    let lng = 72.8777;
-    const firstDriver = onlineDrivers.find((d: any) => d.latitude && d.longitude);
-    if (firstDriver) {
-      lat = Number(firstDriver.latitude);
-      lng = Number(firstDriver.longitude);
-    }
-    setUserLocation([lat, lng]);
-    setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng }));
-    reverseGeocode(lat, lng, 'pickup');
-  };
-
-  const locateByIP = async () => {
-    try {
-      const response = await fetch('https://ipapi.co/json/');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.latitude && data.longitude) {
-          const lat = Number(data.latitude.toFixed(6));
-          const lng = Number(data.longitude.toFixed(6));
-          setUserLocation([lat, lng]);
-          setForm(prev => ({ ...prev, pickupLat: lat, pickupLng: lng }));
-          reverseGeocode(lat, lng, 'pickup');
-          return;
-        }
-      }
-    } catch (err) {
-      console.warn('IP-based geolocation failed:', err);
-    }
-    fallbackToDefaultLocation();
-  };
-
   const locateMe = () => {
     if (!navigator.geolocation) {
-      locateByIP();
+      toast.error('Location services are not supported by your browser. Please search and select your address manually.');
       return;
     }
     setPickupSearch('Locating current address...');
@@ -207,10 +174,11 @@ function ShipperDashboard() {
         reverseGeocode(lat, lng, 'pickup');
       },
       (error) => {
-        console.warn('Geolocation error, trying IP fallback:', error);
-        locateByIP();
+        console.warn('Geolocation error:', error);
+        toast.error('Could not retrieve precise location. Please search and select your address manually.');
+        setPickupSearch('');
       },
-      { timeout: 4000, enableHighAccuracy: false, maximumAge: 15000 }
+      { timeout: 6000, enableHighAccuracy: true, maximumAge: 10000 }
     );
   };
 
