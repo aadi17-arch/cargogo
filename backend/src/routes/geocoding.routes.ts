@@ -38,17 +38,18 @@ router.get('/reverse', async (req: Request, res: Response) => {
       displayName = parts.join(', ');
     }
 
-    if (!displayName) {
-      displayName = `Location(${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
+    if (displayName) {
+      await prisma.geocodeCache.create({
+        data: {
+          query: cacheKey,
+          displayName,
+          latitude,
+          longitude
+        }
+      }).catch(err => console.warn('Cache write failed', err));
+    } else {
+      displayName = `Location(${latitude.toFixed(4)},${longitude.toFixed(4)})`;
     }
-    await prisma.geocodeCache.create({
-      data: {
-        query: cacheKey,
-        displayName,
-        latitude,
-        longitude
-      }
-    }).catch(err => console.warn('Cache write failed', err));
 
     return res.json({
       success: true,
