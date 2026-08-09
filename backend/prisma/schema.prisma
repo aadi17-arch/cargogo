@@ -118,9 +118,9 @@ model Booking {
 
   // Fields for scheduled delivery options
   bookingType     BookingType   @default(INSTANT)
-  scheduledAt     DateTime?     
-  scheduledUntil  DateTime?     
-  committedAt     DateTime?     
+  scheduledAt     DateTime?
+  scheduledUntil  DateTime?
+  committedAt     DateTime?
   otpAttempts     Int           @default(0)
 
   createdAt       DateTime      @default(now())
@@ -196,4 +196,15 @@ model ChatMessage {
   @@map("chat_messages")
   @@index([bookingId])
   @@index([createdAt])
+}
+model GeocodeCache {
+  id          String   @id @default(uuid())
+  query       String   @unique
+  displayName String
+  latitude    Float
+  longitude   Float
+  createdAt   DateTime @default(now())
+
+  @@map("geocode_cache")
+  @@index([query])
 }
