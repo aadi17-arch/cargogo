@@ -1,4 +1,4 @@
-import api from './api';
+import api from './api.service';
 import { DriverProfile,VrpRouteResponse } from '../types/driver.types';
 import { Vehicle } from '../types/vehicle.types';
 import { ApiResponse } from '../types/api.types';
