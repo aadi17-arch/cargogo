@@ -6,16 +6,18 @@ import { useDriverStatus } from '@/hooks/useDriverStatus';
 import { useSocket, useSocketListener } from '@/hooks/useSocket';
 import { driverService } from '@/services/driver.service';
 import { bookingService } from '@/services/booking.service';
-import { geocodingService } from '@/services/geocoding.service';
 import { VrpRouteResponse } from '@/types/driver.types';
 import { ScheduledJob } from '@/types/booking.types';
 import { toast } from 'react-hot-toast';
-import { LocateFixed, Navigation, Clock, FileText, CalendarClock, Briefcase, Copy } from 'lucide-react';
+import { LocateFixed, Navigation, Clock, FileText, CalendarClock, Briefcase, RefreshCw } from 'lucide-react';
 import StatusBadge from '@/components/ui/StatusBadge';
 import MapView, { MapMarker } from '@/components/map/MapView';
-import TabNavigation from '@/components/ui/TabNavigation';
 import EmptyState from '@/components/ui/EmptyState';
-import { formatPrice, formatDate } from '@/utils/formatters';
+import DashboardHeader from '@/components/ui/DashboardHeader';
+import MapOverlayCard from '@/components/ui/MapOverlayCard';
+import LocateButton from '@/components/ui/LocateButton';
+import { useAddressResolver } from '@/hooks/useAddressResolver';
+import { formatDate } from '@/utils/formatters';
 import L from 'leaflet';
 
 function DriverDashboard() {
@@ -26,20 +28,20 @@ function DriverDashboard() {
 
   const [bid, setBid] = useState<any>(null);
   const [countdown, setCountdown] = useState(30);
-  const [earnings, setEarnings] = useState(0);
   const [pendingBookings, setPendingBookings] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'my_jobs' | 'jobs_board' | 'schedule' | 'past_jobs'>('my_jobs');
   const [routeData, setRouteData] = useState<VrpRouteResponse | null>(null);
-  const [loadingRoute, setLoadingRoute] = useState(false);
+  const [, setLoadingRoute] = useState(false);
   const [driverCoords, setDriverCoords] = useState<[number, number] | null>(null);
   const [map, setMap] = useState<L.Map | null>(null);
-  const [addressCache, setAddressCache] = useState<{ [key: string]: string }>({});
   const [driverLocationName, setDriverLocationName] = useState<string>('Detecting...');
   const lastGeocodedCoords = useRef<[number, number] | null>(null);
   const navigate = useNavigate();
   const { commitScheduledJob: socketCommitScheduledJob } = useSocket(token);
 
-  // NEW: Scheduled booking state
+  const { resolveAddresses, resolveSingleAddress } = useAddressResolver();
+
+  // Scheduled booking state
   const [scheduledJobs, setScheduledJobs] = useState<ScheduledJob[]>([]);
   const [availableScheduledJobs, setAvailableScheduledJobs] = useState<ScheduledJob[]>([]);
   const [showScheduledBoard, setShowScheduledBoard] = useState(false);
@@ -47,25 +49,8 @@ function DriverDashboard() {
   const [loadingScheduled, setLoadingScheduled] = useState(false);
 
   const resolveDriverAddress = async (lat: number, lng: number) => {
-    try {
-      const data = await geocodingService.reverse(lat, lng);
-      if (data?.display_name) setDriverLocationName(data.display_name.split(',')[0] || 'Mumbai');
-    } catch (e) { console.error(e); }
-  };
-
-  const resolveAddresses = async (stops: any[]) => {
-    const newAddresses = { ...addressCache };
-    let updated = false;
-    for (const stop of stops) {
-      const key = `${stop.location.lat.toFixed(4)},${stop.location.lng.toFixed(4)}`;
-      if (!newAddresses[key]) {
-        try {
-          const data = await geocodingService.reverse(stop.location.lat, stop.location.lng);
-          if (data?.display_name) { newAddresses[key] = data.display_name.split(',')[0] || 'Unknown Location'; updated = true; }
-        } catch (e) { console.error(e); }
-      }
-    }
-    if (updated) setAddressCache(newAddresses);
+    const name = await resolveSingleAddress(lat, lng);
+    setDriverLocationName(name);
   };
 
   useEffect(() => {
@@ -93,7 +78,7 @@ function DriverDashboard() {
     fetchRoute();
   };
 
-  // NEW: Load scheduled jobs for the driver
+  // Load scheduled jobs for the driver
   const loadScheduledJobs = useCallback(async () => {
     setLoadingScheduled(true);
     try {
@@ -108,12 +93,11 @@ function DriverDashboard() {
     } finally { setLoadingScheduled(false); }
   }, []);
 
-  // NEW: Commit to a scheduled job via socket
+  // Commit to a scheduled job via socket
   const handleCommitScheduledJob = async (bookingId: string) => {
     setCommittingJobId(bookingId);
     try {
       socketCommitScheduledJob(bookingId);
-      // Optimistically remove from available list; socket 'commit-confirmed' will confirm
     } catch (err: any) {
       toast.error('Failed to commit to job: ' + err.message);
     } finally { setCommittingJobId(null); }
@@ -144,9 +128,9 @@ function DriverDashboard() {
     finally { setLoadingRoute(false); }
   };
 
-  useEffect(() => { 
+  useEffect(() => {
     if (token) {
-      loadData(); 
+      loadData();
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
@@ -164,24 +148,17 @@ function DriverDashboard() {
   useSocketListener('driver:arrived', () => loadData());
   useSocketListener('trip:completed', () => loadData());
   useSocketListener('booking-cancelled', () => loadData());
-  // NEW: Listen for scheduled job notifications from the matching engine
+  // Listen for scheduled job notifications from the matching engine
   useSocketListener('scheduled_job_available', (data: any) => {
     toast.success(`📅 New scheduled job: ${data.cargoType} on ${formatDate(data.scheduledAt)}`, { duration: 6000 });
     loadScheduledJobs(); // Refresh the available board
   });
-  // NEW: Listen for commit confirmation
+  // Listen for commit confirmation
   useSocketListener('commit-confirmed', (data: any) => {
     toast.success(`✅ Committed! Job scheduled for ${formatDate(data.scheduledAt)}`);
     setCommittingJobId(null);
     loadScheduledJobs();
   });
-
-  useEffect(() => {
-    const total = bookings
-      .filter((b: any) => b.status === 'DELIVERED' || b.status === 'COMPLETED')
-      .reduce((sum: number, b: any) => sum + b.price, 0);
-    setEarnings(total);
-  }, [bookings]);
 
   useEffect(() => {
     if (!bid) return;
@@ -223,8 +200,8 @@ function DriverDashboard() {
   const pastBookings   = bookings.filter((b: any) => ['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status));
 
   // Build standard Map markers listing
-  const mapCenter: [number, number] = driverCoords 
-    ? driverCoords 
+  const mapCenter: [number, number] = driverCoords
+    ? driverCoords
     : (routeData?.route && routeData.route.length > 0)
       ? [routeData.route[0].location.lat, routeData.route[0].location.lng]
       : [19.0760, 72.8777];
@@ -258,114 +235,21 @@ function DriverDashboard() {
   }, [driverCoords, routeData]);
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold tracking-tight text-slate-800 font-heading">
-        Driver Hub
-      </h2>
+    <div className="relative h-[calc(100vh-64px)] w-full overflow-hidden bg-white flex flex-col">
+      <style>{`
+        .leaflet-control-attribution { display: none !important; }
+        ::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
+        * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+      `}</style>
 
-      {/* Horizontal 3-Column Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-body">
-        {/* Card 1: Status */}
-        <div className="p-5 bg-white border border-slate-200 rounded-lg shadow-sm flex flex-col justify-between min-h-[120px]">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</span>
-            <div className="flex items-center gap-2">
-              <div className={`w-2.5 h-2.5 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-              <span className={`text-sm font-black uppercase ${isOnline ? 'text-emerald-600' : 'text-rose-600'}`}>
-                {isOnline ? 'ONLINE' : 'OFFLINE'}
-              </span>
-            </div>
-          </div>
-          <button
-            onClick={toggleOnline}
-            disabled={isOnline && activeBookings.length > 0}
-            className={`w-full mt-3 px-4 py-3 text-xs font-bold text-white rounded-lg transition-all shadow-sm border-none outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
-              isOnline 
-                ? 'bg-rose-600 hover:bg-rose-500' 
-                : 'bg-slate-900 hover:bg-slate-800'
-            }`}
-          >
-            {isOnline ? 'Go Offline' : 'Go Online'}
-          </button>
-        </div>
-
-        {/* Card 2: Current Location */}
-        <div className="p-5 bg-white border border-slate-200 rounded-lg shadow-sm flex items-center gap-4 min-h-[120px]">
-          <div className="p-3 bg-slate-100 text-slate-700 rounded-lg shrink-0">
-            <LocateFixed size={16} />
-          </div>
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Current Location</span>
-            <span className="text-sm font-bold text-slate-700 leading-normal block truncate max-w-[160px]" title={driverLocationName}>
-              {driverLocationName}
-            </span>
-          </div>
-        </div>
-
-        {/* Card 3: Total Earnings */}
-        <div className="p-5 bg-white border border-slate-200 rounded-lg shadow-sm flex items-center gap-4 min-h-[120px]">
-          <div className="p-3 bg-slate-100 text-slate-700 rounded-lg shrink-0">
-            <span className="text-lg font-black font-mono">₹</span>
-          </div>
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Earnings</span>
-            <span className="text-2xl font-black text-emerald-600 font-mono tracking-tight block">
-              {formatPrice(earnings)}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Incoming bid Alert */}
-      {bid && (
-        <div className="p-6 bg-white border-2 border-slate-900 rounded-lg shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-            <h3 className="text-lg font-black text-slate-900 tracking-tight font-heading">
-              New Delivery Request!
-            </h3>
-            <span className="text-xs font-mono font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
-              {countdown}s remaining
-            </span>
-          </div>
-          <div className="grid grid-cols-3 gap-4 text-xs font-body text-slate-700">
-            <div>
-              <span className="block text-[10px] font-bold text-slate-400 uppercase">Cargo</span>
-              <span className="font-bold">{bid.cargoType}</span>
-            </div>
-            <div>
-              <span className="block text-[10px] font-bold text-slate-400 uppercase">Payout</span>
-              <span className="font-bold font-mono">{formatPrice(bid.price)}</span>
-            </div>
-            <div>
-              <span className="block text-[10px] font-bold text-slate-400 uppercase">Distance</span>
-              <span className="font-bold">{bid.distanceKm} km</span>
-            </div>
-          </div>
-          <div className="flex gap-3 pt-2">
-            <button 
-              onClick={handleAcceptBid} 
-              className="flex-1 bg-slate-900 hover:bg-slate-800 text-white py-2.5 text-xs font-bold rounded-lg transition-colors shadow-sm"
-            >
-              Accept Job
-            </button>
-            <button 
-              onClick={handleRejectBid} 
-              className="flex-1 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 py-2.5 text-xs font-bold rounded-lg transition-colors"
-            >
-              Decline
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Navigation Tabs */}
-      <TabNavigation
+      {/* ── TOP HEADER BAR (matches ShipperDashboard) ── */}
+      <DashboardHeader
+        title="Driver Dashboard"
         tabs={[
-          { id: 'my_jobs', label: `Your Jobs (${activeBookings.length})` },
+          { id: 'my_jobs', label: `Jobs (${activeBookings.length})` },
           { id: 'jobs_board', label: `Available (${pendingBookings.length})` },
-          // NEW: Schedule tab — loads scheduled data on activation
-          { id: 'schedule', label: `My Schedule (${scheduledJobs.length})` },
-          { id: 'past_jobs', label: `History (${pastBookings.length})` }
+          { id: 'schedule', label: `Schedule (${scheduledJobs.length})` },
+          { id: 'past_jobs', label: `History (${pastBookings.length})` },
         ]}
         activeTab={activeTab}
         onChange={(id) => {
@@ -373,416 +257,329 @@ function DriverDashboard() {
           if (id === 'jobs_board') loadData();
           if (id === 'schedule') loadScheduledJobs();
         }}
-        className="border-b-0"
       />
 
-      {/* My Deliveries Tab layout */}
-      {activeTab === 'my_jobs' && (
-        activeBookings.length === 0 ? (
-          <EmptyState
-            icon={Clock}
-            title="No active jobs"
-            description="Set your status to Online to see and accept new delivery requests."
-            action={
-              <button 
-                onClick={() => { setActiveTab('jobs_board'); loadData(); }} 
-                className="text-xs font-bold text-indigo-600 hover:underline bg-transparent border-none outline-none cursor-pointer"
-              >
-                Browse Available Jobs
-              </button>
-            }
-          />
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
-            {/* Left Column: Timeline details */}
-            <div className="lg:col-span-5 space-y-6 w-full order-2 lg:order-1">
-              <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm space-y-4 relative overflow-hidden">
-                {loadingRoute && (
-                  <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white">
-                    <div className="w-8 h-8 border-[3px] border-slate-900 border-t-transparent rounded-full animate-spin"></div>
-                    <p className="mt-3 text-xs font-extrabold text-slate-800 font-heading">Optimizing route...</p>
+      {activeTab === 'my_jobs' ? (
+        /* ── VIEW 1: MAP + FLOATING JOB CARD ── */
+        <div className="flex-1 w-full p-2 sm:p-4 relative flex flex-col min-h-0 overflow-hidden bg-white">
+          <div className="relative w-full h-full flex-1 rounded-xl border border-slate-200 shadow-xs overflow-hidden bg-white">
+
+            {/* Base map */}
+            <div className="absolute inset-0 z-0 h-full w-full">
+              <MapView
+                center={mapCenter}
+                zoom={driverCoords ? 13 : 5}
+                markers={mapMarkers}
+                routePositions={routePolyline}
+                polylineColor="#0F172A"
+                setMap={setMap}
+              />
+            </div>
+
+            {/* TOP-RIGHT: Status pill + location + locate-me */}
+            <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20 flex items-center gap-2">
+              <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-md">
+                <div className={`w-2 h-2 rounded-sm shrink-0 ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+                <span className="text-xs font-bold text-slate-900 font-heading">{isOnline ? 'Online' : 'Offline'}</span>
+                <button
+                  onClick={toggleOnline}
+                  disabled={isOnline && activeBookings.length > 0}
+                  className="text-xs font-bold text-white bg-slate-950 hover:bg-slate-800 rounded-md px-2.5 py-1 transition-all cursor-pointer font-heading disabled:opacity-50"
+                >
+                  {isOnline ? 'Go Offline' : 'Go Online'}
+                </button>
+                <div className="w-px h-4 bg-slate-200" />
+                <LocateFixed size={11} className="text-slate-400 shrink-0" />
+                <span className="text-[11px] font-bold text-slate-700 truncate font-body max-w-[140px]" title={driverLocationName}>{driverLocationName}</span>
+              </div>
+              <LocateButton
+                onClick={() => { if (driverCoords && map) map.setView(driverCoords, 14, { animate: true }); }}
+              />
+            </div>
+
+            {/* Incoming Bid Alert — top-center of map */}
+            {bid && (
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 w-[320px]">
+                <div className="bg-white border-2 border-slate-900 rounded-xl shadow-xl p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-slate-900 font-heading">New Delivery Request!</h3>
+                    <span className="text-[11px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">{countdown}s</span>
                   </div>
-                )}
-                <div className="flex items-center justify-between gap-4 mb-4">
-                  <div className="space-y-0.5">
-                    <h3 className="text-base font-bold text-slate-800 font-heading">Route Timeline</h3>
-                    <p className="text-[10px] text-slate-400">Optimized stop sequence</p>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div><span className="block text-[10px] font-bold text-slate-500">Cargo</span><span className="font-bold text-slate-900 truncate block">{bid.cargoType}</span></div>
+                    <div><span className="block text-[10px] font-bold text-slate-500">Payout</span><span className="font-extrabold text-slate-900">₹{Math.round(bid.price)}</span></div>
+                    <div><span className="block text-[10px] font-bold text-slate-500">Distance</span><span className="font-bold text-slate-900">{bid.distanceKm} km</span></div>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={loadData} className="px-2.5 py-1.5 text-[10px] font-bold bg-white border border-slate-200 hover:bg-slate-50 text-slate-500 rounded-lg shadow-sm">Refresh</button>
-                    <button onClick={fetchRoute} disabled={loadingRoute} className="px-2.5 py-1.5 text-[10px] font-bold bg-white border border-slate-200 hover:bg-slate-50 text-slate-500 rounded-lg shadow-sm disabled:opacity-50">
-                      Re-plan
-                    </button>
+                    <button onClick={handleAcceptBid} className="flex-1 bg-slate-950 hover:bg-slate-800 text-white py-1.5 text-xs font-bold rounded-lg cursor-pointer font-heading">Accept</button>
+                    <button onClick={handleRejectBid} className="flex-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 py-1.5 text-xs font-bold rounded-lg cursor-pointer font-heading">Decline</button>
                   </div>
                 </div>
+              </div>
+            )}
 
-                {routeData && routeData.route.length > 0 ? (
-                  <div className="space-y-4">
-                    <div className="relative border-l border-slate-100 ml-3 pl-6 space-y-5">
-                      {routeData.route.map((stop: any, index: number) => {
-                        const booking = bookings.find((b: any) => b.id === stop.bookingId);
-                        const status = booking?.status || 'PENDING';
-                        return (
-                          <div key={index} className="relative">
-                            <span className="absolute -left-[35px] top-3.5 w-5 h-5 rounded-full border border-slate-200 flex items-center justify-center text-[10px] font-bold bg-white text-slate-500">
-                              {index + 1}
-                            </span>
-                            <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex flex-col gap-2">
-                              <div className="flex items-center justify-between gap-2">
-                                <div className="flex items-center gap-1.5 min-w-0">
-                                  <span className={`text-[8px] font-extrabold tracking-wide uppercase px-1.5 py-0.5 rounded border bg-transparent shrink-0 ${
-                                    stop.type === 'PICKUP' 
-                                      ? 'border-emerald-600/30 text-emerald-600' 
-                                      : 'border-orange-600/30 text-orange-600'
-                                  }`}>
-                                    {stop.type === 'PICKUP' ? 'Pick' : 'Drop'}
-                                  </span>
-                                  <span className="text-xs font-bold text-slate-800 truncate font-heading">
-                                    {stop.cargoType} {addressCache[`${stop.location.lat.toFixed(4)},${stop.location.lng.toFixed(4)}`] ? `(${addressCache[`${stop.location.lat.toFixed(4)},${stop.location.lng.toFixed(4)}`]})` : ''}
-                                  </span>
-                                </div>
-                                {booking && <StatusBadge status={status} className="text-[8px]" />}
-                              </div>
-                              <div className="flex items-center justify-between gap-4 pt-1.5 border-t border-slate-200 border-dashed">
-                                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-slate-400">
-                                  <span>Payout: <span className="font-bold text-slate-700 font-mono">{formatPrice((booking as any)?.price || booking?.totalPrice || 0)}</span></span>
-                                  <span>|</span>
-                                  <span>Wt: <span className="font-semibold text-slate-700">{stop.weightKg}kg</span></span>
-                                </div>
-                                {booking && status !== 'CANCELLED' && (
-                                  <button onClick={() => navigate(`/track/${booking.id}`)} className="bg-slate-900 hover:bg-slate-800 text-white px-2.5 py-1 text-[9px] font-bold rounded shadow-sm shrink-0">
-                                    {['DELIVERED', 'COMPLETED'].includes(status) ? 'Details' : 'Track'}
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
+            {/* LEFT: Floating content card */}
+            <MapOverlayCard>
+              {activeBookings.length === 0 ? (
+                <EmptyState icon={Clock} title="No active jobs" description="Go online to receive deliveries."
+                  action={<button onClick={() => { setActiveTab('jobs_board'); loadData(); }} className="text-xs font-bold text-slate-950 hover:underline bg-transparent border-none cursor-pointer">Browse Jobs</button>}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-900 font-heading">Active Trips</h3>
+                      <p className="text-[11px] text-slate-500">Overview of currently active jobs</p>
                     </div>
+                    <button onClick={loadData} className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded-lg hover:bg-slate-50 bg-white cursor-pointer" title="Refresh">
+                      <RefreshCw size={14} />
+                    </button>
                   </div>
-                ) : (
                   <div className="divide-y divide-slate-100">
                     {activeBookings.map((b: any) => (
-                      <div key={b.id} className="py-3 flex justify-between items-center text-xs font-body">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-slate-800">{b.cargoType}</span>
-                            <button
-                              onClick={() => {
-                                navigator.clipboard.writeText(b.id);
-                                toast.success('Booking ID copied!');
-                              }}
-                              className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold text-slate-500 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
-                              title="Copy Booking ID"
-                            >
-                              <Copy size={12} />
-                              #{b.id.slice(0, 8).toUpperCase()}
-                            </button>
+                      <div key={b.id} className="py-3 flex items-center justify-between gap-3 text-xs">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-bold text-slate-900 truncate">{b.cargoType}</span>
                           </div>
-                          <p className="text-slate-400">Payout: {formatPrice(b.price)} | Status: {b.status}</p>
+                          {b.pickupAddress && b.dropoffAddress && (
+                            <p className="text-[11px] text-slate-600 truncate mb-1">
+                              {b.pickupAddress.split(',')[0]} &rarr; {b.dropoffAddress.split(',')[0]}
+                            </p>
+                          )}
+                          <div className="text-slate-500 flex items-center gap-1.5">
+                            <span>₹{Math.round(b.price || b.totalPrice || 0)}</span>
+                            <span>&middot;</span>
+                            <span>{b.weightKg} kg</span>
+                          </div>
                         </div>
-                        <button onClick={() => navigate(`/track/${b.id}`)} className="bg-slate-900 hover:bg-slate-800 text-white px-3 py-1 font-bold rounded-lg shadow-sm">
+                        <button
+                          onClick={() => navigate(`/track/${b.id}`)}
+                          className="bg-slate-950 hover:bg-slate-800 text-white px-3 py-1.5 text-xs font-bold rounded-lg cursor-pointer shrink-0 font-heading"
+                        >
                           Track
                         </button>
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+            </MapOverlayCard>
+
+            {/* MOBILE: Bottom sheet (jobs, mobile only, inside map) */}
+            <div className="absolute bottom-3 left-2.5 right-2.5 z-10 flex flex-col gap-2 md:hidden max-h-[56vh]">
+              <div className="bg-white rounded-xl border border-slate-200 shadow-md px-3 py-2 flex items-center gap-2 shrink-0">
+                <div className={`w-2 h-2 rounded-sm shrink-0 ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+                <span className="text-xs font-bold text-slate-900">{isOnline ? 'Online' : 'Offline'}</span>
+                <button onClick={toggleOnline} disabled={isOnline && activeBookings.length > 0} className="ml-auto text-xs font-bold text-white bg-slate-950 rounded-md px-2.5 py-1 cursor-pointer disabled:opacity-50">
+                  {isOnline ? 'Go Offline' : 'Go Online'}
+                </button>
+              </div>
+              <div className="bg-white rounded-xl border border-slate-200 shadow-md overflow-y-auto p-3 font-body text-slate-800 space-y-2 flex-1 min-h-0 text-left">
+                {activeBookings.length === 0
+                  ? <EmptyState icon={Clock} title="No active jobs" description="Go online." action={<button onClick={() => { setActiveTab('jobs_board'); loadData(); }} className="text-xs font-bold text-slate-950 hover:underline bg-transparent border-none cursor-pointer">Browse Jobs</button>} />
+                  : <div className="space-y-2 text-xs">
+                      {activeBookings.map((b: any) => (
+                        <div key={b.id} className="p-2.5 border border-slate-200 rounded-lg flex items-center justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-bold text-slate-900 truncate">{b.cargoType}</p>
+                            {b.pickupAddress && b.dropoffAddress && (
+                              <p className="text-[10px] text-slate-500 truncate">
+                                {b.pickupAddress.split(',')[0]} &rarr; {b.dropoffAddress.split(',')[0]}
+                              </p>
+                            )}
+                          </div>
+                          <button onClick={() => navigate(`/track/${b.id}`)} className="bg-slate-950 text-white px-2.5 py-1 text-xs font-bold rounded-md shrink-0 cursor-pointer">Track</button>
+                        </div>
+                      ))}
+                    </div>
+                }
+              </div>
+            </div>
+
+          </div>
+        </div>
+      ) : (
+        /* ── VIEW 2: STANDALONE FULL-PAGE WIDTH SECTIONS ── */
+        <div className="flex-1 w-full bg-white flex flex-col overflow-y-auto px-6 py-6 space-y-4 text-left">
+
+          {/* Available Jobs View */}
+          {activeTab === 'jobs_board' && (
+            <div className="space-y-4 max-w-4xl mx-auto w-full">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 font-heading">Available Shipments</h3>
+                  <p className="text-xs text-slate-500">New delivery requests nearby</p>
+                </div>
+                <button onClick={loadData} className="w-8 h-8 flex items-center justify-center border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition bg-white shadow-xs cursor-pointer" title="Refresh">
+                  <RefreshCw size={14} />
+                </button>
+              </div>
+
+              <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
+                {pendingBookings.length > 0 ? (
+                  pendingBookings.map((b: any) => (
+                    <div key={b.id} className="py-4 flex items-center justify-between gap-4 text-xs font-body">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2.5 mb-1.5">
+                          <span className="font-bold text-sm text-slate-900 font-heading">{b.cargoType}</span>
+                          <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-mono">#{b.id.slice(0, 8).toUpperCase()}</span>
+                        </div>
+                        {b.pickupAddress && b.dropoffAddress && (
+                          <p className="text-slate-600 mb-1">
+                            {b.pickupAddress.split(',')[0]} &rarr; {b.dropoffAddress.split(',')[0]}
+                          </p>
+                        )}
+                        <div className="text-slate-500 flex items-center gap-1.5 flex-wrap">
+                          <span className="font-semibold text-slate-700">₹{Math.round(b.price)}</span>
+                          <span>&middot;</span>
+                          <span>{b.distanceKm} km</span>
+                          <span>&middot;</span>
+                          <span>{formatDate(b.createdAt)}</span>
+                        </div>
+                      </div>
+                      <button onClick={() => handleAcceptPending(b.id)} className="bg-slate-950 hover:bg-slate-800 text-white px-4 py-2 text-xs font-bold rounded-lg cursor-pointer shrink-0 font-heading">
+                        Accept Shipment
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <EmptyState icon={Navigation} title="No shipments available" description="Refresh to check for new load offers." />
                 )}
               </div>
             </div>
+          )}
 
-            {/* Right Column: Route Map */}
-            <div className="lg:col-span-7 lg:sticky lg:top-20 w-full order-1 lg:order-2 space-y-4">
-              {routeData && routeData.route.length > 0 && (
-                <div className="p-4 bg-white border border-slate-200 rounded-lg shadow-sm space-y-4">
-                  <div className="flex flex-col gap-1">
-                    <h3 className="text-base font-bold text-slate-800 font-heading">Optimized Navigation Route</h3>
-                    <p className="text-[10px] text-slate-400">
-                      Distance: <span className="font-bold text-slate-700">{routeData.totalDistanceKm} km</span> | Max Payload: {routeData.vehicleCapacityKg} kg
-                    </p>
+          {/* Schedule View */}
+          {(activeTab as string) === 'schedule' && (
+            <div className="space-y-4 max-w-4xl mx-auto w-full">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 font-heading flex items-center gap-2">
+                    <CalendarClock size={20} className="text-slate-700" />
+                    Scheduled Deliveries
+                  </h3>
+                  <p className="text-xs text-slate-500">Upcoming bookings assigned to your schedule</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="inline-flex items-center border border-slate-200 rounded-lg p-1 bg-white shadow-xs">
+                    <button onClick={() => setShowScheduledBoard(false)} className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${!showScheduledBoard ? 'bg-slate-950 text-white' : 'text-slate-600 hover:bg-slate-50'}`}>Committed</button>
+                    <div className="w-[1px] h-4 bg-slate-200 mx-0.5" />
+                    <button onClick={() => { setShowScheduledBoard(true); loadScheduledJobs(); }} className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${showScheduledBoard ? 'bg-slate-950 text-white' : 'text-slate-600 hover:bg-slate-50'}`}>Find Work</button>
                   </div>
-                  <div className="h-80 sm:h-[400px] w-full overflow-hidden border border-slate-200 rounded-lg shadow-sm relative">
-                    <MapView 
-                      center={mapCenter} 
-                      zoom={11} 
-                      markers={mapMarkers} 
-                      routePositions={routePolyline} 
-                      polylineColor="indigo"
-                      setMap={setMap}
-                    />
-                    {driverCoords && map && (
-                      <button
-                        onClick={() => map.setView(driverCoords, map.getZoom(), { animate: true })}
-                        className="absolute top-3 right-3 z-[1000] flex items-center justify-center bg-white hover:bg-slate-50 border border-slate-200 shadow-md rounded-lg p-2.5 transition cursor-pointer"
-                        title="Focus current location"
-                        style={{ width: '44px', height: '44px' }}
-                      >
-                        <LocateFixed size={16} className="text-slate-700" />
-                      </button>
-                    )}
-                  </div>
+                  <button onClick={loadScheduledJobs} className="w-8 h-8 flex items-center justify-center border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition bg-white shadow-xs cursor-pointer"><RefreshCw size={14} /></button>
+                </div>
+              </div>
+
+              {loadingScheduled ? (
+                <div className="py-16 text-center text-slate-400 text-sm font-medium">Loading schedule...</div>
+              ) : (
+                <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
+                  {!showScheduledBoard ? (
+                    scheduledJobs.length > 0 ? (
+                      scheduledJobs.map((job: ScheduledJob) => (
+                        <div key={job.id} className="py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-xs font-body">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
+                              <span className="font-bold text-sm text-slate-900 font-heading">{job.cargoType}</span>
+                              <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded">{formatDate(job.scheduledAt)}</span>
+                            </div>
+                            <p className="text-slate-600 mb-1.5">Route: <span className="font-medium text-slate-900">{job.pickupAddress} &rarr; {job.dropoffAddress}</span></p>
+                            <div className="text-slate-500 flex items-center gap-1.5 flex-wrap">
+                              <span className="font-semibold text-slate-700">₹{Math.round(job.price)}</span>
+                              <span>&middot;</span>
+                              <span>{job.weightKg} kg</span>
+                              <span>&middot;</span>
+                              <span>{job.distanceKm} km</span>
+                            </div>
+                          </div>
+                          <button onClick={fetchRoute} className="bg-slate-950 hover:bg-slate-800 text-white px-4 py-2 text-xs font-bold rounded-lg cursor-pointer shrink-0 font-heading self-start md:self-center">
+                            Optimize Route
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <EmptyState icon={CalendarClock} title="No committed schedules" description="Go to 'Find Work' to reserve upcoming calendar routes." />
+                    )
+                  ) : (
+                    availableScheduledJobs.length > 0 ? (
+                      availableScheduledJobs.map((job: ScheduledJob) => (
+                        <div key={job.id} className="py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-xs font-body">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
+                              <span className="font-bold text-sm text-slate-900 font-heading">{job.cargoType}</span>
+                              <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded">{formatDate(job.scheduledAt)}</span>
+                            </div>
+                            <p className="text-slate-600 mb-1.5">Route: <span className="font-medium text-slate-900">{job.pickupAddress} &rarr; {job.dropoffAddress}</span></p>
+                            <div className="text-slate-500 flex items-center gap-1.5 flex-wrap">
+                              <span className="font-semibold text-slate-700">₹{Math.round(job.price)}</span>
+                              <span>&middot;</span>
+                              <span>{job.weightKg} kg</span>
+                              <span>&middot;</span>
+                              <span>{job.distanceKm} km</span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => handleCommitScheduledJob(job.id)}
+                            disabled={committingJobId === job.id}
+                            className="bg-slate-950 hover:bg-slate-800 disabled:opacity-60 text-white px-4 py-2 text-xs font-bold rounded-lg cursor-pointer shrink-0 font-heading self-start md:self-center"
+                          >
+                            {committingJobId === job.id ? 'Reserving...' : 'Reserve Load'}
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <EmptyState icon={Briefcase} title="No loads to reserve" description="Check back later for available contract schedule jobs." />
+                    )
+                  )}
                 </div>
               )}
             </div>
-          </div>
-        )
-      )}
+          )}
 
-      {/* Available Deliveries Board */}
-      {activeTab === 'jobs_board' && (
-        <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-4">
-          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-            <h3 className="text-lg font-bold text-slate-800 font-heading">Available Board</h3>
-            <button onClick={loadData} className="px-3.5 py-1.5 text-xs font-bold bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-500 transition-colors shadow-sm">
-              Refresh
-            </button>
-          </div>
-          {pendingBookings.length > 0 ? (
-            <div className="divide-y divide-slate-100 text-xs">
-              {pendingBookings.map((b: any) => (
-                <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 font-body">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-800 text-sm font-heading">{b.cargoType}</span>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(b.id);
-                          toast.success('Booking ID copied!');
-                        }}
-                        className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold text-slate-500 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
-                        title="Copy Booking ID"
-                      >
-                        <Copy size={12} />
-                        #{b.id.slice(0, 8).toUpperCase()}
+          {/* Job History View */}
+          {activeTab === 'past_jobs' && (
+            <div className="space-y-4 max-w-4xl mx-auto w-full">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 font-heading">Past Trips</h3>
+                  <p className="text-xs text-slate-500">History of completed and canceled trips</p>
+                </div>
+              </div>
+
+              <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
+                {pastBookings.length > 0 ? (
+                  pastBookings.map((b: any) => (
+                    <div key={b.id} className="py-4 flex items-center justify-between gap-4 text-xs font-body">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2.5 mb-1 flex-wrap">
+                          <span className="font-bold text-sm text-slate-900 font-heading">{b.cargoType}</span>
+                          <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-mono">#{b.id.slice(0, 8).toUpperCase()}</span>
+                          <StatusBadge status={b.status} />
+                        </div>
+                        {b.pickupAddress && b.dropoffAddress && (
+                          <p className="text-slate-600 mb-1">
+                            {b.pickupAddress.split(',')[0]} &rarr; {b.dropoffAddress.split(',')[0]}
+                          </p>
+                        )}
+                        <div className="text-slate-500 flex items-center gap-1.5 flex-wrap">
+                          <span className="font-semibold text-slate-700">₹{Math.round(b.price)}</span>
+                          <span>&middot;</span>
+                          <span>{formatDate(b.createdAt)}</span>
+                        </div>
+                      </div>
+                      <button onClick={() => navigate(`/track/${b.id}`)} className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 text-xs font-bold rounded-lg cursor-pointer shrink-0 font-heading">
+                        Trip Log
                       </button>
                     </div>
-                    <p className="text-slate-400">
-                      Payout: <span className="font-bold text-indigo-600 font-mono">{formatPrice(b.price)}</span> | Distance: <span className="font-semibold text-slate-700">{b.distanceKm} km</span>
-                    </p>
-                    <p className="text-[10px] text-slate-400 font-mono">Received: {formatDate(b.createdAt)}</p>
-                  </div>
-                  <button 
-                    onClick={() => handleAcceptPending(b.id)} 
-                    className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 font-bold rounded-lg shadow-sm shrink-0"
-                  >
-                    Accept Job
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <EmptyState
-              icon={Navigation}
-              title="No shipments matching vehicle specs currently pending"
-              description="New delivery requests will appear on the board automatically. Keep refreshing to get updates."
-              action={
-                <button 
-                  onClick={loadData} 
-                  className="text-xs font-bold text-indigo-600 hover:underline bg-transparent border-none outline-none cursor-pointer"
-                >
-                  Refresh Available Board
-                </button>
-              }
-            />
-          )}
-        </div>
-      )}
-
-      {/* Past Deliveries history */}
-      {activeTab === 'past_jobs' && (
-        <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-4">
-          <h3 className="text-lg font-bold text-slate-800 font-heading">Job History</h3>
-          {pastBookings.length > 0 ? (
-            <div className="divide-y divide-slate-100 text-xs">
-              {pastBookings.map((b: any) => (
-                <div key={b.id} className="py-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 font-body">
-                  <div className="space-y-1.5 flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-bold text-slate-800 text-sm font-heading">{b.cargoType}</span>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(b.id);
-                          toast.success('Booking ID copied!');
-                        }}
-                        className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold text-slate-500 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
-                        title="Copy Booking ID"
-                      >
-                        <Copy size={12} />
-                        #{b.id.slice(0, 8).toUpperCase()}
-                      </button>
-                      <StatusBadge status={b.status} />
-                    </div>
-                    <p className="text-slate-400">
-                      Payout: <span className="font-bold text-emerald-600 font-mono">{formatPrice(b.price)}</span>
-                    </p>
-                    {b.pickupAddress && b.dropoffAddress && (
-                      <p className="text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-lg border border-slate-200 leading-normal max-w-xl">
-                        <strong>Route:</strong> {b.pickupAddress} → {b.dropoffAddress}
-                      </p>
-                    )}
-                    <p className="text-[10px] text-slate-400 font-mono">{formatDate(b.createdAt)}</p>
-                  </div>
-                  <button 
-                    onClick={() => navigate(`/track/${b.id}`)} 
-                    className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 font-bold rounded-lg shadow-sm shrink-0"
-                  >
-                    Details
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <EmptyState
-              icon={FileText}
-              title="No past shipments found"
-              description="Your completed or cancelled cargo deliveries will be listed here in your history."
-            />
-          )}
-        </div>
-      )}
-
-      {/* My Schedule Tab — committed scheduled jobs + browse available board */}
-      {(activeTab as string) === 'schedule' && (
-        <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-5">
-          {/* Tab header with sub-view toggle */}
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-slate-800 font-heading flex items-center gap-2">
-              <CalendarClock size={18} className="text-indigo-500" />
-              {showScheduledBoard ? 'Browse Available Jobs' : 'My Committed Schedule'}
-            </h3>
-            <div className="flex gap-2">
-              <button
-                onClick={() => { setShowScheduledBoard(false); }}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all ${
-                  !showScheduledBoard ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'
-                }`}
-              >
-                My Schedule
-              </button>
-              <button
-                onClick={() => { setShowScheduledBoard(true); loadScheduledJobs(); }}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all ${
-                  showScheduledBoard ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'
-                }`}
-              >
-                <Briefcase size={14} className="inline mr-1" />
-                Find Jobs
-              </button>
-            </div>
-          </div>
-
-          {loadingScheduled ? (
-            <div className="py-12 text-center text-slate-400 text-xs font-medium">Loading scheduled jobs...</div>
-          ) : !showScheduledBoard ? (
-            /* Sub-view 1: My committed schedule */
-            scheduledJobs.length > 0 ? (
-              <div className="space-y-3">
-                {scheduledJobs.map((job: ScheduledJob) => (
-                  <div key={job.id} className="p-4 border border-slate-200 rounded-lg space-y-2 hover:border-slate-400 transition-colors">
-                    <div className="flex items-center justify-between flex-wrap gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-800 text-sm font-heading">{job.cargoType}</span>
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(job.id);
-                            toast.success('Booking ID copied!');
-                          }}
-                          className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold text-slate-500 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
-                          title="Copy Booking ID"
-                        >
-                          <Copy size={12} />
-                          #{job.id.slice(0, 8).toUpperCase()}
-                        </button>
-                      </div>
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded-md">
-                        <CalendarClock size={12} />
-                        {formatDate(job.scheduledAt)}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-200">
-                      <strong>Route:</strong> {job.pickupAddress} → {job.dropoffAddress}
-                    </p>
-                    <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
-                      <span>{job.weightKg} kg · {job.distanceKm} km</span>
-                      <span className="font-bold font-mono text-emerald-600">{formatPrice(job.price)}</span>
-                    </div>
-                    {/* VRP route optimization button */}
-                    <button
-                      onClick={fetchRoute}
-                      className="w-full mt-1 px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition-colors"
-                    >
-                      <Navigation size={14} className="inline mr-1" />
-                      Optimize My Full Route
-                    </button>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <EmptyState icon={FileText} title="No trip history found" description="Completed shipments will be listed here." />
+                )}
               </div>
-            ) : (
-              <EmptyState
-                icon={CalendarClock}
-                title="No committed scheduled jobs"
-                description="Browse available jobs below and commit to ones that fit your schedule."
-                action={
-                  <button onClick={() => setShowScheduledBoard(true)} className="text-xs font-bold text-indigo-600 hover:underline bg-transparent border-none cursor-pointer">
-                    Browse Available Jobs
-                  </button>
-                }
-              />
-            )
-          ) : (
-            /* Sub-view 2: Browse available scheduled jobs matching this driver's vehicle */
-            availableScheduledJobs.length > 0 ? (
-              <div className="space-y-3">
-                {availableScheduledJobs.map((job: ScheduledJob) => (
-                  <div key={job.id} className="p-4 border border-slate-200 rounded-lg space-y-2 hover:border-slate-400 transition-colors">
-                    <div className="flex items-center justify-between flex-wrap gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-800 text-sm font-heading">{job.cargoType}</span>
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(job.id);
-                            toast.success('Booking ID copied!');
-                          }}
-                          className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold text-slate-500 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors"
-                          title="Copy Booking ID"
-                        >
-                          <Copy size={12} />
-                          #{job.id.slice(0, 8).toUpperCase()}
-                        </button>
-                      </div>
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded-md">
-                        <CalendarClock size={12} />
-                        {formatDate(job.scheduledAt)}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-200">
-                      <strong>Route:</strong> {job.pickupAddress} → {job.dropoffAddress}
-                    </p>
-                    <div className="flex items-center justify-between text-xs text-slate-500">
-                      <span>{job.weightKg} kg · {job.distanceKm} km · {job.vehicleType.replace(/_/g, ' ')}</span>
-                      <span className="font-bold font-mono text-emerald-600">{formatPrice(job.price)}</span>
-                    </div>
-                    {/* Commit button */}
-                    <button
-                      onClick={() => handleCommitScheduledJob(job.id)}
-                      disabled={committingJobId === job.id}
-                      className="w-full mt-1 px-3 py-2 bg-slate-900 hover:bg-slate-800 disabled:opacity-60 text-white text-xs font-bold rounded-lg transition-colors shadow-sm flex items-center justify-center gap-1"
-                    >
-                      <LocateFixed size={14} />
-                      {committingJobId === job.id ? 'Committing...' : 'Commit to This Job'}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                icon={Briefcase}
-                title="No available scheduled jobs"
-                description="No unassigned scheduled jobs match your vehicle type right now. Check back later."
-              />
-            )
+            </div>
           )}
+
         </div>
       )}
     </div>
