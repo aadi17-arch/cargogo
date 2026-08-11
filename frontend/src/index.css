@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  /* Brand & Layout Colors */
+  
   --color-primary: #09121F;
   --color-primary-hover: #1E293B;
   --color-background: #E2E8F0;
@@ -13,7 +13,7 @@
   --color-text-main: #0F1B2E;
   --color-text-muted: #5C6B84;
 
-  /* Status Colors */
+  
   --color-status-pending: #D97706;
   --color-status-accepted: #8B5CF6;
   --color-status-transit: #EA580C;
@@ -21,17 +21,17 @@
   --color-status-completed: #059669;
   --color-status-cancelled: #DC2626;
 
-  /* Dimensions & Shapes */
+  
   --radius-card: 6px;
   --radius-button: 6px;
   --border-width: 1.5px;
 
-  /* Fonts */
+  
   --font-heading: 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
   --font-mono: 'Plus Jakarta Sans', sans-serif;
 
-  /* Dashboard Theme (Shipper / Driver / Tracking) */
+  
   --color-bg: #F6F7F9;
   --color-surface: #FFFFFF;
   --color-surface-muted: #F8FAFC;
@@ -86,13 +86,13 @@
   .dark-input-field {
     @apply w-full p-3 bg-[#2D2D2D] text-white placeholder-slate-500 font-medium rounded-xl border border-transparent focus:outline-none focus:border-slate-500 transition-all text-sm;
   }
-  /* ─── Shared card shell ─────────────────────────────────── */
+  
   .card {
     background-color: var(--color-card);
     border: var(--border-width) solid var(--color-border);
     border-radius: var(--radius-card);
   }
-  /* Same as .card but for inner content padding — add p-4/p-6 with tailwind */
+  
   .card-danger {
     background-color: var(--color-card);
     border: var(--border-width) solid var(--color-status-cancelled);
@@ -109,7 +109,7 @@
     font-family: 'Space Grotesk', sans-serif;
   }
 
-  /* Demo Button Styles (Size, borders, and curves) */
+  
   .demo-btn-primary {
     display: inline-flex;
     align-items: center;
@@ -188,22 +188,22 @@
   }
 }
 
-/* Hide spin-buttons for Chrome, Safari, Edge, Opera */
+
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-/* Hide spin-buttons for Firefox */
+
 input[type=number] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
 
-/* ─── Dashboard Theme primitives ───────────────────────────── */
 
-/* Flat card shell — white surface, subtle border, light shadow */
+
+
 .panel {
   position: relative;
   border-radius: 0.875rem;
@@ -212,7 +212,7 @@ input[type=number] {
   box-shadow: 0 1px 2px 0 rgb(15 23 42 / 0.04);
 }
 
-/* Clean text input */
+
 .dash-input {
   width: 100%;
   height: 44px;
@@ -232,12 +232,12 @@ input[type=number] {
   box-shadow: 0 0 0 3px rgb(79 70 229 / 0.12);
 }
 
-/* Ghost input (no leading icon) */
+
 .dash-input-ghost {
   padding-left: 1rem;
 }
 
-/* Primary solid button */
+
 .dash-btn-primary {
   width: 100%;
   height: 46px;
@@ -261,7 +261,7 @@ input[type=number] {
   cursor: not-allowed;
 }
 
-/* Subtle chip */
+
 .dash-chip {
   display: inline-flex;
   align-items: center;
@@ -276,13 +276,13 @@ input[type=number] {
   white-space: nowrap;
 }
 
-/* Slim scrollbars for panels */
+
 .dash-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
 .dash-scroll::-webkit-scrollbar-track { background: transparent; }
 .dash-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
 .dash-scroll::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
-/* Hide Leaflet attribution banner */
+
 .leaflet-control-attribution {
   display: none !important;
 }
