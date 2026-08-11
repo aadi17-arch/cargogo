@@ -24,7 +24,7 @@ function LoginPage() {
     if (isAuthenticated && user) navigate(user.role === 'SHIPPER' ? '/shipper' : '/driver');
   }, [isAuthenticated, user, navigate]);
 
-  // Real-time inline email validator
+  
   const handleEmailChange = (val: string) => {
     setEmail(val);
     if (!val) {
@@ -49,7 +49,7 @@ function LoginPage() {
     e.preventDefault();
     clearError();
 
-    // Final checks
+    
     const emailErr = !email ? 'Email is required' : (!/\S+@\S+\.\S+/.test(email) ? 'Please enter a valid email address' : undefined);
     const passErr = !password ? 'Password is required' : undefined;
 
@@ -75,7 +75,7 @@ function LoginPage() {
       return;
     }
     setResetLoading(true);
-    // Simulate reset request
+    
     setTimeout(() => {
       setResetLoading(false);
       setShowResetModal(false);
@@ -86,7 +86,7 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-100 px-4 py-8 font-body">
-      {/* Brand Logo Header */}
+      {}
       <div className="flex items-center gap-2 mb-4 cursor-pointer select-none font-tech-space">
         <span className="font-black text-sm text-white bg-slate-900 px-3 py-1 rounded-[var(--radius-card)] tracking-tight shadow-sm">
           Cargo
@@ -96,7 +96,7 @@ function LoginPage() {
         </span>
       </div>
 
-      {/* Main Login Card */}
+      {}
       <form onSubmit={handleSubmit} className="bg-white p-8 w-full max-w-sm card shadow-sm space-y-5 rounded-[var(--radius-card)]">
         <div className="text-center space-y-1">
           <h2 className="text-2xl font-black text-slate-800 tracking-tight font-heading">
@@ -149,7 +149,7 @@ function LoginPage() {
         </p>
       </form>
 
-      {/* Password Reset Modal */}
+      {}
       <BaseModal 
         isOpen={showResetModal} 
         onClose={() => setShowResetModal(false)} 
