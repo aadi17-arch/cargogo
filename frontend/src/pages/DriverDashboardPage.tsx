@@ -41,7 +41,7 @@ function DriverDashboard() {
 
   const { resolveAddresses, resolveSingleAddress } = useAddressResolver();
 
-  // Scheduled booking state
+  
   const [scheduledJobs, setScheduledJobs] = useState<ScheduledJob[]>([]);
   const [availableScheduledJobs, setAvailableScheduledJobs] = useState<ScheduledJob[]>([]);
   const [showScheduledBoard, setShowScheduledBoard] = useState(false);
@@ -78,7 +78,7 @@ function DriverDashboard() {
     fetchRoute();
   };
 
-  // Load scheduled jobs for the driver
+  
   const loadScheduledJobs = useCallback(async () => {
     setLoadingScheduled(true);
     try {
@@ -93,7 +93,7 @@ function DriverDashboard() {
     } finally { setLoadingScheduled(false); }
   }, []);
 
-  // Commit to a scheduled job via socket
+  
   const handleCommitScheduledJob = async (bookingId: string) => {
     setCommittingJobId(bookingId);
     try {
@@ -148,12 +148,12 @@ function DriverDashboard() {
   useSocketListener('driver:arrived', () => loadData());
   useSocketListener('trip:completed', () => loadData());
   useSocketListener('booking-cancelled', () => loadData());
-  // Listen for scheduled job notifications from the matching engine
+  
   useSocketListener('scheduled_job_available', (data: any) => {
     toast.success(`📅 New scheduled job: ${data.cargoType} on ${formatDate(data.scheduledAt)}`, { duration: 6000 });
-    loadScheduledJobs(); // Refresh the available board
+    loadScheduledJobs(); 
   });
-  // Listen for commit confirmation
+  
   useSocketListener('commit-confirmed', (data: any) => {
     toast.success(`✅ Committed! Job scheduled for ${formatDate(data.scheduledAt)}`);
     setCommittingJobId(null);
@@ -199,7 +199,7 @@ function DriverDashboard() {
   const activeBookings = bookings.filter((b: any) => !['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status));
   const pastBookings   = bookings.filter((b: any) => ['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status));
 
-  // Build standard Map markers listing
+  
   const mapCenter: [number, number] = driverCoords
     ? driverCoords
     : (routeData?.route && routeData.route.length > 0)
@@ -242,7 +242,7 @@ function DriverDashboard() {
         * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
       `}</style>
 
-      {/* ── TOP HEADER BAR (matches ShipperDashboard) ── */}
+      {}
       <DashboardHeader
         title="Driver Dashboard"
         tabs={[
@@ -260,11 +260,11 @@ function DriverDashboard() {
       />
 
       {activeTab === 'my_jobs' ? (
-        /* ── VIEW 1: MAP + FLOATING JOB CARD ── */
+        
         <div className="flex-1 w-full p-2 sm:p-4 relative flex flex-col min-h-0 overflow-hidden bg-white">
           <div className="relative w-full h-full flex-1 rounded-xl border border-slate-200 shadow-xs overflow-hidden bg-white">
 
-            {/* Base map */}
+            {}
             <div className="absolute inset-0 z-0 h-full w-full">
               <MapView
                 center={mapCenter}
@@ -276,7 +276,7 @@ function DriverDashboard() {
               />
             </div>
 
-            {/* TOP-RIGHT: Status pill + location + locate-me */}
+            {}
             <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20 flex items-center gap-2">
               <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-md">
                 <div className={`w-2 h-2 rounded-sm shrink-0 ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
@@ -297,7 +297,7 @@ function DriverDashboard() {
               />
             </div>
 
-            {/* Incoming Bid Alert — top-center of map */}
+            {}
             {bid && (
               <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 w-[320px]">
                 <div className="bg-white border-2 border-slate-900 rounded-xl shadow-xl p-4 space-y-3">
@@ -318,7 +318,7 @@ function DriverDashboard() {
               </div>
             )}
 
-            {/* LEFT: Floating content card */}
+            {}
             <MapOverlayCard>
               {activeBookings.length === 0 ? (
                 <EmptyState icon={Clock} title="No active jobs" description="Go online to receive deliveries."
@@ -366,7 +366,7 @@ function DriverDashboard() {
               )}
             </MapOverlayCard>
 
-            {/* MOBILE: Bottom sheet (jobs, mobile only, inside map) */}
+            {}
             <div className="absolute bottom-3 left-2.5 right-2.5 z-10 flex flex-col gap-2 md:hidden max-h-[56vh]">
               <div className="bg-white rounded-xl border border-slate-200 shadow-md px-3 py-2 flex items-center gap-2 shrink-0">
                 <div className={`w-2 h-2 rounded-sm shrink-0 ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
@@ -400,10 +400,10 @@ function DriverDashboard() {
           </div>
         </div>
       ) : (
-        /* ── VIEW 2: STANDALONE FULL-PAGE WIDTH SECTIONS ── */
+        
         <div className="flex-1 w-full bg-white flex flex-col overflow-y-auto px-6 py-6 space-y-4 text-left">
 
-          {/* Available Jobs View */}
+          {}
           {activeTab === 'jobs_board' && (
             <div className="space-y-4 max-w-4xl mx-auto w-full">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -450,7 +450,7 @@ function DriverDashboard() {
             </div>
           )}
 
-          {/* Schedule View */}
+          {}
           {(activeTab as string) === 'schedule' && (
             <div className="space-y-4 max-w-4xl mx-auto w-full">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -537,7 +537,7 @@ function DriverDashboard() {
             </div>
           )}
 
-          {/* Job History View */}
+          {}
           {activeTab === 'past_jobs' && (
             <div className="space-y-4 max-w-4xl mx-auto w-full">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
