@@ -45,7 +45,7 @@ export default function PricingSection() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-          {/* Calculator Form */}
+          {}
           <form onSubmit={calculateQuote} className="lg:col-span-7 p-8 rounded-lg border border-slate-200 bg-white space-y-6 shadow-sm flex flex-col justify-between">
             <div className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-left">
@@ -90,7 +90,7 @@ export default function PricingSection() {
             </button>
           </form>
 
-          {/* Result Panel */}
+          {}
           <div className="lg:col-span-5 h-full">
             <div className="p-8 rounded-lg border border-slate-200 bg-white space-y-6 shadow-sm h-full flex flex-col justify-between">
               {!quote ? (
