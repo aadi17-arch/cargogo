@@ -12,8 +12,8 @@ function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
     return <Navigate to="/login" replace />;
   }
 
-  // If token is present but user profile is not loaded yet, show a premium loading state
-  // to avoid exposing any dashboards prematurely.
+  
+  
   if (token && !user) {
     return (
       <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white text-slate-800">
@@ -28,7 +28,7 @@ function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
   }
 
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    // Redirect unauthorized users to their correct dashboard
+    
     return <Navigate to={user.role === 'SHIPPER' ? '/shipper' : '/driver'} replace />;
   }
 
