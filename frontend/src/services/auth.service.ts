@@ -1,4 +1,4 @@
-import api from './api';
+import api from './api.service';
 import { AuthResponse, User } from '@/types/auth.types';
 import { ApiResponse } from '@/types/api.types';
 
