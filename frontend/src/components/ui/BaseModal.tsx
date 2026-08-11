@@ -44,12 +44,12 @@ export default function BaseModal({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-0 sm:p-4 bg-slate-900/40"
       onClick={onClose}
     >
       <div
         ref={containerRef}
-        className={`w-full h-full sm:h-auto ${maxWidth} bg-white rounded-none sm:rounded-[var(--radius-card)] shadow-xl border border-slate-100 flex flex-col sm:max-h-[90vh] overflow-hidden transform transition-all`}
+        className={`w-full h-full sm:h-auto ${maxWidth} rounded-none sm:rounded-xl shadow-xl border border-slate-200 bg-white flex flex-col sm:max-h-[90vh] overflow-hidden transform transition-all`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
