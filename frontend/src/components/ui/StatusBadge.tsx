@@ -1,11 +1,11 @@
-const STATUS_COLORS: Record<string, string> = {
-  PENDING:    'var(--color-status-pending)',
-  ACCEPTED:   'var(--color-status-accepted)',
-  IN_TRANSIT: 'var(--color-status-transit)',
-  DELIVERED:  'var(--color-status-delivered)',
-  COMPLETED:  'var(--color-status-completed)',
-  CANCELLED:  'var(--color-status-cancelled)',
-  DISPUTED:   'var(--color-status-cancelled)',
+const STATUS_CONFIG: Record<string, { label: string; className: string; dotColor: string }> = {
+  PENDING:    { label: 'Pending', className: 'bg-amber-100 text-amber-900 border-amber-200', dotColor: 'bg-amber-500' },
+  ACCEPTED:   { label: 'Accepted', className: 'bg-blue-100 text-blue-900 border-blue-200', dotColor: 'bg-blue-600' },
+  IN_TRANSIT: { label: 'In Transit', className: 'bg-indigo-100 text-indigo-900 border-indigo-200', dotColor: 'bg-indigo-600 animate-pulse' },
+  DELIVERED:  { label: 'Delivered', className: 'bg-emerald-100 text-emerald-900 border-emerald-200', dotColor: 'bg-emerald-600' },
+  COMPLETED:  { label: 'Completed', className: 'bg-emerald-100 text-emerald-900 border-emerald-200', dotColor: 'bg-emerald-600' },
+  CANCELLED:  { label: 'Cancelled', className: 'bg-rose-100 text-rose-900 border-rose-200', dotColor: 'bg-rose-600' },
+  DISPUTED:   { label: 'Disputed', className: 'bg-red-100 text-red-900 border-red-200', dotColor: 'bg-red-600' },
 };
 
 interface StatusBadgeProps {
@@ -14,13 +14,11 @@ interface StatusBadgeProps {
 }
 
 export default function StatusBadge({ status, className = '' }: StatusBadgeProps) {
-  const color = STATUS_COLORS[status] || 'var(--color-text-muted)';
+  const config = STATUS_CONFIG[status] || { label: status, className: 'bg-slate-100 text-slate-800 border-slate-200', dotColor: 'bg-slate-500' };
   return (
-    <span
-      className={`px-2 py-0.5 rounded-[4px] text-[10px] font-bold tracking-wide uppercase border-[1.5px] bg-transparent shrink-0 ${className}`}
-      style={{ fontFamily: 'var(--font-mono)', borderColor: color, color }}
-    >
-      {status}
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${config.className} ${className}`}>
+      <span className={`w-1.5 h-1.5 rounded-sm shrink-0 ${config.dotColor}`} />
+      <span>{config.label}</span>
     </span>
   );
 }
