@@ -11,7 +11,7 @@ import StatusBadge from '@/components/ui/StatusBadge';
 import OtpVerifyInput from '@/components/tracking/OtpVerifyInput';
 import MapView, { MapMarker } from '@/components/map/MapView';
 import BaseModal from '@/components/ui/BaseModal';
-import { Download, Copy, ChevronLeft, MessageCircle } from 'lucide-react';
+import { Download, Copy, ArrowLeft, MessageCircle } from 'lucide-react';
 import ChatDrawer from '@/components/tracking/ChatDrawer';
 
 function TrackingPage() {
@@ -295,56 +295,56 @@ function TrackingPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
+    <div className="min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] overflow-y-auto lg:overflow-y-hidden flex flex-col p-3 sm:p-4 gap-3 bg-white">
+      <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={() => navigate(user?.role === 'DRIVER' ? '/driver' : '/shipper')}
-          className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm"
+          className="p-1 -ml-1 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+          title="Back"
         >
-          <ChevronLeft size={16} />
-          Back
+          <ArrowLeft size={18} />
         </button>
-        <h2 className="text-2xl font-bold tracking-tight text-slate-800 font-heading">
+        <h2 className="text-xl font-bold tracking-tight text-slate-900 font-heading">
           Track Delivery
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch flex-1 min-h-0">
         {/* Left Column: Map */}
-        <div className="lg:col-span-7 h-96 lg:h-[500px] overflow-hidden border border-slate-200 rounded-lg shadow-sm relative z-10">
+        <div className="lg:col-span-7 h-72 sm:h-96 lg:h-full w-full overflow-hidden border border-slate-200 rounded-xl shadow-xs relative z-10 bg-white shrink-0 lg:shrink">
           <MapView 
             center={mapCenter} 
             zoom={13} 
             markers={mapMarkers} 
             routePositions={routePolyline} 
-            polylineColor="blue"
+            polylineColor="#0F172A"
           >
-            {driverLocation && <MapView routePositions={driverPolyline} polylineColor="green" center={mapCenter} />}
+            {driverLocation && <MapView routePositions={driverPolyline} polylineColor="#0F172A" center={mapCenter} />}
           </MapView>
         </div>
 
         {/* Right Column: Status & Handshakes */}
-        <div className="lg:col-span-5 space-y-6">
+        <div className="lg:col-span-5 w-full lg:h-full lg:overflow-y-auto space-y-4 pr-0 lg:pr-1">
           {/* Booking info card */}
-          <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-3 font-body text-xs text-slate-600">
-            <h3 className="text-sm font-bold text-slate-800 font-heading">Delivery Parameters</h3>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span>Status:</span>
+          <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs space-y-3 font-body text-xs text-slate-600">
+            <h3 className="text-sm font-bold text-slate-900 font-heading">Delivery Parameters</h3>
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-700">Status</span>
                 <StatusBadge status={booking.status} />
               </div>
-              <div className="flex justify-between">
-                <span>Cargo Type:</span>
-                <span className="font-bold text-slate-800">{booking.cargoType}</span>
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-slate-700">Cargo Type</span>
+                <span className="font-bold text-slate-900">{booking.cargoType}</span>
               </div>
-              <div className="flex justify-between">
-                <span>Price:</span>
-                <span className="font-bold text-indigo-600 font-mono">{formatPrice(booking.price)}</span>
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-slate-700">Price</span>
+                <span className="font-extrabold text-slate-900 text-sm font-heading">₹{Math.round(booking.price)}</span>
               </div>
               {booking.createdAt && (
-                <div className="flex justify-between">
-                  <span>Booked:</span>
-                  <span className="font-semibold text-slate-500">{formatDate(booking.createdAt)}</span>
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-slate-700">Booked</span>
+                  <span className="font-medium text-slate-500 font-mono text-[11px]">{formatDate(booking.createdAt)}</span>
                 </div>
               )}
             </div>
@@ -352,28 +352,28 @@ function TrackingPage() {
 
           {/* OTP Handshake — ACCEPTED */}
           {booking.status === 'ACCEPTED' && (
-            <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm font-body text-xs text-slate-600 space-y-3">
-              <h3 className="text-sm font-bold text-slate-800 font-heading">Pickup Verification</h3>
+            <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs font-body text-xs text-slate-600 space-y-3">
+              <h3 className="text-sm font-bold text-slate-900 font-heading">Pickup Verification</h3>
               {user?.role === 'DRIVER' ? (
                 <OtpVerifyInput type="pickup" otp={otp} setOtp={setOtp} onVerify={() => verifyOTP('pickup')} />
               ) : (
-                <div className="space-y-2">
-                  <p className="leading-relaxed text-slate-500">
-                    Share this security OTP with the driver partner at the pickup point to authorize the departure:
+                <div className="space-y-3 text-center">
+                  <p className="leading-relaxed text-slate-500 text-xs text-left">
+                    Share this security OTP with the driver partner at the pickup point:
                   </p>
-                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-center space-y-2">
-                    <span className="font-mono text-2xl font-black text-indigo-600 tracking-wider">
+                  <div className="py-2 px-4 bg-slate-50 rounded-lg inline-block border border-slate-200">
+                    <span className="font-mono text-2xl font-black text-slate-900 tracking-widest">
                       {booking.pickupOTP}
                     </span>
-                    <div>
-                      <button
-                        onClick={() => { navigator.clipboard.writeText(booking.pickupOTP); toast.success('OTP copied!'); }}
-                        className="inline-flex items-center gap-1 px-3 py-1 text-[10px] font-bold text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition-colors mt-1"
-                      >
-                        <Copy size={12} />
-                        Copy OTP
-                      </button>
-                    </div>
+                  </div>
+                  <div>
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(booking.pickupOTP); toast.success('OTP copied!'); }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer font-heading"
+                    >
+                      <Copy size={13} />
+                      Copy OTP
+                    </button>
                   </div>
                 </div>
               )}
@@ -382,28 +382,28 @@ function TrackingPage() {
 
           {/* OTP Handshake — IN_TRANSIT */}
           {booking.status === 'IN_TRANSIT' && (
-            <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm font-body text-xs text-slate-600 space-y-3">
-              <h3 className="text-sm font-bold text-slate-800 font-heading">Dropoff Verification</h3>
+            <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs font-body text-xs text-slate-600 space-y-3">
+              <h3 className="text-sm font-bold text-slate-900 font-heading">Dropoff Verification</h3>
               {user?.role === 'DRIVER' ? (
                 <OtpVerifyInput type="dropoff" otp={otp} setOtp={setOtp} onVerify={() => verifyOTP('dropoff')} />
               ) : (
-                <div className="space-y-2">
-                  <p className="leading-relaxed text-slate-500">
-                    Share this security OTP with the driver partner at the delivery point to confirm completion:
+                <div className="space-y-3 text-center">
+                  <p className="leading-relaxed text-slate-500 text-xs text-left">
+                    Share this security OTP with the driver partner at the delivery point:
                   </p>
-                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-center space-y-2">
-                    <span className="font-mono text-2xl font-black text-indigo-600 tracking-wider">
+                  <div className="py-2 px-4 bg-slate-50 rounded-lg inline-block border border-slate-200">
+                    <span className="font-mono text-2xl font-black text-slate-900 tracking-widest">
                       {booking.dropoffOTP}
                     </span>
-                    <div>
-                      <button
-                        onClick={() => { navigator.clipboard.writeText(booking.dropoffOTP); toast.success('OTP copied!'); }}
-                        className="inline-flex items-center gap-1 px-3 py-1 text-[10px] font-bold text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition-colors mt-1"
-                      >
-                        <Copy size={12} />
-                        Copy OTP
-                      </button>
-                    </div>
+                  </div>
+                  <div>
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(booking.dropoffOTP); toast.success('OTP copied!'); }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer font-heading"
+                    >
+                      <Copy size={13} />
+                      Copy OTP
+                    </button>
                   </div>
                 </div>
               )}
@@ -466,19 +466,19 @@ function TrackingPage() {
               <div className="space-y-2.5">
                 <div className="flex justify-between">
                   <span>Base Fare:</span>
-                  <span className="font-bold text-slate-800 font-mono">{formatPrice(invoice.basePrice)}</span>
+                  <span className="font-bold text-slate-900 font-heading">₹{Math.round(invoice.basePrice)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Distance Charge:</span>
-                  <span className="font-bold text-slate-800 font-mono">{formatPrice(invoice.distanceCost)}</span>
+                  <span className="font-bold text-slate-900 font-heading">₹{Math.round(invoice.distanceCost)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Weight Surcharge:</span>
-                  <span className="font-bold text-slate-800 font-mono">{formatPrice(invoice.weightCost)}</span>
+                  <span className="font-bold text-slate-900 font-heading">₹{Math.round(invoice.weightCost)}</span>
                 </div>
                 <div className="border-t border-slate-100 pt-3 flex justify-between items-center">
-                  <span className="text-xs font-bold text-slate-800 font-heading">Total Charge:</span>
-                  <span className="text-lg font-black text-indigo-600 font-heading font-mono">{formatPrice(invoice.totalPrice)}</span>
+                  <span className="text-xs font-bold text-slate-900 font-heading">Total Charge:</span>
+                  <span className="text-base font-extrabold text-slate-900 font-heading">₹{Math.round(invoice.totalPrice)}</span>
                 </div>
               </div>
             </div>
@@ -604,10 +604,10 @@ function TrackingPage() {
             setIsChatOpen(true);
             setUnreadCount(0);
           }}
-          className="fixed bottom-6 right-6 z-[1001] bg-indigo-600 hover:bg-indigo-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2 group scale-100 hover:scale-105 active:scale-95"
+          className="fixed bottom-6 right-6 z-[1001] bg-slate-950 hover:bg-slate-800 text-white p-3.5 rounded-full shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2 group scale-100 hover:scale-105 active:scale-95"
         >
-          <MessageCircle className="w-6 h-6" />
-          <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 font-display font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+          <MessageCircle className="w-5 h-5" />
+          <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 font-bold text-xs whitespace-nowrap">
             Chat
           </span>
           {unreadCount > 0 && (
