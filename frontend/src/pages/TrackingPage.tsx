@@ -145,7 +145,7 @@ function TrackingPage() {
     }
   }, [booking?.status]);
 
-  // Feature 3: Generate a styled HTML invoice and trigger browser download
+  
   const downloadInvoice = () => {
     if (!invoice || !booking) return;
     const invoiceDate = new Date(booking.createdAt || Date.now()).toLocaleDateString('en-IN', {
@@ -310,7 +310,7 @@ function TrackingPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch flex-1 min-h-0">
-        {/* Left Column: Map */}
+        {}
         <div className="lg:col-span-7 h-72 sm:h-96 lg:h-full w-full overflow-hidden border border-slate-200 rounded-xl shadow-xs relative z-10 bg-white shrink-0 lg:shrink">
           <MapView 
             center={mapCenter} 
@@ -323,9 +323,9 @@ function TrackingPage() {
           </MapView>
         </div>
 
-        {/* Right Column: Status & Handshakes */}
+        {}
         <div className="lg:col-span-5 w-full lg:h-full lg:overflow-y-auto space-y-4 pr-0 lg:pr-1">
-          {/* Booking info card */}
+          {}
           <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs space-y-3 font-body text-xs text-slate-600">
             <h3 className="text-sm font-bold text-slate-900 font-heading">Delivery Parameters</h3>
             <div className="space-y-2.5">
@@ -350,7 +350,7 @@ function TrackingPage() {
             </div>
           </div>
 
-          {/* OTP Handshake — ACCEPTED */}
+          {}
           {booking.status === 'ACCEPTED' && (
             <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs font-body text-xs text-slate-600 space-y-3">
               <h3 className="text-sm font-bold text-slate-900 font-heading">Pickup Verification</h3>
@@ -380,7 +380,7 @@ function TrackingPage() {
             </div>
           )}
 
-          {/* OTP Handshake — IN_TRANSIT */}
+          {}
           {booking.status === 'IN_TRANSIT' && (
             <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs font-body text-xs text-slate-600 space-y-3">
               <h3 className="text-sm font-bold text-slate-900 font-heading">Dropoff Verification</h3>
@@ -410,7 +410,7 @@ function TrackingPage() {
             </div>
           )}
 
-          {/* DELIVERED — payment prompt */}
+          {}
           {booking.status === 'DELIVERED' && (
             <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm text-center space-y-4 font-body text-xs text-slate-600">
               <p className="text-lg font-black text-emerald-600 font-heading">Package Delivered!</p>
@@ -431,14 +431,14 @@ function TrackingPage() {
             </div>
           )}
 
-          {/* COMPLETED */}
+          {}
           {booking.status === 'COMPLETED' && (
             <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm text-center font-body">
               <p className="text-lg font-black text-emerald-600 font-heading">Delivery Completed & Paid!</p>
             </div>
           )}
 
-          {/* DISPUTED */}
+          {}
           {booking.status === 'DISPUTED' && (
             <div className="p-6 bg-white border border-red-200 rounded-lg shadow-sm text-center font-body space-y-2">
               <p className="text-lg font-black text-red-600 font-heading">Delivery Under Dispute</p>
@@ -448,7 +448,7 @@ function TrackingPage() {
             </div>
           )}
 
-          {/* Invoice details */}
+          {}
           {invoice && (
             <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm space-y-4 font-body text-xs text-slate-600">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
@@ -484,7 +484,7 @@ function TrackingPage() {
             </div>
           )}
 
-          {/* Existing review display */}
+          {}
           {booking.review && (
             <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm space-y-3 font-body text-xs text-slate-600">
               <h3 className="text-sm font-bold text-slate-800 font-heading pb-2 border-b border-slate-100">
@@ -504,7 +504,7 @@ function TrackingPage() {
             </div>
           )}
 
-          {/* Review form */}
+          {}
           {booking.status === 'COMPLETED' && user?.role === 'SHIPPER' && !booking.review && !reviewSubmitted && (
             <form onSubmit={handleReviewSubmit} className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm space-y-4 font-body text-xs text-slate-600">
               <h3 className="text-sm font-bold text-slate-800 font-heading pb-2 border-b border-slate-100">
@@ -543,7 +543,7 @@ function TrackingPage() {
             </form>
           )}
 
-          {/* Dispute section */}
+          {}
           {['DELIVERED', 'COMPLETED'].includes(booking.status) && user?.role === 'SHIPPER' && (
             <div className="text-center">
               {!showDisputeForm ? (
@@ -595,7 +595,7 @@ function TrackingPage() {
         </div>
       </div>
 
-      {/* Floating Chat Trigger Button */}
+      {}
       {booking && booking.driverId && (
         <button
           onClick={(e) => {
@@ -618,7 +618,7 @@ function TrackingPage() {
         </button>
       )}
 
-      {/* Chat Side Drawer */}
+      {}
       {isChatOpen && user && booking && (
         <ChatDrawer
           bookingId={bookingId!}
