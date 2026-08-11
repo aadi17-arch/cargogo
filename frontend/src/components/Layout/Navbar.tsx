@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
-import BaseModal from '../ui/BaseModal';
-import StatusBadge from '../ui/StatusBadge';
+import BaseModal from '../UI/BaseModal';
+import StatusBadge from '../UI/StatusBadge';
 
 interface NavbarProps {
   userName?: string;

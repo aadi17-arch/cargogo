@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotification } from '@/hooks/useNotification';
-import AuthFormField from '@/components/ui/AuthFormField';
-import PrimaryButton from '@/components/ui/PrimaryButton';
-import AuthPageShell from '@/components/ui/AuthPageShell';
+import AuthFormField from '@/components/UI/AuthFormField';
+import PrimaryButton from '@/components/UI/PrimaryButton';
+import AuthPageShell from '@/components/UI/AuthPageShell';
 import { getDashboardRoute } from '@/utils/routes';
 
 function RegisterPage() {

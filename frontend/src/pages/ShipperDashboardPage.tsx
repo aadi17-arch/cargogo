@@ -3,19 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
 import { useSocket, useSocketListener } from '@/hooks/useSocket';
-import PaymentModal from '@/components/dashboard/PaymentModal';
-import BaseModal from '@/components/ui/BaseModal';
-import StatusBadge from '@/components/ui/StatusBadge';
-import MapView, { MapMarker } from '@/components/map/MapView';
-import DashboardHeader from '@/components/ui/DashboardHeader';
-import MapOverlayCard from '@/components/ui/MapOverlayCard';
-import LocateButton from '@/components/ui/LocateButton';
+import PaymentModal from '@/components/Dashboard/PaymentModal';
+import BaseModal from '@/components/UI/BaseModal';
+import StatusBadge from '@/components/UI/StatusBadge';
+import MapView, { MapMarker } from '@/components/Map/MapView';
+import DashboardHeader from '@/components/UI/DashboardHeader';
+import MapOverlayCard from '@/components/UI/MapOverlayCard';
+import LocateButton from '@/components/UI/LocateButton';
 import { calculateQuote } from '@/utils/pricing';
 import { toast } from 'react-hot-toast';
 import { geocodingService } from '@/services/geocoding.service';
 import { BookingType } from '@/types/booking.types';
-import TabNavigation from '@/components/ui/TabNavigation';
-import IconButton from '@/components/ui/IconButton';
+import TabNavigation from '@/components/UI/TabNavigation';
+import IconButton from '@/components/UI/IconButton';
 import { formatDate } from '@/utils/formatters';
 import {
   ChevronRight,

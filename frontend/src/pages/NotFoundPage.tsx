@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import PrimaryButton from '@/components/ui/PrimaryButton';
+import PrimaryButton from '@/components/UI/PrimaryButton';
 import { AlertTriangle } from 'lucide-react';
 import { getDashboardRoute } from '@/utils/routes';
 

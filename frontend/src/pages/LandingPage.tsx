@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
-import Navbar from '@/components/layout/Navbar';
-import HeroSection from '@/components/landing/HeroSection';
-import PricingSection from '@/components/landing/PricingSection';
-import { ShipperSection, DriverSection } from '@/components/landing/FullBleedSection';
-import { ServicesSection, CapacitySection } from '@/components/landing/FeatureSections';
-import { FaqSection, SupportSection } from '@/components/landing/SupportFaqSections';
-import FooterSection from '@/components/landing/FooterSection';
+import Navbar from '@/components/Layout/Navbar';
+import HeroSection from '@/components/Landing/HeroSection';
+import PricingSection from '@/components/Landing/PricingSection';
+import { ShipperSection, DriverSection } from '@/components/Landing/FullBleedSection';
+import { ServicesSection, CapacitySection } from '@/components/Landing/FeatureSections';
+import { FaqSection, SupportSection } from '@/components/Landing/SupportFaqSections';
+import FooterSection from '@/components/Landing/FooterSection';
 
 function LandingPage() {
   

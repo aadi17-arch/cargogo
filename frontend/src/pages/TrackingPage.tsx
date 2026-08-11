@@ -7,12 +7,12 @@ import { bookingService } from '@/services/booking.service';
 import { paymentService } from '@/services/payment.service';
 import { toast } from 'react-hot-toast';
 import { formatDate, formatPrice } from '@/utils/formatters';
-import StatusBadge from '@/components/ui/StatusBadge';
-import OtpVerifyInput from '@/components/tracking/OtpVerifyInput';
-import MapView, { MapMarker } from '@/components/map/MapView';
-import BaseModal from '@/components/ui/BaseModal';
+import StatusBadge from '@/components/UI/StatusBadge';
+import OtpVerifyInput from '@/components/Tracking/OtpVerifyInput';
+import MapView, { MapMarker } from '@/components/Map/MapView';
+import BaseModal from '@/components/UI/BaseModal';
 import { Download, Copy, ArrowLeft, MessageCircle } from 'lucide-react';
-import ChatDrawer from '@/components/tracking/ChatDrawer';
+import ChatDrawer from '@/components/Tracking/ChatDrawer';
 
 function TrackingPage() {
   const { bookingId } = useParams();

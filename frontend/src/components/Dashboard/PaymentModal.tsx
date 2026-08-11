@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { paymentService } from '@/services/payment.service';
 import { toast } from 'react-hot-toast';
-import BaseModal from '../ui/BaseModal';
+import BaseModal from '../UI/BaseModal';
 import { CreditCard, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 interface PaymentModalProps {
