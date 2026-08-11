@@ -1,4 +1,4 @@
-import api from './api';
+import api from './api.service';
 import { Booking, CreateBookingRequest } from '../types/booking.types';
 import { ApiResponse } from '../types/api.types';
 
@@ -61,19 +61,19 @@ export const bookingService = {
     await api.post('/disputes/fileDispute', { bookingId, reason });
   },
 
-  // Get driver committed schedule list
+  
   async getScheduledJobs(): Promise<any[]> {
     const response = await api.get<ApiResponse<any[]>>('/bookings/scheduled/upcoming');
     return response.data.data!;
   },
 
-  // Get available scheduled jobs for driver vehicle
+  
   async getAvailableScheduledJobs(): Promise<any[]> {
     const response = await api.get<ApiResponse<any[]>>('/bookings/scheduled/available');
     return response.data.data!;
   },
 
-  // Commit to a scheduled job
+  
   async commitScheduledJob(bookingId: string): Promise<any> {
     const response = await api.post<ApiResponse<any>>(`/bookings/${bookingId}/commit`);
     return response.data.data!;
