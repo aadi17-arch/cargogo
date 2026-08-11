@@ -30,7 +30,7 @@ export function DriverNavbarOptions() {
         <button onClick={() => setShowSupport(true)} className="w-full md:w-auto text-left px-3.5 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-900 transition focus:outline-none">Support</button>
       </div>
 
-      {/* FAQ Modal */}
+      {}
       {showFAQ && (
         <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl relative max-h-[80vh] overflow-y-auto">
@@ -59,7 +59,7 @@ export function DriverNavbarOptions() {
         </div>
       )}
 
-      {/* Driver Performance Stats Modal */}
+      {}
       {showDriverStats && (
         <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl relative">
@@ -98,7 +98,7 @@ export function DriverNavbarOptions() {
         </div>
       )}
 
-      {/* Support Modal */}
+      {}
       {showSupport && (
         <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl relative">
