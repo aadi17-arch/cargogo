@@ -5,14 +5,14 @@ import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 
-// Eager load authentications and landing (main entry pages)
+
 import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
 import LandingPage from '@/pages/LandingPage';
 
-// Lazy load dashboards & tracking pages to optimize initial bundle sizes
-const ShipperDashboard = lazy(() => import('@/pages/ShipperDashboard'));
-const DriverDashboard = lazy(() => import('@/pages/DriverDashboard'));
+
+const ShipperDashboard = lazy(() => import('@/pages/ShipperDashboardPage'));
+const DriverDashboard = lazy(() => import('@/pages/DriverDashboardPage'));
 const TrackingPage = lazy(() => import('@/pages/TrackingPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 
@@ -30,7 +30,7 @@ function SessionInitializer({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Clean minimal fallback loading indicator
+
 function SuspenseLoader() {
   return (
     <div className="min-h-[50vh] flex flex-col items-center justify-center space-y-3">
@@ -69,17 +69,17 @@ function App() {
               <Route path="/register" element={<RegisterPage />} />
 
               <Route element={<Layout />}>
-                {/* Shipper Dashboard Guard */}
+                {}
                 <Route element={<ProtectedRoute allowedRoles={['SHIPPER']} />}>
                   <Route path="/shipper" element={<ShipperDashboard />} />
                 </Route>
 
-                {/* Driver Dashboard Guard */}
+                {}
                 <Route element={<ProtectedRoute allowedRoles={['DRIVER']} />}>
                   <Route path="/driver" element={<DriverDashboard />} />
                 </Route>
 
-                {/* General Protected Routes (Any logged-in role can track) */}
+                {}
                 <Route element={<ProtectedRoute />}>
                   <Route path="/track/:bookingId" element={<TrackingPage />} />
                 </Route>
