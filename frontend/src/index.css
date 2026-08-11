@@ -29,7 +29,20 @@
   /* Fonts */
   --font-heading: 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
-  --font-mono: 'Space Mono', monospace;
+  --font-mono: 'Plus Jakarta Sans', sans-serif;
+
+  /* Dashboard Theme (Shipper / Driver / Tracking) */
+  --color-bg: #F6F7F9;
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #F8FAFC;
+  --color-border: #E2E8F0;
+  --color-text-main: #0F172A;
+  --color-text-muted: #64748B;
+  --color-accent: #4F46E5;
+  --color-accent-hover: #4338CA;
+  --color-success: #059669;
+  --color-warning: #D97706;
+  --color-danger: #E11D48;
 }
 
 @layer base {
@@ -40,8 +53,8 @@
     overflow-x: hidden;
     background-color: #F1F5F9;
   }
-  html, body, *, *::before, *::after {
-    font-family: var(--font-body);
+  html, body, button, input, select, textarea, span, p, div, h1, h2, h3, h4, h5, h6, *, *::before, *::after {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
   }
 }
 
@@ -186,4 +199,90 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
   appearance: textfield;
+}
+
+/* ─── Dashboard Theme primitives ───────────────────────────── */
+
+/* Flat card shell — white surface, subtle border, light shadow */
+.panel {
+  position: relative;
+  border-radius: 0.875rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: 0 1px 2px 0 rgb(15 23 42 / 0.04);
+}
+
+/* Clean text input */
+.dash-input {
+  width: 100%;
+  height: 44px;
+  padding-left: 2.6rem;
+  padding-right: 1rem;
+  border-radius: 0.625rem;
+  background: var(--color-surface);
+  border: 1px solid #CBD5E1;
+  color: var(--color-text-main);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.dash-input::placeholder { color: #94A3B8; }
+.dash-input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgb(79 70 229 / 0.12);
+}
+
+/* Ghost input (no leading icon) */
+.dash-input-ghost {
+  padding-left: 1rem;
+}
+
+/* Primary solid button */
+.dash-btn-primary {
+  width: 100%;
+  height: 46px;
+  border-radius: 0.625rem;
+  background: var(--color-accent);
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.15s ease;
+}
+.dash-btn-primary:hover { background: var(--color-accent-hover); }
+.dash-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Subtle chip */
+.dash-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: #F1F5F9;
+  border: 1px solid var(--color-border);
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Slim scrollbars for panels */
+.dash-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+.dash-scroll::-webkit-scrollbar-track { background: transparent; }
+.dash-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
+.dash-scroll::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* Hide Leaflet attribution banner */
+.leaflet-control-attribution {
+  display: none !important;
 }
