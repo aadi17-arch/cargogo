@@ -32,7 +32,7 @@ export default function FooterSection() {
         <div className="max-w-[1750px] mx-auto px-4 sm:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 pb-12 border-b border-slate-700 text-left">
 
-            {/* Brand */}
+            {}
             <div className="space-y-5">
               <div className="flex items-center">
                 <span className="px-2 py-0.5 text-xs font-black tracking-tighter text-[#09121F] bg-white rounded" style={{ fontFamily: 'Space Grotesk' }}>Cargo</span>
@@ -52,7 +52,7 @@ export default function FooterSection() {
               </div>
             </div>
 
-            {/* Platform Nav */}
+            {}
             <div className="space-y-4">
               <h4 className="font-bold text-xs uppercase tracking-wider text-white">Platform</h4>
               <ul className="space-y-2.5 text-xs">
@@ -62,7 +62,7 @@ export default function FooterSection() {
               </ul>
             </div>
 
-            {/* Developer Hub */}
+            {}
             <div className="space-y-4">
               <h4 className="font-bold text-xs uppercase tracking-wider text-white">Developer Hub</h4>
               <ul className="space-y-2.5 text-xs">
@@ -72,7 +72,7 @@ export default function FooterSection() {
               </ul>
             </div>
 
-            {/* Newsletter */}
+            {}
             <div className="space-y-4">
               <h4 className="font-bold text-xs uppercase tracking-wider text-white">Insights Newsletter</h4>
               <p className="text-xs leading-relaxed text-slate-300">Get quarterly updates on transit metrics, fuel rates, and direct APIs.</p>
