@@ -22,7 +22,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     <div className="w-full bg-white border-b border-slate-100 px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between shrink-0 z-20">
       <h2 className="text-xl font-bold text-slate-900 font-heading">{title}</h2>
 
-      {/* Pill switcher buttons */}
+      {}
       <div className="inline-flex items-center border border-slate-200 rounded-lg p-1 bg-white shadow-sm">
         {tabs.map((tab, idx) => (
           <React.Fragment key={tab.id}>
