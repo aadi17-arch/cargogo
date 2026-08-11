@@ -59,7 +59,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ bookingId, currentUser, onClose
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Socket error listener to show error feedback
+  
   useSocketListener('error', (err: any) => {
     import('react-hot-toast').then(({ toast }) => {
       toast.error(err?.message || 'Socket error occurred');
@@ -89,12 +89,12 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ bookingId, currentUser, onClose
   return (
     <div className="fixed bottom-0 left-0 right-0 sm:bottom-24 sm:right-6 sm:left-auto z-[2000] w-full sm:w-[360px] h-[50vh] sm:h-[480px] bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col border-t sm:border border-slate-200 overflow-hidden font-body animate-in slide-in-from-bottom-5 duration-200">
 
-      {/* Mobile Drawer Pull Indicator */}
+      {}
       <div className="flex justify-center py-1.5 sm:hidden shrink-0 bg-slate-900">
         <div className="w-10 h-1 bg-slate-700 rounded-full" />
       </div>
 
-      {/* Premium Generic Header */}
+      {}
       <div className="px-4 py-2.5 sm:py-3 bg-slate-900 text-white flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center">
@@ -106,7 +106,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ bookingId, currentUser, onClose
           </div>
         </div>
 
-        {/* Header Actions */}
+        {}
         <div className="flex items-center gap-2">
           <button
             onClick={fetchChatHistory}
@@ -124,7 +124,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ bookingId, currentUser, onClose
         </div>
       </div>
 
-      {/* Messages list with custom rounded bubbles */}
+      {}
       <div className="flex-1 overflow-y-auto p-4 bg-slate-50 space-y-3.5 scrollbar-thin">
         {loading ? (
           <div className="flex items-center justify-center h-full">
@@ -144,12 +144,12 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ bookingId, currentUser, onClose
                 key={msg.id}
                 className={`flex flex-col ${isSelf ? 'items-end' : 'items-start'} space-y-0.5`}
               >
-                {/* Sender Name */}
+                {}
                 <span className="text-[9px] font-bold text-slate-400 px-1">
                   {msg.sender.name}
                 </span>
 
-                {/* Message Bubble - Clean alignment matching standard chat applications */}
+                {}
                 <div
                   className={`max-w-[85%] rounded-2xl px-3.5 py-2 text-xs leading-normal shadow-sm font-medium ${
                     isSelf
@@ -160,7 +160,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ bookingId, currentUser, onClose
                   {msg.message}
                 </div>
 
-                {/* Time Indicator - formatted nicely, no camelcasing */}
+                {}
                 <span className="text-[8px] text-slate-400 px-1 mt-0.5">
                   {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                 </span>
@@ -171,7 +171,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ bookingId, currentUser, onClose
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input container inside the widget card */}
+      {}
       <form onSubmit={handleSendMessage} className="p-3 border-t border-slate-100 bg-white flex items-center gap-2 shrink-0">
         <input
           type="text"
