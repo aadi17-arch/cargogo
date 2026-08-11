@@ -51,10 +51,10 @@ api.interceptors.response.use(
       }
     }
 
-    // Extract error message
+    
     const errMsg = e.response?.data?.message || e.message || 'Something went wrong';
 
-    // Show toast error globally if not explicitly skipped, and not a 401 unauthorized error
+    
     if (!originalRequest?.skipGlobalToast && e.response?.status !== 401) {
       toast.dismiss();
       toast.error(errMsg);
