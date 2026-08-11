@@ -37,10 +37,10 @@ function ShipperDashboard() {
   const [activeView, setActiveView] = useState<'book' | 'bookings'>('book');
   const [historyFilter, setHistoryFilter] = useState<'ALL' | 'INSTANT' | 'SCHEDULED'>('ALL');
 
-  // Collapsible history state
+  
   const [expandedBookingId, setExpandedBookingId] = useState<string | null>(null);
 
-  // Default bookingType to INSTANT
+  
   const bookingType: BookingType = 'INSTANT';
 
   const [form, setForm] = useState({
@@ -52,13 +52,13 @@ function ShipperDashboard() {
     dropoffAddress: '',
     cargoType: 'Electronics',
     weightKg: 50,
-    lengthCm: 100, // hidden standard default
-    widthCm: 60,   // hidden standard default
-    heightCm: 40,  // hidden standard default
+    lengthCm: 100, 
+    widthCm: 60,   
+    heightCm: 40,  
     vehicleType: 'MINI_TEMPO' as 'MINI_TEMPO' | 'PICKUP_TRUCK' | 'CONTAINER_3TON'
   });
 
-  // Address lookup state
+  
   const [pickupSearch, setPickupSearch] = useState('');
   const [dropoffSearch, setDropoffSearch] = useState('');
   const [pickupResults, setPickupResults] = useState<any[]>([]);
@@ -115,7 +115,7 @@ function ShipperDashboard() {
     }
   };
 
-  // Debounce search inputs
+  
   useEffect(() => {
     if (!pickupSearch || pickupSearch.length < 3 || pickupSearch.startsWith('Locating') || pickupSearch === form.pickupAddress) {
       setPickupResults([]);
@@ -343,7 +343,7 @@ function ShipperDashboard() {
     }
   };
 
-  // Filter bookings based on active pill
+  
   const filteredBookings = useMemo(() => {
     if (historyFilter === 'ALL') return bookings;
     return bookings.filter((b: any) => b.bookingType === historyFilter);
@@ -382,7 +382,7 @@ function ShipperDashboard() {
         }
       `}</style>
 
-      {/* Top Header Section: Dashboard with navigation switcher buttons */}
+      {}
       <DashboardHeader
         title="Dashboard"
         tabs={[
@@ -399,11 +399,11 @@ function ShipperDashboard() {
       />
 
       {activeView === 'book' ? (
-        /* View 1: Map layout with small margin on mobile, uniform margin on desktop */
+        
         <div className="flex-1 w-full p-2 sm:p-4 relative flex flex-col min-h-0 overflow-hidden bg-white">
           <div className="relative w-full h-full flex-1 rounded-xl border border-slate-200 shadow-xs overflow-hidden bg-white">
             
-            {/* Layer 0: MapView base layer */}
+            {}
             <div className="absolute inset-0 z-0 h-full w-full">
               <MapView
                 center={mapCenter}
@@ -414,20 +414,20 @@ function ShipperDashboard() {
               />
             </div>
 
-            {/* Layer 1: Floating overlay controls */}
+            {}
             
-            {/* Locate Me Button inside top-right corner of map overlay */}
+            {}
             <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20">
               <LocateButton onClick={locateMe} />
             </div>
 
-            {/* Left Column: Floating Booking Card */}
+            {}
             <MapOverlayCard>
               {step === 1 && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-bold font-heading text-slate-900 tracking-tight">New Booking</h3>
-                    {/* Top-Right Slider Dots */}
+                    {}
                     <div className="flex items-center gap-1.5">
                       {[1, 2, 3].map((s) => (
                         <button
@@ -443,7 +443,7 @@ function ShipperDashboard() {
                     </div>
                   </div>
 
-                  {/* Pickup Address Input */}
+                  {}
                   <div className="relative space-y-1.5 text-left">
                     <label className="block text-xs font-bold text-slate-700">Pickup</label>
                     <input
@@ -469,7 +469,7 @@ function ShipperDashboard() {
                     )}
                   </div>
 
-                  {/* Drop-off Address Input */}
+                  {}
                   <div className="relative space-y-1.5 text-left pt-0.5">
                     <label className="block text-xs font-bold text-slate-700">Dropoff</label>
                     <input
@@ -520,7 +520,7 @@ function ShipperDashboard() {
                       </button>
                       <h3 className="text-lg font-bold font-heading text-slate-900 tracking-tight">Cargo</h3>
                     </div>
-                    {/* Top-Right Slider Dots */}
+                    {}
                     <div className="flex items-center gap-1.5">
                       {[1, 2, 3].map((s) => (
                         <button
@@ -587,7 +587,7 @@ function ShipperDashboard() {
                       </button>
                       <h3 className="text-lg font-bold font-heading text-slate-900 tracking-tight">Vehicle</h3>
                     </div>
-                    {/* Top-Right Slider Dots */}
+                    {}
                     <div className="flex items-center gap-1.5">
                       {[1, 2, 3].map((s) => (
                         <button
@@ -603,7 +603,7 @@ function ShipperDashboard() {
                     </div>
                   </div>
 
-                  {/* Single List Container with Internal Dividers */}
+                  {}
                   <div className="border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100 my-2">
                     {Object.keys(rates).map((key) => {
                       const isSelected = form.vehicleType === key;
@@ -651,10 +651,10 @@ function ShipperDashboard() {
           </div>
         </div>
       ) : (
-        /* View 2: Dedicated history view (pure borderless list layout) */
+        
         <div className="flex-1 w-full bg-white flex flex-col overflow-y-auto px-8 py-6 space-y-4">
 
-            {/* Minimal Filter & Action Bar */}
+            {}
             <div className="flex items-center justify-between pb-3 border-b border-slate-150">
               <div className="inline-flex items-center border border-slate-200 rounded-lg p-1 bg-white shadow-xs">
                 <button
@@ -704,7 +704,7 @@ function ShipperDashboard() {
               </button>
             </div>
 
-            {/* Pure Borderless Divided List */}
+            {}
             <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
               {filteredBookings.length === 0 ? (
                 <div className="text-center py-16 text-slate-400 text-sm font-medium">
@@ -719,7 +719,7 @@ function ShipperDashboard() {
                       className="py-4 px-2 flex flex-col cursor-pointer hover:bg-slate-50/70 transition-colors"
                       onClick={() => setExpandedBookingId(isExpanded ? null : b.id)}
                     >
-                      {/* Collapsed Minimal Row */}
+                      {}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <span className="font-extrabold text-sm text-slate-900 font-heading">
@@ -739,7 +739,7 @@ function ShipperDashboard() {
                         </div>
                       </div>
 
-                      {/* Expanded Detail Panel */}
+                      {}
                       {isExpanded && (
                         <div
                           className="mt-3 pt-3 border-t border-slate-150 grid grid-cols-1 md:grid-cols-2 gap-5 text-xs text-slate-700 text-left animate-fadeIn"
@@ -792,7 +792,7 @@ function ShipperDashboard() {
                               )}
                             </div>
 
-                            {/* Action Buttons */}
+                            {}
                             <div className="flex items-center gap-2 pt-3 justify-end">
                               {['PENDING', 'ACCEPTED'].includes(b.status) && (
                                 <button
@@ -831,7 +831,7 @@ function ShipperDashboard() {
         </div>
       )}
 
-      {/* Cancel Confirmation Modal */}
+      {}
       {bookingToCancel && (
         <BaseModal
           isOpen={true}
