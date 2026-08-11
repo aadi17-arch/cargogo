@@ -24,7 +24,7 @@ export default function PaymentModal({ booking, onClose, onSuccess }: PaymentMod
   const [paymentMethod, setPaymentMethod] = useState('CARD');
   const [processingPayment, setProcessingPayment] = useState(false);
 
-  // Validate cart price edge states
+  
   useEffect(() => {
     if (!booking || booking.price <= 0) {
       toast.error('Invalid checkout transaction. Returning to dashboard.');
@@ -54,7 +54,7 @@ export default function PaymentModal({ booking, onClose, onSuccess }: PaymentMod
   return (
     <BaseModal isOpen={true} onClose={onClose} title="Billing Information" maxWidth="max-w-2xl">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start font-body text-slate-600 relative pb-20 md:pb-0">
-        {/* Left Column: Form Fields (Payment Options) */}
+        {}
         <div className="md:col-span-7 space-y-4">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
             <CreditCard size={14} className="text-indigo-500" />
@@ -99,7 +99,7 @@ export default function PaymentModal({ booking, onClose, onSuccess }: PaymentMod
           </div>
         </div>
 
-        {/* Right Column: Sticky Summary Box */}
+        {}
         <div className="md:col-span-5 bg-slate-50 p-5 rounded-xl border border-slate-200/70 space-y-4">
           <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">
             Cost Summary
@@ -127,7 +127,7 @@ export default function PaymentModal({ booking, onClose, onSuccess }: PaymentMod
             </span>
           </div>
 
-          {/* Desktop primary confirmation button inside summary box */}
+          {}
           <div className="hidden md:block">
             <button
               type="button"
@@ -140,7 +140,7 @@ export default function PaymentModal({ booking, onClose, onSuccess }: PaymentMod
           </div>
         </div>
 
-        {/* Pinned action buttons on bottom for mobile view */}
+        {}
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 z-[2001] flex gap-3 shadow-[0_-4px_12px_-4px_rgb(15_23_42_/_0.08)]">
           <button
             type="button"
