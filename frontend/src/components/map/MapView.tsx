@@ -4,7 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { MapInstanceTracker } from './MapViewHelper';
 
-// Custom SVG Pickup Pin in Sleek Dark Slate (#0F172A)
+
 const pickupPinSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 24 24" fill="%230F172A" stroke="%23ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3" fill="white"/></svg>`;
 
 const DefaultIcon = L.icon({
@@ -16,7 +16,7 @@ const DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// Custom Animated Uber/Ola Style Driver Car Icon in Dark Slate Theme (#0F172A)
+
 const driverCarDivIcon = () => L.divIcon({
   className: 'custom-driver-car-marker',
   html: `<div style="position: relative; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px;">
@@ -34,7 +34,7 @@ const driverCarDivIcon = () => L.divIcon({
   popupAnchor: [0, -20],
 });
 
-// Helper component to pan map smoothly whenever center updates
+
 function MapReCenter({ center, zoom }: { center: [number, number]; zoom: number }) {
   const map = useMap();
   useEffect(() => {
