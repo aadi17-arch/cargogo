@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "./api.service";
 
 export const geocodingService = {
   async search(query: string) {
