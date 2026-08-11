@@ -28,7 +28,7 @@ export interface QuoteInput {
   vehicleType: string;
 }
 
-/** Calculates a price quote — single source of truth for frontend pricing logic. */
+
 export function calculateQuote(input: QuoteInput): QuoteResult {
   const distanceKm = calculateDistance(input.pickupLat, input.pickupLng, input.dropoffLat, input.dropoffLng);
   const volumetric = (input.lengthCm * input.widthCm * input.heightCm) / 5000;
