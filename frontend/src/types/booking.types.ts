@@ -10,7 +10,7 @@ export type BookingStatus =
   | 'COMPLETED'
   | 'DISPUTED';
 
-// NEW: Differentiates the two booking archetypes
+
 export type BookingType = 'INSTANT' | 'SCHEDULED';
 
 export interface Booking {
@@ -44,7 +44,7 @@ export interface Booking {
   dropoffOTP?: string | null;
   createdAt: string;
   updatedAt: string;
-  // Scheduled delivery fields
+  
   bookingType: BookingType;
   scheduledAt?: string | null;
   scheduledUntil?: string | null;
@@ -72,7 +72,7 @@ export interface CreateBookingRequest {
   widthCm: number;
   heightCm: number;
   vehicleType: VehicleType;
-  // Scheduled option parameters
+  
   bookingType?: BookingType;
   scheduledAt?: string;
   scheduledUntil?: string;
@@ -86,7 +86,7 @@ export interface PriceBreakdown {
   distanceKm: number;
 }
 
-// Represents a scheduled job on the driver board
+
 export interface ScheduledJob {
   id: string;
   cargoType: string;
