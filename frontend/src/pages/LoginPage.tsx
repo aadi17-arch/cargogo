@@ -5,6 +5,8 @@ import { useNotification } from '@/hooks/useNotification';
 import AuthFormField from '@/components/ui/AuthFormField';
 import BaseModal from '@/components/ui/BaseModal';
 import PrimaryButton from '@/components/ui/PrimaryButton';
+import AuthPageShell from '@/components/ui/AuthPageShell';
+import { getDashboardRoute } from '@/utils/routes';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -21,7 +23,7 @@ function LoginPage() {
   const notify = useNotification();
 
   useEffect(() => {
-    if (isAuthenticated && user) navigate(user.role === 'SHIPPER' ? '/shipper' : '/driver');
+    if (isAuthenticated && user) navigate(getDashboardRoute(user.role));
   }, [isAuthenticated, user, navigate]);
 
   
@@ -62,7 +64,7 @@ function LoginPage() {
     try {
       const user = await login({ email, password });
       notify.success(`Welcome back, ${user.name}!`, { id: loadToast });
-      navigate(user.role === 'SHIPPER' ? '/shipper' : '/driver');
+      navigate(getDashboardRoute(user.role));
     } catch (err: any) {
       notify.error(err?.response?.data?.message || err.message || 'Login failed', { id: loadToast });
     }
@@ -85,71 +87,52 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-100 px-4 py-8 font-body">
-      {}
-      <div className="flex items-center gap-2 mb-4 cursor-pointer select-none font-tech-space">
-        <span className="font-black text-sm text-white bg-slate-900 px-3 py-1 rounded-[var(--radius-card)] tracking-tight shadow-sm">
-          Cargo
-        </span>
-        <span className="font-bold text-2xl text-slate-800 tracking-tight">
-          Go
-        </span>
-      </div>
-
-      {}
-      <form onSubmit={handleSubmit} className="bg-white p-8 w-full max-w-sm card shadow-sm space-y-5 rounded-[var(--radius-card)]">
-        <div className="text-center space-y-1">
-          <h2 className="text-2xl font-black text-slate-800 tracking-tight font-heading">
-            Welcome Back
-          </h2>
-          <p className="text-xs text-slate-400 font-medium leading-none">
-            Sign in to manage your shipments
-          </p>
-        </div>
-
-        <AuthFormField
-          label="Email" type="email" placeholder="Email address"
-          value={email} error={errors.email}
-          onChange={handleEmailChange}
-        />
-
-        <div className="space-y-1">
-          <div className="flex justify-between items-center">
-            <label className="block text-xs font-bold text-slate-500 font-heading">Password</label>
-            <button
-              type="button"
-              onClick={() => setShowResetModal(true)}
-              className="text-[11px] font-bold text-indigo-600 hover:underline bg-transparent border-none outline-none cursor-pointer"
-            >
-              Reset password?
-            </button>
-          </div>
+    <>
+      <AuthPageShell title="Welcome Back" subtitle="Sign in to manage your shipments">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <AuthFormField
-            label="Password"
-            placeholder="Password"
-            value={password} error={errors.password}
-            showToggle showPassword={showPassword}
-            onTogglePassword={() => setShowPassword(!showPassword)}
-            onChange={handlePasswordChange}
-            hideLabel
+            label="Email" type="email" placeholder="Email address"
+            value={email} error={errors.email}
+            onChange={handleEmailChange}
           />
-        </div>
 
-        <PrimaryButton
-          type="submit"
-          fullWidth
-          className="py-3 text-sm"
-        >
-          Log In
-        </PrimaryButton>
+          <div className="space-y-1">
+            <div className="flex justify-between items-center">
+              <label className="block text-xs font-bold text-slate-500 font-heading">Password</label>
+              <button
+                type="button"
+                onClick={() => setShowResetModal(true)}
+                className="text-[11px] font-bold text-indigo-600 hover:underline bg-transparent border-none outline-none cursor-pointer"
+              >
+                Reset password?
+              </button>
+            </div>
+            <AuthFormField
+              label="Password"
+              placeholder="Password"
+              value={password} error={errors.password}
+              showToggle showPassword={showPassword}
+              onTogglePassword={() => setShowPassword(!showPassword)}
+              onChange={handlePasswordChange}
+              hideLabel
+            />
+          </div>
 
-        <p className="text-center text-xs text-slate-400 font-medium">
-          New here?{' '}
-          <Link to="/register" className="font-bold text-slate-800 hover:underline">Create an account</Link>
-        </p>
-      </form>
+          <PrimaryButton
+            type="submit"
+            fullWidth
+            className="py-3 text-sm"
+          >
+            Log In
+          </PrimaryButton>
 
-      {}
+          <p className="text-center text-xs text-slate-400 font-medium">
+            New here?{' '}
+            <Link to="/register" className="font-bold text-slate-800 hover:underline">Create an account</Link>
+          </p>
+        </form>
+      </AuthPageShell>
+
       <BaseModal 
         isOpen={showResetModal} 
         onClose={() => setShowResetModal(false)} 
@@ -188,7 +171,7 @@ function LoginPage() {
           </div>
         </form>
       </BaseModal>
-    </div>
+    </>
   );
 }
 

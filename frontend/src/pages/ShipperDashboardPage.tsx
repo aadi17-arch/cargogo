@@ -14,6 +14,9 @@ import { calculateQuote } from '@/utils/pricing';
 import { toast } from 'react-hot-toast';
 import { geocodingService } from '@/services/geocoding.service';
 import { BookingType } from '@/types/booking.types';
+import TabNavigation from '@/components/ui/TabNavigation';
+import IconButton from '@/components/ui/IconButton';
+import { formatDate } from '@/utils/formatters';
 import {
   ChevronRight,
   ArrowLeft,
@@ -349,21 +352,7 @@ function ShipperDashboard() {
     return bookings.filter((b: any) => b.bookingType === historyFilter);
   }, [bookings, historyFilter]);
 
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      });
-    } catch (e) {
-      return dateString;
-    }
-  };
+
 
   return (
     <div className="relative h-[calc(100vh-64px)] w-full overflow-hidden bg-white flex flex-col">
@@ -656,52 +645,21 @@ function ShipperDashboard() {
 
             {}
             <div className="flex items-center justify-between pb-3 border-b border-slate-150">
-              <div className="inline-flex items-center border border-slate-200 rounded-lg p-1 bg-white shadow-xs">
-                <button
-                  type="button"
-                  onClick={() => setHistoryFilter('ALL')}
-                  className={`px-3.5 py-1 text-xs font-bold rounded-md transition-all ${
-                    historyFilter === 'ALL'
-                      ? 'bg-slate-950 text-white'
-                      : 'text-slate-600 hover:bg-slate-50'
-                  }`}
-                >
-                  All
-                </button>
-                <div className="w-[1px] h-4 bg-slate-200 mx-0.5" />
-                <button
-                  type="button"
-                  onClick={() => setHistoryFilter('INSTANT')}
-                  className={`px-3.5 py-1 text-xs font-bold rounded-md transition-all ${
-                    historyFilter === 'INSTANT'
-                      ? 'bg-slate-950 text-white'
-                      : 'text-slate-600 hover:bg-slate-50'
-                  }`}
-                >
-                  Instant
-                </button>
-                <div className="w-[1px] h-4 bg-slate-200 mx-0.5" />
-                <button
-                  type="button"
-                  onClick={() => setHistoryFilter('SCHEDULED')}
-                  className={`px-3.5 py-1 text-xs font-bold rounded-md transition-all ${
-                    historyFilter === 'SCHEDULED'
-                      ? 'bg-slate-950 text-white'
-                      : 'text-slate-600 hover:bg-slate-50'
-                  }`}
-                >
-                  Scheduled
-                </button>
-              </div>
+              <TabNavigation
+                tabs={[
+                  { id: 'ALL', label: 'All' },
+                  { id: 'INSTANT', label: 'Instant' },
+                  { id: 'SCHEDULED', label: 'Scheduled' }
+                ]}
+                activeTab={historyFilter}
+                onChange={setHistoryFilter}
+              />
 
-              <button
-                type="button"
+              <IconButton
+                icon={RefreshCw}
                 onClick={fetchMyBookings}
-                className="w-8 h-8 flex items-center justify-center border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition bg-white shadow-xs cursor-pointer"
                 title="Refresh"
-              >
-                <RefreshCw size={14} />
-              </button>
+              />
             </div>
 
             {}

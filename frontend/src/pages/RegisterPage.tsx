@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNotification } from '@/hooks/useNotification';
 import AuthFormField from '@/components/ui/AuthFormField';
 import PrimaryButton from '@/components/ui/PrimaryButton';
+import AuthPageShell from '@/components/ui/AuthPageShell';
+import { getDashboardRoute } from '@/utils/routes';
 
 function RegisterPage() {
   const [form, setForm] = useState({
@@ -22,7 +24,7 @@ function RegisterPage() {
   const notify = useNotification();
 
   useEffect(() => {
-    if (isAuthenticated && user) navigate(user.role === 'SHIPPER' ? '/shipper' : '/driver');
+    if (isAuthenticated && user) navigate(getDashboardRoute(user.role));
   }, [isAuthenticated, user, navigate]);
 
   const clearFieldError = (field: keyof typeof errors) =>
@@ -97,34 +99,15 @@ function RegisterPage() {
       };
       await register(payload);
       notify.success('Account created successfully!', { id: loadToast });
-      navigate(form.role === 'SHIPPER' ? '/shipper' : '/driver');
+      navigate(getDashboardRoute(form.role));
     } catch (err: any) {
       notify.error(err?.response?.data?.message || err.message || 'Registration failed', { id: loadToast });
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-100 px-4 py-8 font-body">
-      {}
-      <div className="flex items-center gap-2 mb-4 cursor-pointer select-none font-tech-space">
-        <span className="font-black text-sm text-white bg-slate-900 px-3 py-1 rounded-[var(--radius-card)] tracking-tight shadow-sm">
-          Cargo
-        </span>
-        <span className="font-bold text-2xl text-slate-800 tracking-tight">
-          Go
-        </span>
-      </div>
-
-      {}
-      <form onSubmit={handleSubmit} className="bg-white p-8 w-full max-w-sm card shadow-sm space-y-4 rounded-[var(--radius-card)]">
-        <div className="text-center space-y-1">
-          <h2 className="text-2xl font-black text-slate-800 tracking-tight font-heading">
-            Register Account
-          </h2>
-          <p className="text-xs text-slate-400 font-medium leading-none">
-            Join CargoGo logistics dispatch network
-          </p>
-        </div>
+    <AuthPageShell title="Register Account" subtitle="Join CargoGo logistics dispatch network">
+      <form onSubmit={handleSubmit} className="space-y-4">
 
         <AuthFormField
           label="Name" placeholder="Full name"
@@ -198,7 +181,7 @@ function RegisterPage() {
           <Link to="/login" className="font-bold text-slate-800 hover:underline">Back to Log In</Link>
         </p>
       </form>
-    </div>
+    </AuthPageShell>
   );
 }
 

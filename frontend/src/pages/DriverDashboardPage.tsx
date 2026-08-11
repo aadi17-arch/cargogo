@@ -16,6 +16,9 @@ import EmptyState from '@/components/ui/EmptyState';
 import DashboardHeader from '@/components/ui/DashboardHeader';
 import MapOverlayCard from '@/components/ui/MapOverlayCard';
 import LocateButton from '@/components/ui/LocateButton';
+import IconButton from '@/components/ui/IconButton';
+import SectionHeader from '@/components/ui/SectionHeader';
+import BookingRouteRow from '@/components/ui/BookingRouteRow';
 import { useAddressResolver } from '@/hooks/useAddressResolver';
 import { formatDate } from '@/utils/formatters';
 import L from 'leaflet';
@@ -331,9 +334,7 @@ function DriverDashboard() {
                       <h3 className="text-sm font-bold text-slate-900 font-heading">Active Trips</h3>
                       <p className="text-[11px] text-slate-500">Overview of currently active jobs</p>
                     </div>
-                    <button onClick={loadData} className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded-lg hover:bg-slate-50 bg-white cursor-pointer" title="Refresh">
-                      <RefreshCw size={14} />
-                    </button>
+                    <IconButton icon={RefreshCw} onClick={loadData} title="Refresh" />
                   </div>
                   <div className="divide-y divide-slate-100">
                     {activeBookings.map((b: any) => (
@@ -342,11 +343,7 @@ function DriverDashboard() {
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-bold text-slate-900 truncate">{b.cargoType}</span>
                           </div>
-                          {b.pickupAddress && b.dropoffAddress && (
-                            <p className="text-[11px] text-slate-600 truncate mb-1">
-                              {b.pickupAddress.split(',')[0]} &rarr; {b.dropoffAddress.split(',')[0]}
-                            </p>
-                          )}
+                          <BookingRouteRow pickupAddress={b.pickupAddress} dropoffAddress={b.dropoffAddress} />
                           <div className="text-slate-500 flex items-center gap-1.5">
                             <span>₹{Math.round(b.price || b.totalPrice || 0)}</span>
                             <span>&middot;</span>
@@ -383,11 +380,7 @@ function DriverDashboard() {
                         <div key={b.id} className="p-2.5 border border-slate-200 rounded-lg flex items-center justify-between gap-2">
                           <div className="min-w-0 flex-1">
                             <p className="font-bold text-slate-900 truncate">{b.cargoType}</p>
-                            {b.pickupAddress && b.dropoffAddress && (
-                              <p className="text-[10px] text-slate-500 truncate">
-                                {b.pickupAddress.split(',')[0]} &rarr; {b.dropoffAddress.split(',')[0]}
-                              </p>
-                            )}
+                            <BookingRouteRow pickupAddress={b.pickupAddress} dropoffAddress={b.dropoffAddress} className="text-slate-500 text-[10px]" />
                           </div>
                           <button onClick={() => navigate(`/track/${b.id}`)} className="bg-slate-950 text-white px-2.5 py-1 text-xs font-bold rounded-md shrink-0 cursor-pointer">Track</button>
                         </div>
@@ -406,15 +399,11 @@ function DriverDashboard() {
           {}
           {activeTab === 'jobs_board' && (
             <div className="space-y-4 max-w-4xl mx-auto w-full">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900 font-heading">Available Shipments</h3>
-                  <p className="text-xs text-slate-500">New delivery requests nearby</p>
-                </div>
-                <button onClick={loadData} className="w-8 h-8 flex items-center justify-center border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition bg-white shadow-xs cursor-pointer" title="Refresh">
-                  <RefreshCw size={14} />
-                </button>
-              </div>
+              <SectionHeader
+                title="Available Shipments"
+                subtitle="New delivery requests nearby"
+                action={<IconButton icon={RefreshCw} onClick={loadData} title="Refresh" />}
+              />
 
               <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
                 {pendingBookings.length > 0 ? (
@@ -425,11 +414,7 @@ function DriverDashboard() {
                           <span className="font-bold text-sm text-slate-900 font-heading">{b.cargoType}</span>
                           <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-mono">#{b.id.slice(0, 8).toUpperCase()}</span>
                         </div>
-                        {b.pickupAddress && b.dropoffAddress && (
-                          <p className="text-slate-600 mb-1">
-                            {b.pickupAddress.split(',')[0]} &rarr; {b.dropoffAddress.split(',')[0]}
-                          </p>
-                        )}
+                        <BookingRouteRow pickupAddress={b.pickupAddress} dropoffAddress={b.dropoffAddress} className="text-slate-600" />
                         <div className="text-slate-500 flex items-center gap-1.5 flex-wrap">
                           <span className="font-semibold text-slate-700">₹{Math.round(b.price)}</span>
                           <span>&middot;</span>
@@ -467,7 +452,7 @@ function DriverDashboard() {
                     <div className="w-[1px] h-4 bg-slate-200 mx-0.5" />
                     <button onClick={() => { setShowScheduledBoard(true); loadScheduledJobs(); }} className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${showScheduledBoard ? 'bg-slate-950 text-white' : 'text-slate-600 hover:bg-slate-50'}`}>Find Work</button>
                   </div>
-                  <button onClick={loadScheduledJobs} className="w-8 h-8 flex items-center justify-center border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition bg-white shadow-xs cursor-pointer"><RefreshCw size={14} /></button>
+                  <IconButton icon={RefreshCw} onClick={loadScheduledJobs} />
                 </div>
               </div>
 
@@ -540,12 +525,10 @@ function DriverDashboard() {
           {}
           {activeTab === 'past_jobs' && (
             <div className="space-y-4 max-w-4xl mx-auto w-full">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900 font-heading">Past Trips</h3>
-                  <p className="text-xs text-slate-500">History of completed and canceled trips</p>
-                </div>
-              </div>
+              <SectionHeader
+                title="Past Trips"
+                subtitle="History of completed and canceled trips"
+              />
 
               <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
                 {pastBookings.length > 0 ? (
@@ -557,11 +540,7 @@ function DriverDashboard() {
                           <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-mono">#{b.id.slice(0, 8).toUpperCase()}</span>
                           <StatusBadge status={b.status} />
                         </div>
-                        {b.pickupAddress && b.dropoffAddress && (
-                          <p className="text-slate-600 mb-1">
-                            {b.pickupAddress.split(',')[0]} &rarr; {b.dropoffAddress.split(',')[0]}
-                          </p>
-                        )}
+                        <BookingRouteRow pickupAddress={b.pickupAddress} dropoffAddress={b.dropoffAddress} className="text-slate-600" />
                         <div className="text-slate-500 flex items-center gap-1.5 flex-wrap">
                           <span className="font-semibold text-slate-700">₹{Math.round(b.price)}</span>
                           <span>&middot;</span>

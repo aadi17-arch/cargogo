@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import PrimaryButton from '@/components/ui/PrimaryButton';
 import { AlertTriangle } from 'lucide-react';
+import { getDashboardRoute } from '@/utils/routes';
 
 export default function NotFoundPage() {
   const { user, token, getProfile } = useAuth();
@@ -14,7 +15,7 @@ export default function NotFoundPage() {
       getProfile()
         .then((profile) => {
           if (profile) {
-            navigate(profile.role === 'SHIPPER' ? '/shipper' : '/driver');
+            navigate(getDashboardRoute(profile.role));
           }
         })
         .catch(() => {
@@ -25,7 +26,7 @@ export default function NotFoundPage() {
 
   const handleReturn = () => {
     if (user) {
-      navigate(user.role === 'SHIPPER' ? '/shipper' : '/driver');
+      navigate(getDashboardRoute(user.role));
     } else {
       navigate('/login');
     }
