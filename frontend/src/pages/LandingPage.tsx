@@ -8,7 +8,7 @@ import { FaqSection, SupportSection } from '@/components/landing/SupportFaqSecti
 import FooterSection from '@/components/landing/FooterSection';
 
 function LandingPage() {
-  // Smooth scroll to hash anchor on load
+  
   useEffect(() => {
     const hash = window.location.hash;
     if (hash) {
