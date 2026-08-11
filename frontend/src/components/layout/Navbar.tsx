@@ -2,13 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
-import FAQModal from '../modals/FAQModal';
-import PricingModal from '../modals/PricingModal';
-import ServicesModal from '../modals/ServicesModal';
-import SupportModal from '../modals/SupportModal';
-import ActiveRunsModal from '../modals/ActiveRunsModal';
-import DriverStatsModal from '../modals/DriverStatsModal';
 import BaseModal from '../ui/BaseModal';
+import StatusBadge from '../ui/StatusBadge';
 
 interface NavbarProps {
   userName?: string;
@@ -48,7 +43,7 @@ export default function Navbar({
 
   const isMobile = windowWidth < 768;
 
-  // Modal active states
+  
   const [showRates, setShowRates] = useState(false);
   const [showServices, setShowServices] = useState(false);
   const [showFAQ, setShowFAQ] = useState(false);
@@ -127,7 +122,7 @@ export default function Navbar({
       }
     }
 
-    // Guest routing / hash triggers
+    
     if (linkName === 'Track Shipment') {
       setShowTrackModal(true);
       return;
@@ -163,7 +158,7 @@ export default function Navbar({
   return (
     <>
       <nav className="sticky top-0 z-[500] w-full h-16 bg-[var(--color-primary)] border-b border-white/15 flex items-center justify-between px-4 md:px-6 box-border font-body text-white">
-        {/* Brand Logo */}
+        {}
         <div className="flex items-center gap-3 h-full">
           <div 
             onClick={() => navigate(token ? (role === 'DRIVER' ? '/driver' : '/shipper') : '/')} 
@@ -179,7 +174,7 @@ export default function Navbar({
 
         </div>
 
-        {/* Center links - Desktop */}
+        {}
         {!isMobile && (
           <div className="flex items-center gap-5 h-full">
             {navLinks.map((link) => {
@@ -205,7 +200,7 @@ export default function Navbar({
           </div>
         )}
 
-        {/* Right logout / sign in buttons */}
+        {}
         <div className="flex items-center gap-4 h-full">
           {token ? (
             <div className="flex items-center gap-3">
@@ -248,7 +243,7 @@ export default function Navbar({
             </div>
           )}
 
-          {/* Mobile hamburger menu button */}
+          {}
           {isMobile && (
             <button
               onClick={() => setMenuOpen(!menuOpen)}
@@ -267,7 +262,7 @@ export default function Navbar({
         </div>
       </nav>
 
-      {/* Mobile Drawer Menu */}
+      {}
       {isMobile && menuOpen && (
         <div className="fixed top-16 left-0 right-0 bg-[var(--color-primary)] border-b border-white/10 z-[499] flex flex-col p-4 gap-2 shadow-lg">
           {navLinks.map((link) => (
@@ -284,25 +279,135 @@ export default function Navbar({
         </div>
       )}
 
-      {/* Modals integration */}
-      <FAQModal isOpen={showFAQ} onClose={() => setShowFAQ(false)} />
-      <PricingModal isOpen={showRates} onClose={() => setShowRates(false)} />
-      <ServicesModal isOpen={showServices} onClose={() => setShowServices(false)} />
-      <SupportModal isOpen={showSupport} onClose={() => setShowSupport(false)} />
-      <ActiveRunsModal 
-        isOpen={showActiveRuns} 
-        onClose={() => setShowActiveRuns(false)} 
-        activeShipperRuns={activeShipperRuns} 
-      />
-      <DriverStatsModal
-        isOpen={showDriverStats}
-        onClose={() => setShowDriverStats(false)}
-        driverEarnings={driverEarnings}
-        completedCount={completedDriverJobs.length}
-        activeCount={activeDriverJobs.length}
-      />
+      {}
+      {/* FAQ Modal */}
+      <BaseModal isOpen={showFAQ} onClose={() => setShowFAQ(false)} title="FAQ">
+        <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
+          {[
+            { q: 'How does dispatch work?', a: 'CargoGo matches nearby drivers instantly based on vehicle type and location.' },
+            { q: 'What is the OTP key?', a: 'A 4-digit code required at pickup and dropoff to verify package handoff.' },
+            { q: 'How are payments handled?', a: 'Pay securely via card after delivery completion.' }
+          ].map((item, idx) => (
+            <div key={idx} className="py-3 space-y-1 text-xs text-left">
+              <span className="font-bold text-slate-900 block font-heading">{item.q}</span>
+              <span className="text-slate-600 block text-[11px] font-body">{item.a}</span>
+            </div>
+          ))}
+        </div>
+      </BaseModal>
 
-      {/* Guest Track Modal */}
+      {/* Pricing Modal */}
+      <BaseModal isOpen={showRates} onClose={() => setShowRates(false)} title="Pricing">
+        <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
+          {[
+            { type: 'Mini Tempo', capacity: 'Up to 500 kg', fare: '₹350 base + ₹14/km' },
+            { type: 'Pickup Truck', capacity: 'Up to 1.5 Tons', fare: '₹600 base + ₹18/km' },
+            { type: '3-Ton Container', capacity: 'Up to 3.0 Tons', fare: '₹1,200 base + ₹25/km' }
+          ].map((s, idx) => (
+            <div key={idx} className="py-3.5 flex items-center justify-between text-xs">
+              <div>
+                <span className="font-bold text-slate-900 block font-heading">{s.type}</span>
+                <span className="text-[11px] text-slate-400 font-medium">{s.capacity}</span>
+              </div>
+              <span className="font-mono font-bold text-slate-900">{s.fare}</span>
+            </div>
+          ))}
+        </div>
+      </BaseModal>
+
+      {/* Services Modal */}
+      <BaseModal isOpen={showServices} onClose={() => setShowServices(false)} title="Services">
+        <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
+          {[
+            'Intracity Express Delivery',
+            'OTP Secure Handshake',
+            'Dynamic Capacity Routing',
+            'Realtime GPS Tracking'
+          ].map((title, idx) => (
+            <div key={idx} className="py-3 flex items-center justify-between text-xs font-bold text-slate-900 font-heading">
+              <span>{title}</span>
+              <span className="text-slate-400 text-sm">✓</span>
+            </div>
+          ))}
+        </div>
+      </BaseModal>
+
+      {/* Support Modal */}
+      <BaseModal isOpen={showSupport} onClose={() => setShowSupport(false)} title="Support">
+        <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
+          <div className="py-3.5 flex items-center justify-between text-xs">
+            <span className="font-bold text-slate-900 font-heading">Hotline</span>
+            <a href="tel:+18002274646" className="font-mono font-bold text-slate-900 hover:underline">
+              +1-800-CARGOGO
+            </a>
+          </div>
+          <div className="py-3.5 flex items-center justify-between text-xs">
+            <span className="font-bold text-slate-900 font-heading">Email</span>
+            <a href="mailto:help@cargogo.com" className="font-bold text-slate-900 hover:underline">
+              help@cargogo.com
+            </a>
+          </div>
+        </div>
+      </BaseModal>
+
+      {/* Active Runs Modal */}
+      <BaseModal isOpen={showActiveRuns} onClose={() => setShowActiveRuns(false)} title="Active Shipments" maxWidth="max-w-xl">
+        {activeShipperRuns.length === 0 ? (
+          <div className="text-center py-8 text-slate-400 text-xs font-medium">
+            No active shipments.
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
+            {activeShipperRuns.map((b: any) => (
+              <div key={b.id} className="py-3.5 flex items-center justify-between gap-4 text-left">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-xs font-bold text-slate-900 font-heading">{b.cargoType}</span>
+                    <StatusBadge status={b.status} />
+                  </div>
+                  <span className="text-[10px] font-mono text-slate-400">#{b.id.substring(0, 8).toUpperCase()}</span>
+                </div>
+                <div className="flex items-center gap-4 shrink-0">
+                  <span className="text-xs font-black text-slate-900 font-heading">₹{b.price}</span>
+                  <button 
+                    onClick={() => {
+                      setShowActiveRuns(false);
+                      navigate(`/track/${b.id}`);
+                    }}
+                    className="px-3.5 py-1.5 bg-slate-950 hover:bg-slate-800 text-white text-xs font-bold rounded-lg transition-colors shadow-xs"
+                  >
+                    Track
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </BaseModal>
+
+      {/* Driver Stats Modal */}
+      <BaseModal isOpen={showDriverStats} onClose={() => setShowDriverStats(false)} title="Performance" maxWidth="max-w-md">
+        <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
+          <div className="py-3 flex justify-between items-center text-xs">
+            <span className="font-bold text-slate-900 font-heading">Total Earnings</span>
+            <span className="font-mono font-black text-slate-900 text-sm">₹{driverEarnings}</span>
+          </div>
+          <div className="py-3 flex justify-between items-center text-xs">
+            <span className="font-bold text-slate-900 font-heading">Completed Jobs</span>
+            <span className="font-bold text-slate-900">{completedDriverJobs.length}</span>
+          </div>
+          <div className="py-3 flex justify-between items-center text-xs">
+            <span className="font-bold text-slate-900 font-heading">Active Jobs</span>
+            <span className="font-bold text-slate-900">{activeDriverJobs.length}</span>
+          </div>
+          <div className="py-3 flex justify-between items-center text-xs">
+            <span className="font-bold text-slate-900 font-heading">Acceptance Rate</span>
+            <span className="font-bold text-slate-900">100%</span>
+          </div>
+        </div>
+      </BaseModal>
+
+      {}
       <BaseModal isOpen={showTrackModal} onClose={() => setShowTrackModal(false)} title="Quick Track Shipment">
         <form 
           onSubmit={(e) => {
@@ -345,7 +450,7 @@ export default function Navbar({
         </form>
       </BaseModal>
 
-      {/* Guest For Shippers Modal */}
+      {}
       <BaseModal isOpen={showShippersModal} onClose={() => setShowShippersModal(false)} title="CargoGo For Shippers">
         <div className="space-y-4">
           <p className="text-xs text-slate-500 leading-normal">
@@ -376,7 +481,7 @@ export default function Navbar({
         </div>
       </BaseModal>
 
-      {/* Guest For Drivers Modal */}
+      {}
       <BaseModal isOpen={showDriversModal} onClose={() => setShowDriversModal(false)} title="CargoGo For Drivers">
         <div className="space-y-4">
           <p className="text-xs text-slate-500 leading-normal">
