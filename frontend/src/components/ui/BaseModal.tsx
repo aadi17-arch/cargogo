@@ -7,7 +7,7 @@ interface BaseModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
-  maxWidth?: string; // e.g. 'max-w-md', 'max-w-lg', 'max-w-xl'
+  maxWidth?: string; 
 }
 
 export default function BaseModal({
@@ -19,10 +19,10 @@ export default function BaseModal({
 }: BaseModalProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // Trap tab key focus within modal bounds
+  
   useFocusTrap(containerRef, isOpen);
 
-  // Handle ESC key press
+  
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -30,7 +30,7 @@ export default function BaseModal({
 
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
-      // Disable scrolling when modal is open
+      
       document.body.style.overflow = 'hidden';
     }
 
@@ -52,7 +52,7 @@ export default function BaseModal({
         className={`w-full h-full sm:h-auto ${maxWidth} rounded-none sm:rounded-xl shadow-xl border border-slate-200 bg-white flex flex-col sm:max-h-[90vh] overflow-hidden transform transition-all`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
+        {}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
           <h3 className="text-lg font-bold text-slate-800 tracking-tight font-heading">
             {title}
@@ -66,7 +66,7 @@ export default function BaseModal({
           </button>
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 px-6 py-5 overflow-y-auto text-sm text-slate-600 font-body">
           {children}
         </div>
