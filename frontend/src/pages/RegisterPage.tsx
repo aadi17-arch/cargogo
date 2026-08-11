@@ -28,7 +28,7 @@ function RegisterPage() {
   const clearFieldError = (field: keyof typeof errors) =>
     setErrors((prev) => ({ ...prev, [field]: undefined }));
 
-  // Real-time validators
+  
   const handleNameChange = (v: string) => {
     setForm(prev => ({ ...prev, name: v }));
     if (!v.trim()) {
@@ -105,7 +105,7 @@ function RegisterPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-100 px-4 py-8 font-body">
-      {/* Brand Logo Header */}
+      {}
       <div className="flex items-center gap-2 mb-4 cursor-pointer select-none font-tech-space">
         <span className="font-black text-sm text-white bg-slate-900 px-3 py-1 rounded-[var(--radius-card)] tracking-tight shadow-sm">
           Cargo
@@ -115,7 +115,7 @@ function RegisterPage() {
         </span>
       </div>
 
-      {/* Main Registration Card */}
+      {}
       <form onSubmit={handleSubmit} className="bg-white p-8 w-full max-w-sm card shadow-sm space-y-4 rounded-[var(--radius-card)]">
         <div className="text-center space-y-1">
           <h2 className="text-2xl font-black text-slate-800 tracking-tight font-heading">
