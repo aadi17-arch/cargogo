@@ -14,7 +14,7 @@ class SocketService {
       reconnection: true,
     });
 
-    // Bind all registered listeners to the new socket instance
+    
     this.listeners.forEach(({ event, callback }) => {
       this.socket?.on(event, callback);
     });
@@ -48,7 +48,7 @@ class SocketService {
   }
 
   on(event: string, callback: (data: any) => void) {
-    // Save listener so it can be re-bound if socket reconnects/initializes later
+    
     this.listeners.push({ event, callback });
     if (this.socket) {
       this.socket.on(event, callback);
@@ -68,27 +68,27 @@ class SocketService {
     }
   }
 
-  // Shippers requests a new matching
+  
   bookCargo(bookingId: string) {
     this.emit('book-cargo', { bookingId });
   }
 
-  // Driver accepts a shipment match
+  
   acceptBid(bookingId: string) {
     this.emit('accept-bid', { bookingId });
   }
 
-  // Driver declines a shipment match
+  
   rejectBid(bookingId: string) {
     this.emit('reject-bid', { bookingId });
   }
 
-  // Driver reports live GPS coords
+  
   updateLocation(lat: number, lng: number) {
     this.emit('driver:location', { lat, lng });
   }
 
-  // Driver commits to a scheduled job
+  
   commitScheduledJob(bookingId: string) {
     this.emit('commit-scheduled-job', { bookingId });
   }
