@@ -4,18 +4,21 @@ import { SocketIOServer } from '@/sockets/socket.server';
 
 // Match scheduled jobs that start in the next 24 hours
 const MATCHING_WINDOW_HOURS = 24;
+// Grace period of 30 minutes after scheduledAt before auto-cancelling unclaimed bookings
+const SCHEDULED_GRACE_PERIOD_MS = 30 * 60 * 1000;
 
 // Scans the database for upcoming scheduled jobs and alerts suitable drivers
 export const processScheduledPool = async (io: SocketIOServer): Promise<void> => {
     const now = new Date();
+    const graceCutoff = new Date(now.getTime() - SCHEDULED_GRACE_PERIOD_MS);
 
-    // Auto-cancel expired scheduled bookings that were never claimed
+    // Auto-cancel expired scheduled bookings that were never claimed after grace period
     await prisma.booking.updateMany({
         where: {
             bookingType: 'SCHEDULED',
             status: 'PENDING',
             scheduledAt: {
-                lt: now
+                lt: graceCutoff
             }
         },
         data: {
