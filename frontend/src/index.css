@@ -99,12 +99,6 @@
     border-radius: var(--radius-card);
   }
 
-  .font-serif-display {
-    font-family: 'Playfair Display', serif;
-  }
-  .font-sans-outfit {
-    font-family: 'Outfit', sans-serif;
-  }
   .font-tech-space {
     font-family: 'Space Grotesk', sans-serif;
   }
