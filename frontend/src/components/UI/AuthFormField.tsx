@@ -37,8 +37,7 @@ export default function AuthFormField({
     <div className="mb-4 text-left">
       {!hideLabel && label && (
         <label
-          className="block text-xs font-bold mb-1.5"
-          style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-heading)' }}
+          className="block text-xs font-bold text-slate-500 font-heading mb-1.5 uppercase tracking-wider"
         >
           {label}
         </label>
