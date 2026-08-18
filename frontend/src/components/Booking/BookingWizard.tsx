@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronRight, ArrowLeft, Scale, Truck } from 'lucide-react';
 import { geocodingService } from '@/services/geocoding.service';
 import { calculateQuote } from '@/utils/pricing';
+import PrimaryButton from '@/components/UI/PrimaryButton';
 
 export interface BookingFormData {
   pickupLat: number | null;
@@ -190,14 +191,16 @@ export default function BookingWizard({
             )}
           </div>
 
-          <button
+          <PrimaryButton
             type="button"
             disabled={!form.pickupLat || !form.dropoffLat}
             onClick={() => setStep(2)}
-            className="w-full h-10 bg-slate-950 hover:bg-slate-800 text-white font-bold rounded-lg transition-all disabled:bg-slate-100 disabled:text-slate-400 disabled:border disabled:border-slate-200/80 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-1.5 mt-3 text-xs font-heading shadow-xs cursor-pointer"
+            fullWidth
+            className="h-10 mt-3"
           >
-            Next <ChevronRight size={14} />
-          </button>
+            <span>Next</span>
+            <ChevronRight size={14} />
+          </PrimaryButton>
         </div>
       )}
 
@@ -257,13 +260,15 @@ export default function BookingWizard({
             </div>
           </div>
 
-          <button
+          <PrimaryButton
             type="button"
             onClick={() => setStep(3)}
-            className="w-full h-10 bg-slate-950 hover:bg-slate-800 text-white font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 text-xs font-heading shadow-xs cursor-pointer"
+            fullWidth
+            className="h-10 mt-3"
           >
-            Next <ChevronRight size={14} />
-          </button>
+            <span>Next</span>
+            <ChevronRight size={14} />
+          </PrimaryButton>
         </div>
       )}
 
@@ -328,14 +333,15 @@ export default function BookingWizard({
             })}
           </div>
 
-          <button
+          <PrimaryButton
             type="button"
             onClick={onSubmit}
-            disabled={isLoading}
-            className="w-full h-10 bg-slate-950 hover:bg-slate-800 text-white font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-xs mt-2 disabled:opacity-50 text-xs font-heading cursor-pointer"
+            isLoading={isLoading}
+            fullWidth
+            className="h-10 mt-2"
           >
-            {isLoading ? 'Booking...' : 'Book'}
-          </button>
+            Book
+          </PrimaryButton>
         </div>
       )}
     </>
