@@ -1,20 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
 import { X, Send, MessageSquare, RotateCw } from 'lucide-react';
 import { useSocket, useSocketListener } from '@/hooks/useSocket';
-
-interface ChatMessage {
-  id: string;
-  bookingId: string;
-  senderId: string;
-  message: string;
-  createdAt: string;
-  sender: {
-    id: string;
-    name: string;
-    role: string;
-  };
-}
+import { chatService, ChatMessage } from '@/services/chat.service';
 
 interface ChatDrawerProps {
   bookingId: string;
@@ -37,10 +24,8 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ bookingId, currentUser, onClose
 
   const fetchChatHistory = async () => {
     try {
-      const res = await axios.get(`https://cargogo-api.onrender.com/api/chat/${bookingId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setMessages(res.data.data);
+      const data = await chatService.getChatHistory(bookingId);
+      setMessages(data || []);
     } catch (err) {
       console.error('Failed to load chat logs:', err);
     } finally {
