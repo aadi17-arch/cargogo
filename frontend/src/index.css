@@ -31,7 +31,7 @@
   --border-width: 1.5px;
 
   /* Universal Font Token */
-  --font-heading: 'Plus Jakarta Sans', sans-serif;
+  --font-heading: 'Syne', 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
   --font-mono: 'Plus Jakarta Sans', sans-serif;
 }
@@ -43,11 +43,12 @@
     width: 100%;
     overflow-x: hidden;
     background-color: #F1F5F9;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     -ms-overflow-style: none !important;
     scrollbar-width: none !important;
   }
-  html, body, button, input, select, textarea, span, p, div, h1, h2, h3, h4, h5, h6, *, *::before, *::after {
-    font-family: 'Plus Jakarta Sans', sans-serif !important;
+  .font-heading, h1, h2, h3, h4, h5, h6 {
+    font-family: 'Syne', sans-serif;
   }
 }
 
