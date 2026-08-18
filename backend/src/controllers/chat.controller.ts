@@ -5,7 +5,7 @@ import { AppError } from "@/utils/AppError";
 
 export const getChatHistory = catchAsync(async (req: Request, res: Response) => {
   const { bookingId } = req.params;
-  const userId = req.user.id;
+  const userId = req.user!.id;
 
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
