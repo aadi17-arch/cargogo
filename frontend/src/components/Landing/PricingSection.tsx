@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Receipt, ArrowRight, Truck } from 'lucide-react';
+import { Receipt, ArrowRight, Truck, Scale, MapPin } from 'lucide-react';
 import { VEHICLE_RATES } from '@/utils/pricing';
 
 const FLEET_CARDS = [
@@ -28,34 +28,47 @@ const FLEET_CARDS = [
   }
 ];
 
+const WEIGHT_PRESETS = [
+  { label: '25 kg', value: 25, desc: 'Small Parcel' },
+  { label: '100 kg', value: 100, desc: 'Carton Batch' },
+  { label: '350 kg', value: 350, desc: 'Heavy Freight' },
+  { label: '800 kg', value: 800, desc: 'Commercial Load' },
+  { label: '1500 kg', value: 1500, desc: 'Bulk Cargo' },
+];
+
 export default function PricingSection() {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const dest = isAuthenticated ? (user?.role === 'DRIVER' ? '/driver' : '/shipper') : '/register';
 
   const [form, setForm] = useState({
-    weightKg: 50,
-    lengthCm: 100,
-    widthCm: 60,
-    heightCm: 40,
+    weightKg: 100,
     vehicleType: 'MINI_TEMPO' as keyof typeof VEHICLE_RATES,
     distanceKm: 15,
   });
 
   const [quote, setQuote] = useState<any>(null);
 
+  // Automatically suggest or scale vehicle based on weight
+  useEffect(() => {
+    if (form.weightKg > 1500) {
+      setForm(prev => ({ ...prev, vehicleType: 'CONTAINER_3TON' }));
+    } else if (form.weightKg > 500 && form.vehicleType === 'MINI_TEMPO') {
+      setForm(prev => ({ ...prev, vehicleType: 'PICKUP_TRUCK' }));
+    }
+  }, [form.weightKg]);
+
   const computeQuote = () => {
-    const volumetric = (form.lengthCm * form.widthCm * form.heightCm) / 5000;
-    const chargeable = Math.max(form.weightKg, volumetric);
     const rate = VEHICLE_RATES[form.vehicleType] ?? VEHICLE_RATES.MINI_TEMPO;
-    const price = rate.basePrice + rate.pricePerKm * form.distanceKm + rate.costPerUnit * chargeable;
+    const price = rate.basePrice + (rate.pricePerKm * form.distanceKm) + (rate.costPerUnit * form.weightKg);
     setQuote({
       distanceKm: form.distanceKm,
-      volumetric: Math.round(volumetric * 10) / 10,
-      chargeable: Math.round(chargeable * 10) / 10,
+      weightKg: form.weightKg,
       basePrice: rate.basePrice,
       pricePerKm: rate.pricePerKm,
       costPerUnit: rate.costPerUnit,
+      distanceTotal: Math.round(rate.pricePerKm * form.distanceKm),
+      weightTotal: Math.round(rate.costPerUnit * form.weightKg),
       estimated: Math.round(price),
     });
   };
@@ -73,10 +86,10 @@ export default function PricingSection() {
             Instant Calculator
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 font-heading">
-            Volumetric Price Estimator
+            Live Freight Estimator
           </h2>
           <p className="text-sm font-medium text-slate-600 font-body">
-            Transparent quotes calculated in real time based on dimensions, weight, and distance.
+            Instant, transparent quotes based directly on your cargo weight and distance.
           </p>
         </div>
 
@@ -84,62 +97,89 @@ export default function PricingSection() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch mb-16">
           {/* Left Form Inputs */}
           <div className="lg:col-span-7 bg-white p-6 sm:p-8 rounded-lg border border-slate-200 shadow-sm flex flex-col justify-between space-y-6">
-            <div className="space-y-5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Weight (kg)
+            <div className="space-y-6">
+              {/* Weight Presets & Input */}
+              <div className="text-left space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Cargo Weight (kg)
                   </label>
+                  <span className="text-xs font-bold text-slate-900 font-mono">
+                    {form.weightKg} kg
+                  </span>
+                </div>
+
+                <div className="relative flex items-center">
+                  <span className="absolute left-3 text-slate-400">
+                    <Scale size={16} />
+                  </span>
                   <input
                     type="number"
                     value={form.weightKg}
                     onChange={(e) => setForm(prev => ({ ...prev, weightKg: Math.max(1, +e.target.value) }))}
-                    className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs font-bold focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body"
+                    className="w-full h-11 pl-10 pr-12 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm font-bold focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body"
                     required
                     min={1}
                   />
+                  <span className="absolute right-3.5 text-xs font-bold text-slate-400 font-heading">kg</span>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Distance (km)
-                  </label>
-                  <input
-                    type="number"
-                    value={form.distanceKm}
-                    onChange={(e) => setForm(prev => ({ ...prev, distanceKm: Math.max(1, +e.target.value) }))}
-                    className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs font-bold focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body"
-                    required
-                    min={1}
-                  />
-                </div>
-              </div>
 
-              <div className="text-left space-y-1.5">
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                  Package Dimensions (L × W × H in cm)
-                </label>
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { key: 'lengthCm', label: 'Length' },
-                    { key: 'widthCm', label: 'Width' },
-                    { key: 'heightCm', label: 'Height' },
-                  ].map(({ key, label }) => (
-                    <div key={key} className="relative flex items-center">
-                      <input
-                        type="number"
-                        placeholder={label}
-                        value={(form as any)[key]}
-                        onChange={(e) => setForm(prev => ({ ...prev, [key]: Math.max(1, +e.target.value) }))}
-                        className="w-full h-10 px-3 pr-8 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs font-bold focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body"
-                        required
-                        min={1}
-                      />
-                      <span className="absolute right-2.5 text-[10px] font-bold text-slate-400">cm</span>
-                    </div>
+                {/* Quick Presets */}
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {WEIGHT_PRESETS.map((p) => (
+                    <button
+                      key={p.value}
+                      type="button"
+                      onClick={() => setForm(prev => ({ ...prev, weightKg: p.value }))}
+                      className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer border ${
+                        form.weightKg === p.value
+                          ? 'bg-slate-950 text-white border-slate-950 shadow-xs'
+                          : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      {p.label}
+                    </button>
                   ))}
                 </div>
               </div>
 
+              {/* Distance Slider & Input */}
+              <div className="text-left space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Transit Distance (km)
+                  </label>
+                  <span className="text-xs font-bold text-slate-900 font-mono">
+                    {form.distanceKm} km
+                  </span>
+                </div>
+
+                <div className="relative flex items-center">
+                  <span className="absolute left-3 text-slate-400">
+                    <MapPin size={16} />
+                  </span>
+                  <input
+                    type="number"
+                    value={form.distanceKm}
+                    onChange={(e) => setForm(prev => ({ ...prev, distanceKm: Math.max(1, +e.target.value) }))}
+                    className="w-full h-11 pl-10 pr-12 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm font-bold focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body"
+                    required
+                    min={1}
+                  />
+                  <span className="absolute right-3.5 text-xs font-bold text-slate-400 font-heading">km</span>
+                </div>
+
+                <input
+                  type="range"
+                  min={1}
+                  max={200}
+                  value={form.distanceKm}
+                  onChange={(e) => setForm(prev => ({ ...prev, distanceKm: +e.target.value }))}
+                  className="w-full accent-slate-950 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
+                />
+              </div>
+
+              {/* Vehicle Selection */}
               <div className="text-left space-y-1.5">
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Vehicle Type
@@ -147,7 +187,7 @@ export default function PricingSection() {
                 <select
                   value={form.vehicleType}
                   onChange={(e) => setForm(prev => ({ ...prev, vehicleType: e.target.value as any }))}
-                  className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs font-bold focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body cursor-pointer"
+                  className="w-full h-11 px-3 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs font-bold focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body cursor-pointer"
                 >
                   <option value="MINI_TEMPO">Mini Tempo (Up to 500 kg)</option>
                   <option value="PICKUP_TRUCK">Pickup Truck (Up to 1.5 Tons)</option>
@@ -157,7 +197,7 @@ export default function PricingSection() {
             </div>
 
             <div className="text-left text-xs text-slate-500 pt-2 border-t border-slate-100">
-              * Charges apply based on whichever is higher: physical cargo weight or volumetric mass.
+              * Direct road distance calculated with zero middleman commissions.
             </div>
           </div>
 
@@ -166,26 +206,22 @@ export default function PricingSection() {
             <div className="space-y-4 text-left">
               <h3 className="text-base font-bold text-slate-900 font-heading border-b border-slate-100 pb-3 flex items-center gap-2">
                 <Receipt size={18} className="text-slate-700" />
-                <span>Quote Summary</span>
+                <span>Estimate Breakdown</span>
               </h3>
 
               {quote && (
                 <div className="space-y-3 text-xs text-slate-600 font-body">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium text-slate-500">Base Fare:</span>
+                    <span className="font-medium text-slate-500">Base Dispatch Rate:</span>
                     <span className="font-bold text-slate-900 font-heading">₹{quote.basePrice}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="font-medium text-slate-500">Distance ({quote.distanceKm} km):</span>
-                    <span className="font-bold text-slate-900 font-heading">₹{quote.pricePerKm * quote.distanceKm}</span>
+                    <span className="font-medium text-slate-500">Distance ({quote.distanceKm} km @ ₹{quote.pricePerKm}/km):</span>
+                    <span className="font-bold text-slate-900 font-heading">₹{quote.distanceTotal}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="font-medium text-slate-500">Billed Weight ({quote.chargeable} kg):</span>
-                    <span className="font-bold text-slate-900 font-heading">₹{Math.round(quote.costPerUnit * quote.chargeable)}</span>
-                  </div>
-                  <div className="flex justify-between items-center pt-2 border-t border-dashed border-slate-200 text-slate-400 text-[11px]">
-                    <span>Volumetric Equivalent:</span>
-                    <span>{quote.volumetric} kg</span>
+                    <span className="font-medium text-slate-500">Weight Charge ({quote.weightKg} kg):</span>
+                    <span className="font-bold text-slate-900 font-heading">₹{quote.weightTotal}</span>
                   </div>
                 </div>
               )}
@@ -193,7 +229,7 @@ export default function PricingSection() {
 
             <div className="space-y-4 pt-4 border-t border-slate-100">
               <div className="flex justify-between items-center text-left">
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Estimated Total</span>
+                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Estimated Fare</span>
                 <span className="text-3xl font-black text-slate-950 font-heading">
                   ₹{quote?.estimated || 0}
                 </span>
