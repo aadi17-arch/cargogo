@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'crypto';
 import { logger } from '@/utils/logger';
-import { Interface } from 'readline';
 
 declare global{
   namespace Express{
