@@ -143,7 +143,7 @@ function RegisterPage() {
 
         {form.role === 'DRIVER' && (
           <div className="border-t border-slate-100 pt-4 mt-4 space-y-4">
-            <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
+            <h3 className="text-xs font-bold text-slate-400">
               Vehicle Parameters
             </h3>
 

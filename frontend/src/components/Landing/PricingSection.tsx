@@ -74,7 +74,7 @@ export default function PricingSection() {
       <div className="max-w-7xl mx-auto px-6">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+          <span className="text-xs font-bold text-indigo-600">
             Instant Calculator
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 font-heading">
@@ -92,7 +92,7 @@ export default function PricingSection() {
             <div className="space-y-6">
               {/* Single Clean Weight Input */}
               <div className="text-left space-y-1.5">
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <label className="block text-xs font-bold text-slate-700">
                   Cargo Weight (kg)
                 </label>
                 <div className="relative flex items-center">
@@ -113,7 +113,7 @@ export default function PricingSection() {
 
               {/* Transit Distance Input */}
               <div className="text-left space-y-1.5">
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <label className="block text-xs font-bold text-slate-700">
                   Distance (km)
                 </label>
                 <div className="relative flex items-center">
@@ -134,7 +134,7 @@ export default function PricingSection() {
 
               {/* Vehicle Selection */}
               <div className="text-left space-y-1.5">
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <label className="block text-xs font-bold text-slate-700">
                   Vehicle Type
                 </label>
                 <select
@@ -159,13 +159,13 @@ export default function PricingSection() {
             <div className="space-y-4 text-left">
               <h3 className="text-base font-bold text-slate-900 font-heading border-b border-slate-100 pb-3 flex items-center gap-2">
                 <Receipt size={18} className="text-slate-700" />
-                <span>Estimate Breakdown</span>
+                <span>Estimate Price</span>
               </h3>
 
               {quote && (
                 <div className="space-y-3 text-xs text-slate-600 font-body">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium text-slate-500">Base Dispatch Rate:</span>
+                    <span className="font-medium text-slate-500">Base Rate:</span>
                     <span className="font-bold text-slate-900 font-heading">₹{quote.basePrice}</span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -182,7 +182,7 @@ export default function PricingSection() {
 
             <div className="space-y-4 pt-4 border-t border-slate-100">
               <div className="flex justify-between items-center text-left">
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Estimated Fare</span>
+                <span className="text-xs font-bold text-slate-600">Estimated Fare</span>
                 <span className="text-3xl font-black text-slate-950 font-heading">
                   ₹{quote?.estimated || 0}
                 </span>
@@ -221,7 +221,7 @@ export default function PricingSection() {
                     </div>
                     <div>
                       <h4 className="font-extrabold text-sm text-slate-900 font-heading">{f.title}</h4>
-                      <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">{f.capacity}</span>
+                      <span className="text-[10px] font-bold text-indigo-600">{f.capacity}</span>
                     </div>
                   </div>
                   <p className="text-xs leading-relaxed text-slate-600 font-body">{f.description}</p>
@@ -229,11 +229,11 @@ export default function PricingSection() {
 
                 <div className="pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
                   <div>
-                    <span className="block text-[10px] uppercase font-bold text-slate-400">Base Fare</span>
+                    <span className="block text-[10px] font-bold text-slate-400">Base Fare</span>
                     <span className="text-sm font-extrabold text-slate-900 font-heading">{f.basePrice}</span>
                   </div>
                   <div className="text-right">
-                    <span className="block text-[10px] uppercase font-bold text-slate-400">Distance Rate</span>
+                    <span className="block text-[10px] font-bold text-slate-400">Distance Rate</span>
                     <span className="text-sm font-extrabold text-slate-900 font-heading">{f.rate}</span>
                   </div>
                 </div>
