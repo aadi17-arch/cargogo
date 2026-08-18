@@ -9,6 +9,7 @@ import { toast } from 'react-hot-toast';
 import { formatDate } from '@/utils/formatters';
 import StatusBadge from '@/components/UI/StatusBadge';
 import MapView, { MapMarker } from '@/components/Map/MapView';
+import { Polyline } from 'react-leaflet';
 import { ArrowLeft, MessageCircle } from 'lucide-react';
 import ChatDrawer from '@/components/Tracking/ChatDrawer';
 import TrackingOtpPanel from '@/components/Tracking/TrackingOtpPanel';
@@ -28,6 +29,7 @@ function TrackingPage() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [mobileView, setMobileView] = useState<'map' | 'details'>('map');
 
   const token = localStorage.getItem('token');
   useSocket(token);
@@ -289,8 +291,6 @@ function TrackingPage() {
     );
   }
 
-  const [mobileView, setMobileView] = useState<'map' | 'details'>('map');
-
   return (
     <div className="min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] overflow-y-auto lg:overflow-y-hidden flex flex-col p-3 sm:p-4 gap-3 bg-white">
       {/* Top Header Navigation & Mobile Toggle */}
@@ -329,7 +329,9 @@ function TrackingPage() {
             routePositions={routePolyline}
             polylineColor="#0F172A"
           >
-            {driverLocation && <MapView routePositions={driverPolyline} polylineColor="#0F172A" center={mapCenter} />}
+            {driverPolyline.length > 0 && (
+              <Polyline positions={driverPolyline} color="#6366F1" dashArray="5, 10" />
+            )}
           </MapView>
         </div>
 
