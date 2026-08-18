@@ -78,7 +78,7 @@ export default function PricingSection() {
             Instant Calculator
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 font-heading">
-            Live Freight Estimator
+            Price Scheme
           </h2>
           <p className="text-sm font-medium text-slate-600 font-body">
             Instant, transparent quotes based directly on your cargo weight and distance.
@@ -104,7 +104,6 @@ export default function PricingSection() {
                     value={form.weightKg}
                     onChange={(e) => setForm(prev => ({ ...prev, weightKg: Math.max(1, +e.target.value) }))}
                     className="w-full h-11 pl-10 pr-12 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm font-bold focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body"
-                    placeholder="e.g. 50"
                     required
                     min={1}
                   />
@@ -115,7 +114,7 @@ export default function PricingSection() {
               {/* Transit Distance Input */}
               <div className="text-left space-y-1.5">
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                  Transit Distance (km)
+                  Distance (km)
                 </label>
                 <div className="relative flex items-center">
                   <span className="absolute left-3 text-slate-400">
@@ -126,7 +125,6 @@ export default function PricingSection() {
                     value={form.distanceKm}
                     onChange={(e) => setForm(prev => ({ ...prev, distanceKm: Math.max(1, +e.target.value) }))}
                     className="w-full h-11 pl-10 pr-12 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm font-bold focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body"
-                    placeholder="e.g. 15"
                     required
                     min={1}
                   />
