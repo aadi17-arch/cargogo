@@ -28,7 +28,7 @@ export default function PaymentModal({ booking, onClose, onSuccess }: PaymentMod
   
   useEffect(() => {
     if (!booking || booking.price <= 0) {
-      toast.error('Invalid checkout transaction. Returning to dashboard.');
+      toast.error('Invalid payment details. Returning to dashboard.');
       onClose();
     }
   }, [booking, onClose]);

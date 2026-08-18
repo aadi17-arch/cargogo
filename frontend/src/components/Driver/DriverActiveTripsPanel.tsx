@@ -103,7 +103,7 @@ export default function DriverActiveTripsPanel({
             <EmptyState
               icon={Clock}
               title="No active jobs"
-              description="Go online."
+              description="Go online to receive delivery requests."
               action={
                 <button
                   type="button"

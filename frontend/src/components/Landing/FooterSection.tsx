@@ -108,11 +108,11 @@ export default function FooterSection() {
 
             {/* Column 4: Newsletter */}
             <div className="space-y-3">
-              <h4 className="font-bold text-xs uppercase tracking-wider text-white font-heading">
+              <h4 className="font-bold text-xs text-white font-heading">
                 Logistics Newsletter
               </h4>
               <p className="text-xs leading-relaxed text-slate-400">
-                Quarterly updates on fuel indices, freight lanes, and API updates.
+                Product updates, new city routes, and developer guides.
               </p>
               {subscribed ? (
                 <div className="flex items-center gap-2 p-3 bg-slate-900 border border-emerald-500/50 text-emerald-400 text-xs rounded-lg font-medium">

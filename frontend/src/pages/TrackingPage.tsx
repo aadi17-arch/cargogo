@@ -286,7 +286,7 @@ function TrackingPage() {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center font-heading">
         <div className="w-8 h-8 border-4 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-xs font-bold text-slate-500">Retrieving cargo parameters...</p>
+        <p className="mt-4 text-xs font-bold text-slate-500">Loading delivery details...</p>
       </div>
     );
   }

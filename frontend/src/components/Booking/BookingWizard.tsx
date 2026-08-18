@@ -167,9 +167,9 @@ export default function BookingWizard({
           </div>
 
           <div className="relative space-y-1.5 text-left pt-0.5">
-            <label className="block text-xs font-bold text-slate-700">Dropoff</label>
+            <label className="block text-xs font-bold text-slate-700">Drop-off</label>
             <input
-              placeholder="Enter dropoff address"
+              placeholder="Enter drop-off address"
               value={dropoffSearch}
               onChange={(e) => setDropoffSearch(e.target.value)}
               className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs font-medium focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all placeholder:text-slate-400"

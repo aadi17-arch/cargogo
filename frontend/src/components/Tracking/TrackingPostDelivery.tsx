@@ -52,7 +52,7 @@ export default function TrackingPostDelivery({
           {userRole === 'SHIPPER' && (
             <div className="space-y-3 flex flex-col items-center">
               <p className="leading-relaxed text-slate-500 max-w-sm">
-                Please review the invoice breakdown and finalize your digital dispatch payment.
+                Review your invoice and complete payment for this delivery.
               </p>
               <button
                 type="button"
