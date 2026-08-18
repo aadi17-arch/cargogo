@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { paymentService } from '@/services/payment.service';
 import { toast } from 'react-hot-toast';
 import BaseModal from '../UI/BaseModal';
+import PrimaryButton from '../UI/PrimaryButton';
 import { CreditCard, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 interface PaymentModalProps {
@@ -127,37 +128,38 @@ export default function PaymentModal({ booking, onClose, onSuccess }: PaymentMod
             </span>
           </div>
 
-          {}
           <div className="hidden md:block">
-            <button
+            <PrimaryButton
               type="button"
               onClick={handleProcessPayment}
-              disabled={processingPayment}
-              className="dash-btn-primary"
+              isLoading={processingPayment}
+              fullWidth
+              className="py-3 text-sm rounded-xl"
             >
-              {processingPayment ? 'Processing...' : 'Confirm Payment'}
-            </button>
+              Confirm Payment
+            </PrimaryButton>
           </div>
         </div>
 
         {}
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 z-[2001] flex gap-3 shadow-[0_-4px_12px_-4px_rgb(15_23_42_/_0.08)]">
-          <button
+          <PrimaryButton
             type="button"
+            variant="outline"
             onClick={onClose}
             disabled={processingPayment}
-            className="flex-1 h-12 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold transition-colors"
+            className="flex-1 py-3 text-xs rounded-xl"
           >
             Go Back
-          </button>
-          <button
+          </PrimaryButton>
+          <PrimaryButton
             type="button"
             onClick={handleProcessPayment}
-            disabled={processingPayment}
-            className="flex-1 dash-btn-primary"
+            isLoading={processingPayment}
+            className="flex-1 py-3 text-xs rounded-xl"
           >
-            {processingPayment ? 'Processing...' : 'Confirm Payment'}
-          </button>
+            Confirm Payment
+          </PrimaryButton>
         </div>
       </div>
     </BaseModal>
