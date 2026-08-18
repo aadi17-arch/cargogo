@@ -4,6 +4,7 @@ import { useBooking } from '@/hooks/useBooking';
 import { useSocket, useSocketListener } from '@/hooks/useSocket';
 import PaymentModal from '@/components/Dashboard/PaymentModal';
 import BaseModal from '@/components/UI/BaseModal';
+import PrimaryButton from '@/components/UI/PrimaryButton';
 import MapView, { MapMarker } from '@/components/Map/MapView';
 import DashboardHeader from '@/components/UI/DashboardHeader';
 import MapOverlayCard from '@/components/UI/MapOverlayCard';
@@ -326,20 +327,20 @@ function ShipperDashboard() {
           <div className="space-y-4 text-left">
             <p className="text-sm text-slate-600 font-body">Cancel booking?</p>
             <div className="flex justify-end gap-2.5">
-              <button
+              <PrimaryButton
                 type="button"
+                variant="outline"
                 onClick={() => setBookingToCancel(null)}
-                className="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold rounded-lg transition font-heading cursor-pointer"
               >
                 No
-              </button>
-              <button
+              </PrimaryButton>
+              <PrimaryButton
                 type="button"
+                variant="danger"
                 onClick={() => handleCancelBooking(bookingToCancel)}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-bold rounded-lg transition font-heading cursor-pointer"
               >
-                Yes
-              </button>
+                Yes, Cancel
+              </PrimaryButton>
             </div>
           </div>
         </BaseModal>
