@@ -4,6 +4,6 @@ import { catchAsync } from "@/utils/catchAsync";
 
 export const createDispute = catchAsync(async (req: Request, res: Response) => {
   const { bookingId, reason } = req.body;
-  const dispute = await fileDispute(bookingId, reason, req.user.id);
-  res.status(201).json({success:true,data:dispute});
+  const dispute = await fileDispute(bookingId, reason, req.user!.id);
+  res.status(201).json({ success: true, data: dispute });
 });
