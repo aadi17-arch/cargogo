@@ -25,7 +25,7 @@ export default function HeroSection() {
           </h1>
 
           <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-body">
-            Transparent pricing, live GPS tracking, and OTP-verified.
+            Find nearby trucks, get clear upfront prices, and track your goods safely from pickup to delivery.
           </p>
 
           <div className="flex flex-wrap items-center gap-4 pt-4">
@@ -42,7 +42,7 @@ export default function HeroSection() {
               className="h-11 px-6 rounded-lg bg-transparent hover:bg-white/10 text-white border border-white/20 font-bold text-sm transition-all flex items-center gap-2"
             >
               <Calculator size={16} />
-              <span>Calculate Quote</span>
+              <span>Calculate Price</span>
             </a>
           </div>
         </div>

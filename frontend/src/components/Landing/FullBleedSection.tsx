@@ -36,7 +36,7 @@ function MarketplaceStorySection({
           {/* Text Content Column */}
           <div className={`lg:col-span-6 space-y-6 text-left ${align === 'right' ? 'lg:order-2' : 'lg:order-1'}`}>
             <div className="space-y-2">
-              <span className={`text-xs font-bold uppercase tracking-wider ${tagColor}`}>
+              <span className={`text-xs font-bold ${tagColor}`}>
                 {tag}
               </span>
               <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 font-heading leading-tight">
@@ -93,13 +93,13 @@ export function ShipperSection() {
       align="left"
       tag="For Shippers"
       tagColor="text-slate-500"
-      title="Reliable freight booking built for business"
-      description="Book verified local trucks instantly to ship anything from office goods to heavy commercial loads. Direct vehicle dispatch with total transparency."
+      title="Easy truck booking for your goods and business"
+      description="Book verified local trucks in minutes to move anything from furniture to commercial stock. Enjoy clear rates and safe delivery."
       benefits={[
-        'Instant driver matching within 5-km radius',
-        'Dual OTP verification code at pickup & delivery',
-        'Real-time GPS tracking and live road polyline',
-        'Comprehensive digital invoice & payment checkout'
+        'Nearby drivers assigned in minutes',
+        'Secure 4-digit code required at pickup and dropoff',
+        'Live tracking map to follow your truck in real time',
+        'Instant digital receipts and clear invoices'
       ]}
       cta="Start Shipping Today"
       bgImage="https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=1200&q=80"
@@ -114,13 +114,13 @@ export function DriverSection() {
       align="right"
       tag="For Driver Partners"
       tagColor="text-slate-500"
-      title="Earn more with transparent freight matching"
-      description="Connect directly with shippers needing truck and tempo capacity. Keep full transparency on your fares with fast digital settlements."
+      title="Earn more with regular trips and zero commission"
+      description="Connect directly with people and businesses who need trucks. Get steady trip requests, clear per-kilometer pay, and fast payouts."
       benefits={[
-        'Zero commission cuts on matched base deliveries',
-        'Instant audio and visual incoming load alerts',
-        'Smart turn-by-turn route navigation planning',
-        'Immediate earnings ledger update upon OTP completion'
+        'Keep 100% of your delivery earnings with no hidden cuts',
+        'Instant trip requests on your phone with one-tap accept',
+        'Built-in easy route directions for every delivery',
+        'Earnings sent directly to your bank account'
       ]}
       cta="Join as a Driver Partner"
       bgImage="https://images.unsplash.com/photo-1501700493788-fa1a4fc9fe62?auto=format&fit=crop&w=1200&q=80"

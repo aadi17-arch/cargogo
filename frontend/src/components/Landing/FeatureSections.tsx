@@ -2,33 +2,33 @@ import { ShieldCheck, Route, Scale, Clock, Lock, Sparkles } from 'lucide-react';
 
 const BENEFITS = [
   {
-    title: 'Volumetric Precision',
-    description: 'Automatic mass and dimensional calculations ensure you never overpay for empty cargo space.',
+    title: 'Fair Weight Pricing',
+    description: 'Pay only for what you ship with simple, fixed rates per kilogram and kilometer.',
     icon: Scale,
   },
   {
-    title: 'Dual OTP Handshake',
-    description: 'Secure 4-digit verification keys required at both pickup and drop-off to protect your shipments.',
+    title: 'Secure OTP Handover',
+    description: 'Drivers verify a 4-digit code at pickup and delivery so your items stay safe.',
     icon: Lock,
   },
   {
     title: 'Live GPS Tracking',
-    description: 'Track driver progress in real time with continuous route plotting and live location updates.',
+    description: 'See your truck’s exact location on a live map at every step of the journey.',
     icon: Route,
   },
   {
-    title: 'Instant Driver Matching',
-    description: 'Immediate geo-radius dispatch connects your cargo with the nearest available verified partner.',
+    title: 'Fast Driver Matching',
+    description: 'We connect your booking to the nearest available driver within seconds.',
     icon: Sparkles,
   },
   {
-    title: 'Direct Payouts',
-    description: 'Zero hidden intermediary cuts. Honest base fares that benefit both shippers and driver partners.',
+    title: 'Direct Payments',
+    description: 'No middlemen or hidden fees. Transparent costs for shippers and fast payouts for drivers.',
     icon: ShieldCheck,
   },
   {
-    title: '24/7 Dispatch Care',
-    description: 'Real-time live chat assistance and dedicated phone hotline to resolve any transit exceptions.',
+    title: '24/7 Support',
+    description: 'Our team is always ready to help you over phone or live chat whenever you need.',
     icon: Clock,
   },
 ];
@@ -39,13 +39,13 @@ export function ServicesSection() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-2">
           <span className="text-xs font-bold text-slate-500">
-            Platform Capabilities
+            How It Works
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 font-heading">
-            How We Help You Ship
+            Simple, Reliable Freight Delivery
           </h2>
           <p className="text-sm font-medium text-slate-600 font-body">
-            Streamlined freight technology built to eliminate logistical friction and secure your loads.
+            Everything you need to send goods across town or between cities with total peace of mind.
           </p>
         </div>
 
