@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Download } from 'lucide-react';
 import BaseModal from '@/components/UI/BaseModal';
+import PrimaryButton from '@/components/UI/PrimaryButton';
 import { formatPrice } from '@/utils/formatters';
 
 interface TrackingPostDeliveryProps {
@@ -168,12 +169,13 @@ export default function TrackingPostDelivery({
               className="input-field h-20"
             />
           </div>
-          <button
+          <PrimaryButton
             type="submit"
-            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 text-xs rounded-lg transition-colors shadow-sm"
+            fullWidth
+            className="py-2.5 text-xs mt-2"
           >
             Submit Rating
-          </button>
+          </PrimaryButton>
         </form>
       )}
 
@@ -184,7 +186,7 @@ export default function TrackingPostDelivery({
             <button
               type="button"
               onClick={() => setShowDisputeForm(true)}
-              className="text-rose-600 hover:text-rose-700 text-xs font-bold underline"
+              className="text-rose-600 hover:text-rose-700 text-xs font-bold underline cursor-pointer"
             >
               File a Dispute / Support Claim
             </button>
@@ -208,19 +210,19 @@ export default function TrackingPostDelivery({
                   />
                 </div>
                 <div className="flex gap-2 justify-end pt-2">
-                  <button
+                  <PrimaryButton
                     type="button"
+                    variant="outline"
                     onClick={() => setShowDisputeForm(false)}
-                    className="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold rounded-lg transition-colors"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </PrimaryButton>
+                  <PrimaryButton
                     type="submit"
-                    className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-lg transition-colors shadow-sm"
+                    variant="danger"
                   >
                     Submit Dispute
-                  </button>
+                  </PrimaryButton>
                 </div>
               </form>
             </BaseModal>
