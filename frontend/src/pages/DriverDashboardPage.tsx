@@ -268,9 +268,9 @@ function DriverDashboard() {
               />
             </div>
 
-            {/* Online Status Bar & GPS Locate Action */}
+            {/* Online Status Bar (Desktop) & GPS Locate Action */}
             <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20 flex items-center gap-2">
-              <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-md">
+              <div className="hidden md:flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-md">
                 <div className={`w-2 h-2 rounded-sm shrink-0 ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
                 <span className="text-xs font-bold text-slate-900 font-heading">{isOnline ? 'Online' : 'Offline'}</span>
                 <button
