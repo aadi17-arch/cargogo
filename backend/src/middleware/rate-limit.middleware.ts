@@ -1,11 +1,12 @@
 import rateLimit from "express-rate-limit";
 
 const shouldSkip = () => process.env.NODE_ENV === 'test';
+const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
 
 export const globalRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
-  skip: shouldSkip,
+  max: isDev ? 10000 : 2000,
+  skip: ()=> isDev && process.env.ENABLE_DEV_RATE_LIMIT !== 'true',
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -16,8 +17,8 @@ export const globalRateLimiter = rateLimit({
 
 export const strictLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
-  skip: shouldSkip,
+  max: isDev ? 1000 : 50,
+  skip:() => isDev && process.env.ENABLE_DEV_RATE_LIMIT !=='true',
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -28,8 +29,8 @@ export const strictLimiter = rateLimit({
 
 export const otpLimiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutes
-  max: 5, // 5 attempts max
-  skip: shouldSkip,
+  max: isDev ? 100 : 10,
+  skip: () => isDev && process.env.ENABLE_DEV_RATE_LIMIT !== 'true',
   standardHeaders: true,
   legacyHeaders: false,
   message: {
