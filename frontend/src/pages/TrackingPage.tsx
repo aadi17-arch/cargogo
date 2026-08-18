@@ -13,6 +13,7 @@ import { ArrowLeft, MessageCircle } from 'lucide-react';
 import ChatDrawer from '@/components/Tracking/ChatDrawer';
 import TrackingOtpPanel from '@/components/Tracking/TrackingOtpPanel';
 import TrackingPostDelivery from '@/components/Tracking/TrackingPostDelivery';
+import MobileViewToggle from '@/components/UI/MobileViewToggle';
 
 function TrackingPage() {
   const { bookingId } = useParams();
@@ -288,26 +289,39 @@ function TrackingPage() {
     );
   }
 
+  const [mobileView, setMobileView] = useState<'map' | 'details'>('map');
+
   return (
     <div className="min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] overflow-y-auto lg:overflow-y-hidden flex flex-col p-3 sm:p-4 gap-3 bg-white">
-      {/* Top Header Navigation */}
-      <div className="flex items-center gap-2 shrink-0">
-        <button
-          type="button"
-          onClick={() => navigate(user?.role === 'DRIVER' ? '/driver' : '/shipper')}
-          className="p-1 -ml-1 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-          title="Back"
-        >
-          <ArrowLeft size={18} />
-        </button>
-        <h2 className="text-xl font-bold tracking-tight text-slate-900 font-heading">
-          Track Delivery
-        </h2>
+      {/* Top Header Navigation & Mobile Toggle */}
+      <div className="flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => navigate(user?.role === 'DRIVER' ? '/driver' : '/shipper')}
+            className="p-1 -ml-1 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+            title="Back"
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <h2 className="text-xl font-bold tracking-tight text-slate-900 font-heading">
+            Track Delivery
+          </h2>
+        </div>
+
+        <MobileViewToggle
+          activeView={mobileView}
+          onToggle={setMobileView}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch flex-1 min-h-0">
         {/* Left Live Leaflet Map Column */}
-        <div className="lg:col-span-7 h-72 sm:h-96 lg:h-full w-full overflow-hidden border border-slate-200 rounded-xl shadow-xs relative z-10 bg-white shrink-0 lg:shrink">
+        <div
+          className={`lg:col-span-7 w-full overflow-hidden border border-slate-200 rounded-xl shadow-xs relative z-10 bg-white shrink-0 lg:shrink lg:block ${
+            mobileView === 'map' ? 'h-[calc(100vh-160px)] sm:h-[480px] lg:h-full block' : 'hidden'
+          }`}
+        >
           <MapView
             center={mapCenter}
             zoom={13}
@@ -320,7 +334,11 @@ function TrackingPage() {
         </div>
 
         {/* Right Details, OTP & Payment/Dispute Column */}
-        <div className="lg:col-span-5 w-full lg:h-full lg:overflow-y-auto space-y-4 pr-0 lg:pr-1">
+        <div
+          className={`lg:col-span-5 w-full lg:h-full lg:overflow-y-auto space-y-4 pr-0 lg:pr-1 ${
+            mobileView === 'details' ? 'block' : 'hidden lg:block'
+          }`}
+        >
           {/* Delivery Parameters Card */}
           <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs space-y-3 font-body text-xs text-slate-600">
             <h3 className="text-sm font-bold text-slate-900 font-heading">Delivery Parameters</h3>
