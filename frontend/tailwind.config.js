@@ -32,9 +32,9 @@ export default {
             fontFamily: {
                 sans: ['"Plus Jakarta Sans"', 'sans-serif'],
                 serif: ['"Plus Jakarta Sans"', 'sans-serif'],
-                heading: ['"Syne"', '"Plus Jakarta Sans"', 'sans-serif'],
-                display: ['"Syne"', 'sans-serif'],
-                mono: ['"Plus Jakarta Sans"', 'sans-serif'],
+                heading: ['"Space Grotesk"', '"Plus Jakarta Sans"', 'sans-serif'],
+                display: ['"Space Grotesk"', 'sans-serif'],
+                mono: ['"Space Mono"', 'monospace'],
             },
             borderRadius: {
                 card: '6px',

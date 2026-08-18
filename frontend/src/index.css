@@ -31,9 +31,9 @@
   --border-width: 1.5px;
 
   /* Universal Font Token */
-  --font-heading: 'Syne', 'Plus Jakarta Sans', sans-serif;
+  --font-heading: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
-  --font-mono: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'Space Mono', 'Plus Jakarta Sans', sans-serif;
 }
 
 @layer base {
@@ -48,7 +48,8 @@
     scrollbar-width: none !important;
   }
   .font-heading, h1, h2, h3, h4, h5, h6 {
-    font-family: 'Syne', sans-serif !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+    letter-spacing: -0.02em;
   }
   .font-body {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
