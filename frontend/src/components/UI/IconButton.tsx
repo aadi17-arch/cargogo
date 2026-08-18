@@ -12,10 +12,11 @@ export default function IconButton({ icon: Icon, onClick, title, className = '' 
     <button
       type="button"
       onClick={onClick}
-      className={`w-8 h-8 flex items-center justify-center border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition bg-white shadow-xs cursor-pointer ${className}`}
+      aria-label={title}
+      className={`w-8 h-8 flex items-center justify-center border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition bg-white shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none active:scale-95 ${className}`}
       title={title}
     >
-      <Icon size={14} />
+      <Icon size={14} aria-hidden="true" />
     </button>
   );
 }
