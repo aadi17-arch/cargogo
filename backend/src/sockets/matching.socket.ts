@@ -1,79 +1,87 @@
 import { SocketIOServer } from '@/sockets/socket.server';
-import { findNearbyDrivers, acceptBooking } from '@/services/matching.service';
+import { acceptBooking } from '@/services/matching.service';
+import { commitToScheduledJob, getBookingOrThrow } from '@/services/booking.service';
+import { createChatMessage } from '@/services/chat.service';
 import prisma from '@/config/database';
 import { addDispatchJob, dispatchQueue } from '@/queues/dispatch.queue';
+import { env } from '@/config/env.config';
+import { SOCKET_ROOMS, SOCKET_EVENTS } from '@/config/socket-events';
 
-const activeTimers = new Map<string, NodeJS.Timeout>();
 export const registerMatchingHandlers = (
     io: SocketIOServer
 ) => {
     io.on('connection', (socket) => {
         const user = socket.data.user;
+        if (!user) return;
 
-        if (user.role === 'DRIVER' && user.driverProfile) {
-            socket.join(`driver:${user.id}`);
+        if (user.role === 'DRIVER' && (user as any).driverProfile) {
+            socket.join(SOCKET_ROOMS.driver(user.id));
         } else if (user.role === 'SHIPPER') {
-            socket.join(`shipper:${user.id}`);
+            socket.join(SOCKET_ROOMS.shipper(user.id));
         }
-        // booking cargo
-        socket.on('book-cargo', async (bookingData) => {
+
+        // Booking cargo
+        socket.on(SOCKET_EVENTS.BOOK_CARGO, async (bookingData) => {
             try {
-                const bookingId = bookingData.bookingId;
-                const booking = await prisma.booking.findUnique({
-                    where: { id: bookingId },
-                });
-                if (!booking) throw new Error('Booking not found');
+                const bookingId = bookingData?.bookingId;
+                const booking = await getBookingOrThrow(bookingId);
                 await addDispatchJob(bookingId, booking.pickupLat, booking.pickupLng, 0, 0);
 
-                socket.emit('dispatch-queued', { bookingId });
+                socket.emit(SOCKET_EVENTS.DISPATCH_QUEUED, { bookingId });
 
-                // Auto-Accept Bot: Assign driver automatically after 1 second for single-user testing
-                setTimeout(async () => {
-                    try {
-                        const currentBooking = await prisma.booking.findUnique({ where: { id: bookingId } });
-                        if (currentBooking && currentBooking.status === 'PENDING' && !currentBooking.driverId) {
-                            const driver = await prisma.user.findFirst({ where: { role: 'DRIVER' } });
-                            if (driver) {
-                                await acceptBooking(bookingId, driver.id);
-                                io.to(`shipper:${currentBooking.shipperId}`).emit('booking-accepted', {
-                                    bookingId,
-                                    driverId: driver.id,
-                                    driverName: driver.name,
-                                });
+                // Auto-Accept Test Bot: Strictly development/testing only — NEVER executes in production
+                const isTestBotEnabled = env.NODE_ENV !== 'production' && env.AUTO_ACCEPT_TEST_BOT === true;
+
+                if (isTestBotEnabled) {
+                    setTimeout(async () => {
+                        try {
+                            const currentBooking = await prisma.booking.findUnique({ where: { id: bookingId } });
+                            if (currentBooking && currentBooking.status === 'PENDING' && !currentBooking.driverId) {
+                                const driver = await prisma.user.findFirst({ where: { role: 'DRIVER' } });
+                                if (driver) {
+                                    await acceptBooking(bookingId, driver.id);
+                                    io.to(SOCKET_ROOMS.shipper(currentBooking.shipperId)).emit(SOCKET_EVENTS.BOOKING_ACCEPTED, {
+                                        bookingId,
+                                        driverId: driver.id,
+                                        driverName: driver.name,
+                                    });
+                                }
                             }
+                        } catch (err) {
+                            console.error('[TestBot] Auto-accept bot error:', err);
                         }
-                    } catch (err) {
-                        console.error('Auto-accept bot error:', err);
-                    }
-                }, 60000);
+                    }, 60000);
+                }
 
             }
             catch (e: any) {
-                socket.emit('error', { message: e.message });
+                socket.emit(SOCKET_EVENTS.ERROR, { message: e.message });
             }
         });
-        // driver takes the ride
-        socket.on('accept-bid', async ({ bookingId }) => {
+
+        // Driver takes the ride
+        socket.on(SOCKET_EVENTS.ACCEPT_BID, async ({ bookingId }) => {
             try {
                 const booking = await acceptBooking(bookingId, user.id);
 
                 const jobs = await dispatchQueue.getJobs(['delayed', 'waiting']);
-
                 for (const j of jobs) {
                     if (j.data.bookingId === bookingId) await j.remove();
                 }
-                io.to(`shipper:${booking.shipperId}`).emit('booking-accepted', {
+
+                io.to(SOCKET_ROOMS.shipper(booking.shipperId)).emit(SOCKET_EVENTS.BOOKING_ACCEPTED, {
                     bookingId,
                     driverId: user.id,
                     driverName: user.name,
                 });
-                socket.emit('bid-accepted', { bookingId });
+                socket.emit(SOCKET_EVENTS.BID_ACCEPTED, { bookingId });
             } catch (e: any) {
-                socket.emit('error', { message: e.message });
+                socket.emit(SOCKET_EVENTS.ERROR, { message: e.message });
             }
         });
-        //rejecting bid
-        socket.on('reject-bid', async ({ bookingId }) => {
+
+        // Rejecting bid
+        socket.on(SOCKET_EVENTS.REJECT_BID, async ({ bookingId }) => {
             try {
                 const jobs = await dispatchQueue.getJobs(['delayed', 'waiting']);
                 let nextDriverIndex = 0;
@@ -82,7 +90,7 @@ export const registerMatchingHandlers = (
 
                 for (const j of jobs) {
                     if (j.data.bookingId === bookingId) {
-                        nextDriverIndex = j.data.driverIndex + 1;
+                        nextDriverIndex = (j.data.driverIndex || 0) + 1;
                         pickupLat = j.data.pickupLat;
                         pickupLng = j.data.pickupLng;
                         await j.remove();
@@ -93,23 +101,22 @@ export const registerMatchingHandlers = (
                     await addDispatchJob(bookingId, pickupLat, pickupLng, nextDriverIndex, 0);
                 }
 
-                socket.emit('bid-rejected', {
+                socket.emit(SOCKET_EVENTS.BID_REJECTED, {
                     bookingId,
                     message: 'Rejected. Moving to the next driver.'
                 });
             } catch (e: any) {
-                socket.emit('error', { message: e.message });
+                socket.emit(SOCKET_EVENTS.ERROR, { message: e.message });
             }
         });
 
         // Handle driver commitment to a scheduled cargo job
-        socket.on('commit-scheduled-job', async ({ bookingId }) => {
+        socket.on(SOCKET_EVENTS.COMMIT_SCHEDULED_JOB, async ({ bookingId }) => {
             try {
-                const { commitScheduledJob } = await import('@/services/matching.service');
-                const booking = await commitScheduledJob(bookingId, user.id);
+                const booking = await commitToScheduledJob(bookingId, user.id);
 
                 // Notify the shipper their scheduled job now has a committed driver
-                io.to(`shipper:${booking.shipperId}`).emit('scheduled-job-committed', {
+                io.to(SOCKET_ROOMS.shipper(booking.shipperId)).emit(SOCKET_EVENTS.SCHEDULED_JOB_COMMITTED, {
                     bookingId: booking.id,
                     driverId: user.id,
                     driverName: user.name,
@@ -117,51 +124,27 @@ export const registerMatchingHandlers = (
                 });
 
                 // Confirm back to the committing driver
-                socket.emit('commit-confirmed', {
+                socket.emit(SOCKET_EVENTS.COMMIT_CONFIRMED, {
                     bookingId: booking.id,
                     scheduledAt: booking.scheduledAt,
                     message: 'You have successfully committed to this scheduled job.',
                 });
             } catch (e: any) {
-                socket.emit('error', { message: e.message });
+                socket.emit(SOCKET_EVENTS.ERROR, { message: e.message });
             }
         });
 
         // Handle Chat Sockets
-        socket.on('join-chat', ({ bookingId }) => {
-            socket.join(`chat:${bookingId}`);
+        socket.on(SOCKET_EVENTS.JOIN_CHAT, ({ bookingId }) => {
+            socket.join(SOCKET_ROOMS.chat(bookingId));
         });
 
-        socket.on('send-chat-message', async ({ bookingId, message }) => {
+        socket.on(SOCKET_EVENTS.SEND_CHAT_MESSAGE, async ({ bookingId, message }) => {
             try {
-                if (!message || message.trim() === '') return;
-                
-                const booking = await prisma.booking.findUnique({
-                    where: { id: bookingId },
-                    select: { shipperId: true, driverId: true }
-                });
-
-                if (!booking) throw new Error('Shipment not found');
-                if (booking.shipperId !== user.id && booking.driverId !== user.id) {
-                    throw new Error('Unauthorized chat action');
-                }
-
-                const chatMsg = await prisma.chatMessage.create({
-                    data: {
-                        bookingId,
-                        senderId: user.id,
-                        message: message.trim()
-                    },
-                    include: {
-                        sender: {
-                            select: { id: true, name: true, role: true }
-                        }
-                    }
-                });
-
-                io.to(`chat:${bookingId}`).emit('receive-chat-message', chatMsg);
+                const chatMsg = await createChatMessage(bookingId, user.id, message);
+                io.to(SOCKET_ROOMS.chat(bookingId)).emit(SOCKET_EVENTS.RECEIVE_CHAT_MESSAGE, chatMsg);
             } catch (e: any) {
-                socket.emit('error', { message: e.message });
+                socket.emit(SOCKET_EVENTS.ERROR, { message: e.message });
             }
         });
     });
