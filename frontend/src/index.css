@@ -48,7 +48,10 @@
     scrollbar-width: none !important;
   }
   .font-heading, h1, h2, h3, h4, h5, h6 {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Syne', sans-serif !important;
+  }
+  .font-body {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
   }
 }
 
