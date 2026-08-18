@@ -9,11 +9,13 @@ interface LocateButtonProps {
 const LocateButton: React.FC<LocateButtonProps> = ({ onClick, className = '' }) => {
   return (
     <button
+      type="button"
       onClick={onClick}
-      className={`w-10 h-10 md:w-11 md:h-11 flex items-center justify-center bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-700 hover:text-slate-950 transition shadow-lg cursor-pointer ${className}`}
+      aria-label="Locate my current position"
+      className={`w-10 h-10 md:w-11 md:h-11 flex items-center justify-center bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-700 hover:text-slate-950 transition shadow-lg cursor-pointer focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none active:scale-95 ${className}`}
       title="Locate Me"
     >
-      <LocateFixed size={18} />
+      <LocateFixed size={18} aria-hidden="true" />
     </button>
   );
 };
