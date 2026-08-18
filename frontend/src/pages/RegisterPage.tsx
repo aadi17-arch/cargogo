@@ -17,9 +17,9 @@ function RegisterPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const { register, clearError, isAuthenticated, user } = useAuth();
-  
+
   const [errors, setErrors] = useState<{ email?: string; password?: string; name?: string; plateNumber?: string }>({});
-  
+
   const navigate = useNavigate();
   const notify = useNotification();
 
@@ -30,7 +30,7 @@ function RegisterPage() {
   const clearFieldError = (field: keyof typeof errors) =>
     setErrors((prev) => ({ ...prev, [field]: undefined }));
 
-  
+
   const handleNameChange = (v: string) => {
     setForm(prev => ({ ...prev, name: v }));
     if (!v.trim()) {
@@ -106,7 +106,7 @@ function RegisterPage() {
   };
 
   return (
-    <AuthPageShell title="Register Account" subtitle="Join CargoGo logistics dispatch network">
+    <AuthPageShell title="Register Account" subtitle="Join CargoGo logistics">
       <form onSubmit={handleSubmit} className="space-y-4">
 
         <AuthFormField
@@ -136,8 +136,8 @@ function RegisterPage() {
             onChange={(e) => setForm({ ...form, role: e.target.value as 'SHIPPER' | 'DRIVER' })}
             className="w-full p-3 bg-white text-slate-800 font-medium rounded-lg border border-slate-200 focus:outline-none focus:border-indigo-500 transition-all text-sm"
           >
-            <option value="SHIPPER">Shipper (Sender)</option>
-            <option value="DRIVER">Driver Partner</option>
+            <option value="SHIPPER">Shipper</option>
+            <option value="DRIVER">Driver</option>
           </select>
         </div>
 
@@ -146,13 +146,13 @@ function RegisterPage() {
             <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
               Vehicle Parameters
             </h3>
-            
+
             <AuthFormField
               label="Plate Number" placeholder="e.g. MH-12-AB-1234"
               value={form.vehicle.plateNumber} error={errors.plateNumber}
               onChange={handlePlateChange}
             />
-            
+
             <div>
               <label className="block text-xs font-bold text-slate-500 font-heading mb-1.5">Vehicle Type</label>
               <select

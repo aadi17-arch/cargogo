@@ -13,7 +13,7 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const { login, clearError, isAuthenticated, user } = useAuth();
-  
+
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [showResetModal, setShowResetModal] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
@@ -26,7 +26,7 @@ function LoginPage() {
     if (isAuthenticated && user) navigate(getDashboardRoute(user.role));
   }, [isAuthenticated, user, navigate]);
 
-  
+
   const handleEmailChange = (val: string) => {
     setEmail(val);
     if (!val) {
@@ -51,7 +51,7 @@ function LoginPage() {
     e.preventDefault();
     clearError();
 
-    
+
     const emailErr = !email ? 'Email is required' : (!/\S+@\S+\.\S+/.test(email) ? 'Please enter a valid email address' : undefined);
     const passErr = !password ? 'Password is required' : undefined;
 
@@ -77,7 +77,7 @@ function LoginPage() {
       return;
     }
     setResetLoading(true);
-    
+
     setTimeout(() => {
       setResetLoading(false);
       setShowResetModal(false);
@@ -102,7 +102,7 @@ function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowResetModal(true)}
-                className="text-[11px] font-bold text-indigo-600 hover:underline bg-transparent border-none outline-none cursor-pointer"
+                className="text-[11px] font-bold text-gray-600 hover:underline bg-transparent border-none outline-none cursor-pointer"
               >
                 Reset password?
               </button>
@@ -133,9 +133,9 @@ function LoginPage() {
         </form>
       </AuthPageShell>
 
-      <BaseModal 
-        isOpen={showResetModal} 
-        onClose={() => setShowResetModal(false)} 
+      <BaseModal
+        isOpen={showResetModal}
+        onClose={() => setShowResetModal(false)}
         title="Reset Password"
         maxWidth="max-w-md"
       >
@@ -155,15 +155,15 @@ function LoginPage() {
             />
           </div>
           <div className="flex gap-2 justify-end pt-2">
-            <PrimaryButton 
-              type="button" 
-              variant="outline" 
+            <PrimaryButton
+              type="button"
+              variant="outline"
               onClick={() => setShowResetModal(false)}
             >
               Cancel
             </PrimaryButton>
-            <PrimaryButton 
-              type="submit" 
+            <PrimaryButton
+              type="submit"
               isLoading={resetLoading}
             >
               Send Reset Link

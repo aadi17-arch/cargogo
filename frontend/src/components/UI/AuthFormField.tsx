@@ -37,7 +37,7 @@ export default function AuthFormField({
     <div className="mb-4 text-left">
       {!hideLabel && label && (
         <label
-          className="block text-xs font-bold text-slate-500 font-heading mb-1.5 uppercase tracking-wider"
+          className="block text-xs font-bold text-slate-500 font-heading mb-1.5"
         >
           {label}
         </label>
