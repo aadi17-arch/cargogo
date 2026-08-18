@@ -55,7 +55,7 @@ export const fetchRouteDistanceOSRM = async (
 ): Promise<number> => {
     const url = `http://router.project-osrm.org/route/v1/driving/${startLng},${startLat};${endLng},${endLat}?overview=false`;
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, { signal: AbortSignal.timeout(3000) });
         if (!response.ok) throw new Error('OSRM request failed');
         const data = (await response.json()) as any;
         if (!data.routes || data.routes.length === 0) throw new Error('No routes found');
