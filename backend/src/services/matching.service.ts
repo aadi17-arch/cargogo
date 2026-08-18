@@ -101,15 +101,25 @@ export const findScheduledCandidates = async (booking: {
             },
             driverBookings: {
                 none: {
-                    bookingType: 'SCHEDULED',
-                    status: { in: ['ACCEPTED', 'IN_TRANSIT'] },
-                    committedAt: { not: null },
-                    scheduledAt: {
-                        lte: windowEnd,
-                    },
-                    scheduledUntil: {
-                        gte: booking.scheduledAt,
-                    },
+                    OR: [
+                        {
+                            // Exclude drivers with overlapping scheduled bookings
+                            bookingType: 'SCHEDULED',
+                            status: { in: ['ACCEPTED', 'IN_TRANSIT'] },
+                            committedAt: { not: null },
+                            scheduledAt: {
+                                lte: windowEnd,
+                            },
+                            scheduledUntil: {
+                                gte: booking.scheduledAt,
+                            },
+                        },
+                        {
+                            // Exclude drivers currently executing an active instant trip
+                            bookingType: 'INSTANT',
+                            status: { in: ['ACCEPTED', 'IN_TRANSIT'] },
+                        }
+                    ]
                 },
             },
         },
@@ -133,10 +143,4 @@ export const findScheduledCandidates = async (booking: {
                 : 9999,
         }))
         .sort((a, b) => a.distanceKm - b.distanceKm);
-};
-
-// Calls booking service to update committed driver fields
-export const commitScheduledJob = async (bookingId: string, driverId: string) => {
-    const { commitToScheduledJob } = await import('@/services/booking.service');
-    return commitToScheduledJob(bookingId, driverId);
 };
