@@ -2,47 +2,47 @@ import { PhoneCall, Receipt, Truck, Mail, HelpCircle } from 'lucide-react';
 
 const SUPPORT_CHANNELS = [
   {
-    title: '24/7 Dispatch Control',
+    title: 'Live Phone Support',
     contact: '+1-800-CARGOGO',
-    description: 'Direct phone line to our operational center for live route or load exceptions.',
+    description: 'Call our direct helpline anytime for urgent help with ongoing deliveries.',
     icon: PhoneCall,
   },
   {
-    title: 'Billing & Invoicing',
+    title: 'Billing & Invoices',
     contact: 'billing@cargogo.com',
-    description: 'Assistance with volumetric quotes, digital receipts, and GST invoices.',
+    description: 'Get help with price receipts, trip fare breakdown, and GST invoices.',
     icon: Receipt,
   },
   {
-    title: 'Driver Partner Care',
+    title: 'Driver Support',
     contact: 'drivers@cargogo.com',
-    description: 'Vehicle onboarding, bank settlement, and app verification support.',
+    description: 'Help with joining as a driver, vehicle checks, and bank payouts.',
     icon: Truck,
   },
   {
-    title: 'General Support',
+    title: 'General Questions',
     contact: 'help@cargogo.com',
-    description: 'General platform inquiries with typical response time under 15 minutes.',
+    description: 'Send us an email and our team will reply within a few minutes.',
     icon: Mail,
   },
 ];
 
 const FAQS = [
   {
-    q: 'How is shipment pricing calculated?',
-    a: 'Our volumetric engine calculates the package dimensional weight (Length × Width × Height ÷ 5000) and compares it with actual weight. You are only charged for whichever value is greater, multiplied by standard road distance.'
+    q: 'How is the delivery price calculated?',
+    a: 'Your fare is calculated simply using your total cargo weight, the vehicle type you choose, and the exact road distance in kilometers.'
   },
   {
-    q: 'How does the OTP verification handshake work?',
-    a: 'Upon booking creation, you receive two secure 4-digit codes: Pickup OTP and Drop-off OTP. The assigned driver partner must enter these codes in their terminal to authorize physical loading and completed unloading.'
+    q: 'How does the secure OTP code work?',
+    a: 'When you make a booking, you get two 4-digit codes. The driver enters the first code at pickup to load your goods, and the second code at delivery to confirm you received everything safely.'
   },
   {
-    q: 'Can I track my cargo in real time without registering?',
-    a: 'Yes. Anyone with a valid Booking UUID can access the public tracking URL to view live driver GPS coordinates, vehicle details, and route progress.'
+    q: 'Can I track my delivery without creating an account?',
+    a: 'Yes. Anyone with your unique tracking link can open the map on their phone to see the driver’s live location and estimated arrival time.'
   },
   {
-    q: 'What happens if no driver is available nearby?',
-    a: 'Our dispatch engine broadcasts your request in expanding radiuses for 60 seconds. If all local partners are busy, you will be notified immediately so you can adjust your schedule or retry.'
+    q: 'What if no driver is nearby right now?',
+    a: 'Our system instantly searches nearby roads. If all drivers in your area are busy, we will notify you right away so you can pick another time or truck.'
   }
 ];
 
@@ -52,13 +52,13 @@ export function FaqSection() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-2">
           <span className="text-xs font-bold text-slate-500">
-            Frequently Asked Questions
+            Questions &amp; Answers
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 font-heading">
-            Everything You Need to Know
+            Common Questions
           </h2>
           <p className="text-sm font-medium text-slate-600 font-body">
-            Common questions regarding freight calculation, OTP security, and delivery handoffs.
+            Quick answers about booking trucks, safety codes, and tracking your items.
           </p>
         </div>
 
@@ -85,14 +85,14 @@ export function SupportSection() {
     <section id="support" className="py-20 bg-slate-50 border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+          <span className="text-xs font-bold text-slate-500">
             Help Center
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 font-heading">
-            Here to Help 24/7
+            We Are Here to Help
           </h2>
           <p className="text-sm font-medium text-slate-600 font-body">
-            Our operational team is standing by around the clock to support your shipments.
+            Get in touch with our friendly support team anytime day or night.
           </p>
         </div>
 
@@ -107,7 +107,7 @@ export function SupportSection() {
                   <Icon size={20} />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">{title}</h3>
+                  <h3 className="text-xs font-bold text-slate-500">{title}</h3>
                   <p className="text-sm font-black text-slate-900 font-heading">{contact}</p>
                 </div>
               </div>
