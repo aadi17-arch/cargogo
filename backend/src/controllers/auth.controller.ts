@@ -86,7 +86,7 @@ export const logout = catchAsync(async (req: Request, res: Response) => {
     // Blacklist the current access token on logout
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (token) {
-        addToBlacklist(token);
+        await addToBlacklist(token);
     }
 
     res.clearCookie('refreshToken', {
