@@ -12,7 +12,14 @@ export const registerSchema = z.object({
       required_error: 'Role must be either SHIPPER or DRIVER',
     }),
     vehicle: z.object({
-      type: z.enum(['MINI_TEMPO', 'PICKUP_TRUCK', 'CONTAINER_3TON']),
+      type: z.enum([
+        'TWO_WHEELER',
+        'THREE_WHEELER',
+        'MINI_TEMPO',
+        'PICKUP_TRUCK',
+        'CONTAINER_3TON',
+        'HEAVY_DUTY_TRUCK'
+      ]),
       plateNumber: z.string().min(3, 'Plate number must be valid'),
       capacityKg: z.number().positive('Capacity must be positive'),
     }).optional(),
