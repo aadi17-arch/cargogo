@@ -4,6 +4,6 @@ import { catchAsync } from "@/utils/catchAsync";
 
 export const createdReview = catchAsync(async (req: Request, res: Response) => {
   const { bookingId, rating, comment } = req.body;
-  const review = await createDriverReview(bookingId, rating, comment, req.user.id);
+  const review = await createDriverReview(bookingId, rating, comment, req.user!.id);
   res.status(201).json({ success: true, data: review });
 });
