@@ -31,9 +31,9 @@
   --border-width: 1.5px;
 
   /* Universal Font Token */
-  --font-heading: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
-  --font-body: 'Plus Jakarta Sans', sans-serif;
-  --font-mono: 'Space Mono', 'Plus Jakarta Sans', sans-serif;
+  --font-heading: 'Archivo', sans-serif;
+  --font-body: 'Archivo', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
 }
 
 @layer base {
@@ -43,16 +43,19 @@
     width: 100%;
     overflow-x: hidden;
     background-color: #F1F5F9;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Archivo', sans-serif !important;
     -ms-overflow-style: none !important;
     scrollbar-width: none !important;
   }
   .font-heading, h1, h2, h3, h4, h5, h6 {
-    font-family: 'Space Grotesk', sans-serif !important;
+    font-family: 'Archivo', sans-serif !important;
     letter-spacing: -0.02em;
   }
   .font-body {
-    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-family: 'Archivo', sans-serif !important;
+  }
+  .font-mono {
+    font-family: 'IBM Plex Mono', monospace !important;
   }
 }
 

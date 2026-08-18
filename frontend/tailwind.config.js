@@ -30,11 +30,11 @@ export default {
                 },
             },
             fontFamily: {
-                sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                body: ['"Plus Jakarta Sans"', 'sans-serif'],
-                heading: ['"Space Grotesk"', 'sans-serif'],
-                display: ['"Space Grotesk"', 'sans-serif'],
-                mono: ['"Space Mono"', 'monospace'],
+                sans: ['"Archivo"', 'sans-serif'],
+                body: ['"Archivo"', 'sans-serif'],
+                heading: ['"Archivo"', 'sans-serif'],
+                display: ['"Archivo"', 'sans-serif'],
+                mono: ['"IBM Plex Mono"', 'monospace'],
             },
             fontSize: {
                 '2xs': ['10px', { lineHeight: '14px' }],
