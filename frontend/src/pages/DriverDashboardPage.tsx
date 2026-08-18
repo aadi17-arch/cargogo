@@ -394,21 +394,20 @@ function DriverDashboard() {
         </div>
       ) : (
         
-        <div className="flex-1 w-full bg-white flex flex-col overflow-y-auto px-6 py-6 space-y-4 text-left">
+        <div className="flex-1 w-full bg-white flex flex-col overflow-y-auto px-4 py-4 space-y-3 text-left">
 
           {}
           {activeTab === 'jobs_board' && (
-            <div className="space-y-4 max-w-4xl mx-auto w-full">
+            <div className="space-y-3 w-full">
               <SectionHeader
                 title="Available Shipments"
-                subtitle="New delivery requests nearby"
                 action={<IconButton icon={RefreshCw} onClick={loadData} title="Refresh" />}
               />
 
               <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
                 {pendingBookings.length > 0 ? (
                   pendingBookings.map((b: any) => (
-                    <div key={b.id} className="py-4 flex items-center justify-between gap-4 text-xs font-body">
+                    <div key={b.id} className="py-3 flex items-center justify-between gap-4 text-xs font-body">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2.5 mb-1.5">
                           <span className="font-bold text-sm text-slate-900 font-heading">{b.cargoType}</span>
@@ -437,14 +436,11 @@ function DriverDashboard() {
 
           {}
           {(activeTab as string) === 'schedule' && (
-            <div className="space-y-4 max-w-4xl mx-auto w-full">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900 font-heading flex items-center gap-2">
-                    <CalendarClock size={20} className="text-slate-700" />
-                    Scheduled Deliveries
-                  </h3>
-                  <p className="text-xs text-slate-500">Upcoming bookings assigned to your schedule</p>
+            <div className="space-y-3 w-full">
+              <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
+                <div className="flex items-center gap-1.5">
+                  <CalendarClock size={14} className="text-slate-500" />
+                  <h3 className="text-sm font-semibold text-slate-800 font-heading">Scheduled Deliveries</h3>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="inline-flex items-center border border-slate-200 rounded-lg p-1 bg-white shadow-xs">
@@ -463,13 +459,13 @@ function DriverDashboard() {
                   {!showScheduledBoard ? (
                     scheduledJobs.length > 0 ? (
                       scheduledJobs.map((job: ScheduledJob) => (
-                        <div key={job.id} className="py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-xs font-body">
+                        <div key={job.id} className="py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs font-body">
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
                               <span className="font-bold text-sm text-slate-900 font-heading">{job.cargoType}</span>
                               <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded">{formatDate(job.scheduledAt)}</span>
                             </div>
-                            <p className="text-slate-600 mb-1.5">Route: <span className="font-medium text-slate-900">{job.pickupAddress} &rarr; {job.dropoffAddress}</span></p>
+                            <p className="text-slate-600 mb-1.5"><span className="font-medium text-slate-900">{job.pickupAddress.split(',')[0]} → {job.dropoffAddress.split(',')[0]}</span></p>
                             <div className="text-slate-500 flex items-center gap-1.5 flex-wrap">
                               <span className="font-semibold text-slate-700">₹{Math.round(job.price)}</span>
                               <span>&middot;</span>
@@ -489,13 +485,13 @@ function DriverDashboard() {
                   ) : (
                     availableScheduledJobs.length > 0 ? (
                       availableScheduledJobs.map((job: ScheduledJob) => (
-                        <div key={job.id} className="py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-xs font-body">
+                        <div key={job.id} className="py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs font-body">
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
                               <span className="font-bold text-sm text-slate-900 font-heading">{job.cargoType}</span>
                               <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded">{formatDate(job.scheduledAt)}</span>
                             </div>
-                            <p className="text-slate-600 mb-1.5">Route: <span className="font-medium text-slate-900">{job.pickupAddress} &rarr; {job.dropoffAddress}</span></p>
+                            <p className="text-slate-600 mb-1.5"><span className="font-medium text-slate-900">{job.pickupAddress.split(',')[0]} → {job.dropoffAddress.split(',')[0]}</span></p>
                             <div className="text-slate-500 flex items-center gap-1.5 flex-wrap">
                               <span className="font-semibold text-slate-700">₹{Math.round(job.price)}</span>
                               <span>&middot;</span>
@@ -524,16 +520,13 @@ function DriverDashboard() {
 
           {}
           {activeTab === 'past_jobs' && (
-            <div className="space-y-4 max-w-4xl mx-auto w-full">
-              <SectionHeader
-                title="Past Trips"
-                subtitle="History of completed and canceled trips"
-              />
+            <div className="space-y-3 w-full">
+              <SectionHeader title="Past Trips" />
 
               <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
                 {pastBookings.length > 0 ? (
                   pastBookings.map((b: any) => (
-                    <div key={b.id} className="py-4 flex items-center justify-between gap-4 text-xs font-body">
+                    <div key={b.id} className="py-3 flex items-center justify-between gap-4 text-xs font-body">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2.5 mb-1 flex-wrap">
                           <span className="font-bold text-sm text-slate-900 font-heading">{b.cargoType}</span>
