@@ -8,7 +8,7 @@ export default function HeroSection() {
   const dest = isAuthenticated ? (user?.role === 'DRIVER' ? '/driver' : '/shipper') : '/register';
 
   return (
-    <header className="relative bg-slate-950 text-white overflow-hidden py-20 sm:py-28 border-b border-slate-800">
+    <header className="relative bg-slate-50 text-white overflow-hidden py-48 sm:py-52 border-b border-slate-800">
       {/* Subtle Background Image with Heavy Dark Scrim */}
       <div
         className="absolute inset-0 bg-cover bg-center opacity-20 pointer-events-none"
@@ -20,11 +20,6 @@ export default function HeroSection() {
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="max-w-3xl space-y-6 text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 border border-white/15 rounded-full text-xs font-bold tracking-wide text-slate-200">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Live Freight Network Active
-          </div>
-
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-white font-heading">
             Book Trucks &amp; Track Cargo Instantly
           </h1>
