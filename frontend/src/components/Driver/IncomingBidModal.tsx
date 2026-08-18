@@ -17,7 +17,7 @@ export default function IncomingBidModal({
   onReject
 }: IncomingBidModalProps) {
   return (
-    <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 w-[320px]">
+    <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 w-[calc(100%-24px)] max-w-[340px]">
       <div className="bg-white border-2 border-slate-900 rounded-xl shadow-xl p-4 space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-slate-900 font-heading">New Delivery Request!</h3>
