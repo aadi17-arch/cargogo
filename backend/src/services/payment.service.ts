@@ -1,7 +1,7 @@
 import prisma from '@/config/database';
 import { AppError } from '@/utils/AppError';
 
-export const processMockPayemnt = async (
+export const processMockPayment = async (
   bookingId: string,
   paymentMethod: string,
   amount: number
