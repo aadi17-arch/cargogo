@@ -31,10 +31,14 @@ export default {
             },
             fontFamily: {
                 sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                serif: ['"Plus Jakarta Sans"', 'sans-serif'],
-                heading: ['"Space Grotesk"', '"Plus Jakarta Sans"', 'sans-serif'],
+                body: ['"Plus Jakarta Sans"', 'sans-serif'],
+                heading: ['"Space Grotesk"', 'sans-serif'],
                 display: ['"Space Grotesk"', 'sans-serif'],
                 mono: ['"Space Mono"', 'monospace'],
+            },
+            fontSize: {
+                '2xs': ['10px', { lineHeight: '14px' }],
+                'xs-tight': ['11px', { lineHeight: '15px' }],
             },
             borderRadius: {
                 card: '6px',
