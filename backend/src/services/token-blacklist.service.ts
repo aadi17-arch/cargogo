@@ -1,16 +1,33 @@
-const blacklist = new Map<string, number>();
+import { redis } from '@/config/redis';
+import jwt from 'jsonwebtoken';
 
-export const addToBlacklist = (token: string, expiresInMs: number = 15 * 60 * 1000) => {
-  const expiresAt = Date.now() + expiresInMs;
-  blacklist.set(token, expiresAt);
+const KEY_PREFIX = 'blacklist:token:';
+
+export const addToBlacklist = async (token: string): Promise<void> => {
+  try {
+    const decoded = jwt.decode(token) as { exp?: number } | null;
+    let ttlSeconds = 15 * 60; // 15 min fallback
+
+    if (decoded && decoded.exp) {
+      const remainingSeconds = Math.floor(decoded.exp - Date.now() / 1000);
+      if (remainingSeconds <= 0) {
+        return; // Token already expired
+      }
+      ttlSeconds = remainingSeconds;
+    }
+
+    await redis.set(`${KEY_PREFIX}${token}`, 'revoked', { EX: ttlSeconds });
+  } catch (error) {
+    console.error('Failed to add token to Redis blacklist:', error);
+  }
 };
 
-export const isBlacklisted = (token: string): boolean => {
-  const expiresAt = blacklist.get(token);
-  if (!expiresAt) return false;
-  if (Date.now() > expiresAt) {
-    blacklist.delete(token);
+export const isBlacklisted = async (token: string): Promise<boolean> => {
+  try {
+    const exists = await redis.get(`${KEY_PREFIX}${token}`);
+    return Boolean(exists);
+  } catch (error) {
+    console.error('Failed to check token Redis blacklist:', error);
     return false;
   }
-  return true;
 };
