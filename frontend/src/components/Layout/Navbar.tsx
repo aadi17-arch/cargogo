@@ -206,8 +206,8 @@ export default function Navbar({
             <div className="flex items-center gap-3">
               {role === 'DRIVER' && (
                 <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 border border-white/20 rounded-lg text-white text-xs font-bold font-heading">
-                  <span className="text-emerald-400 font-extrabold">₹{Math.round(driverEarnings)}</span>
-                  <span className="text-white/70 text-[11px] font-normal">Earned</span>
+                  <span className="text-white font-black">₹{Math.round(driverEarnings)}</span>
+                  <span className="text-slate-300 text-[11px] font-normal">Earned</span>
                 </div>
               )}
               <span className="text-xs font-bold text-white/80 font-heading tracking-wide hidden sm:inline">
