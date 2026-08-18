@@ -3,17 +3,21 @@
 @tailwind utilities;
 
 :root {
-  
+  /* Core Theme Tokens */
   --color-primary: #09121F;
   --color-primary-hover: #1E293B;
-  --color-background: #E2E8F0;
+  --color-background: #F1F5F9;
   --color-card: #FFFFFF;
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #F8FAFC;
   --color-border: #E2E8F0;
   --color-input-border: #CBD5E1;
-  --color-text-main: #0F1B2E;
-  --color-text-muted: #5C6B84;
+  --color-text-main: #0F172A;
+  --color-text-muted: #64748B;
+  --color-accent: #4F46E5;
+  --color-accent-hover: #4338CA;
 
-  
+  /* Status Colors */
   --color-status-pending: #D97706;
   --color-status-accepted: #8B5CF6;
   --color-status-transit: #EA580C;
@@ -21,28 +25,15 @@
   --color-status-completed: #059669;
   --color-status-cancelled: #DC2626;
 
-  
+  /* Sizing & Geometry Tokens */
   --radius-card: 6px;
   --radius-button: 6px;
   --border-width: 1.5px;
 
-  
+  /* Universal Font Token */
   --font-heading: 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
   --font-mono: 'Plus Jakarta Sans', sans-serif;
-
-  
-  --color-bg: #F6F7F9;
-  --color-surface: #FFFFFF;
-  --color-surface-muted: #F8FAFC;
-  --color-border: #E2E8F0;
-  --color-text-main: #0F172A;
-  --color-text-muted: #64748B;
-  --color-accent: #4F46E5;
-  --color-accent-hover: #4338CA;
-  --color-success: #059669;
-  --color-warning: #D97706;
-  --color-danger: #E11D48;
 }
 
 @layer base {
@@ -75,16 +66,13 @@
     border-radius: var(--radius-card);
   }
   .input-field:focus {
-    border-color: #0F1B2E;
+    border-color: var(--color-primary);
   }
   .btn-primary {
-    @apply w-full bg-[#1A1A1A] hover:bg-black text-white py-3 px-4 font-bold text-sm rounded-xl transition-colors shadow-sm flex items-center justify-center gap-2;
+    @apply w-full bg-slate-900 hover:bg-black text-white py-3 px-4 font-bold text-sm rounded-xl transition-colors shadow-sm flex items-center justify-center gap-2;
   }
   .alert-error {
-    @apply bg-[#FEE2E2] border border-[#FCA5A5] text-[#991B1B] p-3 text-xs font-semibold mb-4 rounded-xl;
-  }
-  .dark-input-field {
-    @apply w-full p-3 bg-[#2D2D2D] text-white placeholder-slate-500 font-medium rounded-xl border border-transparent focus:outline-none focus:border-slate-500 transition-all text-sm;
+    @apply bg-rose-100 border border-rose-300 text-rose-800 p-3 text-xs font-semibold mb-4 rounded-xl;
   }
   
   .card {
@@ -103,7 +91,6 @@
     font-family: 'Space Grotesk', sans-serif;
   }
 
-  
   .demo-btn-primary {
     display: inline-flex;
     align-items: center;
@@ -182,21 +169,17 @@
   }
 }
 
-
+/* Numeric input spinner suppressors */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-
 input[type=number] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
-
-
-
 
 .panel {
   position: relative;
@@ -205,7 +188,6 @@ input[type=number] {
   background: var(--color-surface);
   box-shadow: 0 1px 2px 0 rgb(15 23 42 / 0.04);
 }
-
 
 .dash-input {
   width: 100%;
@@ -226,11 +208,9 @@ input[type=number] {
   box-shadow: 0 0 0 3px rgb(79 70 229 / 0.12);
 }
 
-
 .dash-input-ghost {
   padding-left: 1rem;
 }
-
 
 .dash-btn-primary {
   width: 100%;
@@ -255,7 +235,6 @@ input[type=number] {
   cursor: not-allowed;
 }
 
-
 .dash-chip {
   display: inline-flex;
   align-items: center;
@@ -270,12 +249,10 @@ input[type=number] {
   white-space: nowrap;
 }
 
-
 .dash-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
 .dash-scroll::-webkit-scrollbar-track { background: transparent; }
 .dash-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
 .dash-scroll::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
-
 
 .leaflet-control-attribution {
   display: none !important;
