@@ -395,18 +395,17 @@ function TrackingPage() {
       {booking && booking.driverId && (
         <button
           type="button"
+          aria-label="Open Chat"
+          title="Open Chat"
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
             setIsChatOpen(true);
             setUnreadCount(0);
           }}
-          className="fixed bottom-6 right-6 z-[1001] bg-slate-950 hover:bg-slate-800 text-white p-3.5 rounded-full shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2 group scale-100 hover:scale-105 active:scale-95"
+          className="fixed bottom-6 right-6 z-[1001] w-12 h-12 bg-slate-950 hover:bg-slate-800 text-white rounded-full shadow-xl transition-all cursor-pointer flex items-center justify-center scale-100 hover:scale-105 active:scale-95 border border-white/10"
         >
           <MessageCircle className="w-5 h-5" />
-          <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 font-bold text-xs whitespace-nowrap">
-            Chat
-          </span>
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white animate-pulse">
               {unreadCount}
