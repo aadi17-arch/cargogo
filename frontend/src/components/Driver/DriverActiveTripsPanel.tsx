@@ -82,58 +82,58 @@ export default function DriverActiveTripsPanel({
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}
         style={{ touchAction: 'pan-y', overscrollBehavior: 'contain' }}
-        className="absolute bottom-3 left-2.5 right-2.5 z-10 flex flex-col gap-2 md:hidden max-h-[56vh]"
+        className="absolute bottom-2.5 left-2.5 right-2.5 z-10 bg-white rounded-xl border border-slate-200 shadow-xl p-3 md:hidden flex flex-col gap-2 max-h-[44vh]"
       >
         {onToggleOnline && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-md px-3 py-2 flex items-center gap-2 shrink-0">
-            <div className={`w-2 h-2 rounded-sm shrink-0 ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-            <span className="text-xs font-bold text-slate-900">{isOnline ? 'Online' : 'Offline'}</span>
+          <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100 shrink-0">
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full shrink-0 ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+              <span className="text-xs font-bold text-slate-900 font-heading">{isOnline ? 'Online' : 'Offline'}</span>
+            </div>
             <button
               type="button"
               onClick={onToggleOnline}
               disabled={isOnline && activeBookings.length > 0}
-              className="ml-auto text-xs font-bold text-white bg-slate-950 rounded-md px-2.5 py-1 cursor-pointer disabled:opacity-50"
+              className="text-[11px] font-bold text-white bg-slate-950 hover:bg-slate-800 rounded-md px-2.5 py-1 transition-all cursor-pointer font-heading disabled:opacity-50"
             >
               {isOnline ? 'Go Offline' : 'Go Online'}
             </button>
           </div>
         )}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-md overflow-y-auto p-3 font-body text-slate-800 space-y-2 flex-1 min-h-0 text-left">
-          {activeBookings.length === 0 ? (
-            <EmptyState
-              icon={Clock}
-              title="No active jobs"
-              description="Go online to receive delivery requests."
-              action={
+
+        {activeBookings.length === 0 ? (
+          <div className="py-2 px-1 flex items-center justify-between text-left">
+            <div className="flex items-center gap-2 text-slate-500">
+              <Clock size={16} className="text-slate-400 shrink-0" />
+              <span className="text-xs font-medium text-slate-600 font-body">No active jobs</span>
+            </div>
+            <button
+              type="button"
+              onClick={onBrowseJobs}
+              className="text-xs font-bold text-slate-950 hover:underline bg-transparent border-none cursor-pointer font-heading"
+            >
+              Browse Jobs →
+            </button>
+          </div>
+        ) : (
+          <div className="overflow-y-auto space-y-2 max-h-[30vh]">
+            {activeBookings.map((b: any) => (
+              <div key={b.id} className="p-2 border border-slate-200 rounded-lg flex items-center justify-between gap-2">
+                <div className="min-w-0 flex-1 text-left">
+                  <p className="font-bold text-slate-900 truncate text-xs font-heading">{b.cargoType}</p>
+                  <BookingRouteRow pickupAddress={b.pickupAddress} dropoffAddress={b.dropoffAddress} className="text-slate-500 text-[10px]" />
+                </div>
                 <button
                   type="button"
-                  onClick={onBrowseJobs}
-                  className="text-xs font-bold text-slate-950 hover:underline bg-transparent border-none cursor-pointer"
+                  onClick={() => navigate(`/track/${b.id}`)}
+                  className="bg-slate-950 text-white px-2.5 py-1 text-xs font-bold rounded-md shrink-0 cursor-pointer font-heading"
                 >
-                  Browse Jobs
+                  Track
                 </button>
-              }
-            />
-          ) : (
-            <div className="space-y-2 text-xs">
-              {activeBookings.map((b: any) => (
-                <div key={b.id} className="p-2.5 border border-slate-200 rounded-lg flex items-center justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-bold text-slate-900 truncate">{b.cargoType}</p>
-                    <BookingRouteRow pickupAddress={b.pickupAddress} dropoffAddress={b.dropoffAddress} className="text-slate-500 text-[10px]" />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/track/${b.id}`)}
-                    className="bg-slate-950 text-white px-2.5 py-1 text-xs font-bold rounded-md shrink-0 cursor-pointer"
-                  >
-                    Track
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </>
   );
