@@ -52,12 +52,12 @@ export default function HeroSection() {
               <Zap size={18} className="text-amber-400 shrink-0" />
               <span>Instant Driver Matching</span>
             </div>
-            <div className="flex items-center gap-2.5">
-              <ShieldCheck size={18} className="text-emerald-400 shrink-0" />
+            <div className="flex items-center gap-3">
+              <ShieldCheck size={18} className="text-slate-300 shrink-0" />
               <span>Dual OTP Verified Handshake</span>
             </div>
-            <div className="flex items-center gap-2.5">
-              <Calculator size={18} className="text-indigo-400 shrink-0" />
+            <div className="flex items-center gap-3">
+              <Calculator size={18} className="text-slate-300 shrink-0" />
               <span>Transparent Volumetric Rates</span>
             </div>
           </div>

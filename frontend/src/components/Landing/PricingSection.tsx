@@ -74,7 +74,7 @@ export default function PricingSection() {
       <div className="max-w-7xl mx-auto px-6">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-2">
-          <span className="text-xs font-bold text-indigo-600">
+          <span className="text-xs font-bold text-slate-500">
             Instant Calculator
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 font-heading">
@@ -93,7 +93,7 @@ export default function PricingSection() {
               {/* Single Clean Weight Input */}
               <div className="text-left space-y-1.5">
                 <label className="block text-xs font-bold text-slate-700">
-                  Cargo Weight (kg)
+                  Cargo Weight
                 </label>
                 <div className="relative flex items-center">
                   <span className="absolute left-3 text-slate-400">
@@ -114,7 +114,7 @@ export default function PricingSection() {
               {/* Transit Distance Input */}
               <div className="text-left space-y-1.5">
                 <label className="block text-xs font-bold text-slate-700">
-                  Distance (km)
+                  Distance
                 </label>
                 <div className="relative flex items-center">
                   <span className="absolute left-3 text-slate-400">
@@ -221,7 +221,7 @@ export default function PricingSection() {
                     </div>
                     <div>
                       <h4 className="font-extrabold text-sm text-slate-900 font-heading">{f.title}</h4>
-                      <span className="text-[10px] font-bold text-indigo-600">{f.capacity}</span>
+                      <span className="text-[10px] font-bold text-slate-500">{f.capacity}</span>
                     </div>
                   </div>
                   <p className="text-xs leading-relaxed text-slate-600 font-body">{f.description}</p>

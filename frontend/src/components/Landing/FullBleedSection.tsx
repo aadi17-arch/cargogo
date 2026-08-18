@@ -92,7 +92,7 @@ export function ShipperSection() {
       id="shippers"
       align="left"
       tag="For Shippers"
-      tagColor="text-indigo-600"
+      tagColor="text-slate-500"
       title="Reliable freight booking built for business"
       description="Book verified local trucks instantly to ship anything from office goods to heavy commercial loads. Direct vehicle dispatch with total transparency."
       benefits={[
@@ -113,7 +113,7 @@ export function DriverSection() {
       id="drivers"
       align="right"
       tag="For Driver Partners"
-      tagColor="text-emerald-600"
+      tagColor="text-slate-500"
       title="Earn more with transparent freight matching"
       description="Connect directly with shippers needing truck and tempo capacity. Keep full transparency on your fares with fast digital settlements."
       benefits={[

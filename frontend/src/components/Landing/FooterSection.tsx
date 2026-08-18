@@ -80,7 +80,7 @@ export default function FooterSection() {
                     className="text-slate-400 hover:text-white transition-colors flex items-center gap-1.5 bg-transparent border-0 p-0 cursor-pointer"
                   >
                     <span>REST &amp; Socket APIs</span>
-                    <ExternalLink size={12} className="text-indigo-400" />
+                    <ExternalLink size={12} className="text-slate-400" />
                   </button>
                 </li>
                 <li>
