@@ -1,25 +1,28 @@
 import express from 'express';
 import cors from 'cors';
-import { env } from '@/config/env.config';
+import path from 'path';
 import http from 'http';
+import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
+import { env } from '@/config/env.config';
 import authRoutes from '@/routes/auth.routes';
 import bookingRoutes from '@/routes/booking.routes';
 import driverRoutes from '@/routes/driver.routes';
-import { createSocketServer } from '@/sockets/socket.server';
-import { registerMatchingHandlers } from '@/sockets/matching.socket';
-import { registerTrackingHandlers } from '@/sockets/tracking.socket';
-import { startDispatchWorker } from '@/queues/dispatch.queue';
 import reviewRoutes from '@/routes/review.routes';
 import disputeRoutes from '@/routes/dispute.routes';
 import vehicleRoutes from '@/routes/vehicle.routes';
 import paymentRoutes from '@/routes/payment.routes';
 import geocodingRoutes from '@/routes/geocoding.routes';
 import chatRoutes from '@/routes/chat.routes';
+import { createSocketServer } from '@/sockets/socket.server';
+import { registerMatchingHandlers } from '@/sockets/matching.socket';
+import { registerTrackingHandlers } from '@/sockets/tracking.socket';
+import { startDispatchWorker, dispatchQueue } from '@/queues/dispatch.queue';
 import { errorHandler } from '@/middleware/error.middleware';
-import helmet from 'helmet';
 import { globalRateLimiter, strictLimiter } from '@/middleware/rate-limit.middleware';
-import cookieParser from 'cookie-parser';
 import { requestLogger } from '@/middleware/logger.middleware';
+import prisma from '@/config/database';
+import { redis } from '@/config/redis';
 
 const PORT = env.PORT;
 
@@ -27,7 +30,7 @@ const app = express();
 const httpServer = http.createServer(app);
 
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: env.FRONTEND_URL,
     credentials: true,
 }));
 app.use(helmet());
@@ -35,32 +38,37 @@ app.use(globalRateLimiter);
 app.use(express.json());
 app.use(cookieParser());
 app.use(requestLogger);
+
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });
 });
+
 app.use('/api/auth', strictLimiter, authRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/review', reviewRoutes);
 app.use('/api/disputes', disputeRoutes);
-import path from 'path';
-app.use(express.static(path.join(__dirname, '../../frontend/dist')));
-
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/payment', strictLimiter, paymentRoutes);
 app.use('/api/geocoding', geocodingRoutes);
 app.use('/api/chat', chatRoutes);
 
-app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api')) {
-    return next();
-  }
+// Explicit 404 JSON response for any unrecognized /api endpoints
+app.all('/api/*', (req, res) => {
+    res.status(404).json({
+        success: false,
+        message: `Cannot ${req.method} ${req.originalUrl}`
+    });
+});
+
+app.use(express.static(path.join(__dirname, '../../frontend/dist')));
+
+app.get('*', (req, res) => {
   // DON'T REMOVE THIS — fixes the 404 refresh bug in React router
   res.sendFile(path.join(__dirname, '../../frontend/dist/index.html'));
 });
 
 app.use(errorHandler);
-
 
 const io = createSocketServer(httpServer);
 registerMatchingHandlers(io);
@@ -70,22 +78,7 @@ app.set('io', io);
 
 httpServer.listen(PORT, () => {
     console.log(`Server is running on PORT ${PORT}`);
-
-    // Programmatic DB sync on startup (using db push for non-empty schemas)
-    const { exec } = require('child_process');
-    exec('npx prisma db push', (err: any, stdout: string, stderr: string) => {
-        if (err) {
-            console.error('[Migration] db push failed:', err);
-        } else {
-            console.log('[Migration] Database tables pushed and synced successfully:\n', stdout);
-        }
-    });
 });
-
-// close connections cleanly when stopping the process
-import prisma from '@/config/database';
-import { redis } from '@/config/redis';
-import { dispatchQueue } from '@/queues/dispatch.queue';
 
 const gracefulShutdown = async (signal: string) => {
   console.log(`\nReceived ${signal}. Starting graceful shutdown...`);
