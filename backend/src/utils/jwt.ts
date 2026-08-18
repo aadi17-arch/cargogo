@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken';
+import { env } from '@/config/env.config';
 
-const JWT_SECRET = process.env.JWT_SECRET!;
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || (JWT_SECRET + '_refresh');
+const JWT_SECRET = env.JWT_SECRET;
+const JWT_REFRESH_SECRET = env.JWT_REFRESH_SECRET || (JWT_SECRET + '_refresh');
 
 export interface TokenPayload {
     userId: string,
