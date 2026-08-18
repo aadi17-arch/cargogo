@@ -215,7 +215,7 @@ function TrackingPage() {
         <div class="route-text"><strong>Pickup</strong>${booking.pickupAddress || 'N/A'}</div>
         <div class="route-arrow">→</div>
         <div><div class="route-dot dropoff"></div></div>
-        <div class="route-text"><strong>Dropoff</strong>${booking.dropoffAddress || 'N/A'}</div>
+        <div class="route-text"><strong>Drop-off</strong>${booking.dropoffAddress || 'N/A'}</div>
       </div>
 
       <div class="section-title">Fare Breakdown</div>

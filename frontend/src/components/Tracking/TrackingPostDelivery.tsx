@@ -142,9 +142,9 @@ export default function TrackingPostDelivery({
       {/* Review Submission Form */}
       {booking.status === 'COMPLETED' && userRole === 'SHIPPER' && !booking.review && !reviewSubmitted && (
         <form onSubmit={handleReview} className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm space-y-4 font-body text-xs text-slate-600">
-          <h3 className="text-sm font-bold text-slate-800 font-heading pb-2 border-b border-slate-100">
-            Rate Driver Partner
-          </h3>
+          <h4 className="text-xs font-bold text-slate-900 font-heading mb-3">
+            Rate Driver
+          </h4>
           <div className="space-y-1">
             <label className="block text-[10px] font-bold text-slate-400 uppercase">Rating</label>
             <div className="flex space-x-1">
