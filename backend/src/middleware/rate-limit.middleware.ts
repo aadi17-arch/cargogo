@@ -1,6 +1,6 @@
 import rateLimit from "express-rate-limit";
 
-const shouldSkip = () => true;
+const shouldSkip = () => process.env.NODE_ENV === 'test';
 
 export const globalRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
