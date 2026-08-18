@@ -109,17 +109,21 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ bookingId, currentUser, onClose
         {}
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={fetchChatHistory}
-            className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors cursor-pointer"
+            aria-label="Reload Chat Messages"
+            className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:outline-none"
             title="Reload Chat"
           >
-            <RotateCw className="w-3.5 h-3.5" />
+            <RotateCw className="w-3.5 h-3.5" aria-hidden="true" />
           </button>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors cursor-pointer"
+            aria-label="Close Chat"
+            className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:outline-none"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-3.5 h-3.5" aria-hidden="true" />
           </button>
         </div>
       </div>
