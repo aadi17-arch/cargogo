@@ -122,7 +122,7 @@ export default function PaymentModal({ booking, onClose, onSuccess }: PaymentMod
 
           <div className="border-t border-slate-200/70 pt-3 flex flex-col items-center justify-center text-center">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Total Charge</span>
-            <span className="text-3xl font-black text-slate-900 font-heading tracking-tight mt-1 font-mono">
+            <span className="text-3xl font-black text-slate-900 font-heading tracking-tight mt-1">
               ₹{booking.price}
             </span>
           </div>
