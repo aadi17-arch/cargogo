@@ -19,12 +19,19 @@ export const updateVehicle = async (
   userId: string,
   updateInput: updateVehicleInput
 ) => {
+  if (!updateInput.plateNumber) {
+    const existing = await prisma.vehicle.findUnique({ where: { userId } });
+    if (!existing) {
+      throw new Error('Plate number is required to register a vehicle');
+    }
+  }
+
   const updatedVehicle = await prisma.vehicle.upsert({
     where: { userId: userId },
     create: {
       userId: userId,
       type: updateInput.type || 'MINI_TEMPO',
-      plateNumber: updateInput.plateNumber || 'MH-12-TEMP-9999',
+      plateNumber: updateInput.plateNumber!,
       capacityKg: updateInput.capacityKg || 1000,
       basePrice: updateInput.basePrice || 50,
       pricePerKm: updateInput.pricePerKm || 15,
@@ -33,4 +40,4 @@ export const updateVehicle = async (
     update: updateInput
   });
   return updatedVehicle;
-}
+};
