@@ -1,11 +1,15 @@
 import { Server as SocketIOServer } from 'socket.io';
 import prisma from '@/config/database';
 import { addDriverLocation } from '@/services/grid-index.service';
+import { startGpsSimulation, stopGpsSimulation } from '@/services/gps-simulator.service';
+import { SOCKET_ROOMS, SOCKET_EVENTS } from '@/config/socket-events';
 
 export const registerTrackingHandlers = (io: SocketIOServer) => {
   io.on('connection', (socket) => {
     const user = socket.data.user;
-    socket.on('driver:location', async ({ lat, lng }) => {
+    if (!user) return;
+
+    socket.on(SOCKET_EVENTS.DRIVER_LOCATION, async ({ lat, lng }) => {
       if (user.role !== 'DRIVER') return;
       await addDriverLocation(user.id, lat, lng);
       await prisma.driverProfile.update({
@@ -22,58 +26,53 @@ export const registerTrackingHandlers = (io: SocketIOServer) => {
         }
       });
       if (booking) {
-        io.to(`shipper:${booking.shipperId}`).emit('driver:location:update', {
+        const payload = {
           bookingId: booking.id,
           lat,
           lng,
           timeStamp: new Date().toISOString(),
-        });
+        };
+        io.to(SOCKET_ROOMS.shipper(booking.shipperId)).emit(SOCKET_EVENTS.DRIVER_LOCATION_UPDATE, payload);
+        io.to(SOCKET_ROOMS.driver(user.id)).emit(SOCKET_EVENTS.DRIVER_LOCATION_UPDATE, payload);
+        io.to(SOCKET_ROOMS.booking(booking.id)).emit(SOCKET_EVENTS.DRIVER_LOCATION_UPDATE, payload);
       }
     });
-    socket.on('start:trip', async ({ bookingId }) => {
+
+    socket.on(SOCKET_EVENTS.START_TRIP, async ({ bookingId }) => {
       const booking = await prisma.booking.findUnique({
         where: { id: bookingId }
       });
       if (!booking || booking.status !== 'IN_TRANSIT') {
-        socket.emit('error', { message: 'Trip not in transit' });
+        socket.emit(SOCKET_EVENTS.ERROR, { message: 'Trip not in transit' });
         return;
       }
-      const steps = 20;
-      const latStep = (booking.dropoffLat - booking.pickupLat) / steps;
-      const lngStep = (booking.dropoffLng - booking.pickupLng) / steps;
+      if (user.role !== 'DRIVER' || booking.driverId !== user.id) {
+        socket.emit(SOCKET_EVENTS.ERROR, { message: 'Unauthorized: only assigned driver can start trip tracking' });
+        return;
+      }
 
-      let currentStep = 0;
-      const interval = setInterval(() => {
-        currentStep++;
-        const lat = booking.pickupLat + latStep * currentStep;
-        const lng = booking.pickupLng + lngStep * currentStep;
-
-        io.to(`shipper:${booking.shipperId}`).emit('driver:location:update', {
-          bookingId,
-          lat,
-          lng,
-          progress: (currentStep / steps) * 100
-        });
-        if (currentStep >= steps) {
-          clearInterval(interval);
-          io.to(`shipper:${booking.shipperId}`).emit('trip:completed', { bookingId })
-        }
-      }, 3000);
+      // Delegate to centrally managed gps simulator with duplicate-timer prevention
+      startGpsSimulation(bookingId, booking.pickupLat, booking.pickupLng, booking.dropoffLat, booking.dropoffLng, io);
     });
-    socket.on('join-booking-tracking', async ({ bookingId }) => {
+
+    socket.on(SOCKET_EVENTS.STOP_TRIP_TRACKING, ({ bookingId }) => {
+      stopGpsSimulation(bookingId);
+    });
+
+    socket.on(SOCKET_EVENTS.JOIN_BOOKING_TRACKING, async ({ bookingId }) => {
       const userId = user.id;
       const booking = await prisma.booking.findUnique({
         where: { id: bookingId }
       });
       if (!booking) {
-        socket.emit('error', { message: 'Booking not found' });
+        socket.emit(SOCKET_EVENTS.ERROR, { message: 'Booking not found' });
         return;
       }
       if (userId !== booking.shipperId && userId !== booking.driverId) {
-        socket.emit('error', { message: 'Unauthorized' });
+        socket.emit(SOCKET_EVENTS.ERROR, { message: 'Unauthorized' });
         return;
       }
-      socket.join(`booking:${bookingId}`);
+      socket.join(SOCKET_ROOMS.booking(bookingId));
     });
   });
 };
