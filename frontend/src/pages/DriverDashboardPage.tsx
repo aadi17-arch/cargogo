@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
@@ -9,25 +8,24 @@ import { bookingService } from '@/services/booking.service';
 import { VrpRouteResponse } from '@/types/driver.types';
 import { ScheduledJob } from '@/types/booking.types';
 import { toast } from 'react-hot-toast';
-import { LocateFixed, Navigation, Clock, FileText, CalendarClock, Briefcase, RefreshCw } from 'lucide-react';
-import StatusBadge from '@/components/UI/StatusBadge';
+import { LocateFixed } from 'lucide-react';
 import MapView, { MapMarker } from '@/components/Map/MapView';
-import EmptyState from '@/components/UI/EmptyState';
 import DashboardHeader from '@/components/UI/DashboardHeader';
 import MapOverlayCard from '@/components/UI/MapOverlayCard';
 import LocateButton from '@/components/UI/LocateButton';
-import IconButton from '@/components/UI/IconButton';
-import SectionHeader from '@/components/UI/SectionHeader';
-import BookingRouteRow from '@/components/UI/BookingRouteRow';
 import { useAddressResolver } from '@/hooks/useAddressResolver';
 import { formatDate } from '@/utils/formatters';
 import L from 'leaflet';
+import IncomingBidModal from '@/components/Driver/IncomingBidModal';
+import DriverScheduledPanel from '@/components/Driver/DriverScheduledPanel';
+import DriverJobsBoard from '@/components/Driver/DriverJobsBoard';
+import DriverActiveTripsPanel from '@/components/Driver/DriverActiveTripsPanel';
 
 function DriverDashboard() {
   const { token } = useAuth();
   const { bookings, fetchMyBookings, fetchPendingBookings, acceptBooking: apiAcceptBooking } = useBooking();
   const { isOnline, updateStatus } = useDriverStatus();
-  const { acceptBid: socketAcceptBid, rejectBid: socketRejectBid } = useSocket(token);
+  const { acceptBid: socketAcceptBid, rejectBid: socketRejectBid, commitScheduledJob: socketCommitScheduledJob } = useSocket(token);
 
   const [bid, setBid] = useState<any>(null);
   const [countdown, setCountdown] = useState(30);
@@ -39,15 +37,11 @@ function DriverDashboard() {
   const [map, setMap] = useState<L.Map | null>(null);
   const [driverLocationName, setDriverLocationName] = useState<string>('Detecting...');
   const lastGeocodedCoords = useRef<[number, number] | null>(null);
-  const navigate = useNavigate();
-  const { commitScheduledJob: socketCommitScheduledJob } = useSocket(token);
 
   const { resolveAddresses, resolveSingleAddress } = useAddressResolver();
 
-  
   const [scheduledJobs, setScheduledJobs] = useState<ScheduledJob[]>([]);
   const [availableScheduledJobs, setAvailableScheduledJobs] = useState<ScheduledJob[]>([]);
-  const [showScheduledBoard, setShowScheduledBoard] = useState(false);
   const [committingJobId, setCommittingJobId] = useState<string | null>(null);
   const [loadingScheduled, setLoadingScheduled] = useState(false);
 
@@ -81,7 +75,6 @@ function DriverDashboard() {
     fetchRoute();
   };
 
-  
   const loadScheduledJobs = useCallback(async () => {
     setLoadingScheduled(true);
     try {
@@ -96,7 +89,6 @@ function DriverDashboard() {
     } finally { setLoadingScheduled(false); }
   }, []);
 
-  
   const handleCommitScheduledJob = async (bookingId: string) => {
     setCommittingJobId(bookingId);
     try {
@@ -151,12 +143,12 @@ function DriverDashboard() {
   useSocketListener('driver:arrived', () => loadData());
   useSocketListener('trip:completed', () => loadData());
   useSocketListener('booking-cancelled', () => loadData());
-  
+
   useSocketListener('scheduled_job_available', (data: any) => {
     toast.success(`📅 New scheduled job: ${data.cargoType} on ${formatDate(data.scheduledAt)}`, { duration: 6000 });
-    loadScheduledJobs(); 
+    loadScheduledJobs();
   });
-  
+
   useSocketListener('commit-confirmed', (data: any) => {
     toast.success(`✅ Committed! Job scheduled for ${formatDate(data.scheduledAt)}`);
     setCommittingJobId(null);
@@ -200,9 +192,8 @@ function DriverDashboard() {
   };
 
   const activeBookings = bookings.filter((b: any) => !['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status));
-  const pastBookings   = bookings.filter((b: any) => ['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status));
+  const pastBookings = bookings.filter((b: any) => ['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status));
 
-  
   const mapCenter: [number, number] = driverCoords
     ? driverCoords
     : (routeData?.route && routeData.route.length > 0)
@@ -245,7 +236,7 @@ function DriverDashboard() {
         * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
       `}</style>
 
-      {}
+      {/* Header View Switcher */}
       <DashboardHeader
         title="Driver Dashboard"
         tabs={[
@@ -263,11 +254,9 @@ function DriverDashboard() {
       />
 
       {activeTab === 'my_jobs' ? (
-        
         <div className="flex-1 w-full p-2 sm:p-4 relative flex flex-col min-h-0 overflow-hidden bg-white">
           <div className="relative w-full h-full flex-1 rounded-xl border border-slate-200 shadow-xs overflow-hidden bg-white">
-
-            {}
+            {/* Live Map Canvas */}
             <div className="absolute inset-0 z-0 h-full w-full">
               <MapView
                 center={mapCenter}
@@ -279,12 +268,13 @@ function DriverDashboard() {
               />
             </div>
 
-            {}
+            {/* Online Status Bar & GPS Locate Action */}
             <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20 flex items-center gap-2">
               <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-md">
                 <div className={`w-2 h-2 rounded-sm shrink-0 ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
                 <span className="text-xs font-bold text-slate-900 font-heading">{isOnline ? 'Online' : 'Offline'}</span>
                 <button
+                  type="button"
                   onClick={toggleOnline}
                   disabled={isOnline && activeBookings.length > 0}
                   className="text-xs font-bold text-white bg-slate-950 hover:bg-slate-800 rounded-md px-2.5 py-1 transition-all cursor-pointer font-heading disabled:opacity-50"
@@ -293,265 +283,74 @@ function DriverDashboard() {
                 </button>
                 <div className="w-px h-4 bg-slate-200" />
                 <LocateFixed size={11} className="text-slate-400 shrink-0" />
-                <span className="text-[11px] font-bold text-slate-700 truncate font-body max-w-[140px]" title={driverLocationName}>{driverLocationName}</span>
+                <span className="text-[11px] font-bold text-slate-700 truncate font-body max-w-[140px]" title={driverLocationName}>
+                  {driverLocationName}
+                </span>
               </div>
               <LocateButton
                 onClick={() => { if (driverCoords && map) map.setView(driverCoords, 14, { animate: true }); }}
               />
             </div>
 
-            {}
+            {/* Incoming Bid Notification Modal */}
             {bid && (
-              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 w-[320px]">
-                <div className="bg-white border-2 border-slate-900 rounded-xl shadow-xl p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-slate-900 font-heading">New Delivery Request!</h3>
-                    <span className="text-[11px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">{countdown}s</span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 text-xs">
-                    <div><span className="block text-[10px] font-bold text-slate-500">Cargo</span><span className="font-bold text-slate-900 truncate block">{bid.cargoType}</span></div>
-                    <div><span className="block text-[10px] font-bold text-slate-500">Payout</span><span className="font-extrabold text-slate-900">₹{Math.round(bid.price)}</span></div>
-                    <div><span className="block text-[10px] font-bold text-slate-500">Distance</span><span className="font-bold text-slate-900">{bid.distanceKm} km</span></div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={handleAcceptBid} className="flex-1 bg-slate-950 hover:bg-slate-800 text-white py-1.5 text-xs font-bold rounded-lg cursor-pointer font-heading">Accept</button>
-                    <button onClick={handleRejectBid} className="flex-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 py-1.5 text-xs font-bold rounded-lg cursor-pointer font-heading">Decline</button>
-                  </div>
-                </div>
-              </div>
+              <IncomingBidModal
+                bid={bid}
+                countdown={countdown}
+                onAccept={handleAcceptBid}
+                onReject={handleRejectBid}
+              />
             )}
 
-            {}
+            {/* Active Trips Card (Desktop) */}
             <MapOverlayCard>
-              {activeBookings.length === 0 ? (
-                <EmptyState icon={Clock} title="No active jobs" description="Go online to receive deliveries."
-                  action={<button onClick={() => { setActiveTab('jobs_board'); loadData(); }} className="text-xs font-bold text-slate-950 hover:underline bg-transparent border-none cursor-pointer">Browse Jobs</button>}
-                />
-              ) : (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-900 font-heading">Active Trips</h3>
-                      <p className="text-[11px] text-slate-500">Overview of currently active jobs</p>
-                    </div>
-                    <IconButton icon={RefreshCw} onClick={loadData} title="Refresh" />
-                  </div>
-                  <div className="divide-y divide-slate-100">
-                    {activeBookings.map((b: any) => (
-                      <div key={b.id} className="py-3 flex items-center justify-between gap-3 text-xs">
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-bold text-slate-900 truncate">{b.cargoType}</span>
-                          </div>
-                          <BookingRouteRow pickupAddress={b.pickupAddress} dropoffAddress={b.dropoffAddress} />
-                          <div className="text-slate-500 flex items-center gap-1.5">
-                            <span>₹{Math.round(b.price || b.totalPrice || 0)}</span>
-                            <span>&middot;</span>
-                            <span>{b.weightKg} kg</span>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => navigate(`/track/${b.id}`)}
-                          className="bg-slate-950 hover:bg-slate-800 text-white px-3 py-1.5 text-xs font-bold rounded-lg cursor-pointer shrink-0 font-heading"
-                        >
-                          Track
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <DriverActiveTripsPanel
+                activeBookings={activeBookings}
+                isOnline={isOnline}
+                onRefresh={loadData}
+                onBrowseJobs={() => { setActiveTab('jobs_board'); loadData(); }}
+              />
             </MapOverlayCard>
 
-            {}
-            <div className="absolute bottom-3 left-2.5 right-2.5 z-10 flex flex-col gap-2 md:hidden max-h-[56vh]">
-              <div className="bg-white rounded-xl border border-slate-200 shadow-md px-3 py-2 flex items-center gap-2 shrink-0">
-                <div className={`w-2 h-2 rounded-sm shrink-0 ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-                <span className="text-xs font-bold text-slate-900">{isOnline ? 'Online' : 'Offline'}</span>
-                <button onClick={toggleOnline} disabled={isOnline && activeBookings.length > 0} className="ml-auto text-xs font-bold text-white bg-slate-950 rounded-md px-2.5 py-1 cursor-pointer disabled:opacity-50">
-                  {isOnline ? 'Go Offline' : 'Go Online'}
-                </button>
-              </div>
-              <div className="bg-white rounded-xl border border-slate-200 shadow-md overflow-y-auto p-3 font-body text-slate-800 space-y-2 flex-1 min-h-0 text-left">
-                {activeBookings.length === 0
-                  ? <EmptyState icon={Clock} title="No active jobs" description="Go online." action={<button onClick={() => { setActiveTab('jobs_board'); loadData(); }} className="text-xs font-bold text-slate-950 hover:underline bg-transparent border-none cursor-pointer">Browse Jobs</button>} />
-                  : <div className="space-y-2 text-xs">
-                      {activeBookings.map((b: any) => (
-                        <div key={b.id} className="p-2.5 border border-slate-200 rounded-lg flex items-center justify-between gap-2">
-                          <div className="min-w-0 flex-1">
-                            <p className="font-bold text-slate-900 truncate">{b.cargoType}</p>
-                            <BookingRouteRow pickupAddress={b.pickupAddress} dropoffAddress={b.dropoffAddress} className="text-slate-500 text-[10px]" />
-                          </div>
-                          <button onClick={() => navigate(`/track/${b.id}`)} className="bg-slate-950 text-white px-2.5 py-1 text-xs font-bold rounded-md shrink-0 cursor-pointer">Track</button>
-                        </div>
-                      ))}
-                    </div>
-                }
-              </div>
-            </div>
-
+            {/* Active Trips Card (Mobile Overlay) */}
+            <DriverActiveTripsPanel
+              activeBookings={activeBookings}
+              isOnline={isOnline}
+              onRefresh={loadData}
+              onBrowseJobs={() => { setActiveTab('jobs_board'); loadData(); }}
+              onToggleOnline={toggleOnline}
+            />
           </div>
         </div>
       ) : (
-        
         <div className="flex-1 w-full bg-white flex flex-col overflow-y-auto px-4 py-4 space-y-3 text-left">
-
-          {}
           {activeTab === 'jobs_board' && (
-            <div className="space-y-3 w-full">
-              <SectionHeader
-                title="Available Shipments"
-                action={<IconButton icon={RefreshCw} onClick={loadData} title="Refresh" />}
-              />
-
-              <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
-                {pendingBookings.length > 0 ? (
-                  pendingBookings.map((b: any) => (
-                    <div key={b.id} className="py-3 flex items-center justify-between gap-4 text-xs font-body">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2.5 mb-1.5">
-                          <span className="font-bold text-sm text-slate-900 font-heading">{b.cargoType}</span>
-                          <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-mono">#{b.id.slice(0, 8).toUpperCase()}</span>
-                        </div>
-                        <BookingRouteRow pickupAddress={b.pickupAddress} dropoffAddress={b.dropoffAddress} className="text-slate-600" />
-                        <div className="text-slate-500 flex items-center gap-1.5 flex-wrap">
-                          <span className="font-semibold text-slate-700">₹{Math.round(b.price)}</span>
-                          <span>&middot;</span>
-                          <span>{b.distanceKm} km</span>
-                          <span>&middot;</span>
-                          <span>{formatDate(b.createdAt)}</span>
-                        </div>
-                      </div>
-                      <button onClick={() => handleAcceptPending(b.id)} className="bg-slate-950 hover:bg-slate-800 text-white px-4 py-2 text-xs font-bold rounded-lg cursor-pointer shrink-0 font-heading">
-                        Accept Shipment
-                      </button>
-                    </div>
-                  ))
-                ) : (
-                  <EmptyState icon={Navigation} title="No shipments available" description="Refresh to check for new load offers." />
-                )}
-              </div>
-            </div>
+            <DriverJobsBoard
+              type="available"
+              bookings={pendingBookings}
+              onRefresh={loadData}
+              onAccept={handleAcceptPending}
+            />
           )}
 
-          {}
-          {(activeTab as string) === 'schedule' && (
-            <div className="space-y-3 w-full">
-              <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
-                <div className="flex items-center gap-1.5">
-                  <CalendarClock size={14} className="text-slate-500" />
-                  <h3 className="text-sm font-semibold text-slate-800 font-heading">Scheduled Deliveries</h3>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="inline-flex items-center border border-slate-200 rounded-lg p-1 bg-white shadow-xs">
-                    <button onClick={() => setShowScheduledBoard(false)} className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${!showScheduledBoard ? 'bg-slate-950 text-white' : 'text-slate-600 hover:bg-slate-50'}`}>Committed</button>
-                    <div className="w-[1px] h-4 bg-slate-200 mx-0.5" />
-                    <button onClick={() => { setShowScheduledBoard(true); loadScheduledJobs(); }} className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${showScheduledBoard ? 'bg-slate-950 text-white' : 'text-slate-600 hover:bg-slate-50'}`}>Find Work</button>
-                  </div>
-                  <IconButton icon={RefreshCw} onClick={loadScheduledJobs} />
-                </div>
-              </div>
-
-              {loadingScheduled ? (
-                <div className="py-16 text-center text-slate-400 text-sm font-medium">Loading schedule...</div>
-              ) : (
-                <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
-                  {!showScheduledBoard ? (
-                    scheduledJobs.length > 0 ? (
-                      scheduledJobs.map((job: ScheduledJob) => (
-                        <div key={job.id} className="py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs font-body">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
-                              <span className="font-bold text-sm text-slate-900 font-heading">{job.cargoType}</span>
-                              <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded">{formatDate(job.scheduledAt)}</span>
-                            </div>
-                            <p className="text-slate-600 mb-1.5"><span className="font-medium text-slate-900">{job.pickupAddress.split(',')[0]} → {job.dropoffAddress.split(',')[0]}</span></p>
-                            <div className="text-slate-500 flex items-center gap-1.5 flex-wrap">
-                              <span className="font-semibold text-slate-700">₹{Math.round(job.price)}</span>
-                              <span>&middot;</span>
-                              <span>{job.weightKg} kg</span>
-                              <span>&middot;</span>
-                              <span>{job.distanceKm} km</span>
-                            </div>
-                          </div>
-                          <button onClick={fetchRoute} className="bg-slate-950 hover:bg-slate-800 text-white px-4 py-2 text-xs font-bold rounded-lg cursor-pointer shrink-0 font-heading self-start md:self-center">
-                            Optimize Route
-                          </button>
-                        </div>
-                      ))
-                    ) : (
-                      <EmptyState icon={CalendarClock} title="No committed schedules" description="Go to 'Find Work' to reserve upcoming calendar routes." />
-                    )
-                  ) : (
-                    availableScheduledJobs.length > 0 ? (
-                      availableScheduledJobs.map((job: ScheduledJob) => (
-                        <div key={job.id} className="py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs font-body">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
-                              <span className="font-bold text-sm text-slate-900 font-heading">{job.cargoType}</span>
-                              <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded">{formatDate(job.scheduledAt)}</span>
-                            </div>
-                            <p className="text-slate-600 mb-1.5"><span className="font-medium text-slate-900">{job.pickupAddress.split(',')[0]} → {job.dropoffAddress.split(',')[0]}</span></p>
-                            <div className="text-slate-500 flex items-center gap-1.5 flex-wrap">
-                              <span className="font-semibold text-slate-700">₹{Math.round(job.price)}</span>
-                              <span>&middot;</span>
-                              <span>{job.weightKg} kg</span>
-                              <span>&middot;</span>
-                              <span>{job.distanceKm} km</span>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => handleCommitScheduledJob(job.id)}
-                            disabled={committingJobId === job.id}
-                            className="bg-slate-950 hover:bg-slate-800 disabled:opacity-60 text-white px-4 py-2 text-xs font-bold rounded-lg cursor-pointer shrink-0 font-heading self-start md:self-center"
-                          >
-                            {committingJobId === job.id ? 'Reserving...' : 'Reserve Load'}
-                          </button>
-                        </div>
-                      ))
-                    ) : (
-                      <EmptyState icon={Briefcase} title="No loads to reserve" description="Check back later for available contract schedule jobs." />
-                    )
-                  )}
-                </div>
-              )}
-            </div>
+          {activeTab === 'schedule' && (
+            <DriverScheduledPanel
+              scheduledJobs={scheduledJobs}
+              availableScheduledJobs={availableScheduledJobs}
+              loading={loadingScheduled}
+              committingJobId={committingJobId}
+              onRefresh={loadScheduledJobs}
+              onCommit={handleCommitScheduledJob}
+              onOptimizeRoute={fetchRoute}
+            />
           )}
 
-          {}
           {activeTab === 'past_jobs' && (
-            <div className="space-y-3 w-full">
-              <SectionHeader title="Past Trips" />
-
-              <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
-                {pastBookings.length > 0 ? (
-                  pastBookings.map((b: any) => (
-                    <div key={b.id} className="py-3 flex items-center justify-between gap-4 text-xs font-body">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2.5 mb-1 flex-wrap">
-                          <span className="font-bold text-sm text-slate-900 font-heading">{b.cargoType}</span>
-                          <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-mono">#{b.id.slice(0, 8).toUpperCase()}</span>
-                          <StatusBadge status={b.status} />
-                        </div>
-                        <BookingRouteRow pickupAddress={b.pickupAddress} dropoffAddress={b.dropoffAddress} className="text-slate-600" />
-                        <div className="text-slate-500 flex items-center gap-1.5 flex-wrap">
-                          <span className="font-semibold text-slate-700">₹{Math.round(b.price)}</span>
-                          <span>&middot;</span>
-                          <span>{formatDate(b.createdAt)}</span>
-                        </div>
-                      </div>
-                      <button onClick={() => navigate(`/track/${b.id}`)} className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 text-xs font-bold rounded-lg cursor-pointer shrink-0 font-heading">
-                        Trip Log
-                      </button>
-                    </div>
-                  ))
-                ) : (
-                  <EmptyState icon={FileText} title="No trip history found" description="Completed shipments will be listed here." />
-                )}
-              </div>
-            </div>
+            <DriverJobsBoard
+              type="history"
+              bookings={pastBookings}
+            />
           )}
-
         </div>
       )}
     </div>
