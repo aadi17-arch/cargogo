@@ -2,8 +2,9 @@ import { Queue, Worker } from 'bullmq';
 import Redis from 'ioredis';
 import prisma from '@/config/database';
 import { findNearbyDrivers } from '@/services/grid-index.service';
+import { env } from '@/config/env.config';
 
-const connection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
+const connection = new Redis(env.REDIS_URL, {
   maxRetriesPerRequest: null,
 });
 
@@ -24,8 +25,10 @@ export const addDispatchJob = async (
       attempts: 3,
       backoff: {
         type: 'exponential',
-        delay:5000
+        delay: 5000
       },
+      removeOnComplete: true,
+      removeOnFail: 100,
       jobId: `dispatch:${bookingId}:${driverIndex}`,
     }
   );
