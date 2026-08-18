@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { ArrowRight, ShieldCheck, Zap, Calculator } from 'lucide-react';
+import { ArrowRight, Calculator } from 'lucide-react';
 
 export default function HeroSection() {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ export default function HeroSection() {
           </h1>
 
           <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-body">
-            Transparent volumetric pricing, live GPS tracking, and OTP-verified secure delivery. Direct dispatch with zero middleman markups.
+            Transparent pricing, live GPS tracking, and OTP-verified.
           </p>
 
           <div className="flex flex-wrap items-center gap-4 pt-4">
@@ -44,22 +44,6 @@ export default function HeroSection() {
               <Calculator size={16} />
               <span>Calculate Quote</span>
             </a>
-          </div>
-
-          {/* Trust Highlights Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-10 border-t border-white/10 text-xs font-medium text-slate-300">
-            <div className="flex items-center gap-2.5">
-              <Zap size={18} className="text-amber-400 shrink-0" />
-              <span>Instant Driver Matching</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <ShieldCheck size={18} className="text-slate-300 shrink-0" />
-              <span>Dual OTP Verified Handshake</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Calculator size={18} className="text-slate-300 shrink-0" />
-              <span>Transparent Volumetric Rates</span>
-            </div>
           </div>
         </div>
       </div>
