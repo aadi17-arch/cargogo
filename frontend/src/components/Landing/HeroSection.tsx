@@ -25,7 +25,7 @@ export default function HeroSection() {
           </h1>
 
           <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-body">
-            Find nearby trucks, get clear upfront prices, and track your goods safely from pickup to delivery.
+            Need to move goods? Book local trucks in seconds with fixed rates and live tracking.
           </p>
 
           <div className="flex flex-wrap items-center gap-4 pt-4">
