@@ -1,24 +1,24 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import TabNavigation from '@/components/UI/TabNavigation';
-import IconButton from '@/components/UI/IconButton';
-import StatusBadge from '@/components/UI/StatusBadge';
+import TabNavigation from '@/components/ui/TabNavigation';
+import IconButton from '@/components/ui/IconButton';
+import Badge from '@/components/ui/Badge';
 import { formatDate } from '@/utils/formatters';
 import { RefreshCw, ChevronDown, MapPin } from 'lucide-react';
 
-interface ShipperShipmentsListProps {
+interface ShipmentsListProps {
   bookings: any[];
   onRefresh: () => void;
   onPay: (booking: any) => void;
   onCancelClick: (bookingId: string) => void;
 }
 
-export default function ShipperShipmentsList({
+export default function ShipmentsList({
   bookings,
   onRefresh,
   onPay,
   onCancelClick
-}: ShipperShipmentsListProps) {
+}: ShipmentsListProps) {
   const [historyFilter, setHistoryFilter] = useState<'ALL' | 'INSTANT' | 'SCHEDULED'>('ALL');
   const [expandedBookingId, setExpandedBookingId] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -69,7 +69,7 @@ export default function ShipperShipmentsList({
                     <span className="font-extrabold text-sm text-slate-900 font-heading">
                       {b.cargoType}
                     </span>
-                    <StatusBadge status={b.status} />
+                    <Badge status={b.status} />
                   </div>
 
                   <div className="flex items-center gap-4">
