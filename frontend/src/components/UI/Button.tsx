@@ -1,13 +1,13 @@
 import React from 'react';
 
-interface PrimaryButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'ghost' | 'outline' | 'danger';
   isLoading?: boolean;
   fullWidth?: boolean;
   children: React.ReactNode;
 }
 
-export default function PrimaryButton({
+export default function Button({
   variant = 'primary',
   isLoading = false,
   fullWidth = false,
@@ -15,7 +15,7 @@ export default function PrimaryButton({
   className = '',
   disabled,
   ...props
-}: PrimaryButtonProps) {
+}: ButtonProps) {
   const baseStyles = 'px-4 py-2.5 text-xs font-bold rounded-lg transition-all focus:outline-none flex items-center justify-center gap-2 select-none shadow-sm';
   
   const variants = {
