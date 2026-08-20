@@ -25,12 +25,12 @@ export default function FormField({
   onTogglePassword,
   hideLabel = false
 }: FormFieldProps) {
-  const inputClass = `w-full p-3 bg-white text-[var(--color-text-main)] placeholder-[#94A3B8] font-medium rounded-[var(--radius-card)] border border-solid border-[var(--border-width)] focus:outline-none transition-all text-sm ${
+  const inputClass = `w-full h-10 min-h-[40px] px-3.5 bg-white text-slate-900 placeholder:text-slate-400 font-medium rounded-md border border-slate-200 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all text-sm ${
     showToggle ? 'pr-10' : ''
   } ${
     error
-      ? 'border-red-500 focus:border-red-500'
-      : 'border-[var(--color-input-border)] focus:border-[var(--color-primary)]'
+      ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500'
+      : ''
   }`;
 
   return (

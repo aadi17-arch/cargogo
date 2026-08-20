@@ -147,7 +147,7 @@ export default function BookingForm({
               placeholder="Enter pickup address"
               value={pickupSearch}
               onChange={(e) => setPickupSearch(e.target.value)}
-              className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs font-medium focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all placeholder:text-slate-400"
+              className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-md text-slate-900 text-xs font-medium focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all placeholder:text-slate-400"
             />
             {searchingPickup && <p className="text-[10px] text-slate-400 mt-1">Searching...</p>}
             {pickupResults.length > 0 && (
@@ -172,7 +172,7 @@ export default function BookingForm({
               placeholder="Enter drop-off address"
               value={dropoffSearch}
               onChange={(e) => setDropoffSearch(e.target.value)}
-              className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs font-medium focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all placeholder:text-slate-400"
+              className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-md text-slate-900 text-xs font-medium focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all placeholder:text-slate-400"
             />
             {searchingDropoff && <p className="text-[10px] text-slate-400 mt-1">Searching...</p>}
             {dropoffResults.length > 0 && (
@@ -241,7 +241,7 @@ export default function BookingForm({
                   type="number"
                   value={form.weightKg}
                   onChange={(e) => setForm(prev => ({ ...prev, weightKg: Math.max(1, +e.target.value) }))}
-                  className="w-full h-10 pl-9 pr-8 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs font-bold focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body"
+                  className="w-full h-10 pl-9 pr-8 bg-white border border-slate-200 rounded-md text-slate-900 text-xs font-bold focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body"
                   min={1}
                 />
                 <span className="absolute left-3 text-slate-400"><Scale size={14} /></span>
@@ -255,7 +255,7 @@ export default function BookingForm({
                 placeholder="Electronics, Furniture, etc."
                 value={form.cargoType}
                 onChange={(e) => setForm(prev => ({ ...prev, cargoType: e.target.value }))}
-                className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs font-medium focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body placeholder:text-slate-400"
+                className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-md text-slate-900 text-xs font-medium focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body placeholder:text-slate-400"
               />
             </div>
           </div>

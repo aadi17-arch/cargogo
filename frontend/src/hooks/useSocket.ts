@@ -43,18 +43,27 @@ export const useSocket = (token?: string | null) => {
     socketService.commitScheduledJob(bookingId);
   }, []);
 
+  const joinRoom = useCallback((bookingId: string) => {
+    socketService.joinRoom(bookingId);
+  }, []);
+  const leaveRoom = useCallback((bookingId: string) => {
+    socketService.leaveRoom(bookingId);
+  }, []);
+
   return {
     connect,
     disconnect,
     emit,
     on,
     off,
+    joinRoom,
+    leaveRoom,
     bookCargo,
     acceptBid,
     rejectBid,
     updateLocation,
     commitScheduledJob,
-  }
+  };
 };
 export const useSocketListener = (
   event: string,

@@ -39,18 +39,18 @@ export default function BidModal({
             <span className="font-bold text-slate-900">{bid.distanceKm} km</span>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 pt-1">
           <button
             type="button"
             onClick={onAccept}
-            className="flex-1 bg-slate-950 hover:bg-slate-800 text-white py-1.5 text-xs font-bold rounded-lg cursor-pointer font-heading"
+            className="flex-1 h-9 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg cursor-pointer transition-colors shadow-sm focus:outline-none"
           >
             Accept
           </button>
           <button
             type="button"
             onClick={onReject}
-            className="flex-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 py-1.5 text-xs font-bold rounded-lg cursor-pointer font-heading"
+            className="flex-1 h-9 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold rounded-lg cursor-pointer transition-colors focus:outline-none"
           >
             Decline
           </button>

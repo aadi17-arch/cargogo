@@ -1,5 +1,6 @@
 import { Copy } from 'lucide-react';
 import OtpVerifyInput from '@/components/tracking/OtpVerifyInput';
+import Card from '@/components/ui/Card';
 import toast from 'react-hot-toast';
 
 interface OtpPanelProps {
@@ -23,7 +24,7 @@ export default function OtpPanel({
 }: OtpPanelProps) {
   if (status === 'ACCEPTED') {
     return (
-      <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs font-body text-xs text-slate-600 space-y-3">
+      <Card size="sm" className="font-body text-xs text-slate-600 space-y-3">
         <h3 className="text-sm font-bold text-slate-900 font-heading">Pickup Verification</h3>
         {userRole === 'DRIVER' ? (
           <OtpVerifyInput type="pickup" otp={otp} setOtp={setOtp} onVerify={() => onVerify('pickup')} />
@@ -52,13 +53,13 @@ export default function OtpPanel({
             </div>
           </div>
         )}
-      </div>
+      </Card>
     );
   }
 
   if (status === 'IN_TRANSIT') {
     return (
-      <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs font-body text-xs text-slate-600 space-y-3">
+      <Card size="sm" className="font-body text-xs text-slate-600 space-y-3">
         <h3 className="text-sm font-bold text-slate-900 font-heading">Drop-off Verification</h3>
         {userRole === 'DRIVER' ? (
           <OtpVerifyInput type="dropoff" otp={otp} setOtp={setOtp} onVerify={() => onVerify('dropoff')} />
@@ -87,7 +88,7 @@ export default function OtpPanel({
             </div>
           </div>
         )}
-      </div>
+      </Card>
     );
   }
 

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Download } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
+import Card from '@/components/ui/Card';
+import InfoRow from '@/components/ui/InfoRow';
 import { formatPrice } from '@/utils/formatters';
 
 interface PostDeliveryProps {
@@ -47,81 +49,69 @@ export default function PostDelivery({
     <>
       {/* Delivered Status Card */}
       {booking.status === 'DELIVERED' && (
-        <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm text-center space-y-4 font-body text-xs text-slate-600">
-          <p className="text-lg font-black text-emerald-600 font-heading">Package Delivered!</p>
+        <Card size="md" className="text-center space-y-4 text-xs text-slate-600">
+          <p className="text-base sm:text-lg font-black text-emerald-600 font-heading">Package Delivered!</p>
           {userRole === 'SHIPPER' && (
             <div className="space-y-3 flex flex-col items-center">
-              <p className="leading-relaxed text-slate-500 max-w-sm">
+              <p className="leading-relaxed text-slate-500 max-w-sm text-xs">
                 Review your invoice and complete payment for this delivery.
               </p>
-              <button
+              <Button
                 type="button"
                 onClick={onPayment}
-                disabled={isProcessingPayment}
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 text-xs rounded-xl transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                isLoading={isProcessingPayment}
+                fullWidth
               >
-                {isProcessingPayment ? 'Processing Payment...' : `Pay & Complete Delivery (${formatPrice(booking.price)})`}
-              </button>
+                Pay & Complete Delivery ({formatPrice(booking.price)})
+              </Button>
             </div>
           )}
-        </div>
+        </Card>
       )}
 
       {/* Completed Status Card */}
       {booking.status === 'COMPLETED' && (
-        <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm text-center font-body">
-          <p className="text-lg font-black text-emerald-600 font-heading">Delivery Completed & Paid!</p>
-        </div>
+        <Card size="md" className="text-center font-body">
+          <p className="text-base sm:text-lg font-black text-emerald-600 font-heading">Delivery Completed & Paid!</p>
+        </Card>
       )}
 
       {/* Disputed Status Card */}
       {booking.status === 'DISPUTED' && (
-        <div className="p-6 bg-white border border-red-200 rounded-lg shadow-sm text-center font-body space-y-2">
-          <p className="text-lg font-black text-red-600 font-heading">Delivery Under Dispute</p>
+        <Card size="md" variant="danger" className="text-center font-body space-y-2">
+          <p className="text-base sm:text-lg font-black text-rose-600 font-heading">Delivery Under Dispute</p>
           <p className="text-xs text-slate-500 leading-normal max-w-sm mx-auto">
             Our support team is reviewing your claim parameters. We will contact you shortly.
           </p>
-        </div>
+        </Card>
       )}
 
       {/* Invoice Details Card */}
       {invoice && (
-        <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm space-y-4 font-body text-xs text-slate-600">
+        <Card size="md" className="space-y-4 text-xs text-slate-600">
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
             <h3 className="text-sm font-bold text-slate-800 font-heading">Invoice Details</h3>
             <button
               type="button"
               onClick={onDownloadInvoice}
-              className="flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-[#09121F] bg-white rounded hover:bg-slate-100 transition-colors shadow-sm cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-xs cursor-pointer font-heading"
             >
               <Download size={14} />
               Download Invoice
             </button>
           </div>
           <div className="space-y-2.5">
-            <div className="flex justify-between">
-              <span>Base Fare:</span>
-              <span className="font-bold text-slate-900 font-heading">₹{Math.round(invoice.basePrice)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Distance Charge:</span>
-              <span className="font-bold text-slate-900 font-heading">₹{Math.round(invoice.distanceCost)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Weight Surcharge:</span>
-              <span className="font-bold text-slate-900 font-heading">₹{Math.round(invoice.weightCost)}</span>
-            </div>
-            <div className="border-t border-slate-100 pt-3 flex justify-between items-center">
-              <span className="text-xs font-bold text-slate-900 font-heading">Total Charge:</span>
-              <span className="text-base font-extrabold text-slate-900 font-heading">₹{Math.round(invoice.totalPrice)}</span>
-            </div>
+            <InfoRow label="Base Fare:" value={`₹${Math.round(invoice.basePrice)}`} />
+            <InfoRow label="Distance Charge:" value={`₹${Math.round(invoice.distanceCost)}`} />
+            <InfoRow label="Weight Surcharge:" value={`₹${Math.round(invoice.weightCost)}`} />
+            <InfoRow isTotal label="Total Charge:" value={`₹${Math.round(invoice.totalPrice)}`} />
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Customer Feedback Card */}
       {booking.review && (
-        <div className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm space-y-3 font-body text-xs text-slate-600">
+        <Card size="md" className="space-y-3 text-xs text-slate-600">
           <h3 className="text-sm font-bold text-slate-800 font-heading pb-2 border-b border-slate-100">
             Customer Feedback
           </h3>
@@ -136,12 +126,12 @@ export default function PostDelivery({
               "{booking.review.comment}"
             </p>
           )}
-        </div>
+        </Card>
       )}
 
       {/* Review Submission Form */}
       {booking.status === 'COMPLETED' && userRole === 'SHIPPER' && !booking.review && !reviewSubmitted && (
-        <form onSubmit={handleReview} className="p-6 bg-white border border-slate-200 rounded-lg shadow-sm space-y-4 font-body text-xs text-slate-600">
+        <form onSubmit={handleReview} className="p-4 sm:p-5 bg-white border border-slate-200 rounded-xl shadow-xs space-y-4 font-body text-xs text-slate-600">
           <h4 className="text-xs font-bold text-slate-900 font-heading mb-3">
             Rate Driver
           </h4>
@@ -166,13 +156,13 @@ export default function PostDelivery({
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Share details about your shipment experience..."
-              className="input-field h-20"
+              className="w-full p-3 bg-white text-slate-900 placeholder:text-slate-400 font-medium rounded-md border border-slate-200 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all text-xs h-20 resize-none"
             />
           </div>
           <Button
             type="submit"
             fullWidth
-            className="py-2.5 text-xs mt-2"
+            className="h-10 mt-2"
           >
             Submit Rating
           </Button>
@@ -181,7 +171,7 @@ export default function PostDelivery({
 
       {/* Dispute Claim Modal & Trigger */}
       {['DELIVERED', 'COMPLETED'].includes(booking.status) && userRole === 'SHIPPER' && (
-        <div className="text-center">
+        <div className="text-center pt-1">
           {!showDisputeForm ? (
             <button
               type="button"
@@ -195,7 +185,7 @@ export default function PostDelivery({
               isOpen={showDisputeForm}
               onClose={() => setShowDisputeForm(false)}
               title="File Shipment Dispute"
-              maxWidth="md"
+              maxWidth="max-w-md"
             >
               <form onSubmit={handleDispute} className="space-y-4 text-left">
                 <p className="text-xs text-slate-500">
@@ -208,7 +198,7 @@ export default function PostDelivery({
                     value={disputeReason}
                     onChange={(e) => setDisputeReason(e.target.value)}
                     placeholder="Describe what went wrong with this shipment..."
-                    className="input-field text-xs resize-none"
+                    className="w-full p-3 bg-white text-slate-900 placeholder:text-slate-400 font-medium rounded-md border border-slate-200 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all text-xs resize-none"
                     required
                   />
                 </div>

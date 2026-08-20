@@ -66,7 +66,7 @@ export default function ActiveTrips({
                   <button
                     type="button"
                     onClick={() => navigate(`/track/${b.id}`)}
-                    className="bg-slate-950 hover:bg-slate-800 text-white px-3 py-1.5 text-xs font-bold rounded-lg cursor-pointer shrink-0 font-heading"
+                    className="h-8 px-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg cursor-pointer shrink-0 font-heading transition-colors shadow-xs"
                   >
                     Track
                   </button>
@@ -94,7 +94,7 @@ export default function ActiveTrips({
               type="button"
               onClick={onToggleOnline}
               disabled={isOnline && activeBookings.length > 0}
-              className="text-[11px] font-bold text-white bg-slate-950 hover:bg-slate-800 rounded-md px-2.5 py-1 transition-all cursor-pointer font-heading disabled:opacity-50"
+              className="text-[11px] font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-md px-2.5 py-1 transition-all cursor-pointer font-heading disabled:opacity-50"
             >
               {isOnline ? 'Go Offline' : 'Go Online'}
             </button>
@@ -110,7 +110,7 @@ export default function ActiveTrips({
             <button
               type="button"
               onClick={onBrowseJobs}
-              className="text-xs font-bold text-slate-950 hover:underline bg-transparent border-none cursor-pointer font-heading"
+              className="text-xs font-bold text-slate-900 hover:underline bg-transparent border-none cursor-pointer font-heading"
             >
               Browse Jobs →
             </button>
@@ -126,7 +126,7 @@ export default function ActiveTrips({
                 <button
                   type="button"
                   onClick={() => navigate(`/track/${b.id}`)}
-                  className="bg-slate-950 text-white px-2.5 py-1 text-xs font-bold rounded-md shrink-0 cursor-pointer font-heading"
+                  className="h-7 px-2.5 bg-slate-900 text-white text-xs font-bold rounded-md shrink-0 cursor-pointer font-heading hover:bg-slate-800 transition-colors"
                 >
                   Track
                 </button>

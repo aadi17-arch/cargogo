@@ -40,20 +40,14 @@ export default function OtpVerifyInput({ type, otp, setOtp, onVerify }: OtpVerif
             e.preventDefault();
           }}
           maxLength={6}
-          className="input-field max-w-[120px] text-center text-lg tracking-widest focus:ring-2 focus:ring-slate-900 focus:outline-none"
+          className="w-28 h-10 text-center text-base font-bold font-mono tracking-widest bg-white border border-slate-200 rounded-md focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all text-slate-900"
           placeholder="000000"
-          style={{ fontFamily: 'var(--font-mono)' }}
           autoFocus
         />
         <button
           onClick={onVerify}
           aria-label={buttonLabel}
-          className="text-white px-4 py-2 text-sm font-bold transition hover:opacity-90 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none"
-          style={{
-            backgroundColor: 'var(--color-primary)',
-            borderRadius: 'var(--radius-button)',
-            fontFamily: 'var(--font-heading)',
-          }}
+          className="h-10 px-4 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-all active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none cursor-pointer"
         >
           {buttonLabel}
         </button>

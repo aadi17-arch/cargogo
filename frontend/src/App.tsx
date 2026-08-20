@@ -2,15 +2,13 @@ import { useEffect, useRef, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import { Toaster } from 'react-hot-toast';
 import { useAuth } from '@/hooks/useAuth';
 
-
-import LoginPage from '@/pages/LoginPage';
-import RegisterPage from '@/pages/RegisterPage';
-import LandingPage from '@/pages/LandingPage';
-
-
+const LandingPage = lazy(() => import('@/pages/LandingPage'));
+const LoginPage = lazy(() => import('@/pages/LoginPage'));
+const RegisterPage = lazy(() => import('@/pages/RegisterPage'));
 const ShipperDashboard = lazy(() => import('@/pages/ShipperDashboardPage'));
 const DriverDashboard = lazy(() => import('@/pages/DriverDashboardPage'));
 const TrackingPage = lazy(() => import('@/pages/TrackingPage'));
@@ -44,7 +42,7 @@ function SuspenseLoader() {
 
 function App() {
   return (
-    <>
+    <ErrorBoundary>
       <Toaster 
         position="top-right" 
         reverseOrder={false} 
@@ -90,7 +88,7 @@ function App() {
           </Suspense>
         </SessionInitializer>
       </BrowserRouter>
-    </>
+    </ErrorBoundary>
   );
 }
 

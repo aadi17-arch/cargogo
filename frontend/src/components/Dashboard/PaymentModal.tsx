@@ -3,6 +3,7 @@ import { paymentService } from '@/services/payment.service';
 import { toast } from 'react-hot-toast';
 import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
+import InfoRow from '@/components/ui/InfoRow';
 import { CreditCard, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 interface PaymentModalProps {
@@ -107,18 +108,9 @@ export default function PaymentModal({ booking, onClose, onSuccess }: PaymentMod
           </h4>
 
           <div className="space-y-2 text-xs">
-            <div className="flex justify-between">
-              <span className="text-slate-500">Cargo Type:</span>
-              <span className="font-bold text-slate-800">{booking.cargoType}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Security shake:</span>
-              <span className="font-semibold text-emerald-600">OTP verified</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Service Fee:</span>
-              <span className="font-semibold text-slate-500">₹0 (Waived)</span>
-            </div>
+            <InfoRow label="Cargo Type:" value={booking.cargoType} />
+            <InfoRow label="Security check:" value={<span className="font-semibold text-emerald-600">OTP verified</span>} />
+            <InfoRow label="Service Fee:" value={<span className="font-semibold text-slate-500">₹0 (Waived)</span>} />
           </div>
 
           <div className="border-t border-slate-200/70 pt-3 flex flex-col items-center justify-center text-center">

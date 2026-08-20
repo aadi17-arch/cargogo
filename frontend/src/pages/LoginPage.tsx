@@ -146,14 +146,14 @@ function LoginPage() {
           <p className="text-xs text-slate-500 leading-relaxed">
             Enter your registered email address below, and we'll send you instructions to reset your account password.
           </p>
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 text-left">
             <label className="text-xs font-bold text-slate-500">Email Address</label>
             <input
               type="email"
               placeholder="e.g. user@example.com"
               value={resetEmail}
               onChange={(e) => setResetEmail(e.target.value)}
-              className="w-full p-3 bg-white text-slate-800 rounded-lg border border-slate-200 focus:outline-none focus:border-indigo-500 text-sm transition-all"
+              className="w-full h-10 px-3.5 bg-white text-slate-800 rounded-md border border-slate-200 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-sm transition-all"
               required
             />
           </div>

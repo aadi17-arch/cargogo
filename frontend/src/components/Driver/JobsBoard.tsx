@@ -54,7 +54,7 @@ export default function JobsBoard({
                   <button
                     type="button"
                     onClick={() => onAccept(b.id)}
-                    className="bg-slate-950 hover:bg-slate-800 text-white px-4 py-2 text-xs font-bold rounded-lg cursor-pointer shrink-0 font-heading"
+                    className="h-8 px-3.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg cursor-pointer shrink-0 font-heading transition-colors shadow-xs"
                   >
                     Accept Shipment
                   </button>

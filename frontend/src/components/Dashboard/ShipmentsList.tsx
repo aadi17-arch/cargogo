@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import TabNavigation from '@/components/ui/TabNavigation';
 import IconButton from '@/components/ui/IconButton';
 import Badge from '@/components/ui/Badge';
+import EmptyState from '@/components/ui/EmptyState';
 import { formatDate } from '@/utils/formatters';
-import { RefreshCw, ChevronDown, MapPin } from 'lucide-react';
+import { RefreshCw, ChevronDown, MapPin, Package } from 'lucide-react';
 
 interface ShipmentsListProps {
   bookings: any[];
@@ -52,9 +53,11 @@ export default function ShipmentsList({
       {/* Shipments list */}
       <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
         {filteredBookings.length === 0 ? (
-          <div className="text-center py-16 text-slate-400 text-sm font-medium">
-            No shipments.
-          </div>
+          <EmptyState
+            icon={Package}
+            title="No shipments found"
+            description="You haven't booked any shipments under this filter yet."
+          />
         ) : (
           filteredBookings.map((b: any) => {
             const isExpanded = expandedBookingId === b.id;
@@ -140,7 +143,7 @@ export default function ShipmentsList({
                           <button
                             type="button"
                             onClick={() => onCancelClick(b.id)}
-                            className="px-3.5 py-1.5 border border-rose-200 text-rose-600 rounded-lg text-xs font-bold hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer font-heading"
+                            className="h-8 px-3.5 border border-rose-200 text-rose-600 rounded-lg text-xs font-bold hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer font-heading"
                           >
                             Cancel
                           </button>
@@ -149,7 +152,7 @@ export default function ShipmentsList({
                           <button
                             type="button"
                             onClick={() => onPay(b)}
-                            className="px-3.5 py-1.5 bg-slate-950 text-white rounded-lg text-xs font-bold hover:bg-slate-800 transition font-heading shadow-xs cursor-pointer"
+                            className="h-8 px-3.5 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800 transition font-heading shadow-xs cursor-pointer"
                           >
                             Pay Fare
                           </button>
@@ -157,7 +160,7 @@ export default function ShipmentsList({
                         <button
                           type="button"
                           onClick={() => navigate(`/track/${b.id}`)}
-                          className="px-3.5 py-1.5 bg-slate-950 text-white font-bold rounded-lg text-xs hover:bg-slate-800 transition font-heading shadow-xs cursor-pointer"
+                          className="h-8 px-3.5 bg-slate-900 text-white font-bold rounded-lg text-xs hover:bg-slate-800 transition font-heading shadow-xs cursor-pointer"
                         >
                           Track
                         </button>

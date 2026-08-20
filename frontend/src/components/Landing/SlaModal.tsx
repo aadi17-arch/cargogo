@@ -7,7 +7,7 @@ interface SlaModalProps {
 export default function SlaModal({ onClose }: SlaModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-      <div className="relative w-full max-w-md p-6 bg-slate-900 border border-slate-800 rounded-xl text-white shadow-2xl space-y-4">
+      <div className="relative w-full max-w-md p-6 bg-slate-900 border border-slate-800 rounded-2xl text-white shadow-2xl space-y-4">
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors bg-transparent border-0 cursor-pointer"

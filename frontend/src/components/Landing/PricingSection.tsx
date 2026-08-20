@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Receipt, ArrowRight, Truck, Scale, MapPin } from 'lucide-react';
+import Card from '@/components/ui/Card';
 import { VEHICLE_RATES } from '@/utils/pricing';
 
 const FLEET_CARDS = [
@@ -103,7 +104,7 @@ export default function PricingSection() {
                     type="number"
                     value={form.weightKg}
                     onChange={(e) => setForm(prev => ({ ...prev, weightKg: Math.max(1, +e.target.value) }))}
-                    className="w-full h-11 pl-10 pr-12 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm font-bold focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body"
+                    className="w-full h-10 pl-9 pr-12 bg-white border border-slate-200 rounded-md text-slate-900 text-sm font-bold focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body"
                     required
                     min={1}
                   />
@@ -124,7 +125,7 @@ export default function PricingSection() {
                     type="number"
                     value={form.distanceKm}
                     onChange={(e) => setForm(prev => ({ ...prev, distanceKm: Math.max(1, +e.target.value) }))}
-                    className="w-full h-11 pl-10 pr-12 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm font-bold focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body"
+                    className="w-full h-10 pl-9 pr-12 bg-white border border-slate-200 rounded-md text-slate-900 text-sm font-bold focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body"
                     required
                     min={1}
                   />
@@ -140,7 +141,7 @@ export default function PricingSection() {
                 <select
                   value={form.vehicleType}
                   onChange={(e) => setForm(prev => ({ ...prev, vehicleType: e.target.value as any }))}
-                  className="w-full h-11 px-3 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs font-bold focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body cursor-pointer"
+                  className="w-full h-10 px-3.5 bg-white border border-slate-200 rounded-md text-slate-900 text-xs font-bold focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all font-body cursor-pointer"
                 >
                   <option value="MINI_TEMPO">Mini Tempo (Up to 500 kg)</option>
                   <option value="PICKUP_TRUCK">Pickup Truck (Up to 1.5 Tons)</option>
@@ -154,8 +155,7 @@ export default function PricingSection() {
             </div>
           </div>
 
-          {/* Right Summary Card */}
-          <div className="lg:col-span-5 bg-white p-6 sm:p-8 rounded-lg border border-slate-200 shadow-sm flex flex-col justify-between space-y-6">
+          <Card size="lg" className="lg:col-span-5 flex flex-col justify-between space-y-6">
             <div className="space-y-4 text-left">
               <h3 className="text-base font-bold text-slate-900 font-heading border-b border-slate-100 pb-3 flex items-center gap-2">
                 <Receipt size={18} className="text-slate-700" />
@@ -178,26 +178,30 @@ export default function PricingSection() {
                   </div>
                 </div>
               )}
-            </div>
 
-            <div className="space-y-4 pt-4 border-t border-slate-100">
-              <div className="flex justify-between items-center text-left">
-                <span className="text-xs font-bold text-slate-600">Estimated Total</span>
-                <span className="text-3xl font-black text-slate-950 font-heading">
-                  ₹{quote?.estimated || 0}
-                </span>
+              {/* Total Estimate */}
+              <div className="border-t border-slate-100 pt-4 text-left">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs font-bold text-slate-900 font-heading">Estimated Total</span>
+                  <span className="text-3xl font-extrabold text-slate-900 font-heading tracking-tight">
+                    ₹{quote?.totalPrice || 0}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Includes driver allowance & fuel surcharges.
+                </p>
               </div>
-
-              <button
-                type="button"
-                onClick={() => navigate(dest)}
-                className="w-full h-11 px-6 bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
-              >
-                <span>{isAuthenticated ? 'Go to Dashboard' : 'Book Delivery'}</span>
-                <ArrowRight size={14} />
-              </button>
             </div>
-          </div>
+
+            <button
+              type="button"
+              onClick={() => navigate(dest)}
+              className="w-full h-11 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+            >
+              <span>{isAuthenticated ? 'Book This Load' : 'Get Started Now'}</span>
+              <ArrowRight size={14} />
+            </button>
+          </Card>
         </div>
 
         {/* Fleet & Vehicle Options Grid */}

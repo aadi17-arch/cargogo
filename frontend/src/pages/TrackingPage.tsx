@@ -8,6 +8,8 @@ import { paymentService } from '@/services/payment.service';
 import { toast } from 'react-hot-toast';
 import { formatDate } from '@/utils/formatters';
 import Badge from '@/components/ui/Badge';
+import Card from '@/components/ui/Card';
+import InfoRow from '@/components/ui/InfoRow';
 import MapView, { MapMarker } from '@/components/map/MapView';
 import { Polyline } from 'react-leaflet';
 import { ArrowLeft, MessageCircle } from 'lucide-react';
@@ -30,9 +32,17 @@ function TrackingPage() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [mobileView, setMobileView] = useState<'map' | 'details'>('map');
-
   const token = localStorage.getItem('token');
-  useSocket(token);
+  const { joinRoom, leaveRoom } = useSocket(token);
+
+  useEffect(() => {
+    if (bookingId) {
+      joinRoom(bookingId);
+      return () => {
+        leaveRoom(bookingId);
+      };
+    }
+  }, [bookingId, joinRoom, leaveRoom]);
 
   useSocketListener('receive-chat-message', (msg: any) => {
     if (!isChatOpen && msg.bookingId === bookingId && msg.senderId !== user?.id) {
@@ -338,29 +348,17 @@ function TrackingPage() {
           }`}
         >
           {/* Delivery Parameters Card */}
-          <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs space-y-3 font-body text-xs text-slate-600">
+          <Card size="sm" className="space-y-3 text-xs text-slate-600">
             <h3 className="text-sm font-bold text-slate-900 font-heading">Delivery Parameters</h3>
             <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-700">Status</span>
-                <Badge status={booking.status} />
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-slate-700">Cargo Type</span>
-                <span className="font-bold text-slate-900">{booking.cargoType}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-slate-700">Price</span>
-                <span className="font-extrabold text-slate-900 text-sm font-heading">₹{Math.round(booking.price)}</span>
-              </div>
+              <InfoRow label="Status:" value={<Badge status={booking.status} />} />
+              <InfoRow label="Cargo Type:" value={booking.cargoType} />
+              <InfoRow label="Price:" value={`₹${Math.round(booking.price)}`} />
               {booking.createdAt && (
-                <div className="flex justify-between items-center">
-                  <span className="font-bold text-slate-700">Booked</span>
-                  <span className="font-medium text-slate-500 font-mono text-[11px]">{formatDate(booking.createdAt)}</span>
-                </div>
+                <InfoRow label="Booked:" value={<span className="font-mono text-[11px] font-medium text-slate-500">{formatDate(booking.createdAt)}</span>} />
               )}
             </div>
-          </div>
+          </Card>
 
           {/* OTP Verification & Display */}
           <OtpPanel

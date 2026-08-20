@@ -148,7 +148,7 @@ function RegisterPage() {
           <select
             value={form.role}
             onChange={(e) => setForm({ ...form, role: e.target.value as 'SHIPPER' | 'DRIVER' })}
-            className="w-full p-3 bg-white text-slate-800 font-medium rounded-lg border border-slate-200 focus:outline-none focus:border-indigo-500 transition-all text-sm"
+            className="w-full h-10 px-3.5 bg-white text-slate-800 font-medium rounded-md border border-slate-200 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all text-sm"
           >
             <option value="SHIPPER">Shipper</option>
             <option value="DRIVER">Driver</option>
@@ -174,7 +174,7 @@ function RegisterPage() {
               <select
                 value={form.vehicle.type}
                 onChange={(e) => setForm({ ...form, vehicle: { ...form.vehicle, type: e.target.value as any } })}
-                className="w-full p-3 bg-white text-slate-800 font-medium rounded-lg border border-slate-200 focus:outline-none focus:border-indigo-500 transition-all text-sm"
+                className="w-full h-10 px-3.5 bg-white text-slate-800 font-medium rounded-md border border-slate-200 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all text-sm"
               >
                 <option value="MINI_TEMPO">Mini Tempo</option>
                 <option value="PICKUP_TRUCK">Pickup Truck</option>

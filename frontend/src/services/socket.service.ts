@@ -4,6 +4,7 @@ import { SOCKET_URL } from '../utils/constants';
 class SocketService {
   private socket: Socket | null = null;
   private listeners: { event: string; callback: (data: any) => void }[] = [];
+  private activeRooms: Set<string> = new Set();
 
   connect(token: string) {
     if (this.socket?.connected) return;
@@ -14,28 +15,45 @@ class SocketService {
       reconnection: true,
     });
 
-    
     this.listeners.forEach(({ event, callback }) => {
       this.socket?.on(event, callback);
     });
 
     this.socket.on('connect', () => {
-      console.log('Connected to socket server');
+      // Re-join active tracking rooms on socket reconnect
+      this.activeRooms.forEach((bookingId) => {
+        this.socket?.emit('track-booking', { bookingId });
+      });
     });
 
     this.socket.on('disconnect', () => {
-      console.log('Disconnected from socket server');
+      // Retain active listeners and active room keys for seamless recovery
     });
 
     this.socket.on('connect_error', (err) => {
-      console.error('Socket connection error:', err.message);
+      console.warn('Socket connection error:', err.message);
     });
+  }
+
+  joinRoom(bookingId: string) {
+    if (bookingId) {
+      this.activeRooms.add(bookingId);
+      this.emit('track-booking', { bookingId });
+    }
+  }
+
+  leaveRoom(bookingId: string) {
+    if (bookingId) {
+      this.activeRooms.delete(bookingId);
+      this.emit('leave-booking', { bookingId });
+    }
   }
 
   disconnect() {
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;
+      this.activeRooms.clear();
     }
   }
 

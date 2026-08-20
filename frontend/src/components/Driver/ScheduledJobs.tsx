@@ -87,7 +87,7 @@ export default function ScheduledJobs({
                   <button
                     type="button"
                     onClick={onOptimizeRoute}
-                    className="bg-slate-950 hover:bg-slate-800 text-white px-4 py-2 text-xs font-bold rounded-lg cursor-pointer shrink-0 font-heading self-start md:self-center"
+                    className="h-8 px-3.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg cursor-pointer shrink-0 font-heading self-start md:self-center transition-colors shadow-xs"
                   >
                     Optimize Route
                   </button>
@@ -118,7 +118,7 @@ export default function ScheduledJobs({
                     type="button"
                     onClick={() => onCommit(job.id)}
                     disabled={committingJobId === job.id}
-                    className="bg-slate-950 hover:bg-slate-800 disabled:opacity-60 text-white px-4 py-2 text-xs font-bold rounded-lg cursor-pointer shrink-0 font-heading self-start md:self-center"
+                    className="h-8 px-3.5 bg-slate-900 hover:bg-slate-800 disabled:opacity-60 text-white text-xs font-bold rounded-lg cursor-pointer shrink-0 font-heading self-start md:self-center transition-colors shadow-xs"
                   >
                     {committingJobId === job.id ? 'Reserving...' : 'Reserve Load'}
                   </button>

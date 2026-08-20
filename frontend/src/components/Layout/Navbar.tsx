@@ -217,9 +217,9 @@ export default function Navbar({
                 onClick={handleLogout}
                 onMouseEnter={() => setLogoutHovered(true)}
                 onMouseLeave={() => setLogoutHovered(false)}
-                className={`px-4 py-2 text-xs font-bold rounded-[var(--radius-button)] transition-all flex items-center gap-1.5 ${
+                className={`h-8 px-3.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                   logoutHovered 
-                    ? 'bg-red-600 text-white shadow-sm' 
+                    ? 'bg-rose-600 text-white shadow-sm' 
                     : 'bg-white/10 text-white border border-white/20'
                 }`}
               >
@@ -230,13 +230,13 @@ export default function Navbar({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate('/login')}
-                className="px-4 py-2 text-xs font-semibold text-white/90 hover:text-white bg-transparent hover:bg-white/5 border border-white/10 rounded-[var(--radius-button)] transition-colors"
+                className="h-8 px-3.5 text-xs font-semibold text-white/90 hover:text-white bg-transparent hover:bg-white/5 border border-white/10 rounded-lg transition-colors cursor-pointer"
               >
                 Log In
               </button>
               <button
                 onClick={() => navigate('/register')}
-                className="px-4 py-2 text-xs font-bold bg-white text-[var(--color-primary)] hover:bg-white/90 rounded-[var(--radius-button)] transition-colors shadow-sm"
+                className="h-8 px-3.5 text-xs font-bold bg-white text-slate-900 hover:bg-slate-100 rounded-lg transition-colors shadow-sm cursor-pointer"
               >
                 Register
               </button>
@@ -247,7 +247,7 @@ export default function Navbar({
           {isMobile && (
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="w-11 h-11 flex items-center justify-center rounded-lg text-white/90 hover:text-white bg-transparent hover:bg-white/5 border border-white/10 cursor-pointer"
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-white/90 hover:text-white bg-transparent hover:bg-white/5 border border-white/10 cursor-pointer"
               aria-label="Toggle navigation menu"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

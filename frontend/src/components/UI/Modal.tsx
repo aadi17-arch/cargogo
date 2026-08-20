@@ -41,30 +41,30 @@ export default function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-0 sm:p-4 bg-slate-900/40"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-900/40"
       onClick={onClose}
     >
       <div
         ref={containerRef}
-        className={`w-full h-full sm:h-auto ${maxWidth} rounded-none sm:rounded-xl shadow-xl border border-slate-200 bg-white flex flex-col sm:max-h-[90vh] overflow-hidden transform transition-all`}
+        className={`w-full h-full sm:h-auto ${maxWidth} rounded-2xl shadow-xl border border-slate-200 bg-white flex flex-col sm:max-h-[90vh] overflow-hidden transform transition-all`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-slate-100 shrink-0">
           <h3 className="text-lg font-bold text-slate-800 tracking-tight font-heading">
             {title}
           </h3>
           <button
             onClick={onClose}
-            className="w-11 h-11 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
             aria-label="Close modal"
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Body */}
-        <div className="flex-1 px-6 py-5 overflow-y-auto text-sm text-slate-600 font-body">
+        {/* Content */}
+        <div className="p-5 sm:p-6 overflow-y-auto max-h-[calc(100vh-140px)] sm:max-h-[70vh]">
           {children}
         </div>
       </div>
