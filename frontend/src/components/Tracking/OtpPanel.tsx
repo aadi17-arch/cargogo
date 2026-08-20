@@ -1,8 +1,8 @@
 import { Copy } from 'lucide-react';
-import OtpVerifyInput from '@/components/Tracking/OtpVerifyInput';
+import OtpVerifyInput from '@/components/tracking/OtpVerifyInput';
 import toast from 'react-hot-toast';
 
-interface TrackingOtpPanelProps {
+interface OtpPanelProps {
   status: string;
   userRole?: string;
   pickupOTP: string;
@@ -12,7 +12,7 @@ interface TrackingOtpPanelProps {
   onVerify: (type: 'pickup' | 'dropoff') => void;
 }
 
-export default function TrackingOtpPanel({
+export default function OtpPanel({
   status,
   userRole,
   pickupOTP,
@@ -20,7 +20,7 @@ export default function TrackingOtpPanel({
   otp,
   setOtp,
   onVerify
-}: TrackingOtpPanelProps) {
+}: OtpPanelProps) {
   if (status === 'ACCEPTED') {
     return (
       <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs font-body text-xs text-slate-600 space-y-3">
