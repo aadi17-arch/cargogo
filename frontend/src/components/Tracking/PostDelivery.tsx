@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Download } from 'lucide-react';
-import BaseModal from '@/components/UI/BaseModal';
-import PrimaryButton from '@/components/UI/PrimaryButton';
+import Modal from '@/components/ui/Modal';
+import Button from '@/components/ui/Button';
 import { formatPrice } from '@/utils/formatters';
 
-interface TrackingPostDeliveryProps {
+interface PostDeliveryProps {
   booking: any;
   userRole?: string;
   invoice: any;
@@ -15,7 +15,7 @@ interface TrackingPostDeliveryProps {
   onDownloadInvoice: () => void;
 }
 
-export default function TrackingPostDelivery({
+export default function PostDelivery({
   booking,
   userRole,
   invoice,
@@ -24,7 +24,7 @@ export default function TrackingPostDelivery({
   onReviewSubmit,
   onDisputeSubmit,
   onDownloadInvoice
-}: TrackingPostDeliveryProps) {
+}: PostDeliveryProps) {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
@@ -169,13 +169,13 @@ export default function TrackingPostDelivery({
               className="input-field h-20"
             />
           </div>
-          <PrimaryButton
+          <Button
             type="submit"
             fullWidth
             className="py-2.5 text-xs mt-2"
           >
             Submit Rating
-          </PrimaryButton>
+          </Button>
         </form>
       )}
 
@@ -191,41 +191,44 @@ export default function TrackingPostDelivery({
               File a Dispute / Support Claim
             </button>
           ) : (
-            <BaseModal
+            <Modal
               isOpen={showDisputeForm}
               onClose={() => setShowDisputeForm(false)}
-              title="File a Dispute"
+              title="File Shipment Dispute"
+              maxWidth="md"
             >
-              <form onSubmit={handleDispute} className="space-y-4 text-xs font-body text-slate-600">
-                <p className="text-rose-600 font-medium">
-                  Please describe the issue you encountered (e.g., damaged items, delays, driver partner behavior).
+              <form onSubmit={handleDispute} className="space-y-4 text-left">
+                <p className="text-xs text-slate-500">
+                  Please provide details about any cargo damage, billing discrepancy, or delivery issues:
                 </p>
-                <div className="space-y-1">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-500">Dispute Reason</label>
                   <textarea
+                    rows={4}
                     value={disputeReason}
                     onChange={(e) => setDisputeReason(e.target.value)}
-                    placeholder="Provide details about your support claim..."
+                    placeholder="Describe what went wrong with this shipment..."
+                    className="input-field text-xs resize-none"
                     required
-                    className="input-field h-24"
                   />
                 </div>
                 <div className="flex gap-2 justify-end pt-2">
-                  <PrimaryButton
+                  <Button
                     type="button"
                     variant="outline"
                     onClick={() => setShowDisputeForm(false)}
                   >
                     Cancel
-                  </PrimaryButton>
-                  <PrimaryButton
+                  </Button>
+                  <Button
                     type="submit"
                     variant="danger"
                   >
                     Submit Dispute
-                  </PrimaryButton>
+                  </Button>
                 </div>
               </form>
-            </BaseModal>
+            </Modal>
           )}
         </div>
       )}
