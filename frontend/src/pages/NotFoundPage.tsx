@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import PrimaryButton from '@/components/UI/PrimaryButton';
+import Button from '@/components/ui/Button';
 import { AlertTriangle } from 'lucide-react';
 import { getDashboardRoute } from '@/utils/routes';
 
@@ -54,21 +54,21 @@ export default function NotFoundPage() {
 
         {}
         <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-xs mx-auto pt-2">
-          <PrimaryButton
+          <Button
             onClick={handleReturn}
             fullWidth
             className="py-3 text-xs"
           >
             Return to Dashboard
-          </PrimaryButton>
-          <PrimaryButton
+          </Button>
+          <Button
             onClick={() => navigate('/')}
             variant="outline"
             fullWidth
             className="py-3 text-xs"
           >
             Go Home
-          </PrimaryButton>
+          </Button>
         </div>
       </div>
     </div>
