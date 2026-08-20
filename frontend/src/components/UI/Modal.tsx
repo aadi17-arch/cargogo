@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 
-interface BaseModalProps {
+interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
@@ -10,19 +10,17 @@ interface BaseModalProps {
   maxWidth?: string; 
 }
 
-export default function BaseModal({
+export default function Modal({
   isOpen,
   onClose,
   title,
   children,
   maxWidth = 'max-w-lg'
-}: BaseModalProps) {
+}: ModalProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  
   
   useFocusTrap(containerRef, isOpen);
 
-  
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -30,7 +28,6 @@ export default function BaseModal({
 
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
-      
       document.body.style.overflow = 'hidden';
     }
 
@@ -52,7 +49,7 @@ export default function BaseModal({
         className={`w-full h-full sm:h-auto ${maxWidth} rounded-none sm:rounded-xl shadow-xl border border-slate-200 bg-white flex flex-col sm:max-h-[90vh] overflow-hidden transform transition-all`}
         onClick={(e) => e.stopPropagation()}
       >
-        {}
+        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
           <h3 className="text-lg font-bold text-slate-800 tracking-tight font-heading">
             {title}
@@ -66,7 +63,7 @@ export default function BaseModal({
           </button>
         </div>
 
-        {}
+        {/* Body */}
         <div className="flex-1 px-6 py-5 overflow-y-auto text-sm text-slate-600 font-body">
           {children}
         </div>
