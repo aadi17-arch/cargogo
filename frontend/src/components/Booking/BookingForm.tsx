@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { ChevronRight, ArrowLeft, Scale, Truck } from 'lucide-react';
 import { geocodingService } from '@/services/geocoding.service';
 import { calculateQuote } from '@/utils/pricing';
-import PrimaryButton from '@/components/UI/PrimaryButton';
+import Button from '@/components/ui/Button';
 
 export interface BookingFormData {
   pickupLat: number | null;
@@ -19,7 +19,7 @@ export interface BookingFormData {
   vehicleType: 'MINI_TEMPO' | 'PICKUP_TRUCK' | 'CONTAINER_3TON';
 }
 
-interface BookingWizardProps {
+interface BookingFormProps {
   form: BookingFormData;
   setForm: React.Dispatch<React.SetStateAction<BookingFormData>>;
   pickupSearch: string;
@@ -36,7 +36,7 @@ const VEHICLE_RATES: Record<string, { title: string; capacity: string }> = {
   CONTAINER_3TON: { title: '3-Ton Container', capacity: 'Up to 3.0 Tons' },
 };
 
-export default function BookingWizard({
+export default function BookingForm({
   form,
   setForm,
   pickupSearch,
@@ -45,7 +45,7 @@ export default function BookingWizard({
   setDropoffSearch,
   onSubmit,
   isLoading
-}: BookingWizardProps) {
+}: BookingFormProps) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [pickupResults, setPickupResults] = useState<any[]>([]);
   const [dropoffResults, setDropoffResults] = useState<any[]>([]);
@@ -191,7 +191,7 @@ export default function BookingWizard({
             )}
           </div>
 
-          <PrimaryButton
+          <Button
             type="button"
             disabled={!form.pickupLat || !form.dropoffLat}
             onClick={() => setStep(2)}
@@ -200,7 +200,7 @@ export default function BookingWizard({
           >
             <span>Next</span>
             <ChevronRight size={14} />
-          </PrimaryButton>
+          </Button>
         </div>
       )}
 
@@ -260,7 +260,7 @@ export default function BookingWizard({
             </div>
           </div>
 
-          <PrimaryButton
+          <Button
             type="button"
             onClick={() => setStep(3)}
             fullWidth
@@ -268,7 +268,7 @@ export default function BookingWizard({
           >
             <span>Next</span>
             <ChevronRight size={14} />
-          </PrimaryButton>
+          </Button>
         </div>
       )}
 
@@ -333,7 +333,7 @@ export default function BookingWizard({
             })}
           </div>
 
-          <PrimaryButton
+          <Button
             type="button"
             onClick={onSubmit}
             isLoading={isLoading}
@@ -341,7 +341,7 @@ export default function BookingWizard({
             className="h-10 mt-2"
           >
             Book
-          </PrimaryButton>
+          </Button>
         </div>
       )}
     </>
