@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotification } from '@/hooks/useNotification';
-import AuthFormField from '@/components/UI/AuthFormField';
-import BaseModal from '@/components/UI/BaseModal';
-import PrimaryButton from '@/components/UI/PrimaryButton';
-import AuthPageShell from '@/components/UI/AuthPageShell';
+import FormField from '@/components/ui/FormField';
+import Modal from '@/components/ui/Modal';
+import Button from '@/components/ui/Button';
+import AuthPageShell from '@/components/ui/AuthPageShell';
 import { getDashboardRoute } from '@/utils/routes';
 
 function LoginPage() {
@@ -25,7 +25,6 @@ function LoginPage() {
   useEffect(() => {
     if (isAuthenticated && user) navigate(getDashboardRoute(user.role));
   }, [isAuthenticated, user, navigate]);
-
 
   const handleEmailChange = (val: string) => {
     setEmail(val);
@@ -50,7 +49,6 @@ function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
-
 
     const emailErr = !email ? 'Email is required' : (!/\S+@\S+\.\S+/.test(email) ? 'Please enter a valid email address' : undefined);
     const passErr = !password ? 'Password is required' : undefined;
@@ -90,9 +88,12 @@ function LoginPage() {
     <>
       <AuthPageShell title="Welcome Back" subtitle="Sign in to manage your shipments">
         <form onSubmit={handleSubmit} className="space-y-5">
-          <AuthFormField
-            label="Email" type="email" placeholder="Email address"
-            value={email} error={errors.email}
+          <FormField
+            label="Email"
+            type="email"
+            placeholder="Email address"
+            value={email}
+            error={errors.email}
             onChange={handleEmailChange}
           />
 
@@ -107,24 +108,26 @@ function LoginPage() {
                 Reset password?
               </button>
             </div>
-            <AuthFormField
+            <FormField
               label="Password"
               placeholder="Password"
-              value={password} error={errors.password}
-              showToggle showPassword={showPassword}
+              value={password}
+              error={errors.password}
+              showToggle
+              showPassword={showPassword}
               onTogglePassword={() => setShowPassword(!showPassword)}
               onChange={handlePasswordChange}
               hideLabel
             />
           </div>
 
-          <PrimaryButton
+          <Button
             type="submit"
             fullWidth
             className="py-3 text-sm"
           >
             Log In
-          </PrimaryButton>
+          </Button>
 
           <p className="text-center text-xs text-slate-400 font-medium">
             New here?{' '}
@@ -133,7 +136,7 @@ function LoginPage() {
         </form>
       </AuthPageShell>
 
-      <BaseModal
+      <Modal
         isOpen={showResetModal}
         onClose={() => setShowResetModal(false)}
         title="Reset Password"
@@ -155,22 +158,22 @@ function LoginPage() {
             />
           </div>
           <div className="flex gap-2 justify-end pt-2">
-            <PrimaryButton
+            <Button
               type="button"
               variant="outline"
               onClick={() => setShowResetModal(false)}
             >
               Cancel
-            </PrimaryButton>
-            <PrimaryButton
+            </Button>
+            <Button
               type="submit"
               isLoading={resetLoading}
             >
               Send Reset Link
-            </PrimaryButton>
+            </Button>
           </div>
         </form>
-      </BaseModal>
+      </Modal>
     </>
   );
 }
