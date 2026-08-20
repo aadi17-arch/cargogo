@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { ScheduledJob } from '@/types/booking.types';
 import { formatDate } from '@/utils/formatters';
 import { CalendarClock, Briefcase, RefreshCw } from 'lucide-react';
-import IconButton from '@/components/UI/IconButton';
-import EmptyState from '@/components/UI/EmptyState';
+import IconButton from '@/components/ui/IconButton';
+import EmptyState from '@/components/ui/EmptyState';
 
-interface DriverScheduledPanelProps {
+interface ScheduledJobsProps {
   scheduledJobs: ScheduledJob[];
   availableScheduledJobs: ScheduledJob[];
   loading: boolean;
@@ -15,7 +15,7 @@ interface DriverScheduledPanelProps {
   onOptimizeRoute: () => void;
 }
 
-export default function DriverScheduledPanel({
+export default function ScheduledJobs({
   scheduledJobs,
   availableScheduledJobs,
   loading,
@@ -23,7 +23,7 @@ export default function DriverScheduledPanel({
   onRefresh,
   onCommit,
   onOptimizeRoute
-}: DriverScheduledPanelProps) {
+}: ScheduledJobsProps) {
   const [showScheduledBoard, setShowScheduledBoard] = useState(false);
 
   return (
