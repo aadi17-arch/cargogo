@@ -7,14 +7,14 @@ import { bookingService } from '@/services/booking.service';
 import { paymentService } from '@/services/payment.service';
 import { toast } from 'react-hot-toast';
 import { formatDate } from '@/utils/formatters';
-import StatusBadge from '@/components/UI/StatusBadge';
-import MapView, { MapMarker } from '@/components/Map/MapView';
+import Badge from '@/components/ui/Badge';
+import MapView, { MapMarker } from '@/components/map/MapView';
 import { Polyline } from 'react-leaflet';
 import { ArrowLeft, MessageCircle } from 'lucide-react';
-import ChatDrawer from '@/components/Tracking/ChatDrawer';
-import TrackingOtpPanel from '@/components/Tracking/TrackingOtpPanel';
-import TrackingPostDelivery from '@/components/Tracking/TrackingPostDelivery';
-import MobileViewToggle from '@/components/UI/MobileViewToggle';
+import ChatDrawer from '@/components/tracking/ChatDrawer';
+import OtpPanel from '@/components/tracking/OtpPanel';
+import PostDelivery from '@/components/tracking/PostDelivery';
+import MobileViewToggle from '@/components/ui/MobileViewToggle';
 
 function TrackingPage() {
   const { bookingId } = useParams();
@@ -178,46 +178,42 @@ function TrackingPage() {
     .route-text { font-size: 12px; color: #475569; flex: 1; line-height: 1.5; }
     .route-text strong { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8; margin-bottom: 2px; }
     .route-arrow { font-size: 20px; color: #cbd5e1; }
-    .fare-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-    .fare-table tr td { padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
-    .fare-table tr td:last-child { text-align: right; font-weight: 600; color: #1e293b; }
-    .fare-table tr td:first-child { color: #64748b; }
-    .total-row { background: #f8fafc; border-radius: 10px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-    .total-row span { font-size: 13px; font-weight: 700; color: #64748b; }
-    .total-row strong { font-size: 24px; font-weight: 900; color: #4F46E5; }
-    .status-badge { display: inline-block; padding: 4px 12px; border-radius: 100px; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; background: #dcfce7; color: #15803d; }
-    .footer { border-top: 1px solid #f1f5f9; padding: 24px 40px; text-align: center; }
-    .footer p { font-size: 12px; color: #94a3b8; line-height: 1.8; }
-    .footer .thanks { font-size: 14px; font-weight: 700; color: #4F46E5; margin-bottom: 4px; }
-    @media print { body { background: white; padding: 0; } .page { box-shadow: none; } }
+    .divider { height: 1px; background: #f1f5f9; margin-bottom: 28px; }
+    .fare-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+    .fare-table td { padding: 10px 0; font-size: 13px; border-bottom: 1px solid #f8fafc; }
+    .fare-table td:last-child { text-align: right; font-weight: 600; }
+    .total-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-top: 2px solid #e2e8f0; font-size: 16px; font-weight: 800; color: #0f172a; }
+    .footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 24px 40px; text-align: center; font-size: 11px; color: #94a3b8; line-height: 1.6; }
+    .footer .thanks { font-weight: 700; color: #475569; margin-bottom: 4px; font-size: 12px; }
   </style>
 </head>
 <body>
   <div class="page">
     <div class="header">
       <div class="brand">Cargo<span>Go</span></div>
-      <div class="tagline">Freight & Logistics Platform</div>
-      <div class="invoice-label">Tax Invoice</div>
-      <div class="invoice-id">#${bookingId?.slice(0, 8).toUpperCase()}</div>
+      <div class="tagline">Enterprise Logistics &amp; Freight Mobility</div>
+      <div class="invoice-label">Official Delivery Invoice</div>
+      <div class="invoice-id">#${bookingId?.toUpperCase()}</div>
     </div>
     <div class="body">
-      <div class="section-title">Booking Details</div>
+      <div class="section-title">Delivery Details</div>
       <div class="info-grid">
         <div class="info-item"><label>Date</label><p>${invoiceDate}</p></div>
-        <div class="info-item"><label>Status</label><p><span class="status-badge">${booking.status}</span></p></div>
-        <div class="info-item"><label>Cargo Type</label><p>${booking.cargoType || 'N/A'}</p></div>
-        <div class="info-item"><label>Vehicle Type</label><p>${(booking.vehicleType || 'MINI_TEMPO').replace(/_/g, ' ')}</p></div>
+        <div class="info-item"><label>Status</label><p style="color:#10b981;font-weight:700;">${booking.status}</p></div>
+        <div class="info-item"><label>Shipper</label><p>${booking.shipper?.name ?? 'Valued Customer'}</p></div>
+        <div class="info-item"><label>Driver</label><p>${booking.driver?.name ?? 'Assigned Pilot'}</p></div>
+        <div class="info-item"><label>Cargo Type</label><p>${booking.cargoType}</p></div>
+        <div class="info-item"><label>Vehicle</label><p>${booking.vehicleType ?? 'Commercial Carrier'}</p></div>
       </div>
-
       <div class="section-title">Route</div>
       <div class="route-card">
-        <div><div class="route-dot pickup"></div></div>
-        <div class="route-text"><strong>Pickup</strong>${booking.pickupAddress || 'N/A'}</div>
+        <div class="route-dot pickup"></div>
+        <div class="route-text"><strong>Pickup</strong>${booking.pickupAddress}</div>
         <div class="route-arrow">→</div>
-        <div><div class="route-dot dropoff"></div></div>
-        <div class="route-text"><strong>Drop-off</strong>${booking.dropoffAddress || 'N/A'}</div>
+        <div class="route-dot dropoff"></div>
+        <div class="route-text"><strong>Drop-off</strong>${booking.dropoffAddress}</div>
       </div>
-
+      <div class="divider"></div>
       <div class="section-title">Fare Breakdown</div>
       <table class="fare-table">
         <tr><td>Base Fare</td><td>₹${invoice.basePrice?.toFixed(2) ?? '0.00'}</td></tr>
@@ -347,7 +343,7 @@ function TrackingPage() {
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-slate-700">Status</span>
-                <StatusBadge status={booking.status} />
+                <Badge status={booking.status} />
               </div>
               <div className="flex justify-between items-center">
                 <span className="font-bold text-slate-700">Cargo Type</span>
@@ -367,7 +363,7 @@ function TrackingPage() {
           </div>
 
           {/* OTP Verification & Display */}
-          <TrackingOtpPanel
+          <OtpPanel
             status={booking.status}
             userRole={user?.role}
             pickupOTP={booking.pickupOTP}
@@ -378,7 +374,7 @@ function TrackingPage() {
           />
 
           {/* Post-Delivery (Payment, Invoice, Review, Dispute) */}
-          <TrackingPostDelivery
+          <PostDelivery
             booking={booking}
             userRole={user?.role}
             invoice={invoice}
