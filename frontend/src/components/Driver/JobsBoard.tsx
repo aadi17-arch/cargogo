@@ -1,25 +1,25 @@
 import { useNavigate } from 'react-router-dom';
 import { formatDate } from '@/utils/formatters';
 import { Navigation, FileText, RefreshCw } from 'lucide-react';
-import StatusBadge from '@/components/UI/StatusBadge';
-import BookingRouteRow from '@/components/UI/BookingRouteRow';
-import SectionHeader from '@/components/UI/SectionHeader';
-import IconButton from '@/components/UI/IconButton';
-import EmptyState from '@/components/UI/EmptyState';
+import Badge from '@/components/ui/Badge';
+import BookingRouteRow from '@/components/ui/BookingRouteRow';
+import SectionHeader from '@/components/ui/SectionHeader';
+import IconButton from '@/components/ui/IconButton';
+import EmptyState from '@/components/ui/EmptyState';
 
-interface DriverJobsBoardProps {
+interface JobsBoardProps {
   type: 'available' | 'history';
   bookings: any[];
   onRefresh?: () => void;
   onAccept?: (bookingId: string) => void;
 }
 
-export default function DriverJobsBoard({
+export default function JobsBoard({
   type,
   bookings,
   onRefresh,
   onAccept
-}: DriverJobsBoardProps) {
+}: JobsBoardProps) {
   const navigate = useNavigate();
 
   if (type === 'available') {
@@ -87,7 +87,7 @@ export default function DriverJobsBoard({
                   <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-mono">
                     #{b.id.slice(0, 8).toUpperCase()}
                   </span>
-                  <StatusBadge status={b.status} />
+                  <Badge status={b.status} />
                 </div>
                 <BookingRouteRow pickupAddress={b.pickupAddress} dropoffAddress={b.dropoffAddress} className="text-slate-600" />
                 <div className="text-slate-500 flex items-center gap-1.5 flex-wrap">
