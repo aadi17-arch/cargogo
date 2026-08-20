@@ -8,12 +8,12 @@ const STATUS_CONFIG: Record<string, { label: string; className: string; dotColor
   DISPUTED:   { label: 'Disputed', className: 'bg-red-100 text-red-900 border-red-200', dotColor: 'bg-red-600' },
 };
 
-interface StatusBadgeProps {
+interface BadgeProps {
   status: string;
   className?: string;
 }
 
-export default function StatusBadge({ status, className = '' }: StatusBadgeProps) {
+export default function Badge({ status, className = '' }: BadgeProps) {
   const config = STATUS_CONFIG[status] || { label: status, className: 'bg-slate-100 text-slate-800 border-slate-200', dotColor: 'bg-slate-500' };
   return (
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${config.className} ${className}`}>
