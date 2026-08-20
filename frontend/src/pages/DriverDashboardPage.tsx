@@ -9,17 +9,17 @@ import { VrpRouteResponse } from '@/types/driver.types';
 import { ScheduledJob } from '@/types/booking.types';
 import { toast } from 'react-hot-toast';
 import { LocateFixed } from 'lucide-react';
-import MapView, { MapMarker } from '@/components/Map/MapView';
-import DashboardHeader from '@/components/UI/DashboardHeader';
-import MapOverlayCard from '@/components/UI/MapOverlayCard';
-import LocateButton from '@/components/UI/LocateButton';
+import MapView, { MapMarker } from '@/components/map/MapView';
+import DashboardHeader from '@/components/ui/DashboardHeader';
+import MapOverlayCard from '@/components/ui/MapOverlayCard';
+import LocateButton from '@/components/ui/LocateButton';
 import { useAddressResolver } from '@/hooks/useAddressResolver';
 import { formatDate } from '@/utils/formatters';
 import L from 'leaflet';
-import IncomingBidModal from '@/components/Driver/IncomingBidModal';
-import DriverScheduledPanel from '@/components/Driver/DriverScheduledPanel';
-import DriverJobsBoard from '@/components/Driver/DriverJobsBoard';
-import DriverActiveTripsPanel from '@/components/Driver/DriverActiveTripsPanel';
+import BidModal from '@/components/driver/BidModal';
+import ScheduledJobs from '@/components/driver/ScheduledJobs';
+import JobsBoard from '@/components/driver/JobsBoard';
+import ActiveTrips from '@/components/driver/ActiveTrips';
 
 function DriverDashboard() {
   const { token } = useAuth();
@@ -62,94 +62,90 @@ function DriverDashboard() {
   }, [driverCoords]);
 
   useEffect(() => {
-    if (routeData?.route) resolveAddresses(routeData.route);
-  }, [routeData]);
+    if (bookings && bookings.length > 0) {
+      resolveAddresses(bookings);
+    }
+  }, [bookings, resolveAddresses]);
 
-  const loadData = async () => {
-    await fetchMyBookings();
+  useEffect(() => {
+    if (pendingBookings && pendingBookings.length > 0) {
+      resolveAddresses(pendingBookings);
+    }
+  }, [pendingBookings, resolveAddresses]);
+
+  useEffect(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setDriverCoords([pos.coords.latitude, pos.coords.longitude]),
+        () => setDriverCoords([19.0760, 72.8777])
+      );
+    }
+  }, []);
+
+  const loadData = useCallback(async () => {
     try {
-      const pending = await fetchPendingBookings();
-      setPendingBookings(pending || []);
-    } catch (err) { console.error(err); }
-    loadScheduledJobs();
-    fetchRoute();
-  };
+      await fetchMyBookings();
+      const p = await fetchPendingBookings();
+      setPendingBookings(p || []);
+    } catch (err: any) {
+      toast.error('Failed to load jobs: ' + (err.message || 'Unknown error'));
+    }
+  }, [fetchMyBookings, fetchPendingBookings]);
 
   const loadScheduledJobs = useCallback(async () => {
     setLoadingScheduled(true);
     try {
-      const [upcoming, available] = await Promise.all([
+      const [mine, available] = await Promise.all([
         bookingService.getScheduledJobs(),
-        bookingService.getAvailableScheduledJobs(),
+        bookingService.getAvailableScheduledJobs()
       ]);
-      setScheduledJobs(upcoming as ScheduledJob[]);
-      setAvailableScheduledJobs(available as ScheduledJob[]);
-    } catch (err) {
-      console.error('Failed to load scheduled jobs:', err);
-    } finally { setLoadingScheduled(false); }
+      setScheduledJobs(mine);
+      setAvailableScheduledJobs(available);
+    } catch (err: any) {
+      toast.error('Failed to load scheduled jobs: ' + (err.message || 'Unknown error'));
+    } finally {
+      setLoadingScheduled(false);
+    }
   }, []);
+
+  const fetchRoute = useCallback(async () => {
+    setLoadingRoute(true);
+    try {
+      const res = await driverService.getOptimizedRoute(driverCoords?.[0], driverCoords?.[1]);
+      setRouteData(res);
+      toast.success('Route optimized successfully');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to optimize route');
+    } finally {
+      setLoadingRoute(false);
+    }
+  }, [driverCoords]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleCommitScheduledJob = async (bookingId: string) => {
     setCommittingJobId(bookingId);
     try {
       socketCommitScheduledJob(bookingId);
     } catch (err: any) {
-      toast.error('Failed to commit to job: ' + err.message);
-    } finally { setCommittingJobId(null); }
+      toast.error(err.message || 'Failed to commit to job');
+      setCommittingJobId(null);
+    }
   };
 
-  const fetchRoute = async () => {
-    let lat: number | undefined;
-    let lng: number | undefined;
-    setLoadingRoute(true);
-    if (navigator.geolocation) {
-      try {
-        const position = await new Promise<GeolocationPosition>((resolve, reject) =>
-          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
-        );
-        lat = position.coords.latitude;
-        lng = position.coords.longitude;
-        setDriverCoords([lat, lng]);
-      } catch (e) { console.warn('Geolocation failed:', e); }
-    }
-    if (!lat || !lng) {
-      setLoadingRoute(false);
-      return;
-    }
-    try {
-      const data = await driverService.getOptimizedRoute(lat, lng);
-      setRouteData(data);
-    } catch (e) { console.error('Failed to fetch optimized route:', e); }
-    finally { setLoadingRoute(false); }
-  };
-
-  useEffect(() => {
-    if (token) {
-      loadData();
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            setDriverCoords([pos.coords.latitude, pos.coords.longitude]);
-          },
-          () => {}
-        );
-      }
-    }
-  }, [token]);
-
-  useSocketListener('incoming-bid', (data: any) => { setBid(data); setCountdown(30); });
-  useSocketListener('bid-accepted', () => { toast.success('Bid accepted! Go to pickup.'); setBid(null); loadData(); });
-  useSocketListener('driver:location:update', (data: any) => { if (data?.lat && data?.lng) setDriverCoords([data.lat, data.lng]); });
-  useSocketListener('driver:arrived', () => loadData());
-  useSocketListener('trip:completed', () => loadData());
-  useSocketListener('booking-cancelled', () => loadData());
-
-  useSocketListener('scheduled_job_available', (data: any) => {
-    toast.success(`📅 New scheduled job: ${data.cargoType} on ${formatDate(data.scheduledAt)}`, { duration: 6000 });
-    loadScheduledJobs();
+  useSocketListener('bid:new', (newBid: any) => {
+    setBid(newBid);
+    setCountdown(30);
+    toast('New Delivery Request received!', { icon: '🔔' });
   });
 
-  useSocketListener('commit-confirmed', (data: any) => {
+  useSocketListener('booking:status', () => {
+    loadData();
+  });
+
+  useSocketListener('scheduled:committed', (data: any) => {
     toast.success(`✅ Committed! Job scheduled for ${formatDate(data.scheduledAt)}`);
     setCommittingJobId(null);
     loadScheduledJobs();
@@ -294,7 +290,7 @@ function DriverDashboard() {
 
             {/* Incoming Bid Notification Modal */}
             {bid && (
-              <IncomingBidModal
+              <BidModal
                 bid={bid}
                 countdown={countdown}
                 onAccept={handleAcceptBid}
@@ -304,7 +300,7 @@ function DriverDashboard() {
 
             {/* Active Trips Card (Desktop) */}
             <MapOverlayCard>
-              <DriverActiveTripsPanel
+              <ActiveTrips
                 activeBookings={activeBookings}
                 isOnline={isOnline}
                 onRefresh={loadData}
@@ -313,7 +309,7 @@ function DriverDashboard() {
             </MapOverlayCard>
 
             {/* Active Trips Card (Mobile Overlay) */}
-            <DriverActiveTripsPanel
+            <ActiveTrips
               activeBookings={activeBookings}
               isOnline={isOnline}
               onRefresh={loadData}
@@ -325,7 +321,7 @@ function DriverDashboard() {
       ) : (
         <div className="flex-1 w-full bg-white flex flex-col overflow-y-auto px-4 py-4 space-y-3 text-left">
           {activeTab === 'jobs_board' && (
-            <DriverJobsBoard
+            <JobsBoard
               type="available"
               bookings={pendingBookings}
               onRefresh={loadData}
@@ -334,7 +330,7 @@ function DriverDashboard() {
           )}
 
           {activeTab === 'schedule' && (
-            <DriverScheduledPanel
+            <ScheduledJobs
               scheduledJobs={scheduledJobs}
               availableScheduledJobs={availableScheduledJobs}
               loading={loadingScheduled}
@@ -346,7 +342,7 @@ function DriverDashboard() {
           )}
 
           {activeTab === 'past_jobs' && (
-            <DriverJobsBoard
+            <JobsBoard
               type="history"
               bookings={pastBookings}
             />
