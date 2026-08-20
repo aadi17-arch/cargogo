@@ -1,6 +1,6 @@
 import { Eye, EyeOff } from 'lucide-react';
 
-interface AuthFormFieldProps {
+interface FormFieldProps {
   label: string;
   type?: string;
   placeholder: string;
@@ -13,7 +13,7 @@ interface AuthFormFieldProps {
   hideLabel?: boolean;
 }
 
-export default function AuthFormField({
+export default function FormField({
   label,
   type = 'text',
   placeholder,
@@ -24,7 +24,7 @@ export default function AuthFormField({
   showPassword,
   onTogglePassword,
   hideLabel = false
-}: AuthFormFieldProps) {
+}: FormFieldProps) {
   const inputClass = `w-full p-3 bg-white text-[var(--color-text-main)] placeholder-[#94A3B8] font-medium rounded-[var(--radius-card)] border border-solid border-[var(--border-width)] focus:outline-none transition-all text-sm ${
     showToggle ? 'pr-10' : ''
   } ${
