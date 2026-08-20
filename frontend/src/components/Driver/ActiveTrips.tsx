@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { Clock, RefreshCw } from 'lucide-react';
-import BookingRouteRow from '@/components/UI/BookingRouteRow';
-import IconButton from '@/components/UI/IconButton';
-import EmptyState from '@/components/UI/EmptyState';
+import BookingRouteRow from '@/components/ui/BookingRouteRow';
+import IconButton from '@/components/ui/IconButton';
+import EmptyState from '@/components/ui/EmptyState';
 
-interface DriverActiveTripsPanelProps {
+interface ActiveTripsProps {
   activeBookings: any[];
   isOnline: boolean;
   onRefresh: () => void;
@@ -12,13 +12,13 @@ interface DriverActiveTripsPanelProps {
   onToggleOnline?: () => void;
 }
 
-export default function DriverActiveTripsPanel({
+export default function ActiveTrips({
   activeBookings,
   isOnline,
   onRefresh,
   onBrowseJobs,
   onToggleOnline
-}: DriverActiveTripsPanelProps) {
+}: ActiveTripsProps) {
   const navigate = useNavigate();
 
   return (
