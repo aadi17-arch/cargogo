@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotification } from '@/hooks/useNotification';
-import AuthFormField from '@/components/UI/AuthFormField';
-import PrimaryButton from '@/components/UI/PrimaryButton';
-import AuthPageShell from '@/components/UI/AuthPageShell';
+import FormField from '@/components/ui/FormField';
+import Button from '@/components/ui/Button';
+import AuthPageShell from '@/components/ui/AuthPageShell';
 import { getDashboardRoute } from '@/utils/routes';
 
 function RegisterPage() {
@@ -29,7 +29,6 @@ function RegisterPage() {
 
   const clearFieldError = (field: keyof typeof errors) =>
     setErrors((prev) => ({ ...prev, [field]: undefined }));
-
 
   const handleNameChange = (v: string) => {
     setForm(prev => ({ ...prev, name: v }));
@@ -63,12 +62,9 @@ function RegisterPage() {
   };
 
   const handlePlateChange = (v: string) => {
-    setForm(prev => ({
-      ...prev,
-      vehicle: { ...prev.vehicle, plateNumber: v }
-    }));
+    setForm(prev => ({ ...prev, vehicle: { ...prev.vehicle, plateNumber: v } }));
     if (!v.trim()) {
-      setErrors(prev => ({ ...prev, plateNumber: 'Plate number is required for drivers' }));
+      setErrors(prev => ({ ...prev, plateNumber: 'Vehicle plate number is required' }));
     } else {
       clearFieldError('plateNumber');
     }
@@ -78,25 +74,36 @@ function RegisterPage() {
     e.preventDefault();
     clearError();
 
-    const nameErr = !form.name.trim() ? 'Name is required' : undefined;
-    const emailErr = !form.email ? 'Email is required' : (!/\S+@\S+\.\S+/.test(form.email) ? 'Please enter a valid email address' : undefined);
-    const passErr = !form.password ? 'Password is required' : (form.password.length < 6 ? 'Password must be at least 6 characters' : undefined);
-    const plateErr = (form.role === 'DRIVER' && !form.vehicle.plateNumber.trim()) ? 'Plate number is required for drivers' : undefined;
+    const newErrors: typeof errors = {};
+    if (!form.name.trim()) newErrors.name = 'Name is required';
+    if (!form.email) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(form.email)) newErrors.email = 'Please enter a valid email address';
+    if (!form.password) newErrors.password = 'Password is required';
+    else if (form.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
+    if (form.role === 'DRIVER' && !form.vehicle.plateNumber.trim()) {
+      newErrors.plateNumber = 'Vehicle plate number is required';
+    }
 
-    if (nameErr || emailErr || passErr || plateErr) {
-      setErrors({ name: nameErr, email: emailErr, password: passErr, plateNumber: plateErr });
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
     const loadToast = notify.loading('Creating account...');
     try {
-      const payload = {
+      const payload: any = {
+        name: form.name,
         email: form.email,
         password: form.password,
-        name: form.name,
-        role: form.role,
-        ...(form.role === 'DRIVER' ? { vehicle: form.vehicle } : {})
+        role: form.role
       };
+      if (form.role === 'DRIVER') {
+        payload.vehicle = {
+          type: form.vehicle.type,
+          plateNumber: form.vehicle.plateNumber,
+          capacityKg: form.vehicle.type === 'MINI_TEMPO' ? 500 : form.vehicle.type === 'PICKUP_TRUCK' ? 1500 : 3000
+        };
+      }
       await register(payload);
       notify.success('Account created successfully!', { id: loadToast });
       navigate(getDashboardRoute(form.role));
@@ -108,23 +115,30 @@ function RegisterPage() {
   return (
     <AuthPageShell title="Register Account" subtitle="Join CargoGo logistics">
       <form onSubmit={handleSubmit} className="space-y-4">
-
-        <AuthFormField
-          label="Name" placeholder="Full name"
-          value={form.name} error={errors.name}
+        <FormField
+          label="Name"
+          placeholder="Full name"
+          value={form.name}
+          error={errors.name}
           onChange={handleNameChange}
         />
 
-        <AuthFormField
-          label="Email" type="email" placeholder="Email address"
-          value={form.email} error={errors.email}
+        <FormField
+          label="Email"
+          type="email"
+          placeholder="Email address"
+          value={form.email}
+          error={errors.email}
           onChange={handleEmailChange}
         />
 
-        <AuthFormField
-          label="Password" placeholder="Password (min 6 chars)"
-          value={form.password} error={errors.password}
-          showToggle showPassword={showPassword}
+        <FormField
+          label="Password"
+          placeholder="Password (min 6 chars)"
+          value={form.password}
+          error={errors.password}
+          showToggle
+          showPassword={showPassword}
           onTogglePassword={() => setShowPassword(!showPassword)}
           onChange={handlePasswordChange}
         />
@@ -147,9 +161,11 @@ function RegisterPage() {
               Vehicle Parameters
             </h3>
 
-            <AuthFormField
-              label="Plate Number" placeholder="e.g. MH-12-AB-1234"
-              value={form.vehicle.plateNumber} error={errors.plateNumber}
+            <FormField
+              label="Plate Number"
+              placeholder="e.g. MH-12-AB-1234"
+              value={form.vehicle.plateNumber}
+              error={errors.plateNumber}
               onChange={handlePlateChange}
             />
 
@@ -168,13 +184,13 @@ function RegisterPage() {
           </div>
         )}
 
-        <PrimaryButton
+        <Button
           type="submit"
           fullWidth
           className="py-3 text-sm mt-2"
         >
           Register
-        </PrimaryButton>
+        </Button>
 
         <p className="text-center text-xs text-slate-400 font-medium pt-2">
           Already have an account?{' '}
