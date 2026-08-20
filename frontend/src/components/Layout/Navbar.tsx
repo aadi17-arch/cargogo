@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
-import BaseModal from '../UI/BaseModal';
-import StatusBadge from '../UI/StatusBadge';
+import Modal from '@/components/ui/Modal';
+import Badge from '@/components/ui/Badge';
 
 interface NavbarProps {
   userName?: string;
@@ -281,7 +281,7 @@ export default function Navbar({
 
       {}
       {/* FAQ Modal */}
-      <BaseModal isOpen={showFAQ} onClose={() => setShowFAQ(false)} title="FAQ">
+      <Modal isOpen={showFAQ} onClose={() => setShowFAQ(false)} title="FAQ">
         <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
           {[
             { q: 'How does dispatch work?', a: 'CargoGo matches nearby drivers instantly based on vehicle type and location.' },
@@ -294,10 +294,10 @@ export default function Navbar({
             </div>
           ))}
         </div>
-      </BaseModal>
+      </Modal>
 
       {/* Pricing Modal */}
-      <BaseModal isOpen={showRates} onClose={() => setShowRates(false)} title="Pricing">
+      <Modal isOpen={showRates} onClose={() => setShowRates(false)} title="Pricing">
         <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
           {[
             { type: 'Mini Tempo', capacity: 'Up to 500 kg', fare: '₹350 base + ₹14/km' },
@@ -313,10 +313,10 @@ export default function Navbar({
             </div>
           ))}
         </div>
-      </BaseModal>
+      </Modal>
 
       {/* Services Modal */}
-      <BaseModal isOpen={showServices} onClose={() => setShowServices(false)} title="Services">
+      <Modal isOpen={showServices} onClose={() => setShowServices(false)} title="Services">
         <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
           {[
             'Intracity Express Delivery',
@@ -330,10 +330,10 @@ export default function Navbar({
             </div>
           ))}
         </div>
-      </BaseModal>
+      </Modal>
 
       {/* Support Modal */}
-      <BaseModal isOpen={showSupport} onClose={() => setShowSupport(false)} title="Support">
+      <Modal isOpen={showSupport} onClose={() => setShowSupport(false)} title="Support">
         <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
           <div className="py-3.5 flex items-center justify-between text-xs">
             <span className="font-bold text-slate-900 font-heading">Hotline</span>
@@ -348,10 +348,10 @@ export default function Navbar({
             </a>
           </div>
         </div>
-      </BaseModal>
+      </Modal>
 
       {/* Active Runs Modal */}
-      <BaseModal isOpen={showActiveRuns} onClose={() => setShowActiveRuns(false)} title="Active Shipments" maxWidth="max-w-xl">
+      <Modal isOpen={showActiveRuns} onClose={() => setShowActiveRuns(false)} title="Active Shipments" maxWidth="max-w-xl">
         {activeShipperRuns.length === 0 ? (
           <div className="text-center py-8 text-slate-400 text-xs font-medium">
             No active shipments.
@@ -363,7 +363,7 @@ export default function Navbar({
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="text-xs font-bold text-slate-900 font-heading">{b.cargoType}</span>
-                    <StatusBadge status={b.status} />
+                    <Badge status={b.status} />
                   </div>
                   <span className="text-[10px] font-mono text-slate-400">#{b.id.substring(0, 8).toUpperCase()}</span>
                 </div>
@@ -383,10 +383,10 @@ export default function Navbar({
             ))}
           </div>
         )}
-      </BaseModal>
+      </Modal>
 
       {/* Driver Stats Modal */}
-      <BaseModal isOpen={showDriverStats} onClose={() => setShowDriverStats(false)} title="Performance" maxWidth="max-w-md">
+      <Modal isOpen={showDriverStats} onClose={() => setShowDriverStats(false)} title="Performance" maxWidth="max-w-md">
         <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
           <div className="py-3 flex justify-between items-center text-xs">
             <span className="font-bold text-slate-900 font-heading">Total Earnings</span>
@@ -405,10 +405,10 @@ export default function Navbar({
             <span className="font-bold text-slate-900">100%</span>
           </div>
         </div>
-      </BaseModal>
+      </Modal>
 
       {}
-      <BaseModal isOpen={showTrackModal} onClose={() => setShowTrackModal(false)} title="Quick Track Shipment">
+      <Modal isOpen={showTrackModal} onClose={() => setShowTrackModal(false)} title="Quick Track Shipment">
         <form 
           onSubmit={(e) => {
             e.preventDefault();
@@ -448,10 +448,10 @@ export default function Navbar({
             </button>
           </div>
         </form>
-      </BaseModal>
+      </Modal>
 
       {}
-      <BaseModal isOpen={showShippersModal} onClose={() => setShowShippersModal(false)} title="CargoGo For Shippers">
+      <Modal isOpen={showShippersModal} onClose={() => setShowShippersModal(false)} title="CargoGo For Shippers">
         <div className="space-y-4">
           <p className="text-xs text-slate-500 leading-normal">
             Ship cargo seamlessly with enterprise-grade logistics tools built for businesses and individuals:
@@ -479,10 +479,10 @@ export default function Navbar({
             </button>
           </div>
         </div>
-      </BaseModal>
+      </Modal>
 
       {}
-      <BaseModal isOpen={showDriversModal} onClose={() => setShowDriversModal(false)} title="CargoGo For Drivers">
+      <Modal isOpen={showDriversModal} onClose={() => setShowDriversModal(false)} title="CargoGo For Drivers">
         <div className="space-y-4">
           <p className="text-xs text-slate-500 leading-normal">
             Earn more money and maximize your vehicle efficiency by partner dispatching with CargoGo:
@@ -510,7 +510,7 @@ export default function Navbar({
             </button>
           </div>
         </div>
-      </BaseModal>
+      </Modal>
     </>
   );
 }
