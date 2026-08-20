@@ -2,17 +2,17 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
 import { useSocket, useSocketListener } from '@/hooks/useSocket';
-import PaymentModal from '@/components/Dashboard/PaymentModal';
-import BaseModal from '@/components/UI/BaseModal';
-import PrimaryButton from '@/components/UI/PrimaryButton';
-import MapView, { MapMarker } from '@/components/Map/MapView';
-import DashboardHeader from '@/components/UI/DashboardHeader';
-import MapOverlayCard from '@/components/UI/MapOverlayCard';
-import LocateButton from '@/components/UI/LocateButton';
+import PaymentModal from '@/components/dashboard/PaymentModal';
+import Modal from '@/components/ui/Modal';
+import Button from '@/components/ui/Button';
+import MapView, { MapMarker } from '@/components/map/MapView';
+import DashboardHeader from '@/components/ui/DashboardHeader';
+import MapOverlayCard from '@/components/ui/MapOverlayCard';
+import LocateButton from '@/components/ui/LocateButton';
 import { toast } from 'react-hot-toast';
 import { geocodingService } from '@/services/geocoding.service';
-import BookingWizard, { BookingFormData } from '@/components/Booking/BookingWizard';
-import ShipperShipmentsList from '@/components/Dashboard/ShipperShipmentsList';
+import BookingForm, { BookingFormData } from '@/components/booking/BookingForm';
+import ShipmentsList from '@/components/dashboard/ShipmentsList';
 
 function ShipperDashboard() {
   const { token } = useAuth();
@@ -295,7 +295,7 @@ function ShipperDashboard() {
 
             {/* Booking Wizard Card */}
             <MapOverlayCard>
-              <BookingWizard
+              <BookingForm
                 form={form}
                 setForm={setForm}
                 pickupSearch={pickupSearch}
@@ -309,7 +309,7 @@ function ShipperDashboard() {
           </div>
         </div>
       ) : (
-        <ShipperShipmentsList
+        <ShipmentsList
           bookings={bookings}
           onRefresh={fetchMyBookings}
           onPay={(b) => setSelectedBookingForPayment(b)}
@@ -318,33 +318,32 @@ function ShipperDashboard() {
       )}
 
       {/* Cancel Confirmation Modal */}
-      {bookingToCancel && (
-        <BaseModal
-          isOpen={true}
-          onClose={() => setBookingToCancel(null)}
-          title="Cancel Booking"
-        >
-          <div className="space-y-4 text-left">
-            <p className="text-sm text-slate-600 font-body">Cancel booking?</p>
-            <div className="flex justify-end gap-2.5">
-              <PrimaryButton
-                type="button"
-                variant="outline"
-                onClick={() => setBookingToCancel(null)}
-              >
-                No
-              </PrimaryButton>
-              <PrimaryButton
-                type="button"
-                variant="danger"
-                onClick={() => handleCancelBooking(bookingToCancel)}
-              >
-                Yes, Cancel
-              </PrimaryButton>
-            </div>
+      {/* Cancellation Modal */}
+      <Modal
+        isOpen={!!bookingToCancel}
+        onClose={() => setBookingToCancel(null)}
+        title="Cancel Delivery"
+      >
+        <div className="space-y-4 text-left">
+          <p className="text-sm text-slate-600">
+            Are you sure you want to cancel this booking? This action cannot be undone.
+          </p>
+          <div className="flex gap-3 justify-end pt-2">
+            <Button
+              variant="outline"
+              onClick={() => setBookingToCancel(null)}
+            >
+              Keep Booking
+            </Button>
+            <Button
+              variant="danger"
+              onClick={() => bookingToCancel && handleCancelBooking(bookingToCancel)}
+            >
+              Cancel Delivery
+            </Button>
           </div>
-        </BaseModal>
-      )}
+        </div>
+      </Modal>
 
       {/* Payment Modal */}
       {selectedBookingForPayment && (
