@@ -29,8 +29,20 @@ const PORT = env.PORT;
 const app = express();
 const httpServer = http.createServer(app);
 
+const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use(cors({
-    origin: env.FRONTEND_URL,
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps, curl, or server-to-server)
+        if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+            return callback(null, true);
+        }
+        return callback(null, true);
+    },
     credentials: true,
 }));
 app.use(helmet());
