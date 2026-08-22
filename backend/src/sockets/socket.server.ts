@@ -11,7 +11,11 @@ import { createAdapter } from '@socket.io/redis-adapter';
 export const createSocketServer = (httpServer: HTTPServer) => {
     const io = new SocketIOServer(httpServer, {
         cors: {
-            origin: env.FRONTEND_URL || '*',
+            origin: [
+                'http://localhost:3000',
+                'http://localhost:5173',
+                env.FRONTEND_URL,
+            ].filter(Boolean),
             methods: ['GET', 'POST'],
             credentials: true,
         },
