@@ -20,7 +20,6 @@ export const registerMatchingHandlers = (
             socket.join(SOCKET_ROOMS.shipper(user.id));
         }
 
-        // Booking cargo
         socket.on(SOCKET_EVENTS.BOOK_CARGO, async (bookingData) => {
             try {
                 const bookingId = bookingData?.bookingId;
@@ -29,7 +28,6 @@ export const registerMatchingHandlers = (
 
                 socket.emit(SOCKET_EVENTS.DISPATCH_QUEUED, { bookingId });
 
-                // Auto-Accept Test Bot: Strictly development/testing only — NEVER executes in production
                 const isTestBotEnabled = env.NODE_ENV !== 'production' && env.AUTO_ACCEPT_TEST_BOT === true;
 
                 if (isTestBotEnabled) {
@@ -59,7 +57,6 @@ export const registerMatchingHandlers = (
             }
         });
 
-        // Driver takes the ride
         socket.on(SOCKET_EVENTS.ACCEPT_BID, async ({ bookingId }) => {
             try {
                 const booking = await acceptBooking(bookingId, user.id);
@@ -80,7 +77,6 @@ export const registerMatchingHandlers = (
             }
         });
 
-        // Rejecting bid
         socket.on(SOCKET_EVENTS.REJECT_BID, async ({ bookingId }) => {
             try {
                 const jobs = await dispatchQueue.getJobs(['delayed', 'waiting']);
@@ -110,12 +106,10 @@ export const registerMatchingHandlers = (
             }
         });
 
-        // Handle driver commitment to a scheduled cargo job
         socket.on(SOCKET_EVENTS.COMMIT_SCHEDULED_JOB, async ({ bookingId }) => {
             try {
                 const booking = await commitToScheduledJob(bookingId, user.id);
 
-                // Notify the shipper their scheduled job now has a committed driver
                 io.to(SOCKET_ROOMS.shipper(booking.shipperId)).emit(SOCKET_EVENTS.SCHEDULED_JOB_COMMITTED, {
                     bookingId: booking.id,
                     driverId: user.id,
@@ -123,7 +117,6 @@ export const registerMatchingHandlers = (
                     committedAt: booking.committedAt,
                 });
 
-                // Confirm back to the committing driver
                 socket.emit(SOCKET_EVENTS.COMMIT_CONFIRMED, {
                     bookingId: booking.id,
                     scheduledAt: booking.scheduledAt,
@@ -134,7 +127,6 @@ export const registerMatchingHandlers = (
             }
         });
 
-        // Handle Chat Sockets
         socket.on(SOCKET_EVENTS.JOIN_CHAT, ({ bookingId }) => {
             socket.join(SOCKET_ROOMS.chat(bookingId));
         });
