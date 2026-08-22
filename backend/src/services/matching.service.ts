@@ -8,14 +8,11 @@ export const findNearbyDrivers = async (
     radiusKm: number = 5
 ) => {
     const nearby = await findNearbyFromRedis(pickupLat, pickupLng, radiusKm);
-
     const results: any[] = [];
-    // i am finding the drivers in redis cache at the moment and mapping them to result array
 
     for (const n of nearby) {
         const meta = await redis.hGetAll(`driver:meta:${n.driverId}`);
 
-        // if redis has any like if there are nearby..
         if (meta && Object.keys(meta).length > 0) {
             results.push({
                 userId: n.driverId,
@@ -30,8 +27,8 @@ export const findNearbyDrivers = async (
                     }
                 }
             });
-            // if not means cache miss : nomally fetch from database takes time
         } else {
+            // Cache miss fallback: query database and refresh Redis metadata
             const profile = await prisma.driverProfile.findUnique({
                 where: { userId: n.driverId },
                 include: { user: { include: { vehicle: true } } }
@@ -42,7 +39,6 @@ export const findNearbyDrivers = async (
                     distanceKm: n.distanceKm,
                     userId: n.driverId
                 });
-                // if missed fetch from db then again fill those in redis for no cache miss
 
                 await redis.hSet(`driver:meta:${n.driverId}`, {
                     name: profile.user.name,
