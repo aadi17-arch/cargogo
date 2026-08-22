@@ -8,7 +8,7 @@ export default function HeroSection() {
   const dest = isAuthenticated ? (user?.role === 'DRIVER' ? '/driver' : '/shipper') : '/register';
 
   return (
-    <header className="relative bg-slate-950 text-white overflow-hidden min-h-[calc(100svh-4rem)] flex items-center border-b border-slate-800 py-16 sm:py-24">
+    <header className="relative bg-slate-950 text-white overflow-hidden h-[calc(100svh-4rem)] min-h-[calc(100svh-4rem)] flex items-center border-b border-slate-800">
       {/* Subtle Background Image with Heavy Dark Scrim */}
       <div
         className="absolute inset-0 bg-cover bg-center opacity-15 pointer-events-none"
