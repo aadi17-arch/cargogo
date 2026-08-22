@@ -3,7 +3,8 @@
     "version": "1.0.0",
     "scripts": {
         "dev": "tsx watch src/app.ts",
-        "build": "tsc",
+        "build": "tsc && npx tsc-alias",
+        "start": "node dist/app.js",
         "db:generate": "prisma generate",
         "db:migrate": "prisma migrate dev",
         "db:seed": "tsx prisma/seed.ts",
@@ -46,6 +47,7 @@
         "jest": "^30.4.2",
         "prisma": "^5.14.0",
         "supertest": "^7.2.2",
+        "tsc-alias": "^1.8.10",
         "ts-jest": "^29.4.11"
     }
 }
