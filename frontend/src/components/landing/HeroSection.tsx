@@ -29,7 +29,7 @@ export default function HeroSection() {
         }}
       />
 
-      {/* High-Visibility Animated SVG Logistics & Tracking Network */}
+      {/* High-End Refined Animated SVG Logistics & Tracking Network */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
         xmlns="http://www.w3.org/2000/svg"
@@ -37,102 +37,108 @@ export default function HeroSection() {
         preserveAspectRatio="xMidYMid slice"
       >
         <defs>
-          <linearGradient id="routeGlow1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.8" />
-            <stop offset="50%" stopColor="#818CF8" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#C084FC" stopOpacity="0.7" />
+          {/* Subtle Glow & Gradients */}
+          <linearGradient id="curveGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.05" />
+            <stop offset="40%" stopColor="#38BDF8" stopOpacity="0.45" />
+            <stop offset="80%" stopColor="#818CF8" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="#C084FC" stopOpacity="0.1" />
           </linearGradient>
 
-          <linearGradient id="routeGlow2" x1="100%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#34D399" stopOpacity="0.7" />
-            <stop offset="50%" stopColor="#38BDF8" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#60A5FA" stopOpacity="0.6" />
+          <linearGradient id="curveGrad2" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#0EA5E9" stopOpacity="0.0" />
+            <stop offset="50%" stopColor="#38BDF8" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#34D399" stopOpacity="0.5" />
           </linearGradient>
 
-          <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur1" />
-            <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur2" />
+          <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="3" result="glow" />
             <feMerge>
-              <feMergeNode in="blur2" />
-              <feMergeNode in="blur1" />
+              <feMergeNode in="glow" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
         </defs>
 
-        {/* Major Interstate Highway Corridors */}
+        {/* Ambient Logistics Arc 1 - Flows gracefully on right side */}
         <path
-          d="M 100 650 Q 400 350, 750 480 T 1380 200"
+          d="M 550 780 C 750 520, 920 620, 1120 380 C 1240 240, 1380 180, 1500 120"
           fill="none"
-          stroke="url(#routeGlow1)"
-          strokeWidth="2.5"
-          strokeDasharray="8 8"
-          className="animate-dash opacity-70"
+          stroke="url(#curveGrad1)"
+          strokeWidth="1.5"
+          strokeDasharray="4 6"
+          className="animate-dash"
         />
 
+        {/* Ambient Logistics Arc 2 - Intersecting flight/interstate path */}
         <path
-          d="M 200 150 Q 600 500, 950 280 T 1400 550"
+          d="M 680 100 C 850 320, 1050 200, 1260 480 C 1360 620, 1440 680, 1520 700"
           fill="none"
-          stroke="url(#routeGlow2)"
-          strokeWidth="2"
-          strokeDasharray="6 6"
-          className="animate-dash opacity-60"
+          stroke="url(#curveGrad2)"
+          strokeWidth="1.2"
+          strokeDasharray="3 5"
+          className="animate-dash"
         />
 
+        {/* Supporting Secondary Feeder Routes */}
         <path
-          d="M 500 780 C 700 600, 900 650, 1150 450 C 1300 300, 1380 200, 1440 180"
+          d="M 900 800 C 980 650, 1120 380, 1120 380"
           fill="none"
           stroke="#38BDF8"
-          strokeWidth="1.5"
-          strokeOpacity="0.3"
-          strokeDasharray="4 6"
+          strokeWidth="1"
+          strokeOpacity="0.2"
+          strokeDasharray="2 4"
+        />
+        <path
+          d="M 1120 380 C 1180 300, 1260 480, 1260 480"
+          fill="none"
+          stroke="#818CF8"
+          strokeWidth="1"
+          strokeOpacity="0.25"
+          strokeDasharray="2 4"
         />
 
-        {/* Live Animated Cargo Transport Pods */}
-        <g filter="url(#neonGlow)">
-          <circle r="6" fill="#38BDF8">
+        {/* Moving Cargo Pulses (Smoothed & Refined) */}
+        <g filter="url(#softGlow)">
+          <circle r="3.5" fill="#38BDF8">
             <animateMotion
-              path="M 100 650 Q 400 350, 750 480 T 1380 200"
-              dur="9s"
-              repeatCount="indefinite"
-            />
-          </circle>
-          <circle r="5" fill="#34D399">
-            <animateMotion
-              path="M 200 150 Q 600 500, 950 280 T 1400 550"
+              path="M 550 780 C 750 520, 920 620, 1120 380 C 1240 240, 1380 180, 1500 120"
               dur="12s"
               repeatCount="indefinite"
             />
           </circle>
-          <circle r="4.5" fill="#C084FC">
+          <circle r="3" fill="#818CF8">
             <animateMotion
-              path="M 100 650 Q 400 350, 750 480 T 1380 200"
+              path="M 550 780 C 750 520, 920 620, 1120 380 C 1240 240, 1380 180, 1500 120"
+              dur="16s"
+              begin="-6s"
+              repeatCount="indefinite"
+            />
+          </circle>
+          <circle r="3" fill="#34D399">
+            <animateMotion
+              path="M 680 100 C 850 320, 1050 200, 1260 480 C 1360 620, 1440 680, 1520 700"
               dur="14s"
-              begin="-5s"
               repeatCount="indefinite"
             />
           </circle>
         </g>
 
-        {/* Regional Hub Waypoints & Pulsing Radar */}
-        <g transform="translate(400, 350)">
-          <circle r="4" fill="#38BDF8" />
-          <circle r="16" fill="none" stroke="#38BDF8" strokeWidth="1.5" opacity="0.4" className="animate-ping" />
+        {/* Refined Waypoints with Minimal Pulsing */}
+        <g transform="translate(1120, 380)">
+          <circle r="3.5" fill="#38BDF8" />
+          <circle r="14" fill="none" stroke="#38BDF8" strokeWidth="1" opacity="0.3" className="animate-ping" />
         </g>
-
-        <g transform="translate(750, 480)">
-          <circle r="5" fill="#818CF8" />
-          <circle r="22" fill="none" stroke="#818CF8" strokeWidth="1.5" opacity="0.35" className="animate-ping" />
+        <g transform="translate(1260, 480)">
+          <circle r="3" fill="#34D399" />
+          <circle r="12" fill="none" stroke="#34D399" strokeWidth="1" opacity="0.25" className="animate-ping" />
         </g>
-
-        <g transform="translate(950, 280)">
-          <circle r="4" fill="#34D399" />
-          <circle r="18" fill="none" stroke="#34D399" strokeWidth="1.5" opacity="0.4" className="animate-ping" />
+        <g transform="translate(850, 320)">
+          <circle r="2.5" fill="#818CF8" />
         </g>
-
-        <g transform="translate(1380, 200)">
-          <circle r="5" fill="#C084FC" />
-          <circle r="24" fill="none" stroke="#C084FC" strokeWidth="1.5" opacity="0.3" className="animate-ping" />
+        <g transform="translate(1380, 180)">
+          <circle r="3" fill="#C084FC" />
+          <circle r="15" fill="none" stroke="#C084FC" strokeWidth="1" opacity="0.25" className="animate-ping" />
         </g>
       </svg>
 
