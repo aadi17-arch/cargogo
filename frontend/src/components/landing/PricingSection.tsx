@@ -184,7 +184,7 @@ export default function PricingSection() {
                 <div className="flex justify-between items-baseline">
                   <span className="text-xs font-bold text-slate-900 font-heading">Estimated Total</span>
                   <span className="text-3xl font-extrabold text-slate-900 font-heading tracking-tight">
-                    ₹{quote?.totalPrice || 0}
+                    ₹{quote?.estimated || 0}
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500 mt-1">
