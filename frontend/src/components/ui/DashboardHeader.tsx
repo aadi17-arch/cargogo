@@ -22,7 +22,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     <div className="w-full bg-white border-b border-slate-100 px-3 sm:px-6 py-2.5 sm:py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 shrink-0 z-20">
       <h2 className="text-base sm:text-xl font-bold text-slate-900 font-heading text-left">{title}</h2>
 
-      {/* Tabs list: equally distributed on mobile with no trailing dead space */}
       <div className="flex items-center border border-slate-200 rounded-lg p-1 bg-white shadow-xs w-full sm:w-auto overflow-x-auto no-scrollbar">
         {tabs.map((tab, idx) => (
           <React.Fragment key={tab.id}>
