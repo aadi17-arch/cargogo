@@ -239,7 +239,7 @@ function DriverDashboard() {
         * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
       `}</style>
 
-      {/* Header View Switcher */}
+      
       <DashboardHeader
         title="Driver Dashboard"
         tabs={[
@@ -259,7 +259,7 @@ function DriverDashboard() {
       {activeTab === 'my_jobs' ? (
         <div className="flex-1 w-full p-2 sm:p-4 relative flex flex-col min-h-0 overflow-hidden bg-white">
           <div className="relative w-full h-full flex-1 rounded-xl border border-slate-200 shadow-xs overflow-hidden bg-white">
-            {/* Live Map Canvas */}
+            
             <div className="absolute inset-0 z-0 h-full w-full">
               <MapView
                 center={mapCenter}
@@ -271,7 +271,7 @@ function DriverDashboard() {
               />
             </div>
 
-            {/* Online Status Bar (Desktop) & GPS Locate Action */}
+            
             <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20 flex items-center gap-2">
               <div className="hidden md:flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-md">
                 <div className={`w-2 h-2 rounded-sm shrink-0 ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
@@ -295,7 +295,7 @@ function DriverDashboard() {
               />
             </div>
 
-            {/* Incoming Bid Notification Modal */}
+            
             {bid && (
               <BidModal
                 bid={bid}
@@ -305,7 +305,7 @@ function DriverDashboard() {
               />
             )}
 
-            {/* Active Trips Card (Desktop) */}
+            
             <MapOverlayCard>
               <ActiveTrips
                 activeBookings={activeBookings}
@@ -315,7 +315,7 @@ function DriverDashboard() {
               />
             </MapOverlayCard>
 
-            {/* Active Trips Card (Mobile Overlay) */}
+            
             <ActiveTrips
               activeBookings={activeBookings}
               isOnline={isOnline}
