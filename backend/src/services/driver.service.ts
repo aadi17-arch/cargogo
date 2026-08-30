@@ -106,7 +106,7 @@ export const getOnlineDrivers = async () => {
     });
 };
 
-// Returns all committed upcoming scheduled bookings for a driver
+
 export const getUpcomingScheduledJobs = async (driverId: string) => {
     return prisma.booking.findMany({
         where: {
@@ -118,7 +118,7 @@ export const getUpcomingScheduledJobs = async (driverId: string) => {
     });
 };
 
-// Returns available scheduled jobs matching driver's vehicle specifications
+
 export const getAvailableScheduledJobs = async (driverId: string) => {
     const driver = await prisma.user.findUnique({
         where: { id: driverId },
