@@ -2,17 +2,17 @@ import prisma from '@/config/database';
 import { findScheduledCandidates } from '@/services/matching.service';
 import { SocketIOServer } from '@/sockets/socket.server';
 
-// Match scheduled jobs that start in the next 24 hours
+
 const MATCHING_WINDOW_HOURS = 24;
-// Grace period of 30 minutes after scheduledAt before auto-cancelling unclaimed bookings
+
 const SCHEDULED_GRACE_PERIOD_MS = 30 * 60 * 1000;
 
-// Scans the database for upcoming scheduled jobs and alerts suitable drivers
+
 export const processScheduledPool = async (io: SocketIOServer): Promise<void> => {
     const now = new Date();
     const graceCutoff = new Date(now.getTime() - SCHEDULED_GRACE_PERIOD_MS);
 
-    // Auto-cancel expired scheduled bookings that were never claimed after grace period
+    
     await prisma.booking.updateMany({
         where: {
             bookingType: 'SCHEDULED',
@@ -28,7 +28,7 @@ export const processScheduledPool = async (io: SocketIOServer): Promise<void> =>
 
     const windowEnd = new Date(now.getTime() + MATCHING_WINDOW_HOURS * 60 * 60 * 1000);
 
-    // Fetch unassigned scheduled bookings within the window
+    
     const readyBookings = await prisma.booking.findMany({
         where: {
             bookingType: 'SCHEDULED',
@@ -68,13 +68,13 @@ export const processScheduledPool = async (io: SocketIOServer): Promise<void> =>
             await notifyCandidateDrivers(booking, candidates, io);
             console.log(`[ScheduledJobs] Notified ${candidates.length} driver(s) for booking ${booking.id}`);
         } catch (err) {
-            // Log and continue — don't let one failing booking block the rest
+            
             console.error(`[ScheduledJobs] Error processing booking ${booking.id}:`, err);
         }
     }
 };
 
-// Notifies suitable drivers through socket channels
+
 const notifyCandidateDrivers = async (
     booking: any,
     candidates: any[],
