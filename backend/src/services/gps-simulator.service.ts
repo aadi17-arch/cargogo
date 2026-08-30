@@ -1,7 +1,7 @@
 import { Server } from "socket.io";
 import { getBookingOrThrow } from "@/services/booking.service";
 
-// Central Map to track active GPS simulations per booking and prevent timer leaks
+
 const activeSimulations = new Map<string, NodeJS.Timeout>();
 
 export const stopGpsSimulation = (bookingId: string) => {
@@ -47,7 +47,7 @@ export const startGpsSimulation = async (
   endLng: number,
   io: Server
 ) => {
-  // Clear any existing simulation timer for this booking before starting
+  
   stopGpsSimulation(bookingId);
 
   const route = await fetchRouteFromOSRM(startLat, startLng, endLat, endLng);
