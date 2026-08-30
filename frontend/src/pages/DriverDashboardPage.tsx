@@ -44,6 +44,7 @@ function DriverDashboard() {
   const [availableScheduledJobs, setAvailableScheduledJobs] = useState<ScheduledJob[]>([]);
   const [committingJobId, setCommittingJobId] = useState<string | null>(null);
   const [loadingScheduled, setLoadingScheduled] = useState(false);
+  const { updateLocation: socketUpdateLocation } = useSocket(token);
 
   const resolveDriverAddress = async (lat: number, lng: number) => {
     const name = await resolveSingleAddress(lat, lng);
@@ -171,6 +172,24 @@ function DriverDashboard() {
       }
     } catch (err: any) { toast.error(err.message || 'Failed to update status'); }
   };
+  useEffect(() => {
+    const sendRequestTimeToTime = () => {
+      if (!isOnline) return;
+
+      navigator.geolocation.getCurrentPosition(
+        (currentPositon) => {
+          const { latitude, longitude } = currentPositon.coords;
+          socketUpdateLocation(latitude, longitude);
+        },
+        ()=>{},
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    };
+    sendRequestTimeToTime();
+    const timer = setInterval(sendRequestTimeToTime, 20000);
+    return () => clearInterval(timer);
+
+  },[isOnline]);
 
   const handleAcceptBid = () => {
     try { socketAcceptBid(bid.bookingId); setBid(null); }
