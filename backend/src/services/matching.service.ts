@@ -28,7 +28,7 @@ export const findNearbyDrivers = async (
                 }
             });
         } else {
-            // Cache miss fallback: query database and refresh Redis metadata
+            
             const profile = await prisma.driverProfile.findUnique({
                 where: { userId: n.driverId },
                 include: { user: { include: { vehicle: true } } }
@@ -75,7 +75,7 @@ export const acceptBooking = async (
     });
 };
 
-// Finds drivers that have matching vehicle profiles and no active job conflicts at scheduled time
+
 export const findScheduledCandidates = async (booking: {
     vehicleType: string;
     weightKg: number;
@@ -84,10 +84,10 @@ export const findScheduledCandidates = async (booking: {
     scheduledAt: Date;
     scheduledUntil?: Date | null;
 }) => {
-    // If scheduledUntil is missing, assume a standard 3 hour window
+    
     const windowEnd = booking.scheduledUntil ?? new Date(booking.scheduledAt.getTime() + 3 * 60 * 60 * 1000);
 
-    // Get drivers with matching vehicle types and no schedule clashes
+    
     const candidates = await prisma.user.findMany({
         where: {
             role: 'DRIVER',
@@ -99,7 +99,7 @@ export const findScheduledCandidates = async (booking: {
                 none: {
                     OR: [
                         {
-                            // Exclude drivers with overlapping scheduled bookings
+                            
                             bookingType: 'SCHEDULED',
                             status: { in: ['ACCEPTED', 'IN_TRANSIT'] },
                             committedAt: { not: null },
@@ -111,7 +111,7 @@ export const findScheduledCandidates = async (booking: {
                             },
                         },
                         {
-                            // Exclude drivers currently executing an active instant trip
+                            
                             bookingType: 'INSTANT',
                             status: { in: ['ACCEPTED', 'IN_TRANSIT'] },
                         }
@@ -125,7 +125,7 @@ export const findScheduledCandidates = async (booking: {
         },
     });
 
-    // Rank candidate list by distance to pick up point
+    
     const { haversineDistance } = await import('@/utils/haversine');
     return candidates
         .map((driver) => ({
