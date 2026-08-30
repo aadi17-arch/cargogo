@@ -258,7 +258,6 @@ function ShipperDashboard() {
         }
       `}</style>
 
-      {/* Header View Switcher */}
       <DashboardHeader
         title="Dashboard"
         tabs={[
@@ -277,7 +276,7 @@ function ShipperDashboard() {
       {activeView === 'book' ? (
         <div className="flex-1 w-full p-2 sm:p-4 relative flex flex-col min-h-0 overflow-hidden bg-white">
           <div className="relative w-full h-full flex-1 rounded-xl border border-slate-200 shadow-xs overflow-hidden bg-white">
-            {/* Map Canvas */}
+            
             <div className="absolute inset-0 z-0 h-full w-full">
               <MapView
                 center={mapCenter}
@@ -288,12 +287,10 @@ function ShipperDashboard() {
               />
             </div>
 
-            {/* Locate Me Floating Action */}
             <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20">
               <LocateButton onClick={locateMe} />
             </div>
 
-            {/* Booking Wizard Card */}
             <MapOverlayCard>
               <BookingForm
                 form={form}
@@ -317,8 +314,6 @@ function ShipperDashboard() {
         />
       )}
 
-      {/* Cancel Confirmation Modal */}
-      {/* Cancellation Modal */}
       <Modal
         isOpen={!!bookingToCancel}
         onClose={() => setBookingToCancel(null)}
@@ -345,7 +340,6 @@ function ShipperDashboard() {
         </div>
       </Modal>
 
-      {/* Payment Modal */}
       {selectedBookingForPayment && (
         <PaymentModal
           booking={selectedBookingForPayment}
