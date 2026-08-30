@@ -73,7 +73,7 @@ export const startDispatchWorker = (io: any) => {
         return;
       }
 
-      // Broadcast matching bid to all nearby drivers simultaneously
+      
       for (const driver of filteredNearby) {
         io.to(`driver:${driver.driverId}`).emit('incoming-bid', {
           bookingId,
