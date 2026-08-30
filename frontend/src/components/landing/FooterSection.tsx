@@ -36,7 +36,7 @@ export default function FooterSection() {
       <footer className="bg-slate-950 text-slate-400 py-16 border-t border-slate-800 text-xs">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-slate-800 text-left">
-            {/* Column 1: Brand & Summary */}
+            
             <div className="space-y-4">
               <div className="flex items-center gap-1.5 font-tech-space">
                 <span className="px-2 py-0.5 text-xs font-black text-slate-950 bg-white rounded shadow-sm">
@@ -51,7 +51,6 @@ export default function FooterSection() {
               </p>
             </div>
 
-            {/* Column 2: Navigation Links */}
             <div className="space-y-3">
               <h4 className="font-bold text-xs uppercase tracking-wider text-white font-heading">
                 Platform
@@ -67,7 +66,6 @@ export default function FooterSection() {
               </ul>
             </div>
 
-            {/* Column 3: Developer & Operational Hub */}
             <div className="space-y-3">
               <h4 className="font-bold text-xs uppercase tracking-wider text-white font-heading">
                 Resources
@@ -106,7 +104,6 @@ export default function FooterSection() {
               </ul>
             </div>
 
-            {/* Column 4: Newsletter */}
             <div className="space-y-3">
               <h4 className="font-bold text-xs text-white font-heading">
                 Logistics Newsletter
