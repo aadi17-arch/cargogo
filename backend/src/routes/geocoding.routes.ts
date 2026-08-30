@@ -39,7 +39,7 @@ router.get('/search', async (req: Request, res: Response) => {
   if (!q) return res.status(400).json({ success: false, message: "Query q is required" });
 
   try {
-    // Try Nominatim Search
+    
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q as string)}&limit=5`;
     const response = await fetch(url, {
       headers: { 'User-Agent': 'CargoGo/1.0' },
@@ -51,7 +51,7 @@ router.get('/search', async (req: Request, res: Response) => {
       return res.json({ success: true, data });
     }
 
-    // Fallback to Photon Search
+    
     const photonUrl = `https://photon.komoot.io/api?q=${encodeURIComponent(q as string)}&limit=5`;
     const photonResponse = await fetch(photonUrl, { signal: AbortSignal.timeout(4000) });
 
