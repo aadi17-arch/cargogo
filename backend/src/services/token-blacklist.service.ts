@@ -16,7 +16,7 @@ export const addToBlacklist = async (token: string): Promise<void> => {
       ttlSeconds = remainingSeconds;
     }
 
-    await redis.set(`${KEY_PREFIX}${token}`, 'revoked', { EX: ttlSeconds });
+    await redis.set(`${KEY_PREFIX}${token}`, 'revoked', 'EX', ttlSeconds);
   } catch (error) {
     console.error('Failed to add token to Redis blacklist:', error);
   }
