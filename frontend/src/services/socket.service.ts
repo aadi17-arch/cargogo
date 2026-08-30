@@ -6,6 +6,10 @@ class SocketService {
   private listeners: { event: string; callback: (data: any) => void }[] = [];
   private activeRooms: Set<string> = new Set();
 
+  get isConnected(): boolean {
+    return Boolean(this.socket?.connected);
+  }
+
   connect(token: string) {
     if (this.socket?.connected) return;
 
@@ -20,14 +24,13 @@ class SocketService {
     });
 
     this.socket.on('connect', () => {
-      
+      // Re-join active tracking rooms on reconnect
       this.activeRooms.forEach((bookingId) => {
         this.socket?.emit('track-booking', { bookingId });
       });
     });
 
     this.socket.on('disconnect', () => {
-      // Retain active listeners and active room keys for seamless recovery
     });
 
     this.socket.on('connect_error', (err) => {
