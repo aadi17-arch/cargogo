@@ -42,7 +42,6 @@ export default function PricingSection() {
 
   const [quote, setQuote] = useState<any>(null);
 
-  
   useEffect(() => {
     if (form.weightKg > 1500) {
       setForm(prev => ({ ...prev, vehicleType: 'CONTAINER_3TON' }));
@@ -73,7 +72,7 @@ export default function PricingSection() {
   return (
     <section id="pricing" className="py-20 bg-slate-50 border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-6">
-        {/* Section Header */}
+        
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-2">
           <span className="text-xs font-bold text-slate-500">
             Price Calculator
@@ -86,12 +85,11 @@ export default function PricingSection() {
           </p>
         </div>
 
-        {/* 2-Column Calculator Form & Live Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch mb-16">
-          {/* Left Form Inputs */}
+          
           <div className="lg:col-span-7 bg-white p-6 sm:p-8 rounded-lg border border-slate-200 shadow-sm flex flex-col justify-between space-y-6">
             <div className="space-y-6">
-              {/* Single Clean Weight Input */}
+              
               <div className="text-left space-y-1.5">
                 <label className="block text-xs font-bold text-slate-700">
                   Approx Weight (kg)
@@ -112,7 +110,6 @@ export default function PricingSection() {
                 </div>
               </div>
 
-              {/* Transit Distance Input */}
               <div className="text-left space-y-1.5">
                 <label className="block text-xs font-bold text-slate-700">
                   Distance (km)
@@ -133,7 +130,6 @@ export default function PricingSection() {
                 </div>
               </div>
 
-              {/* Vehicle Selection */}
               <div className="text-left space-y-1.5">
                 <label className="block text-xs font-bold text-slate-700">
                   Truck Type
@@ -179,7 +175,6 @@ export default function PricingSection() {
                 </div>
               )}
 
-              {/* Total Estimate */}
               <div className="border-t border-slate-100 pt-4 text-left">
                 <div className="flex justify-between items-baseline">
                   <span className="text-xs font-bold text-slate-900 font-heading">Estimated Total</span>
@@ -204,7 +199,6 @@ export default function PricingSection() {
           </Card>
         </div>
 
-        {/* Fleet & Vehicle Options Grid */}
         <div className="space-y-6 text-left">
           <div className="border-b border-slate-200 pb-3">
             <h3 className="text-xl font-bold text-slate-900 font-heading">
