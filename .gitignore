@@ -19,6 +19,7 @@
 # 4. Explicitly allow backend files
 !backend/
 !backend/package.json
+!backend/package-lock.json
 !backend/tsconfig.json
 !backend/ecosystem.config.js
 !backend/prisma/
@@ -29,6 +30,7 @@
 # 5. Explicitly allow frontend files
 !frontend/
 !frontend/package.json
+!frontend/package-lock.json
 !frontend/tsconfig.json
 !frontend/vite.config.ts
 !frontend/index.html
