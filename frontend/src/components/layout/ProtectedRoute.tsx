@@ -12,8 +12,6 @@ function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
     return <Navigate to="/login" replace />;
   }
 
-  
-  
   if (token && !user) {
     return (
       <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white text-slate-800">
