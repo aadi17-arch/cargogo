@@ -1,22 +1,16 @@
-# ==========================================
-# INCLUSIVE ALLOWLIST GITIGNORE
-# ==========================================
-
-# 1. Ignore everything by default
+# ignore all by default
 *
-
-# 2. Prevent ignoring directory paths so Git can traverse subfolders
 !*/
 !**/
 
-# 3. Explicitly allow configuration files in root
+# root configs
 !.gitignore
 !package.json
 !package-lock.json
 !tsconfig.json
 !README.md
 
-# 4. Explicitly allow backend files
+# backend
 !backend/
 !backend/package.json
 !backend/package-lock.json
@@ -27,7 +21,7 @@
 !backend/src/
 !backend/src/**
 
-# 5. Explicitly allow frontend files
+# frontend
 !frontend/
 !frontend/package.json
 !frontend/package-lock.json
@@ -41,10 +35,7 @@
 !frontend/postcss.config.js
 !frontend/tailwind.config.js
 
-# ==========================================
-# EXCLUSION FOR ALLOWLIST EXEMPTIONS
-# (Re-ignore build artifacts, secrets & logs)
-# ==========================================
+# build artifacts & secrets
 **/node_modules/
 **/dist/
 **/.env
