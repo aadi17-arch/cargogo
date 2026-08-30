@@ -32,7 +32,7 @@ export const calculatePrice = (input: PricingInput & { distanceKm?: number }) =>
 
     const subtotal = rate.basePrice + (rate.pricePerKm * distanceKm) + (rate.costPerUnit * chargeableWeight);
     
-    // Peak hours: 8:00 - 10:00 AM (8, 9) & 5:00 - 8:00 PM (17, 18, 19)
+    
     const currentHour = new Date().getHours();
     const isPeakHour = (currentHour >= 8 && currentHour < 10) || (currentHour >= 17 && currentHour < 20);
     const surgeMultiplier = isPeakHour ? 1.25 : 1.0;
