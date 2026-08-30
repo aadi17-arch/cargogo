@@ -29,7 +29,7 @@ interface createBookingInput {
     widthCm: number,
     heightCm: number,
     vehicleType: 'TWO_WHEELER' | 'THREE_WHEELER' | 'MINI_TEMPO' | 'PICKUP_TRUCK' | 'CONTAINER_3TON' | 'HEAVY_DUTY_TRUCK';
-    // NEW: Optional scheduled booking fields. When omitted, booking behaves as INSTANT.
+    
     bookingType?: 'INSTANT' | 'SCHEDULED';
     scheduledAt?: Date;
     scheduledUntil?: Date;
@@ -59,7 +59,7 @@ export const fetchRouteDistanceOSRM = async (
         if (!response.ok) throw new Error('OSRM request failed');
         const data = (await response.json()) as any;
         if (!data.routes || data.routes.length === 0) throw new Error('No routes found');
-        return data.routes[0].distance / 1000; // meters to km
+        return data.routes[0].distance / 1000; 
     } catch (err) {
         const straightLine = haversineDistance(startLat, startLng, endLat, endLng);
         return straightLine * 1.3;
@@ -67,7 +67,7 @@ export const fetchRouteDistanceOSRM = async (
 };
 
 export const createBooking = async (input: createBookingInput) => {
-    // Validate distance is not zero or extremely close
+    
     const straightLine = haversineDistance(input.pickupLat, input.pickupLng, input.dropoffLat, input.dropoffLng);
     if (straightLine < 0.1) {
         throw new AppError("Pickup and dropoff locations cannot be the same.", 400);
@@ -95,7 +95,7 @@ export const createBooking = async (input: createBookingInput) => {
 
     const bookingType = input.bookingType ?? 'INSTANT';
 
-    // Validate that scheduled booking is at least 2 hours in the future
+    
     if (bookingType === 'SCHEDULED') {
         if (!input.scheduledAt) throw new AppError('scheduledAt is required for SCHEDULED bookings', 400);
         const minLeadTime = new Date(Date.now() + 2 * 60 * 60 * 1000); 
@@ -125,7 +125,7 @@ export const createBooking = async (input: createBookingInput) => {
             bookingType,
             scheduledAt: input.scheduledAt ? new Date(input.scheduledAt) : null,
             scheduledUntil: input.scheduledUntil ? new Date(input.scheduledUntil) : null,
-            // Generate OTPs immediately for instant trips, but defer for scheduled ones
+            
             ...(bookingType === 'INSTANT' ? {
                 pickupOTP: generateOTP(),
                 dropoffOTP: generateOTP(),
@@ -136,13 +136,13 @@ export const createBooking = async (input: createBookingInput) => {
     return { booking, pricing };
 }
 
-// Commits a driver to a scheduled booking in a transaction to prevent double assignment
+
 export const commitToScheduledJob = async (bookingId: string, driverId: string) => {
     return prisma.$transaction(async (tx) => {
         const booking = await tx.booking.findUnique({ where: { id: bookingId } });
         if (!booking) throw new AppError('Booking not found', 404);
 
-        // Guard: only PENDING SCHEDULED jobs can be committed to
+        
         if (booking.bookingType !== 'SCHEDULED') {
             throw new AppError('This booking is not a scheduled job', 400);
         }
@@ -159,7 +159,7 @@ export const commitToScheduledJob = async (bookingId: string, driverId: string) 
                 driverId,
                 status: 'ACCEPTED',
                 committedAt: new Date(),
-                // Generate OTPs now that we have an assigned driver
+                
                 pickupOTP: generateOTP(),
                 dropoffOTP: generateOTP(),
                 otpGeneratedAt: new Date(),
