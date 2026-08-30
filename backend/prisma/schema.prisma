@@ -22,7 +22,6 @@ enum BookingStatus {
   DISPUTED
 }
 
-// Distinguishes instant matching from scheduled bookings
 enum BookingType {
   INSTANT
   SCHEDULED
@@ -116,7 +115,6 @@ model Booking {
   dropoffVerified Boolean       @default(false)
   otpGeneratedAt  DateTime?
 
-  // Fields for scheduled delivery options
   bookingType     BookingType   @default(INSTANT)
   scheduledAt     DateTime?
   scheduledUntil  DateTime?
@@ -143,7 +141,7 @@ model Review {
   id        String   @id @default(uuid())
   bookingId String   @unique
   booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  rating    Int      // 1 to 5 stars
+  rating    Int
   comment   String?
   createdAt DateTime @default(now())
 
@@ -178,7 +176,7 @@ model Payment {
   transactionId String   @unique
   amount        Float
   paymentMethod String
-  status        String   // e.g. "SUCCESS", "FAILED"
+  status        String
   createdAt     DateTime @default(now())
 
   @@map("payments")
