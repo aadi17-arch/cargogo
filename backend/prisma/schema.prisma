@@ -131,6 +131,8 @@ model Booking {
   @@index([createdAt])
   @@index([scheduledAt])
   @@index([bookingType])
+  @@index([shipperId, status, createdAt])
+  @@index([driverId, status, createdAt])
 
   review         Review?
   dispute        Dispute?
