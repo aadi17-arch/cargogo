@@ -51,7 +51,7 @@ export const registerTrackingHandlers = (io: SocketIOServer) => {
         return;
       }
 
-      // Delegate to centrally managed gps simulator with duplicate-timer prevention
+      
       startGpsSimulation(bookingId, booking.pickupLat, booking.pickupLng, booking.dropoffLat, booking.dropoffLng, io);
     });
 
