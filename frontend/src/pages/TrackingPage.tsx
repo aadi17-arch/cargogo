@@ -335,7 +335,7 @@ function TrackingPage() {
 
   return (
     <div className="min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] overflow-y-auto lg:overflow-y-hidden flex flex-col p-3 sm:p-4 gap-3 bg-white">
-      {/* Top Header Navigation & Mobile Toggle */}
+      
       <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
           <button
@@ -358,7 +358,7 @@ function TrackingPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch flex-1 min-h-0">
-        {/* Left Live Leaflet Map Column */}
+        
         <div
           className={`lg:col-span-7 w-full overflow-hidden border border-slate-200 rounded-xl shadow-xs relative z-10 bg-white shrink-0 lg:shrink lg:block ${
             mobileView === 'map' ? 'h-[calc(100vh-160px)] sm:h-[480px] lg:h-full block' : 'hidden'
@@ -377,13 +377,13 @@ function TrackingPage() {
           </MapView>
         </div>
 
-        {/* Right Details, OTP & Payment/Dispute Column */}
+        
         <div
           className={`lg:col-span-5 w-full lg:h-full lg:overflow-y-auto space-y-4 pr-0 lg:pr-1 ${
             mobileView === 'details' ? 'block' : 'hidden lg:block'
           }`}
         >
-          {/* Delivery Parameters Card */}
+          
           <Card size="sm" className="space-y-3 text-xs text-slate-600">
             <h3 className="text-sm font-bold text-slate-900 font-heading">Delivery Parameters</h3>
             <div className="space-y-2.5">
@@ -396,7 +396,7 @@ function TrackingPage() {
             </div>
           </Card>
 
-          {/* OTP Verification & Display */}
+          
           <OtpPanel
             status={booking.status}
             userRole={user?.role}
@@ -407,7 +407,7 @@ function TrackingPage() {
             onVerify={verifyOTP}
           />
 
-          {/* Post-Delivery (Payment, Invoice, Review, Dispute) */}
+          
           <PostDelivery
             booking={booking}
             userRole={user?.role}
@@ -421,7 +421,7 @@ function TrackingPage() {
         </div>
       </div>
 
-      {/* Floating Instant Chat Action Trigger */}
+      
       {booking && booking.driverId && (
         <button
           type="button"
@@ -444,7 +444,7 @@ function TrackingPage() {
         </button>
       )}
 
-      {/* Live Chat Drawer */}
+      
       {isChatOpen && user && booking && (
         <ChatDrawer
           bookingId={bookingId!}
