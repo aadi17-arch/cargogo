@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ChevronRight, ArrowLeft, Scale, Truck } from 'lucide-react';
-import { geocodingService } from '@/services/geocoding.service';
 import { calculateQuote } from '@/utils/pricing';
 import Button from '@/components/ui/Button';
+import { useGeocoding } from '@/hooks/useGeocoding';
 
 export interface BookingFormData {
   pickupLat: number | null;
@@ -47,49 +47,18 @@ export default function BookingForm({
   isLoading
 }: BookingFormProps) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [pickupResults, setPickupResults] = useState<any[]>([]);
-  const [dropoffResults, setDropoffResults] = useState<any[]>([]);
-  const [searchingPickup, setSearchingPickup] = useState(false);
-  const [searchingDropoff, setSearchingDropoff] = useState(false);
 
-  const searchAddress = async (query: string, type: 'pickup' | 'dropoff') => {
-    if (!query.trim() || query.length < 3) return;
-    if (type === 'pickup') setSearchingPickup(true); else setSearchingDropoff(true);
-    try {
-      const data = await geocodingService.search(query);
-      if (Array.isArray(data) && data.length > 0) {
-        if (type === 'pickup') setPickupResults(data); else setDropoffResults(data);
-        return;
-      }
-      throw new Error('No results');
-    } catch {
-      if (type === 'pickup') setPickupResults([]); else setDropoffResults([]);
-    } finally {
-      if (type === 'pickup') setSearchingPickup(false); else setSearchingDropoff(false);
-    }
-  };
+  const {
+    results: pickupResults,
+    setResults: setPickupResults,
+    isSearching: searchingPickup,
+  } = useGeocoding(pickupSearch, form.pickupAddress);
 
-  useEffect(() => {
-    if (!pickupSearch || pickupSearch.length < 3 || pickupSearch.startsWith('Locating') || pickupSearch === form.pickupAddress) {
-      setPickupResults([]);
-      return;
-    }
-    const timer = setTimeout(() => {
-      searchAddress(pickupSearch, 'pickup');
-    }, 450);
-    return () => clearTimeout(timer);
-  }, [pickupSearch, form.pickupAddress]);
-
-  useEffect(() => {
-    if (!dropoffSearch || dropoffSearch.length < 3 || dropoffSearch === form.dropoffAddress) {
-      setDropoffResults([]);
-      return;
-    }
-    const timer = setTimeout(() => {
-      searchAddress(dropoffSearch, 'dropoff');
-    }, 450);
-    return () => clearTimeout(timer);
-  }, [dropoffSearch, form.dropoffAddress]);
+  const {
+    results: dropoffResults,
+    setResults: setDropoffResults,
+    isSearching: searchingDropoff,
+  } = useGeocoding(dropoffSearch, form.dropoffAddress);
 
   const handleSelectResult = (result: any, type: 'pickup' | 'dropoff') => {
     const lat = parseFloat(result.lat);
@@ -182,7 +151,7 @@ export default function BookingForm({
                     key={i}
                     type="button"
                     onClick={() => handleSelectResult(r, 'dropoff')}
-                    className="w-full text-left p-2.5 hover:bg-slate-50 text-xs border-b last:border-b-0 block truncate text-slate-700"
+                    className="w-full text-left p-2.5 hover:bg-slate-50 text-xs border-b last:border-b-0 block truncate text-slate-700 cursor-pointer"
                   >
                     {r.display_name}
                   </button>
