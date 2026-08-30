@@ -2,7 +2,7 @@ import { fetchRouteDistanceOSRM, verifyPickupOTP, verifyDropOffOTP } from '../bo
 import prisma from '@/config/database';
 import { AppError } from '@/utils/AppError';
 
-// Mock the database client
+
 jest.mock('@/config/database', () => ({
   __esModule: true,
   default: {
@@ -25,7 +25,7 @@ describe('Booking Service - OSRM Distance & OTP Expiry', () => {
 
   describe('fetchRouteDistanceOSRM', () => {
     it('should return actual road distance from OSRM on success', async () => {
-      // Mock global fetch
+      
       const mockFetch = jest.fn().mockResolvedValue({
         ok: true,
         json: async () => ({
@@ -75,7 +75,7 @@ describe('Booking Service - OSRM Distance & OTP Expiry', () => {
     });
 
     it('should throw an error if pickup OTP is more than 15 minutes old', async () => {
-      const longAgo = new Date(Date.now() - 20 * 60 * 1000); // 20 minutes ago
+      const longAgo = new Date(Date.now() - 20 * 60 * 1000); 
       mockFindUnique.mockResolvedValue({
         id: 'booking-id',
         status: 'ACCEPTED',
