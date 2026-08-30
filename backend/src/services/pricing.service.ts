@@ -26,6 +26,7 @@ export const calculatePrice = (input: PricingInput & { distanceKm?: number }) =>
         input.dropoffLat,
         input.dropoffLng
     );
+    // Standard IATA volumetric divisor for cargo density
     const volumetricWeight = (input.lengthCm * input.widthCm * input.heightCm) / 5000;
     const chargeableWeight = Math.max(input.weightKg, volumetricWeight);
     const rate = VEHICLE_RATES[input.vehicleType];
