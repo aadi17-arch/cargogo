@@ -26,7 +26,6 @@ export default function PaymentModal({ booking, onClose, onSuccess }: PaymentMod
   const [paymentMethod, setPaymentMethod] = useState('CARD');
   const [processingPayment, setProcessingPayment] = useState(false);
 
-  
   useEffect(() => {
     if (!booking || booking.price <= 0) {
       toast.error('Invalid payment details. Returning to dashboard.');
