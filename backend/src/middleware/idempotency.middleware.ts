@@ -16,7 +16,9 @@ export const idempotency = async (req: Request, res: Response, next: NextFunctio
     const acquired = await redis.set(
       redisKey,
       JSON.stringify({ status: 'STARTED' }),
-      { NX: true, EX: 600 }
+      'EX',
+      600,
+      'NX'
     );
 
     if (!acquired) {
@@ -53,7 +55,8 @@ export const idempotency = async (req: Request, res: Response, next: NextFunctio
           statusCode: res.statusCode,
           body: body,
         }),
-        { EX: 600 }
+        'EX',
+        600
       ).catch((e) => console.error('Failed to save idempotency cache:', e));
 
       return originalJson.call(this, body);
