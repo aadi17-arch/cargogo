@@ -31,7 +31,7 @@ export const createBookingSchema = z.object({
       'HEAVY_DUTY_TRUCK',
     ], { required_error: 'Vehicle type is required' }),
 
-    // NEW: Optional scheduled booking fields — entirely optional for backward compat
+    
     bookingType: z.enum(['INSTANT', 'SCHEDULED']).optional(),
     scheduledAt: z.string().datetime({ offset: true }).optional(),  // ISO 8601 string from frontend
     scheduledUntil: z.string().datetime({ offset: true }).optional(),
