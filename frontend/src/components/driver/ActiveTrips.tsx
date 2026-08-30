@@ -23,7 +23,7 @@ export default function ActiveTrips({
 
   return (
     <>
-      {/* Desktop MapOverlayCard Content */}
+      
       <div className="hidden md:block">
         {activeBookings.length === 0 ? (
           <EmptyState
@@ -77,7 +77,6 @@ export default function ActiveTrips({
         )}
       </div>
 
-      {/* Mobile Bottom Overlay */}
       <div
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}
