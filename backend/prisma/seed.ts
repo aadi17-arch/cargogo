@@ -18,7 +18,7 @@ async function main() {
 
   console.log('Seeding shippers and drivers...');
 
-  // 1. Create Shippers
+  
   const shipper1 = await prisma.user.create({
     data: {
       email: 's1@g.com',
@@ -37,7 +37,7 @@ async function main() {
     },
   });
 
-  // 2. Create Driver with vehicle MH-12-AB-1234 (1000kg capacity)
+  
   const driver1 = await prisma.user.create({
     data: {
       email: 'd1@g.com',
@@ -63,7 +63,7 @@ async function main() {
 
   console.log('Seeding active VRP bookings with OTPs...');
 
-  // Booking A: ACCEPTED (Needs pickup then dropoff). Weight: 300kg
+  
   await prisma.booking.create({
     data: {
       shipperId: shipper1.id,
@@ -89,7 +89,7 @@ async function main() {
     }
   });
 
-  // Booking B: ACCEPTED (Needs pickup then dropoff). Weight: 400kg
+  
   await prisma.booking.create({
     data: {
       shipperId: shipper1.id,
@@ -115,7 +115,7 @@ async function main() {
     }
   });
 
-  // Booking C: IN_TRANSIT (Already picked up, only needs dropoff). Weight: 200kg
+  
   await prisma.booking.create({
     data: {
       shipperId: shipper2.id,
