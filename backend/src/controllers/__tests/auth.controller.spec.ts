@@ -4,7 +4,7 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import authRoutes from '../../routes/auth.routes';
 
-// Mock database config
+
 jest.mock('../../config/database', () => ({
   __esModule: true,
   default: {
@@ -28,7 +28,7 @@ describe('Auth Endpoints Integration Test', () => {
       .post('/api/auth/login')
       .send({ email: 'wrong@cargogo.com', password: '' });
 
-    // Login with missing password fields should return validation error/unauthorized
+    
     expect(res.status).toBeGreaterThanOrEqual(400);
   });
 });
