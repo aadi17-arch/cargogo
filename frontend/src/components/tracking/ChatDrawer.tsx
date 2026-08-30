@@ -44,7 +44,6 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ bookingId, currentUser, onClose
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  
   useSocketListener('error', (err: any) => {
     import('react-hot-toast').then(({ toast }) => {
       toast.error(err?.message || 'Socket error occurred');
