@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  /* Core Theme Tokens */
+  
   --color-primary: #09121F;
   --color-primary-hover: #1E293B;
   --color-background: #F1F5F9;
@@ -17,7 +17,7 @@
   --color-accent: #4F46E5;
   --color-accent-hover: #4338CA;
 
-  /* Status Colors */
+  
   --color-status-pending: #D97706;
   --color-status-accepted: #8B5CF6;
   --color-status-transit: #EA580C;
@@ -25,12 +25,12 @@
   --color-status-completed: #059669;
   --color-status-cancelled: #DC2626;
 
-  /* Sizing & Geometry Tokens */
+  
   --radius-card: 6px;
   --radius-button: 6px;
   --border-width: 1.5px;
 
-  /* Universal Font Token */
+  
   --font-heading: 'Archivo', sans-serif;
   --font-body: 'Archivo', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
@@ -179,7 +179,7 @@
   }
 }
 
-/* Numeric input spinner suppressors */
+
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
