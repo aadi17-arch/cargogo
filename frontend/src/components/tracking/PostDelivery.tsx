@@ -47,7 +47,7 @@ export default function PostDelivery({
 
   return (
     <>
-      {/* Delivered Status Card */}
+      
       {booking.status === 'DELIVERED' && (
         <Card size="md" className="text-center space-y-4 text-xs text-slate-600">
           <p className="text-base sm:text-lg font-black text-emerald-600 font-heading">Package Delivered!</p>
@@ -69,14 +69,14 @@ export default function PostDelivery({
         </Card>
       )}
 
-      {/* Completed Status Card */}
+      
       {booking.status === 'COMPLETED' && (
         <Card size="md" className="text-center font-body">
           <p className="text-base sm:text-lg font-black text-emerald-600 font-heading">Delivery Completed & Paid!</p>
         </Card>
       )}
 
-      {/* Disputed Status Card */}
+      
       {booking.status === 'DISPUTED' && (
         <Card size="md" variant="danger" className="text-center font-body space-y-2">
           <p className="text-base sm:text-lg font-black text-rose-600 font-heading">Delivery Under Dispute</p>
@@ -86,7 +86,7 @@ export default function PostDelivery({
         </Card>
       )}
 
-      {/* Invoice Details Card */}
+      
       {invoice && (
         <Card size="md" className="space-y-4 text-xs text-slate-600">
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
@@ -109,7 +109,7 @@ export default function PostDelivery({
         </Card>
       )}
 
-      {/* Customer Feedback Card */}
+      
       {booking.review && (
         <Card size="md" className="space-y-3 text-xs text-slate-600">
           <h3 className="text-sm font-bold text-slate-800 font-heading pb-2 border-b border-slate-100">
@@ -129,7 +129,7 @@ export default function PostDelivery({
         </Card>
       )}
 
-      {/* Review Submission Form */}
+      
       {booking.status === 'COMPLETED' && userRole === 'SHIPPER' && !booking.review && !reviewSubmitted && (
         <form onSubmit={handleReview} className="p-4 sm:p-5 bg-white border border-slate-200 rounded-xl shadow-xs space-y-4 font-body text-xs text-slate-600">
           <h4 className="text-xs font-bold text-slate-900 font-heading mb-3">
@@ -169,7 +169,7 @@ export default function PostDelivery({
         </form>
       )}
 
-      {/* Dispute Claim Modal & Trigger */}
+      
       {['DELIVERED', 'COMPLETED'].includes(booking.status) && userRole === 'SHIPPER' && (
         <div className="text-center pt-1">
           {!showDisputeForm ? (
