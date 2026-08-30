@@ -38,7 +38,7 @@ function DriverDashboard() {
   const [driverLocationName, setDriverLocationName] = useState<string>('Detecting...');
   const lastGeocodedCoords = useRef<[number, number] | null>(null);
 
-  const { resolveAddresses, resolveSingleAddress } = useAddressResolver();
+  const { resolveSingleAddress } = useAddressResolver();
 
   const [scheduledJobs, setScheduledJobs] = useState<ScheduledJob[]>([]);
   const [availableScheduledJobs, setAvailableScheduledJobs] = useState<ScheduledJob[]>([]);
@@ -61,18 +61,6 @@ function DriverDashboard() {
       resolveDriverAddress(lat, lng);
     }
   }, [driverCoords]);
-
-  useEffect(() => {
-    if (bookings && bookings.length > 0) {
-      resolveAddresses(bookings);
-    }
-  }, [bookings, resolveAddresses]);
-
-  useEffect(() => {
-    if (pendingBookings && pendingBookings.length > 0) {
-      resolveAddresses(pendingBookings);
-    }
-  }, [pendingBookings, resolveAddresses]);
 
   useEffect(() => {
     if ('geolocation' in navigator) {
