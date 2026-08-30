@@ -1,6 +1,6 @@
 import { Server as SocketIOServer } from 'socket.io';
 import prisma from '@/config/database';
-import { addDriverLocation } from '@/services/grid-index.service';
+import { addDriverLocation ,removeDriverLocation} from '@/services/grid-index.service';
 import { startGpsSimulation, stopGpsSimulation } from '@/services/gps-simulator.service';
 import { SOCKET_ROOMS, SOCKET_EVENTS } from '@/config/socket-events';
 
@@ -12,13 +12,6 @@ export const registerTrackingHandlers = (io: SocketIOServer) => {
     socket.on(SOCKET_EVENTS.DRIVER_LOCATION, async ({ lat, lng }) => {
       if (user.role !== 'DRIVER') return;
       await addDriverLocation(user.id, lat, lng);
-      await prisma.driverProfile.update({
-        where: { userId: user.id },
-        data: {
-          latitude: lat,
-          longitude: lng
-        }
-      });
       const booking = await prisma.booking.findFirst({
         where: {
           driverId: user.id,
@@ -51,7 +44,7 @@ export const registerTrackingHandlers = (io: SocketIOServer) => {
         return;
       }
 
-      
+
       startGpsSimulation(bookingId, booking.pickupLat, booking.pickupLng, booking.dropoffLat, booking.dropoffLng, io);
     });
 
@@ -74,5 +67,11 @@ export const registerTrackingHandlers = (io: SocketIOServer) => {
       }
       socket.join(SOCKET_ROOMS.booking(bookingId));
     });
+
+    socket.on('disconnect', async () => {
+      if (user.role === 'DRIVER') {
+        await removeDriverLocation(user.id);
+      }
+    })
   });
 };
