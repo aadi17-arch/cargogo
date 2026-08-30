@@ -9,7 +9,7 @@ export default function HeroSection() {
 
   return (
     <header className="relative bg-slate-950 text-white overflow-hidden h-[calc(100svh-4rem)] min-h-[calc(100svh-4rem)] flex items-center border-b border-slate-800">
-      {/* Subtle Background Image with Heavy Dark Scrim */}
+      
       <div
         className="absolute inset-0 bg-cover bg-center opacity-15 pointer-events-none"
         style={{
@@ -17,10 +17,8 @@ export default function HeroSection() {
         }}
       />
 
-      {/* Dark Scrim and Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/95 to-slate-950/80 pointer-events-none" />
 
-      {/* Grid Pattern Background */}
       <div 
         className="absolute inset-0 opacity-15 pointer-events-none"
         style={{
@@ -29,7 +27,6 @@ export default function HeroSection() {
         }}
       />
 
-      {/* High-End Refined Animated SVG Logistics & Tracking Network */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
         xmlns="http://www.w3.org/2000/svg"
@@ -37,7 +34,7 @@ export default function HeroSection() {
         preserveAspectRatio="xMidYMid slice"
       >
         <defs>
-          {/* Subtle Glow & Gradients */}
+          
           <linearGradient id="curveGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.05" />
             <stop offset="40%" stopColor="#38BDF8" stopOpacity="0.45" />
@@ -60,7 +57,6 @@ export default function HeroSection() {
           </filter>
         </defs>
 
-        {/* Ambient Logistics Arc 1 - Flows gracefully on right side */}
         <path
           d="M 550 780 C 750 520, 920 620, 1120 380 C 1240 240, 1380 180, 1500 120"
           fill="none"
@@ -70,7 +66,6 @@ export default function HeroSection() {
           className="animate-dash"
         />
 
-        {/* Ambient Logistics Arc 2 - Intersecting flight/interstate path */}
         <path
           d="M 680 100 C 850 320, 1050 200, 1260 480 C 1360 620, 1440 680, 1520 700"
           fill="none"
@@ -80,7 +75,6 @@ export default function HeroSection() {
           className="animate-dash"
         />
 
-        {/* Supporting Secondary Feeder Routes */}
         <path
           d="M 900 800 C 980 650, 1120 380, 1120 380"
           fill="none"
@@ -98,7 +92,6 @@ export default function HeroSection() {
           strokeDasharray="2 4"
         />
 
-        {/* Moving Cargo Pulses (Smoothed & Refined) */}
         <g filter="url(#softGlow)">
           <circle r="3.5" fill="#38BDF8">
             <animateMotion
@@ -124,7 +117,6 @@ export default function HeroSection() {
           </circle>
         </g>
 
-        {/* Refined Waypoints with Minimal Pulsing */}
         <g transform="translate(1120, 380)">
           <circle r="3.5" fill="#38BDF8" />
           <circle r="14" fill="none" stroke="#38BDF8" strokeWidth="1" opacity="0.3" className="animate-ping" />
