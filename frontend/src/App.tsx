@@ -28,7 +28,6 @@ function SessionInitializer({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-
 function SuspenseLoader() {
   return (
     <div className="min-h-[50vh] flex flex-col items-center justify-center space-y-3">
