@@ -16,7 +16,7 @@ export const getChatHistory = catchAsync(async (req: Request, res: Response) => 
     throw new AppError("Shipment booking not found.", 404);
   }
 
-  // Security: only allow the shipper or driver of this booking to view the chat history
+  
   if (booking.shipperId !== userId && booking.driverId !== userId) {
     throw new AppError("Access denied to chat history.", 403);
   }
