@@ -83,7 +83,7 @@ export const logout = catchAsync(async (req: Request, res: Response) => {
     const { refreshToken } = req.cookies;
     if (refreshToken) await prisma.session.deleteMany({ where: { refreshToken } });
 
-    // Blacklist the current access token on logout
+    
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (token) {
         await addToBlacklist(token);
