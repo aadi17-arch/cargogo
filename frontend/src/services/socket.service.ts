@@ -20,7 +20,7 @@ class SocketService {
     });
 
     this.socket.on('connect', () => {
-      // Re-join active tracking rooms on socket reconnect
+      
       this.activeRooms.forEach((bookingId) => {
         this.socket?.emit('track-booking', { bookingId });
       });
