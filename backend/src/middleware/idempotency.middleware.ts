@@ -7,12 +7,12 @@ export const idempotency = async (req: Request, res: Response, next: NextFunctio
     return next();
   }
 
-  // Scope key by authenticated user (or IP for unauthenticated), HTTP method, route path, and client key
+  
   const userScope = req.user?.id || req.ip || 'anonymous';
   const redisKey = `idempotency:${userScope}:${req.method}:${req.baseUrl || ''}${req.path}:${clientKey}`;
 
   try {
-    // Attempt atomic lock acquisition with SET NX EX
+    
     const acquired = await redis.set(
       redisKey,
       JSON.stringify({ status: 'STARTED' }),
@@ -20,7 +20,7 @@ export const idempotency = async (req: Request, res: Response, next: NextFunctio
     );
 
     if (!acquired) {
-      // Key already exists — check cached state
+      
       const cachedRecord = await redis.get(redisKey);
       if (cachedRecord) {
         const record = JSON.parse(cachedRecord);
@@ -41,7 +41,7 @@ export const idempotency = async (req: Request, res: Response, next: NextFunctio
       });
     }
 
-    // Lock successfully acquired — intercept res.json to cache response on completion
+    
     const originalJson = res.json;
     res.json = function (body: any): Response {
       res.json = originalJson;
