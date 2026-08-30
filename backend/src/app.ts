@@ -37,7 +37,7 @@ const allowedOrigins = [
 
 app.use(cors({
     origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps, curl, or server-to-server)
+        
         if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
             return callback(null, true);
         }
@@ -74,7 +74,7 @@ app.use('/api/payment', strictLimiter, paymentRoutes);
 app.use('/api/geocoding', geocodingRoutes);
 app.use('/api/chat', chatRoutes);
 
-// Explicit 404 JSON response for any unrecognized /api endpoints
+
 app.all('/api/*', (req, res) => {
     res.status(404).json({
         success: false,
@@ -85,7 +85,7 @@ app.all('/api/*', (req, res) => {
 app.use(express.static(path.join(__dirname, '../../frontend/dist')));
 
 app.get('*', (req, res) => {
-  // DON'T REMOVE THIS — fixes the 404 refresh bug in React router
+  
   res.sendFile(path.join(__dirname, '../../frontend/dist/index.html'));
 });
 
