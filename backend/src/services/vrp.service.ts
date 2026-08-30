@@ -47,12 +47,11 @@ export const OptimizedRoute = async (
     return sum + (b.status === 'ACCEPTED' ? 2 : 1);
   }, 0);
 
-  
+  // Greedy nearest-neighbor: pick the closest valid pickup (if capacity permits) or dropoff
   while (route.length < totalStopsNeeded) {
     let bestCandidate: any = null;
 
     for (const b of bookings) {
-      
       if (b.status === 'ACCEPTED' && !visitedPickups.has(b.id)) {
         if (currentWeight + b.weightKg <= capacity) {
           const dist = haversineDistance(currentLat, currentLng, b.pickupLat, b.pickupLng);
