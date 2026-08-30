@@ -31,7 +31,7 @@ export default function ShipmentsList({
 
   return (
     <div className="flex-1 w-full bg-white flex flex-col overflow-y-auto px-8 py-6 space-y-4">
-      {/* Header controls */}
+      
       <div className="flex items-center justify-between pb-3 border-b border-slate-150">
         <TabNavigation
           tabs={[
@@ -50,7 +50,6 @@ export default function ShipmentsList({
         />
       </div>
 
-      {/* Shipments list */}
       <div className="divide-y divide-slate-100 border-t border-b border-slate-100">
         {filteredBookings.length === 0 ? (
           <EmptyState
