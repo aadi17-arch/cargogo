@@ -6,7 +6,7 @@ export const SOCKET_ROOMS = {
 };
 
 export const SOCKET_EVENTS = {
-  // Matching & Bidding
+  
   BOOK_CARGO: 'book-cargo',
   DISPATCH_QUEUED: 'dispatch-queued',
   INCOMING_BID: 'incoming-bid',
@@ -18,13 +18,13 @@ export const SOCKET_EVENTS = {
   BOOKING_ACCEPTED: 'booking-accepted',
   BOOKING_CANCELLED: 'booking-cancelled',
 
-  // Scheduled Jobs
+  
   COMMIT_SCHEDULED_JOB: 'commit-scheduled-job',
   SCHEDULED_JOB_COMMITTED: 'scheduled-job-committed',
   COMMIT_CONFIRMED: 'commit-confirmed',
   SCHEDULED_JOB_AVAILABLE: 'scheduled_job_available',
 
-  // Tracking
+  
   DRIVER_LOCATION: 'driver:location',
   DRIVER_LOCATION_UPDATE: 'driver:location:update',
   START_TRIP: 'start:trip',
@@ -33,11 +33,11 @@ export const SOCKET_EVENTS = {
   TRIP_COMPLETED: 'trip:completed',
   JOIN_BOOKING_TRACKING: 'join-booking-tracking',
 
-  // Chat
+  
   JOIN_CHAT: 'join-chat',
   SEND_CHAT_MESSAGE: 'send-chat-message',
   RECEIVE_CHAT_MESSAGE: 'receive-chat-message',
 
-  // General
+  
   ERROR: 'error',
 } as const;
