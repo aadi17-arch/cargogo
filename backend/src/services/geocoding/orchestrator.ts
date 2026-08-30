@@ -25,7 +25,7 @@ export async function resolveAddressChain(lat: number, lng: number): Promise<str
       if (address) {
         console.log(`Resolved via: ${provider.name}`);
         
-        // Write-through caching to Database if resolved from a remote API
+        
         if (provider.name !== 'LocalDB') {
           await prisma.geocodeCache.create({
             data: {
@@ -44,6 +44,6 @@ export async function resolveAddressChain(lat: number, lng: number): Promise<str
     }
   }
 
-  // Fallback if all else fails
+  
   return `Location(${lat.toFixed(4)},${lng.toFixed(4)})`;
 }
