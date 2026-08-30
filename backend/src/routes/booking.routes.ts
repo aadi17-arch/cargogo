@@ -12,7 +12,7 @@ r.post('/createBooking', authenticate, requiredRole('SHIPPER'),idempotency,valid
 r.get('/my', authenticate, getMyBookings);
 r.get('/pending', authenticate, requiredRole('DRIVER'), getPending);
 
-// Scheduled booking routes (defined before wildcard id)
+
 r.get('/scheduled/upcoming', authenticate, requiredRole('DRIVER'), getScheduledJobs);
 r.get('/scheduled/available', authenticate, requiredRole('DRIVER'), getAvailableJobs);
 
