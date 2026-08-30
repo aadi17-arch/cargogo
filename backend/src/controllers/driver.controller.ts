@@ -29,7 +29,7 @@ export const getOnlineDriversController = catchAsync(async (req: Request, res: R
   res.json({ success: true, data: drivers });
 });
 
-// Manual trigger to process the scheduled pool (admin and testing tool)
+
 export const triggerScheduledMatch = catchAsync(async (req: Request, res: Response) => {
   const io = req.app.get('io');
   await processScheduledPool(io);
