@@ -10,7 +10,7 @@ export const toggleOnline = async (
         const activeTrip = await prisma.booking.findFirst({
             where: {
                 driverId: driverId,
-                status: 'IN_TRANSIT'
+                status: { in:['ACCEPTED','IN_TRANSIT']}
             }
         });
         if (activeTrip) {
@@ -33,7 +33,7 @@ export const toggleOnline = async (
             }
         });
         if (driver) {
-            await redis.hSet(`driver:meta:${driverId}`, {
+            await redis.hset(`driver:meta:${driverId}`, {
                 name: driver.name,
                 phone: driver.phone || '',
                 vehicleType: driver.vehicle?.type || '',
