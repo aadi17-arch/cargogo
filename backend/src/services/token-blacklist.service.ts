@@ -6,12 +6,12 @@ const KEY_PREFIX = 'blacklist:token:';
 export const addToBlacklist = async (token: string): Promise<void> => {
   try {
     const decoded = jwt.decode(token) as { exp?: number } | null;
-    let ttlSeconds = 15 * 60; // 15 min fallback
+    let ttlSeconds = 15 * 60; 
 
     if (decoded && decoded.exp) {
       const remainingSeconds = Math.floor(decoded.exp - Date.now() / 1000);
       if (remainingSeconds <= 0) {
-        return; // Token already expired
+        return; 
       }
       ttlSeconds = remainingSeconds;
     }
