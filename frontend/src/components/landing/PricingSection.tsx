@@ -42,7 +42,7 @@ export default function PricingSection() {
 
   const [quote, setQuote] = useState<any>(null);
 
-  // Automatically adjust recommended vehicle type based on single weight input
+  
   useEffect(() => {
     if (form.weightKg > 1500) {
       setForm(prev => ({ ...prev, vehicleType: 'CONTAINER_3TON' }));
