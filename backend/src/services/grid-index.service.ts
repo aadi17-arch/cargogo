@@ -1,11 +1,8 @@
 import { redis } from '@/config/redis';
 
 export const addDriverLocation = async (driverId: string, lat: number, lng: number) => {
-  await redis.geoAdd('drivers:online', {
-    longitude: lng,
-    latitude: lat,
-    member: `driver:${driverId}`
-  });
+  await redis.geoadd('drivers:online', lng, lat, `driver:${driverId}`);
+  await redis.set(`driver:presence:${driverId}`, 'ONLINE', 'EX', 45);
 };
 
 export const findNearbyDrivers = async (
@@ -13,19 +10,26 @@ export const findNearbyDrivers = async (
   lng: number,
   radiusKm: number
 ) => {
-  const results = await redis.geoRadiusWith(
+  const results: any = await redis.georadius(
     'drivers:online',
-    { longitude: lng, latitude: lat },
+    lng,
+    lat,
     radiusKm,
     'km',
-    ['WITHDIST'] as any
+    'WITHDIST'
   );
-  return results.map((r: any) => ({
-    driverId: r.member.replace('driver:', ''),
-    distanceKm: r.distance ?? 0
-  }));
+  const activeDrivers = [];
+  for (const r of results) {
+    const driverId = (Array.isArray(r) ? r[0] : r).replace('driver:', '');
+    const distanceKm = (Array.isArray(r) && r[1] ? parseFloat(r[1]) : 0);
+    const isDriverAlive = await redis.get(`driver:presence:${driverId}`);
+    isDriverAlive ? activeDrivers.push({ driverId, distanceKm }) : await redis.zrem('drivers:online', 'driver:' + driverId);
+  }
+
+  return activeDrivers;
 };
 
 export const removeDriverLocation = async (driverId: string) => {
-  await redis.zRem('drivers:online', `driver:${driverId}`);
+  await redis.zrem('drivers:online', `driver:${driverId}`);
+  await redis.del(`driver:presence:${driverId}`);
 };
