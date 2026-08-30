@@ -18,7 +18,7 @@ import { getUpcomingScheduledJobs, getAvailableScheduledJobs } from '@/services/
 import { catchAsync } from '@/utils/catchAsync';
 import { SOCKET_ROOMS, SOCKET_EVENTS } from '@/config/socket-events';
 
-// make sure shipper/driver owns the booking before letting them see or edit it
+
 
 function assertBookingAccess(
     req: Request,
@@ -115,10 +115,10 @@ export const cancel = catchAsync(async (req: Request, res: Response) => {
     res.status(200).json({ success: true, data: updated });
 });
 
-// driver claims a scheduled delivery
+
 export const commitScheduled = catchAsync(async (req: Request, res: Response) => {
     const booking = await commitToScheduledJob(req.params.id, req.user!.id);
-    // ping the shipper so their UI updates live
+    
     const io = req.app.get('io');
     io.to(SOCKET_ROOMS.shipper(booking.shipperId)).emit(SOCKET_EVENTS.SCHEDULED_JOB_COMMITTED, {
         bookingId: booking.id,
@@ -129,13 +129,13 @@ export const commitScheduled = catchAsync(async (req: Request, res: Response) =>
     res.status(200).json({ success: true, data: booking });
 });
 
-// Returns driver's committed upcoming scheduled list
+
 export const getScheduledJobs = catchAsync(async (req: Request, res: Response) => {
     const data = await getUpcomingScheduledJobs(req.user!.id);
     res.status(200).json({ success: true, data });
 });
 
-// Returns available scheduled jobs that match driver vehicle specifications
+
 export const getAvailableJobs = catchAsync(async (req: Request, res: Response) => {
     const data = await getAvailableScheduledJobs(req.user!.id);
     res.status(200).json({ success: true, data });
