@@ -33,7 +33,7 @@ function MarketplaceStorySection({
     <section id={id} className="py-20 bg-slate-50 border-b border-slate-200 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Text Content Column */}
+          
           <div className={`lg:col-span-6 space-y-6 text-left ${align === 'right' ? 'lg:order-2' : 'lg:order-1'}`}>
             <div className="space-y-2">
               <span className={`text-xs font-bold ${tagColor}`}>
@@ -69,7 +69,6 @@ function MarketplaceStorySection({
             </div>
           </div>
 
-          {/* Clean Rounded Image Column */}
           <div className={`lg:col-span-6 ${align === 'right' ? 'lg:order-1' : 'lg:order-2'}`}>
             <div className="h-80 sm:h-96 rounded-xl overflow-hidden border border-slate-200 shadow-md relative group">
               <img
