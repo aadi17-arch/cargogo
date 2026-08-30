@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useBooking } from '@/hooks/useBooking';
 import { useSocket, useSocketListener } from '@/hooks/useSocket';
+import { socketService } from '@/services/socket.service';
 import { bookingService } from '@/services/booking.service';
 import { paymentService } from '@/services/payment.service';
 import { toast } from 'react-hot-toast';
@@ -76,6 +77,41 @@ function TrackingPage() {
 
   useEffect(() => {
     fetchBooking();
+
+    let pollInterval: any = null;
+
+    const startFallbackPolling = () => {
+      if (!pollInterval) {
+        pollInterval = setInterval(() => {
+          fetchBooking();
+        }, 5000);
+      }
+    };
+
+    const stopFallbackPolling = () => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+    };
+
+    if (!socketService.isConnected) {
+      startFallbackPolling();
+    }
+
+    const onConnect = () => stopFallbackPolling();
+    const onDisconnect = () => startFallbackPolling();
+
+    socketService.on('connect', onConnect);
+    socketService.on('disconnect', onDisconnect);
+    socketService.on('connect_error', onDisconnect);
+
+    return () => {
+      stopFallbackPolling();
+      socketService.off('connect', onConnect);
+      socketService.off('disconnect', onDisconnect);
+      socketService.off('connect_error', onDisconnect);
+    };
   }, [bookingId]);
 
   useSocketListener('driver:location:update', (data: any) => {
