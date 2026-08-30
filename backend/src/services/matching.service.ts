@@ -11,7 +11,7 @@ export const findNearbyDrivers = async (
     const results: any[] = [];
 
     for (const n of nearby) {
-        const meta = await redis.hGetAll(`driver:meta:${n.driverId}`);
+        const meta = await redis.hgetall(`driver:meta:${n.driverId}`);
 
         if (meta && Object.keys(meta).length > 0) {
             results.push({
@@ -40,7 +40,7 @@ export const findNearbyDrivers = async (
                     userId: n.driverId
                 });
 
-                await redis.hSet(`driver:meta:${n.driverId}`, {
+                await redis.hset(`driver:meta:${n.driverId}`, {
                     name: profile.user.name,
                     phone: profile.user.phone || '',
                     vehicleType: profile.user.vehicle?.type || '',
