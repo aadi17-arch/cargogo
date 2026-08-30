@@ -4,11 +4,9 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { MapInstanceTracker } from './MapViewHelper';
 
-
 import { defaultPinIcon, driverCarDivIcon } from './mapPins';
 
 L.Marker.prototype.options.icon = defaultPinIcon;
-
 
 function MapReCenter({ center, zoom }: { center: [number, number]; zoom: number }) {
   const map = useMap();
