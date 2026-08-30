@@ -9,7 +9,6 @@ export default function NotFoundPage() {
   const { user, token, getProfile } = useAuth();
   const navigate = useNavigate();
 
-  
   useEffect(() => {
     if (token && !user) {
       getProfile()
