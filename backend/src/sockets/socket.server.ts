@@ -5,7 +5,7 @@ import { verifyAccessToken } from '@/utils/jwt';
 import { isBlacklisted } from '@/services/token-blacklist.service';
 import { env } from '@/config/env.config';
 import prisma from '@/config/database';
-import { createClient } from 'redis';
+import Redis from 'ioredis';
 import { createAdapter } from '@socket.io/redis-adapter';
 
 export const createSocketServer = (httpServer: HTTPServer) => {
@@ -20,15 +20,11 @@ export const createSocketServer = (httpServer: HTTPServer) => {
             credentials: true,
         },
     });
-    const pubClient = createClient({ url: env.REDIS_URL });
+    const pubClient = new Redis(env.REDIS_URL, { maxRetriesPerRequest: null });
     const subClient = pubClient.duplicate();
 
-    Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
-        io.adapter(createAdapter(pubClient, subClient));
-        console.log('Socket.io Redis adapter connected & configured successfully');
-    }).catch((e) => {
-        console.error('Socket.io redis adapter failed to connect:', e);
-    });
+    io.adapter(createAdapter(pubClient, subClient));
+    console.log('Socket.io Redis adapter connected & configured successfully');
 
     io.use(async (socket, next) => {
         try {
