@@ -151,6 +151,12 @@ function DriverDashboard() {
 
   const toggleOnline = async () => {
     if (isTogglingStatus) return;
+
+    if (isOnline && activeBookings.length > 0) {
+      toast.error('Cannot go offline while you have active shipments. Complete them first.');
+      return;
+    }
+
     setIsTogglingStatus(true);
 
     try {
@@ -305,7 +311,7 @@ function DriverDashboard() {
                 <button
                   type="button"
                   onClick={toggleOnline}
-                  disabled={isTogglingStatus || (isOnline && activeBookings.length > 0)}
+                  disabled={isTogglingStatus}
                   className="text-xs font-bold text-white bg-slate-950 hover:bg-slate-800 rounded-md px-2.5 py-1 transition-all cursor-pointer font-heading disabled:opacity-50 flex items-center gap-1.5"
                 >
                   {isTogglingStatus ? (
