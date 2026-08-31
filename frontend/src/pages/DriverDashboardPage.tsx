@@ -115,6 +115,20 @@ function DriverDashboard() {
     loadData();
   }, []);
 
+  const activeBookings = useMemo(() => {
+    return bookings.filter((b: any) => !['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status));
+  }, [bookings]);
+
+  const pastBookings = useMemo(() => {
+    return bookings.filter((b: any) => ['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status));
+  }, [bookings]);
+
+  useEffect(() => {
+    if (activeBookings.length === 0) {
+      setRouteData(null);
+    }
+  }, [activeBookings.length]);
+
   const handleCommitScheduledJob = async (bookingId: string) => {
     setCommittingJobId(bookingId);
     try {
@@ -225,9 +239,6 @@ function DriverDashboard() {
     try { await apiAcceptBooking(bookingId); setActiveTab('my_jobs'); await loadData(); }
     catch (err: any) { toast.error(err.message || 'Failed to accept shipment'); }
   };
-
-  const activeBookings = bookings.filter((b: any) => !['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status));
-  const pastBookings = bookings.filter((b: any) => ['COMPLETED', 'CANCELLED', 'DELIVERED'].includes(b.status));
 
   const mapCenter: [number, number] = driverCoords
     ? driverCoords
