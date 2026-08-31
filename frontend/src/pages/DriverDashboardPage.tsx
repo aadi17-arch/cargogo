@@ -33,6 +33,7 @@ function DriverDashboard() {
   const [activeTab, setActiveTab] = useState<'my_jobs' | 'jobs_board' | 'schedule' | 'past_jobs'>('my_jobs');
   const [routeData, setRouteData] = useState<VrpRouteResponse | null>(null);
   const [, setLoadingRoute] = useState(false);
+  const [isTogglingStatus, setIsTogglingStatus] = useState(false);
   const [driverCoords, setDriverCoords] = useState<[number, number] | null>(null);
   const [map, setMap] = useState<L.Map | null>(null);
   const [driverLocationName, setDriverLocationName] = useState<string>('Detecting...');
@@ -149,16 +150,41 @@ function DriverDashboard() {
   }, [bid]);
 
   const toggleOnline = async () => {
+    if (isTogglingStatus) return;
+    setIsTogglingStatus(true);
+
     try {
       if (!isOnline) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => { const { latitude, longitude } = position.coords; await updateStatus('ONLINE', latitude, longitude); },
-          (e) => toast.error('Location access is required to go online: ' + e.message)
-        );
+        let lat = driverCoords ? driverCoords[0] : 19.0760;
+        let lng = driverCoords ? driverCoords[1] : 72.8777;
+
+        if ('geolocation' in navigator) {
+          try {
+            const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject, {
+                enableHighAccuracy: true,
+                timeout: 5000,
+              });
+            });
+            lat = pos.coords.latitude;
+            lng = pos.coords.longitude;
+            setDriverCoords([lat, lng]);
+          } catch {
+            // Geolocation timeout or denied, using fallback/last known coords
+          }
+        }
+
+        await updateStatus('ONLINE', lat, lng);
+        toast.success('You are now Online and ready for jobs!');
       } else {
         await updateStatus('OFFLINE', 0, 0);
+        toast.success('You are now Offline.');
       }
-    } catch (err: any) { toast.error(err.message || 'Failed to update status'); }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update status');
+    } finally {
+      setIsTogglingStatus(false);
+    }
   };
   useEffect(() => {
     const sendRequestTimeToTime = () => {
@@ -279,10 +305,17 @@ function DriverDashboard() {
                 <button
                   type="button"
                   onClick={toggleOnline}
-                  disabled={isOnline && activeBookings.length > 0}
-                  className="text-xs font-bold text-white bg-slate-950 hover:bg-slate-800 rounded-md px-2.5 py-1 transition-all cursor-pointer font-heading disabled:opacity-50"
+                  disabled={isTogglingStatus || (isOnline && activeBookings.length > 0)}
+                  className="text-xs font-bold text-white bg-slate-950 hover:bg-slate-800 rounded-md px-2.5 py-1 transition-all cursor-pointer font-heading disabled:opacity-50 flex items-center gap-1.5"
                 >
-                  {isOnline ? 'Go Offline' : 'Go Online'}
+                  {isTogglingStatus ? (
+                    <>
+                      <span className="w-2 h-2 rounded-full border border-white border-t-transparent animate-spin inline-block" />
+                      Updating...
+                    </>
+                  ) : (
+                    isOnline ? 'Go Offline' : 'Go Online'
+                  )}
                 </button>
                 <div className="w-px h-4 bg-slate-200" />
                 <LocateFixed size={11} className="text-slate-400 shrink-0" />
