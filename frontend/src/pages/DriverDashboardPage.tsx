@@ -80,7 +80,7 @@ function DriverDashboard() {
     } catch (err: any) {
       toast.error('Failed to load jobs: ' + (err.message || 'Unknown error'));
     }
-  }, []);
+  }, [fetchMyBookings]);
 
   const loadScheduledJobs = useCallback(async () => {
     setLoadingScheduled(true);

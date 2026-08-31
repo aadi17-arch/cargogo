@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../store';
 import { bookingService } from '../services/booking.service';
@@ -31,12 +32,15 @@ export const useBooking = () => {
     }
   };
 
-  const fetchMyBookings = () =>
-    withLoading(async () => {
-      const data = await bookingService.getMyBookings();
-      dispatch(fetchBookingsSuccess(data));
-      return data;
-    }, 'Failed to fetch bookings');
+  const fetchMyBookings = useCallback(
+    () =>
+      withLoading(async () => {
+        const data = await bookingService.getMyBookings();
+        dispatch(fetchBookingsSuccess(data));
+        return data;
+      }, 'Failed to fetch bookings'),
+    [dispatch]
+  );
 
   const createBooking = (bookingData: CreateBookingRequest) =>
     withLoading(async () => {
@@ -53,14 +57,17 @@ export const useBooking = () => {
     }, 'Failed to cancel booking');
 
 
-  const fetchPendingBookings = async () => {
-    try {
-      return await bookingService.getPendingBookings();
-    } catch (err: any) {
-      dispatch(bookingFailure(getErrMsg(err, 'Failed to fetch pending bookings')));
-      throw err;
-    }
-  };
+  const fetchPendingBookings = useCallback(
+    async () => {
+      try {
+        return await bookingService.getPendingBookings();
+      } catch (err: any) {
+        dispatch(bookingFailure(getErrMsg(err, 'Failed to fetch pending bookings')));
+        return [];
+      }
+    },
+    [dispatch]
+  );
 
   const acceptBooking = async (id: string) => {
     try {
